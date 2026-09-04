@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { User, Building2, Package, FileText, Repeat, Pause, Play, Download, ExternalLink, CheckCircle } from 'lucide-react';
+import { User, Building2, Package, FileText, Repeat, Pause, Play, Download, ExternalLink, CheckCircle, Landmark, AlertCircle, RefreshCw, CheckCircle2, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { Order, Invoice, Subscription } from '../types';
 
 interface AccountPageProps {
@@ -9,29 +9,35 @@ interface AccountPageProps {
 
 export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   const { currentUser, accountType, setAccountType, switchUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'subscriptions' | 'invoices' | 'settings'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'subscriptions' | 'invoices' | 'payouts'>('orders');
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [payoutData, setPayoutData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTestingPipeline, setIsTestingPipeline] = useState(false);
+  const [pipelineTestResult, setPipelineTestResult] = useState<any>(null);
 
   const fetchAccountData = async () => {
     setIsLoading(true);
     try {
-      const [ordRes, invRes, subRes] = await Promise.all([
+      const [ordRes, invRes, subRes, payRes] = await Promise.all([
         fetch('/api/orders'),
         fetch('/api/invoices'),
         fetch('/api/subscriptions'),
+        fetch('/api/mollie/payouts/status'),
       ]);
-      const [ordData, invData, subData] = await Promise.all([
+      const [ordData, invData, subData, payData] = await Promise.all([
         ordRes.json(),
         invRes.json(),
         subRes.json(),
+        payRes.json(),
       ]);
       if (ordData.success) setOrders(ordData.data);
       if (invData.success) setInvoices(invData.data);
       if (subData.success) setSubscriptions(subData.data);
+      if (payData.success) setPayoutData(payData);
     } catch (e) {
       console.error(e);
     } finally {
@@ -42,6 +48,23 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   useEffect(() => {
     fetchAccountData();
   }, [currentUser]);
+
+  const handleRunPipelineTest = async () => {
+    setIsTestingPipeline(true);
+    setPipelineTestResult(null);
+    try {
+      const res = await fetch('/api/mollie/test-pipeline', { method: 'POST' });
+      const data = await res.json();
+      setPipelineTestResult(data);
+      if (data.success) {
+        fetchAccountData();
+      }
+    } catch (err: any) {
+      setPipelineTestResult({ success: false, error: err.message });
+    } finally {
+      setIsTestingPipeline(false);
+    }
+  };
 
   const toggleSubscriptionPause = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'actief' ? 'gepauzeerd' : 'actief';
@@ -140,6 +163,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           >
             <FileText className="w-4 h-4" />
             <span>Facturen & BTW ({invoices.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('payouts')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              activeTab === 'payouts'
+                ? 'bg-amber-900 text-white shadow-xs'
+                : 'text-stone-600 hover:bg-stone-100'
+            }`}
+          >
+            <Landmark className="w-4 h-4" />
+            <span>Uitbetalingen & Mollie (Payout Systeem)</span>
           </button>
         </div>
       </section>
@@ -377,6 +412,247 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* PAYOUTS & MOLLIE MANAGEMENT TAB */}
+        {activeTab === 'payouts' && (
+          <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-stone-900">
+                  Mollie Uitbetalingen & Payout Systeem
+                </h2>
+                <p className="text-xs text-stone-500 mt-1">
+                  Overzicht van uw geverifieerde betalingsgateway, automatische bankuitbetalingen en transactiekosten.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Mollie Gateway: Live & Operationeel</span>
+              </div>
+            </div>
+
+            {/* Merchant Details & Payout Balance */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs space-y-3">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-stone-400">
+                  Handelaarsprofiel
+                </span>
+                <div className="text-lg font-bold text-stone-900">Maison Milau</div>
+                <div className="text-xs text-stone-600 space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">KBO/BTW:</span>
+                    <span className="font-mono font-medium">BE 1041.542.844</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Organisatie:</span>
+                    <span className="font-mono font-medium">org_19611211</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Profiel ID:</span>
+                    <span className="font-mono font-medium">pfl_bXkNE5uroY</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Domein:</span>
+                    <span className="font-medium text-amber-900">maison-milau.be</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs space-y-3">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-stone-400">
+                  Verwerkt Transactievolume
+                </span>
+                <div className="text-2xl font-bold text-stone-900">
+                  €{payoutData?.settlementSummary?.grossTotal?.toFixed(2) || '0.00'}
+                </div>
+                <div className="text-xs text-stone-600 space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Betaalde bestellingen:</span>
+                    <span className="font-semibold">{payoutData?.settlementSummary?.processedOrdersCount || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Geschatte Mollie fee:</span>
+                    <span className="text-stone-700">€{payoutData?.settlementSummary?.estimatedMollieFees?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between pt-1 border-t border-stone-100 font-bold text-emerald-800">
+                    <span>Netto uitbetaalbaar:</span>
+                    <span>€{payoutData?.settlementSummary?.netPendingPayout?.toFixed(2) || '0.00'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs space-y-3">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-stone-400">
+                  Uitbetalingsinstellingen
+                </span>
+                <div className="text-lg font-bold text-stone-900">Automatische Bankoverboeking</div>
+                <div className="text-xs text-stone-600 space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Frequentie:</span>
+                    <span className="font-medium">Elke werkdag</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Minimum drempel:</span>
+                    <span className="font-medium">€5,00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-400">Valuta:</span>
+                    <span className="font-medium">EUR (€)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payout Checklist */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs space-y-4">
+              <h3 className="text-base font-semibold text-stone-900">
+                Uitbetalingscontrole & Vereisten (Mollie Compliance)
+              </h3>
+
+              <div className="divide-y divide-stone-100 text-xs">
+                {payoutData?.payoutChecklist?.map((item: any) => (
+                  <div key={item.id} className="py-3 flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 text-emerald-600">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-stone-900">{item.title}</div>
+                        <div className="text-stone-500 mt-0.5">{item.detail}</div>
+                      </div>
+                    </div>
+
+                    {item.dashboardLink && (
+                      <a
+                        href={item.dashboardLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-800 font-semibold shrink-0"
+                      >
+                        <span>Bekijk in Mollie</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Pipeline Test Tool */}
+            <div className="bg-stone-100/70 rounded-2xl border border-stone-200 p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-semibold text-stone-900">
+                    Live Betaling & Uitbetalingspijplijn Test
+                  </h3>
+                  <p className="text-xs text-stone-600 mt-0.5">
+                    Test in realtime of een betaling via de Mollie API kan worden aangemaakt en of alle webhooks en uitbetalingen correct zijn gekoppeld.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleRunPipelineTest}
+                  disabled={isTestingPipeline}
+                  className="bg-amber-900 hover:bg-amber-800 text-white px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-2 shadow-xs transition-colors shrink-0"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isTestingPipeline ? 'animate-spin' : ''}`} />
+                  <span>{isTestingPipeline ? 'Testen bij Mollie...' : 'Test Betalingspijplijn Nu'}</span>
+                </button>
+              </div>
+
+              {pipelineTestResult && (
+                <div className={`p-4 rounded-xl border text-xs space-y-2 ${
+                  pipelineTestResult.success
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : 'bg-red-50 border-red-200 text-red-900'
+                }`}>
+                  <div className="flex items-center gap-2 font-bold">
+                    {pipelineTestResult.success ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-red-700" />
+                    )}
+                    <span>{pipelineTestResult.message || pipelineTestResult.error}</span>
+                  </div>
+
+                  {pipelineTestResult.success && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-emerald-200/60 font-mono text-[11px]">
+                      <div>Transactie ID: <strong>{pipelineTestResult.testPaymentId}</strong></div>
+                      <div>Status: <strong>{pipelineTestResult.status}</strong> (Modus: {pipelineTestResult.mode})</div>
+                      {pipelineTestResult.checkoutUrl && (
+                        <div className="sm:col-span-2 pt-1 font-sans">
+                          <a
+                            href={pipelineTestResult.checkoutUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-emerald-800 underline font-semibold"
+                          >
+                            <span>Open test betaalscherm op Mollie.com</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Direct Mollie Dashboard Links */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs space-y-3">
+              <h3 className="text-base font-semibold text-stone-900">
+                Directe Koppelingen naar uw Mollie Beheerspaneel
+              </h3>
+              <p className="text-xs text-stone-500">
+                Beheer uw bankrekeningen, download fiscale overzichten (MT940/CODA) en pas uitbetalingsintervallen aan.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+                <a
+                  href="https://my.mollie.com/dashboard/org_19611211/settings/payouts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-200 flex items-center justify-between transition-colors text-xs font-medium text-stone-800"
+                >
+                  <span>Uitbetalingsschema</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
+                </a>
+
+                <a
+                  href="https://my.mollie.com/dashboard/org_19611211/settlements"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-200 flex items-center justify-between transition-colors text-xs font-medium text-stone-800"
+                >
+                  <span>Settlements & Facturen</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
+                </a>
+
+                <a
+                  href="https://my.mollie.com/dashboard/org_19611211/settings/bank-accounts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-200 flex items-center justify-between transition-colors text-xs font-medium text-stone-800"
+                >
+                  <span>IBAN Bankrekeningen</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
+                </a>
+
+                <a
+                  href="https://my.mollie.com/dashboard/org_19611211/payments"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-200 flex items-center justify-between transition-colors text-xs font-medium text-stone-800"
+                >
+                  <span>Live Betalingen Log</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
+                </a>
+              </div>
             </div>
           </div>
         )}

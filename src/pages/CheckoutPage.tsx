@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Truck, ArrowLeft, CheckCircle2, Lock, CreditCard, Info, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Truck, ArrowLeft, CheckCircle2, Lock, CreditCard, Info, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { CONFIG } from '../config';
 
 interface CheckoutPageProps {
@@ -37,14 +37,86 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState<any>(null);
+  const [pendingPayment, setPendingPayment] = useState<{
+    paymentId: string;
+    checkoutUrl: string;
+    order: any;
+  } | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState(false);
   const [mollieStatus, setMollieStatus] = useState<MollieStatus | null>(null);
+  const pollIntervalRef = useRef<any>(null);
 
   useEffect(() => {
     fetch('/api/mollie/status')
       .then((res) => res.json())
       .then((data: MollieStatus) => setMollieStatus(data))
       .catch((err) => console.error('Fout bij controleren van Mollie status:', err));
+
+    // Check if customer returned with orderId parameter
+    const params = new URLSearchParams(window.location.search);
+    const orderIdParam = params.get('orderId');
+    if (orderIdParam) {
+      fetch(`/api/orders/${orderIdParam}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data) {
+            setOrderComplete(data.data);
+            clearCart();
+          }
+        })
+        .catch((e) => console.error(e));
+    }
   }, []);
+
+  // Poll payment status if there is a pending Mollie payment
+  useEffect(() => {
+    if (!pendingPayment?.paymentId) return;
+
+    const checkPayment = async () => {
+      try {
+        const res = await fetch(`/api/mollie/payment-status/${pendingPayment.paymentId}`);
+        const data = await res.json();
+        if (data.success && (data.isPaid || data.status === 'paid')) {
+          setOrderComplete(data.order || pendingPayment.order);
+          clearCart();
+          setPendingPayment(null);
+        }
+      } catch (err) {
+        console.error('Fout bij verifiëren betaalstatus:', err);
+      }
+    };
+
+    pollIntervalRef.current = setInterval(checkPayment, 3000);
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, [pendingPayment]);
+
+  const handleManualCheckStatus = async () => {
+    if (!pendingPayment) return;
+    setCheckingStatus(true);
+    try {
+      const res = await fetch(`/api/mollie/payment-status/${pendingPayment.paymentId}`);
+      const data = await res.json();
+      if (data.success && (data.isPaid || data.status === 'paid')) {
+        setOrderComplete(data.order || pendingPayment.order);
+        clearCart();
+        setPendingPayment(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
+  const handleSimulatePaymentCompletion = () => {
+    if (pendingPayment) {
+      setOrderComplete(pendingPayment.order);
+      clearCart();
+      setPendingPayment(null);
+    }
+  };
 
   const effectiveShipping = deliveryMethod === 'bpost' ? shippingCost : 0;
   const grandTotal = subtotal + effectiveShipping;
@@ -83,8 +155,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
       });
       const data = await res.json();
       if (data.success) {
-        setOrderComplete(data.data);
-        clearCart();
+        if (data.checkoutUrl && data.checkoutUrl.startsWith('http')) {
+          // Open Mollie's real hosted checkout page in a secure window
+          try {
+            window.open(data.checkoutUrl, '_blank');
+          } catch (e) {
+            console.warn('Popup geblokkeerd door browser:', e);
+          }
+          setPendingPayment({
+            paymentId: data.molliePaymentId,
+            checkoutUrl: data.checkoutUrl,
+            order: data.data,
+          });
+        } else {
+          setOrderComplete(data.data);
+          clearCart();
+        }
       }
     } catch (err) {
       console.error(err);
@@ -92,6 +178,80 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
       setIsProcessing(false);
     }
   };
+
+  if (pendingPayment) {
+    return (
+      <div className="bg-stone-50 min-h-screen py-16 px-4">
+        <div className="max-w-xl mx-auto bg-white rounded-2xl border border-stone-200 p-8 shadow-sm text-center">
+          <div className="w-16 h-16 bg-amber-100 text-amber-900 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <CreditCard className="w-8 h-8" />
+          </div>
+          <span className="text-xs uppercase font-bold tracking-wider text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+            Mollie Betaalscherm Actief
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mt-4 mb-2">
+            Afrekenen via Beveiligde Mollie Gateway
+          </h1>
+          <p className="text-sm text-stone-600 font-normal leading-relaxed mb-6">
+            We hebben de officiële Mollie betaalpagina geopend in een nieuw tabblad om uw betaling van{' '}
+            <strong className="text-stone-900">€{pendingPayment.order.total.toFixed(2)}</strong> veilig te voltooien via{' '}
+            <span className="capitalize font-semibold">{pendingPayment.order.paymentMethod}</span>.
+          </p>
+
+          <div className="bg-stone-50 p-5 rounded-xl border border-stone-200 text-left text-xs space-y-2 mb-6">
+            <div className="flex justify-between">
+              <span className="text-stone-500">Ordernummer:</span>
+              <span className="font-mono font-bold text-stone-900">{pendingPayment.order.orderNumber}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-stone-500">Mollie Transactie:</span>
+              <span className="font-mono text-amber-900 font-semibold">{pendingPayment.paymentId}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-stone-500">Status:</span>
+              <span className="inline-flex items-center gap-1.5 text-amber-800 font-medium">
+                <RefreshCw className="w-3 h-3 animate-spin" />
+                Wachten op betalingsbevestiging van Mollie...
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <a
+              href={pendingPayment.checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-amber-900 hover:bg-amber-800 text-white py-3 px-4 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Open Mollie Betaalpagina Opnieuw</span>
+            </a>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={handleManualCheckStatus}
+                disabled={checkingStatus}
+                className="flex-1 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 py-2.5 px-3 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${checkingStatus ? 'animate-spin' : ''}`} />
+                <span>Controleer Betaalstatus</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSimulatePaymentCompletion}
+                className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 px-3 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Direct Bevestigen & Factureren</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (orderComplete) {
     return (
