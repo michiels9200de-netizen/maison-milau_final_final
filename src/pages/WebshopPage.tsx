@@ -3,6 +3,7 @@ import { SHOP_PRODUCTS } from '../data/shopData';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { ShoppingBag, ArrowRight, ExternalLink, Check, Sparkles, Filter, Tag } from 'lucide-react';
+import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
 interface WebshopPageProps {
   navigate: (path: string) => void;
@@ -64,25 +65,27 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   return (
     <div className="bg-stone-50 min-h-screen text-stone-800 pb-24">
       {/* Webshop Header */}
-      <section className="bg-white border-b border-stone-200 py-10">
+      <section className="bg-white border-b border-stone-200 py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-3 border border-amber-200/80">
                 <ShoppingBag className="w-3.5 h-3.5 text-amber-800" />
                 <span>Webshop · Snel & Eenvoudig Bestellen</span>
               </div>
-              <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-stone-900">
+              {/* H1: 48-64px, font-weight 700 */}
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900">
                 Artisanale Koffies & Accessoires
               </h1>
-              <p className="text-sm text-stone-600 mt-1 max-w-2xl">
+              {/* Body: 16-18px, font-weight 400, line-height 1.6 */}
+              <p className="text-base text-stone-600 font-normal leading-relaxed mt-2 max-w-2xl">
                 Vers gebrande micro-roastery koffies direct uit ons atelier te Oudegem. Vanaf €45 gratis verzonden met bpost.
               </p>
             </div>
 
             {/* Link back to Catalogus / PIS */}
             <div className="shrink-0 bg-stone-50 p-4 rounded-xl border border-stone-200 text-xs">
-              <div className="font-medium text-stone-800 mb-1">Liever eerst leren & vergelijken?</div>
+              <div className="font-semibold text-stone-800 mb-1">Liever eerst leren & vergelijken?</div>
               <button
                 onClick={() => navigate('/koffies')}
                 className="inline-flex items-center gap-1.5 text-amber-900 hover:text-amber-700 font-semibold underline"
@@ -94,7 +97,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           </div>
 
           {/* Promotions Notification Box */}
-          <div className="mt-8 bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div className="mt-8 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center shrink-0">
                 <Tag className="w-4 h-4" />
@@ -103,14 +106,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-900">
                   Promoties & Abonnementen
                 </span>
-                <p className="text-xs text-stone-700">
+                <p className="text-xs text-stone-700 mt-0.5">
                   Check deze pagina regelmatig voor speciale promoties en kortingen. Geniet standaard van <strong>10% korting</strong> op alle doorlopende koffie-abonnementen.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setSelectedCategory('subscriptions')}
-              className="shrink-0 text-xs bg-amber-900 hover:bg-amber-800 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
+              className="shrink-0 text-xs bg-amber-900 hover:bg-amber-800 text-white px-3 py-2 rounded-lg font-semibold transition-colors"
             >
               Bekijk Abonnementen
             </button>
@@ -122,7 +125,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                   selectedCategory === cat.id
                     ? 'bg-stone-900 text-white shadow-xs'
                     : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
@@ -173,19 +176,33 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     </span>
                   </div>
 
+                  {/* Product Visual Placeholder */}
+                  <div className="mb-4">
+                    <MediaPlaceholder
+                      type="image"
+                      badgeText="Productfoto"
+                      title={product.name}
+                      subtitle={`Artisanale verpakking (${currentWeight}) met aromaventiel`}
+                      recommendedSize="800 × 600 (4:3)"
+                      aspectRatio="video"
+                      className="min-h-[140px]"
+                    />
+                  </div>
+
                   {/* Product Visual Title */}
                   <div className="mb-3">
-                    <h3 className="font-serif text-xl font-bold text-stone-900">
+                    {/* H3: 24-28px, font-weight 600 */}
+                    <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
                       {product.name}
                     </h3>
-                    <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                    <p className="text-sm text-stone-500 mt-1 leading-relaxed">
                       {product.shortDescription}
                     </p>
                   </div>
 
                   {/* Weight Selector */}
                   <div className="mb-4">
-                    <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider mb-1.5">
+                    <div className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
                       Verpakking / Formaat:
                     </div>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -211,7 +228,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   {/* Grind Selector (If applicable) */}
                   {product.grindOptions.length > 1 && (
                     <div className="mb-4">
-                      <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider mb-1.5">
+                      <div className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
                         Maalgraad:
                       </div>
                       <div className="flex gap-2">
@@ -221,7 +238,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                             onClick={() =>
                               setSelectedGrind({ ...selectedGrind, [product.id]: grind })
                             }
-                            className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition-colors ${
+                            className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold border transition-colors ${
                               currentGrind === grind
                                 ? 'bg-stone-900 text-white border-stone-900'
                                 : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
@@ -239,7 +256,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     <div className="mb-4">
                       <button
                         onClick={() => navigate('/koffies')}
-                        className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-700 font-medium underline"
+                        className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-700 font-semibold underline"
                       >
                         <span>View detailed coffee information</span>
                         <ExternalLink className="w-3 h-3" />
@@ -251,8 +268,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 {/* Bottom Action: Price & Add to Cart */}
                 <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
                   <div>
-                    <div className="text-[10px] uppercase tracking-wider text-stone-400">Prijs</div>
-                    <div className="text-lg font-bold text-stone-900">
+                    <div className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">Prijs</div>
+                    <div className="text-xl font-bold text-stone-900">
                       €{currentVariant.price.toFixed(2)}
                     </div>
                   </div>

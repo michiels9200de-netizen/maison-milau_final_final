@@ -61,10 +61,11 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({ navigate }) =>
               <Calendar className="w-3.5 h-3.5 text-amber-800" />
               <span>Atelier Bezoek & Proeverijen</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-stone-900 mb-4">
+            {/* H1: 48-64px, font-weight 700 */}
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900 mb-4">
               Afspraakplanner Atelier
             </h1>
-            <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
+            <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed">
               Bezoek ons atelier in Oudegem (Dendermonde). Proef onze nieuwste brandbatches, stel je eigen huisblend samen of ontdek onze machine- en kantoorformules.
             </p>
           </div>

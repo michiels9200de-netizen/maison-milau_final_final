@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Truck, ArrowLeft, CheckCircle2, Lock, CreditCard } from 'lucide-react';
+import { ShieldCheck, Truck, ArrowLeft, CheckCircle2, Lock, CreditCard, Info, AlertCircle } from 'lucide-react';
 import { CONFIG } from '../config';
 
 interface CheckoutPageProps {
   navigate: (path: string) => void;
+}
+
+interface MollieStatus {
+  configured: boolean;
+  mode: 'live' | 'test' | 'simulation';
+  isKeyValidFormat: boolean;
+  profileIdConfigured: boolean;
+  maskedKey: string | null;
+  message: string;
+  supportedMethods: Array<{ id: string; name: string; country: string; status: string }>;
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
@@ -27,6 +37,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState<any>(null);
+  const [mollieStatus, setMollieStatus] = useState<MollieStatus | null>(null);
+
+  useEffect(() => {
+    fetch('/api/mollie/status')
+      .then((res) => res.json())
+      .then((data: MollieStatus) => setMollieStatus(data))
+      .catch((err) => console.error('Fout bij controleren van Mollie status:', err));
+  }, []);
 
   const effectiveShipping = deliveryMethod === 'bpost' ? shippingCost : 0;
   const grandTotal = subtotal + effectiveShipping;
@@ -82,13 +100,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
           <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <span className="text-xs uppercase font-bold tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full">
+          <span className="text-xs uppercase font-bold tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
             Betaling via Mollie geslaagd
           </span>
-          <h1 className="font-serif text-3xl font-bold text-stone-900 mt-4 mb-2">
+          {/* H1: 48-64px / 32-40px font-weight 700 */}
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 mt-4 mb-2">
             Bedankt voor uw bestelling!
           </h1>
-          <p className="text-stone-600 text-sm mb-6">
+          {/* Body: 16-18px font-weight 400 */}
+          <p className="text-base text-stone-600 font-normal leading-relaxed mb-6">
             We hebben uw bestelling ontvangen en sturen u een bevestiging naar{' '}
             <strong>{orderComplete.customerEmail}</strong>. Onze brander bereidt uw bonen vers voor.
           </p>
@@ -121,13 +141,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => navigate('/account')}
-              className="bg-amber-900 hover:bg-amber-800 text-white px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors"
+              className="bg-amber-900 hover:bg-amber-800 text-white px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
             >
               Naar Mijn Account & Facturen
             </button>
             <button
               onClick={() => navigate('/webshop')}
-              className="bg-stone-100 hover:bg-stone-200 text-stone-800 px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors"
+              className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors"
             >
               Verder Winkelen
             </button>
@@ -138,42 +158,46 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   }
 
   return (
-    <div className="bg-stone-50 min-h-screen text-stone-800 py-10 pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="bg-stone-50 min-h-screen text-stone-800 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <button
           onClick={() => navigate('/webshop')}
-          className="inline-flex items-center gap-2 text-xs text-stone-500 hover:text-stone-900 mb-6"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-stone-600 hover:text-stone-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Terug naar de webshop</span>
         </button>
 
-        <h1 className="font-serif text-3xl font-bold text-stone-900 mb-8">
-          Afrekenen & Beveiligde Betaling
+        {/* H1: 48-64px / 32-40px, font-weight 700 */}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 mb-8">
+          Afrekenen & Betaling
         </h1>
 
         {items.length === 0 ? (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
-            <p className="text-stone-600 mb-4">Er bevinden zich geen artikelen in uw winkelmand.</p>
+            <p className="text-base text-stone-600 font-normal mb-4">Uw winkelwagen is momenteel leeg.</p>
             <button
               onClick={() => navigate('/webshop')}
-              className="bg-amber-900 text-white px-6 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider"
+              className="bg-amber-900 text-white px-6 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider shadow-xs"
             >
-              Naar Webshop
+              Bekijk Koffie Aanbod
             </button>
           </div>
         ) : (
-          <form onSubmit={handleProcessOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left: Customer & Shipping Details */}
+          <form onSubmit={handleProcessOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Form details */}
             <div className="lg:col-span-7 space-y-6">
-              {/* Delivery method selection */}
-              <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs">
-                <h2 className="font-serif text-lg font-semibold text-stone-900 mb-4">
-                  1. Levering & Afhaling
+              {/* Delivery Method Selection */}
+              <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs space-y-4">
+                {/* H2: 32-40px / 20-24px, font-weight 600 */}
+                <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+                  1. Kies uw Levermethode
                 </h2>
-                <div className="space-y-3">
+
+                <div className="space-y-3 text-xs">
+                  {/* Option 1: bpost */}
                   <label
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
+                    className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
                       deliveryMethod === 'bpost'
                         ? 'border-amber-900 bg-amber-50/50'
                         : 'border-stone-200 hover:bg-stone-50'
@@ -186,19 +210,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       onChange={() => setDeliveryMethod('bpost')}
                       className="accent-amber-900 mt-1"
                     />
-                    <div className="flex-1 text-xs">
+                    <div className="flex-1">
                       <div className="flex justify-between font-semibold text-stone-900">
-                        <span>bpost Thuisbezorging (België)</span>
+                        <span>bpost Thuislevering</span>
                         <span>{shippingCost === 0 ? 'Gratis' : `€${shippingCost.toFixed(2)}`}</span>
                       </div>
                       <p className="text-stone-500 mt-0.5">
-                        Binnen 1-2 weken na verse branding met Track & Trace (Gratis vanaf €45)
+                        Binnen 2-3 werkdagen bezorgd met trackingcode. Gratis vanaf €45 bestelwaarde.
                       </p>
                     </div>
                   </label>
 
+                  {/* Option 2: Atelier afhaling */}
                   <label
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
+                    className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
                       deliveryMethod === 'atelier'
                         ? 'border-amber-900 bg-amber-50/50'
                         : 'border-stone-200 hover:bg-stone-50'
@@ -211,19 +236,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       onChange={() => setDeliveryMethod('atelier')}
                       className="accent-amber-900 mt-1"
                     />
-                    <div className="flex-1 text-xs">
+                    <div className="flex-1">
                       <div className="flex justify-between font-semibold text-stone-900">
-                        <span>Gratis Afhalen in het Atelier te Oudegem</span>
-                        <span className="text-emerald-700">Gratis</span>
+                        <span>Gratis Afhalen in Atelier Maison Milau</span>
+                        <span className="text-emerald-700 font-bold">Gratis</span>
                       </div>
                       <p className="text-stone-500 mt-0.5">
-                        Jef Scheirsstraat 29, 9200 Oudegem (Ma-Za: 09:00 - 18:00 op afspraak)
+                        Jef Scheirsstraat 29, 9200 Oudegem (Dendermonde). Klaar binnen 24 uur na bestelling.
                       </p>
                     </div>
                   </label>
 
+                  {/* Option 3: Markt afhaling */}
                   <label
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
+                    className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
                       deliveryMethod === 'markt'
                         ? 'border-amber-900 bg-amber-50/50'
                         : 'border-stone-200 hover:bg-stone-50'
@@ -236,19 +262,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       onChange={() => setDeliveryMethod('markt')}
                       className="accent-amber-900 mt-1"
                     />
-                    <div className="flex-1 text-xs">
+                    <div className="flex-1">
                       <div className="flex justify-between font-semibold text-stone-900">
                         <span>Gratis Afhalen op de Wekelijkse Markt</span>
-                        <span className="text-emerald-700">Gratis</span>
+                        <span className="text-emerald-700 font-bold">Gratis</span>
                       </div>
                       <p className="text-stone-500 mt-0.5">
-                        Dendermonde (ma), Wetteren (do) of Aalst (za)
+                        Afhalen bij onze vaste marktwagen in Dendermonde, Wetteren of Aalst.
                       </p>
+
                       {deliveryMethod === 'markt' && (
                         <select
                           value={marketLocation}
                           onChange={(e) => setMarketLocation(e.target.value)}
-                          className="mt-2 w-full p-2 bg-white border border-stone-300 rounded-lg text-xs"
+                          className="mt-2 w-full p-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-800"
                         >
                           <option>Dendermonde (Maandagochtend)</option>
                           <option>Wetteren (Donderdagochtend)</option>
@@ -262,7 +289,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
               {/* Customer Contact & Address */}
               <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs text-xs space-y-4">
-                <h2 className="font-serif text-lg font-semibold text-stone-900">
+                {/* H2: 32-40px / 20-24px, font-weight 600 */}
+                <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
                   2. Uw Gegevens & Verzendadres
                 </h2>
 
@@ -274,7 +302,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                     />
                   </div>
 
@@ -285,7 +313,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                     />
                   </div>
                 </div>
@@ -298,7 +326,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                     />
                   </div>
 
@@ -310,7 +338,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         required
                         value={formData.street}
                         onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                        className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                        className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                       />
                     </div>
                     <div>
@@ -320,7 +348,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         required
                         value={formData.houseNumber}
                         onChange={(e) => setFormData({ ...formData, houseNumber: e.target.value })}
-                        className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                        className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                       />
                     </div>
                   </div>
@@ -334,7 +362,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       required
                       value={formData.postalCode}
                       onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                     />
                   </div>
                   <div>
@@ -344,17 +372,39 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       required
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-800 focus:outline-none text-xs"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Payment Methods (Mollie) */}
+              {/* Payment Methods (Mollie Integration) */}
               <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs text-xs space-y-4">
-                <h2 className="font-serif text-lg font-semibold text-stone-900">
-                  3. Betaalmethode (via Mollie)
-                </h2>
+                <div className="flex items-center justify-between">
+                  {/* H2: 32-40px / 20-24px, font-weight 600 */}
+                  <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+                    3. Betaalmethode (via Mollie)
+                  </h2>
+                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    Mollie PSP Beveiligd
+                  </span>
+                </div>
+
+                {/* Mollie Gateway Verification Card */}
+                {mollieStatus && (
+                  <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-start gap-2.5 text-stone-700">
+                    <Info className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-stone-900 text-xs">
+                        Mollie Gateway Status: {mollieStatus.mode === 'live' ? 'Productie (Live)' : mollieStatus.mode === 'test' ? 'Testmodus' : 'Simulatie / Sandbox'}
+                      </div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">
+                        {mollieStatus.message}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-3">
                   <label
                     className={`p-3 rounded-xl border text-center cursor-pointer transition-colors ${
@@ -416,7 +466,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
             {/* Right: Order Summary */}
             <div className="lg:col-span-5">
               <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs space-y-4 sticky top-24">
-                <h2 className="font-serif text-lg font-semibold text-stone-900 pb-3 border-b border-stone-100">
+                {/* H2: 32-40px / 20-24px, font-weight 600 */}
+                <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 pb-3 border-b border-stone-100">
                   Overzicht Bestelling
                 </h2>
 
@@ -442,11 +493,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 <div className="pt-3 border-t border-stone-200 text-xs space-y-2 text-stone-600">
                   <div className="flex justify-between">
                     <span>Subtotaal</span>
-                    <span className="font-medium text-stone-900">€{subtotal.toFixed(2)}</span>
+                    <span className="font-semibold text-stone-900">€{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Verzendkosten</span>
-                    <span className="font-medium text-stone-900">
+                    <span className="font-semibold text-stone-900">
                       {effectiveShipping === 0 ? 'Gratis' : `€${effectiveShipping.toFixed(2)}`}
                     </span>
                   </div>

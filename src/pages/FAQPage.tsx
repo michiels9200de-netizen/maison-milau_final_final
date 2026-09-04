@@ -199,10 +199,11 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
               <HelpCircle className="w-3.5 h-3.5 text-amber-800" />
               <span>Klantenservice & Veelgestelde Vragen</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-stone-900 mb-4">
+            {/* H1: 48-64px, font-weight 700 */}
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900 mb-4">
               Hoe kunnen we je helpen?
             </h1>
-            <p className="text-stone-600 leading-relaxed text-sm sm:text-base mb-6">
+            <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed mb-6">
               Vind snel antwoord op al je vragen over onze brandplanning, leveringen, apparatuur-lease en private labeling.
             </p>
 
@@ -267,10 +268,10 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
               return (
                 <div key={section.id} className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 shadow-2xs">
                   <div className="mb-6">
-                    <h2 className="font-serif text-xl font-bold text-stone-900">
+                    <h2 className="text-2xl font-bold tracking-tight text-stone-900">
                       {section.category}
                     </h2>
-                    <p className="text-xs text-stone-500 mt-1">{section.intro}</p>
+                    <p className="text-sm text-stone-500 mt-1">{section.intro}</p>
                   </div>
 
                   <div className="space-y-3">
@@ -323,7 +324,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
             {/* Direct Contact Prompt */}
             <div id="contact" className="bg-stone-900 text-stone-100 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <h3 className="font-serif text-xl font-semibold text-white mb-1">
+                <h3 className="text-2xl font-semibold tracking-tight text-white mb-1">
                   Nog een specifieke vraag?
                 </h3>
                 <p className="text-xs text-stone-300">
@@ -362,7 +363,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
               <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center mb-3">
                 <Package className="w-5 h-5" />
               </div>
-              <h2 className="font-serif text-2xl font-semibold text-stone-900">
+              <h2 className="text-3xl font-semibold tracking-tight text-stone-900">
                 Track & Trace Zending
               </h2>
               <p className="text-xs text-stone-500 mt-1">
@@ -421,7 +422,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
               <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-900 flex items-center justify-center mb-3">
                 <AlertCircle className="w-5 h-5" />
               </div>
-              <h2 className="font-serif text-2xl font-semibold text-stone-900">
+              <h2 className="text-3xl font-semibold tracking-tight text-stone-900">
                 Support & Klachten Portaal
               </h2>
               <p className="text-xs text-stone-500 mt-1">

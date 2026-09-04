@@ -92,11 +92,11 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
           onClick={() => handleNavClick('/')}
           className="cursor-pointer flex items-center gap-3 select-none"
         >
-          <div className="w-10 h-10 rounded-full bg-stone-900 text-amber-100 flex items-center justify-center font-serif font-bold text-lg shadow-xs">
+          <div className="w-10 h-10 rounded-full bg-stone-900 text-amber-100 flex items-center justify-center font-bold text-lg shadow-xs">
             M
           </div>
           <div>
-            <div className="font-serif font-bold text-xl tracking-tight text-stone-900 uppercase">
+            <div className="font-bold text-xl tracking-tight text-stone-900 uppercase">
               Maison Milau
             </div>
             <div className="text-[10px] tracking-widest text-stone-500 uppercase font-medium">
@@ -236,7 +236,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {/* My Account */}
             <button
               onClick={() => handleNavClick('/account')}
-              className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
               <span>My Account ({accountType === 'professioneel' ? 'Professioneel' : 'Particulier'})</span>
               <User className="w-5 h-5 text-stone-500" />
@@ -246,7 +246,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             <div>
               <button
                 onClick={() => setIsWebshopSubmenuOpen(!isWebshopSubmenuOpen)}
-                className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+                className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
               >
                 <span>Webshop</span>
                 <ChevronDown
@@ -307,7 +307,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {/* Catalogus (Product Information System) */}
             <button
               onClick={() => handleNavClick('/koffies')}
-              className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
               <span>Onze Koffies (Catalogus & Herkomst)</span>
               <Coffee className="w-5 h-5 text-stone-500" />
@@ -316,7 +316,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {/* Kantoor en Horeca */}
             <button
               onClick={() => handleNavClick('/kantoor-en-horeca')}
-              className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
               <span>Kantoor en Horeca</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
@@ -325,7 +325,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {/* Events */}
             <button
               onClick={() => handleNavClick('/events')}
-              className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
               <span>Events</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
@@ -334,7 +334,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {/* FAQ */}
             <button
               onClick={() => handleNavClick('/faq')}
-              className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
               <span>FAQ</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
@@ -343,7 +343,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {/* Over ons */}
             <button
               onClick={() => handleNavClick('/over-ons')}
-              className="w-full text-left py-2 font-serif text-lg font-medium text-stone-900 flex items-center justify-between border-b border-stone-200"
+              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
               <span>Over ons</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />

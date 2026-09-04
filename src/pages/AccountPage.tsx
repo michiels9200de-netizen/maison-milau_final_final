@@ -67,7 +67,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
               <User className="w-3.5 h-3.5 text-amber-900" />
               <span>Klantenportaal · Maison Milau</span>
             </div>
-            <h1 className="font-serif text-3xl font-bold text-stone-900">
+            <h1 className="text-3xl font-bold tracking-tight text-stone-900">
               Welkom terug, {currentUser?.name}
             </h1>
             <p className="text-xs text-stone-500 mt-1">
@@ -149,7 +149,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         {/* ORDERS TAB */}
         {activeTab === 'orders' && (
           <div className="space-y-6">
-            <h2 className="font-serif text-xl font-bold text-stone-900">
+            <h2 className="text-xl font-bold tracking-tight text-stone-900">
               Bestelgeschiedenis & Track & Trace
             </h2>
 
@@ -229,7 +229,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="font-serif text-xl font-bold text-stone-900">
+                <h2 className="text-xl font-bold tracking-tight text-stone-900">
                   Mijn Koffie-Abonnementen (-10% korting)
                 </h2>
                 <p className="text-xs text-stone-500 mt-0.5">
@@ -258,7 +258,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                   >
                     <div>
                       <div className="flex justify-between items-start mb-3">
-                        <span className="font-serif font-bold text-lg text-stone-900">
+                        <span className="font-bold tracking-tight text-lg text-stone-900">
                           {sub.productName}
                         </span>
                         <span
@@ -318,7 +318,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="font-serif text-xl font-bold text-stone-900">
+                <h2 className="text-xl font-bold tracking-tight text-stone-900">
                   Facturen & Fiscale Documenten
                 </h2>
                 <p className="text-xs text-stone-500 mt-0.5">

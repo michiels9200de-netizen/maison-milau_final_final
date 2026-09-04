@@ -16,7 +16,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
             <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">
               Atelier Maison Milau
             </div>
-            <h3 className="font-serif text-2xl sm:text-3xl text-stone-100 font-medium">
+            <h3 className="text-2xl sm:text-3xl text-stone-100 font-bold tracking-tight">
               MAISON MILAU
             </h3>
             <p className="text-sm text-stone-400 mt-1">
@@ -29,14 +29,14 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
               href={CONFIG.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
               <span>WhatsApp Ons</span>
             </a>
             <button
               onClick={() => navigate('/afspraakplanner')}
-              className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-4 py-2.5 rounded-lg text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
             >
               <Calendar className="w-4 h-4" />
               <span>Plan een bezoek</span>
@@ -48,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12 text-sm">
           {/* Column 1: Over Atelier & Bedrijfsgegevens */}
           <div>
-            <h4 className="font-serif text-stone-100 font-semibold mb-3">
+            <h4 className="text-stone-100 font-semibold mb-3">
               Ambachtelijke Koffiebranderij
             </h4>
             <p className="text-xs text-stone-400 leading-relaxed mb-4">
@@ -96,7 +96,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
 
           {/* Column 2: Atelier & Contact */}
           <div>
-            <h4 className="font-serif text-stone-100 font-semibold mb-3">
+            <h4 className="text-stone-100 font-semibold mb-3">
               Atelier & Contact
             </h4>
             <ul className="text-xs space-y-3 text-stone-400">
@@ -143,7 +143,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
 
           {/* Column 3: Lokale Markten */}
           <div>
-            <h4 className="font-serif text-stone-100 font-semibold mb-3">
+            <h4 className="text-stone-100 font-semibold mb-3">
               Lokale Markten
             </h4>
             <p className="text-xs text-stone-400 leading-relaxed mb-3">
@@ -167,7 +167,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
 
           {/* Column 4: Sitemap & Formules */}
           <div>
-            <h4 className="font-serif text-stone-100 font-semibold mb-3">
+            <h4 className="text-stone-100 font-semibold mb-3">
               Sitemap & Formules
             </h4>
             <ul className="space-y-2 text-xs text-stone-400">

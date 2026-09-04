@@ -231,6 +231,7 @@ let supportTickets: any[] = [
 
 // 1. App Configuration & Environment Variables
 app.get('/api/config', (req: Request, res: Response) => {
+  const apiKey = process.env.MOLLIE_API_KEY || '';
   res.json({
     siteUrl: process.env.SITE_URL || 'https://maisonmilau.be',
     loginUrl: process.env.LOGIN_URL || '/account/login',
@@ -239,7 +240,39 @@ app.get('/api/config', (req: Request, res: Response) => {
     supportEmail: process.env.SUPPORT_EMAIL || 'Maison-milau@gmail.com',
     vatNumber: 'BE 1041.542.844',
     mollieAvailable: true,
+    mollieMode: apiKey.startsWith('live_') ? 'live' : apiKey.startsWith('test_') ? 'test' : 'simulation',
     mollieMethods: ['bancontact', 'ideal', 'creditcard', 'applepay', 'wero', 'cartesbancaires'],
+  });
+});
+
+// Mollie Keys Verification & Status Endpoint
+app.get('/api/mollie/status', (req: Request, res: Response) => {
+  const apiKey = process.env.MOLLIE_API_KEY || '';
+  const profileId = process.env.MOLLIE_PROFILE_ID || '';
+  const isKeySet = Boolean(apiKey && apiKey.trim().length > 0 && !apiKey.includes('your_mollie'));
+  const isTestMode = apiKey.startsWith('test_');
+  const isLiveMode = apiKey.startsWith('live_');
+  const isKeyValidFormat = (isTestMode || isLiveMode) && apiKey.length >= 30;
+
+  res.json({
+    configured: isKeySet,
+    mode: isLiveMode ? 'live' : isTestMode ? 'test' : 'simulation',
+    isKeyValidFormat,
+    profileIdConfigured: Boolean(profileId && profileId.startsWith('pfl_')),
+    maskedKey: isKeySet ? `${apiKey.slice(0, 8)}...${apiKey.slice(-4)}` : null,
+    supportedMethods: [
+      { id: 'bancontact', name: 'Bancontact', country: 'BE', status: 'available' },
+      { id: 'ideal', name: 'iDEAL', country: 'NL', status: 'available' },
+      { id: 'creditcard', name: 'Kredietkaart (Visa / Mastercard)', country: 'GLOBAL', status: 'available' },
+      { id: 'applepay', name: 'Apple Pay', country: 'GLOBAL', status: 'available' },
+      { id: 'wero', name: 'Wero', country: 'EU', status: 'available' },
+      { id: 'cartesbancaires', name: 'Cartes Bancaires', country: 'FR', status: 'available' },
+    ],
+    message: isLiveMode
+      ? 'Mollie is geconfigureerd in Live Productiemodus (Echte betalingen).'
+      : isTestMode
+      ? 'Mollie is geconfigureerd in Testmodus (Veilige testbetalingen via Bancontact/iDEAL).'
+      : 'Mollie draait in veilige lokale simulatie. Vul MOLLIE_API_KEY in .env in voor directe koppeling.',
   });
 });
 

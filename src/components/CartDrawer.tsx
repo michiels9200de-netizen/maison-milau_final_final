@@ -42,7 +42,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
           {/* Header */}
           <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-stone-50">
             <div>
-              <h2 className="font-serif text-xl font-semibold text-stone-900">
+              <h2 className="text-xl font-bold tracking-tight text-stone-900">
                 Winkelwagen
               </h2>
               <p className="text-xs text-stone-500">

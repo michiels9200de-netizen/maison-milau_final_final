@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CATALOG_ITEMS } from '../data/catalogData';
 import { CoffeeCatalogItem } from '../types';
 import { Coffee, ArrowRight, Check, SlidersHorizontal, Scale, Award, Info, X } from 'lucide-react';
+import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
 interface CatalogPageProps {
   navigate: (path: string) => void;
@@ -58,17 +59,19 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
   return (
     <div className="bg-stone-50 min-h-screen text-stone-800 pb-24">
       {/* Header Banner */}
-      <section className="bg-white border-b border-stone-200 py-12">
+      <section className="bg-white border-b border-stone-200 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-amber-200/60">
               <Info className="w-3.5 h-3.5" />
               <span>Product Informatie Systeem (PIS) · Educatie & Terroir</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-stone-900 mb-4">
+            {/* H1: 48-64px, font-weight 700 */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">
               Onze Koffies
             </h1>
-            <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
+            {/* Body: 16-18px, font-weight 400, line-height 1.6 */}
+            <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed">
               Deze catalogus is ingericht om te ontdekken, leren en vergelijken. Hier vindt u gedetailleerde informatie over brandprofielen, SCA cupping scores, origines en smaaknotities.
             </p>
           </div>
@@ -92,7 +95,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                 <button
                   key={t.id}
                   onClick={() => setSelectedType(t.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     selectedType === t.id
                       ? 'bg-stone-900 text-white shadow-xs'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -110,7 +113,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
               <button
                 key={col.id}
                 onClick={() => setSelectedCollection(col.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   selectedCollection === col.id
                     ? 'bg-amber-900 text-amber-50 shadow-xs'
                     : 'bg-white border border-stone-300 text-stone-700 hover:border-stone-400'
@@ -127,10 +130,10 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="mb-6 flex items-center justify-between text-xs text-stone-500">
           <div>
-            Toont <strong className="text-stone-800">{filteredItems.length}</strong> koffieprofielen
+            Toont <strong className="text-stone-800">{filteredItems.length}</strong> koffieprofielen met productcontainers
           </div>
           {compareList.length > 0 && (
-            <div className="text-amber-900 font-medium">
+            <div className="text-amber-900 font-semibold">
               {compareList.length} geselecteerd voor vergelijking
             </div>
           )}
@@ -156,18 +159,32 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-xl font-bold text-stone-900 mb-1">
+                  {/* FOTO BIJ ELK PRODUCT IN DE CATALOGUS (MediaPlaceholder) */}
+                  <div className="mb-4">
+                    <MediaPlaceholder
+                      type="image"
+                      badgeText="Productverpakking"
+                      title={coffee.name}
+                      subtitle={`${coffee.collection} · ${coffee.type}`}
+                      recommendedSize="800 × 800 (1:1 Vierkant)"
+                      aspectRatio="square"
+                      className="min-h-[160px] border-stone-200"
+                    />
+                  </div>
+
+                  {/* H3: 24-28px font-weight 600 */}
+                  <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1">
                     {coffee.name}
                   </h3>
 
                   <div className="text-xs text-stone-500 mb-4">
                     Type: <span className="font-medium text-stone-700">{coffee.type}</span> ·{' '}
-                    <span className="text-amber-800 font-medium">{coffee.retailPriceGuide}</span>
+                    <span className="text-amber-800 font-semibold">{coffee.retailPriceGuide}</span>
                   </div>
 
                   {/* Flavors Chips */}
                   <div className="mb-4">
-                    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-medium mb-1.5">
+                    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold mb-1.5">
                       Smaakprofiel
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -184,7 +201,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
 
                   {/* Character & Terroir */}
                   <div className="mb-4">
-                    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-medium mb-1">
+                    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold mb-1">
                       Karakter
                     </div>
                     <p className="text-xs text-stone-600 leading-relaxed">
@@ -194,7 +211,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
 
                   {/* Bean Breakdown */}
                   <div className="mb-4 p-3 bg-stone-50 rounded-xl border border-stone-200/80 text-xs">
-                    <div className="font-medium text-stone-800 mb-1">Samenstelling & Origine:</div>
+                    <div className="font-semibold text-stone-800 mb-1">Samenstelling & Origine:</div>
                     <div className="text-stone-600 leading-relaxed font-mono text-[11px]">
                       {coffee.beanSelection}
                     </div>
@@ -226,9 +243,9 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
 
                   <button
                     onClick={() => toggleCompare(coffee)}
-                    className={`w-full py-2 px-3 rounded-lg text-xs font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-semibold border transition-colors flex items-center justify-center gap-1.5 ${
                       isComparing
-                        ? 'bg-amber-50 border-amber-400 text-amber-950 font-semibold'
+                        ? 'bg-amber-50 border-amber-400 text-amber-950'
                         : 'border-stone-300 text-stone-600 hover:bg-stone-50'
                     }`}
                   >
@@ -249,13 +266,13 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
             <div className="flex items-center justify-between mb-4 border-b border-stone-200 pb-3">
               <div className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-amber-800" />
-                <h3 className="font-serif text-lg font-semibold text-stone-900">
+                <h3 className="text-lg font-bold text-stone-900">
                   Koffievergelijking ({compareList.length} van 3 geselecteerd)
                 </h3>
               </div>
               <button
                 onClick={() => setCompareList([])}
-                className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1"
+                className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1 font-semibold"
               >
                 <X className="w-4 h-4" />
                 <span>Sluit vergelijker</span>
@@ -266,7 +283,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
               {compareList.map((item) => (
                 <div key={item.id} className="bg-stone-50 p-4 rounded-xl border border-stone-200 text-xs">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-serif font-bold text-sm text-stone-900">{item.name}</h4>
+                    <h4 className="font-bold text-sm text-stone-900">{item.name}</h4>
                     <button
                       onClick={() => toggleCompare(item)}
                       className="text-stone-400 hover:text-red-600"
