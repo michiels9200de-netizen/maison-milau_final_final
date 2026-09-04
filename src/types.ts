@@ -40,6 +40,33 @@ export interface Company {
   status: 'active' | 'pending_approval' | 'suspended';
 }
 
+export interface CoffeeOrigin {
+  country: string;
+  flag: string;
+  region?: string;
+}
+
+export interface CharacterProfile {
+  description: string;
+  body: number; // 1 to 5
+  acidity: number; // 1 to 5
+  sweetness: number; // 1 to 5
+}
+
+export interface CollectionIntro {
+  id: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origins' | 'Barrel Aged' | 'Infused';
+  title: string;
+  priceFrom: string;
+  description: string[];
+  targetAudienceTitle?: string;
+  targetAudience?: string[];
+  barrelProfiles?: {
+    caskName: string;
+    notes: string[];
+  }[];
+  extraNote?: string;
+}
+
 export interface CoffeeCatalogItem {
   id: string;
   slug: string;
@@ -51,6 +78,8 @@ export interface CoffeeCatalogItem {
   roastProfile: string;
   flavors: string[];
   character: string;
+  characterProfile?: CharacterProfile;
+  origins?: CoffeeOrigin[];
   brewRecommendations: string[];
   retailPriceGuide: string; // e.g. "Vanaf €8,50 per 250g"
   webshopProductId: string; // Bi-directional link
@@ -76,6 +105,8 @@ export interface Product {
   batchStatus: 'op_voorraad' | 'in_batchplanning' | 'vers_gebrand';
   catalogSlug?: string; // Bi-directional link to catalog
   imagePlaceholderText: string;
+  origins?: CoffeeOrigin[];
+  characterProfile?: CharacterProfile;
 }
 
 export interface CartItem {

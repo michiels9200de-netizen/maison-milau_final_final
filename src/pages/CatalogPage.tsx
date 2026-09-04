@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { CATALOG_ITEMS } from '../data/catalogData';
+import { COLLECTION_INTROS } from '../data/collectionIntros';
 import { CoffeeCatalogItem } from '../types';
-import { Coffee, ArrowRight, Check, SlidersHorizontal, Scale, Award, Info, X } from 'lucide-react';
+import { Coffee, ArrowRight, Award, Info, X, Sparkles, BookOpen } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
+import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
+import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
 
 interface CatalogPageProps {
   navigate: (path: string) => void;
@@ -12,18 +15,19 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
   const [selectedCollection, setSelectedCollection] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [compareList, setCompareList] = useState<CoffeeCatalogItem[]>([]);
+  const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>(null);
+  const introSectionRef = useRef<HTMLDivElement>(null);
 
   const collections = [
     { id: 'all', label: 'Alle Collecties' },
-    { id: 'Selection', label: 'Milau Selection (SCA 82-85)' },
-    { id: 'Premium', label: 'Milau Premium (SCA 86-87)' },
-    { id: 'Prestige', label: 'Milau Prestige (SCA 88-90+)' },
-    { id: 'Barrel Aged', label: 'Barrel Aged Collection' },
-    { id: 'Infused', label: 'Naturally Infused' },
-    { id: 'Single Origins', label: 'Single Origin Microlots' },
-    { id: 'Budget', label: 'Budget Collection' },
-    { id: 'Value', label: 'Value Collection' },
+    { id: 'Budget', label: 'Milau Budget' },
+    { id: 'Value', label: 'Milau Value' },
+    { id: 'Selection', label: 'Milau Selection' },
+    { id: 'Premium', label: 'Milau Premium' },
+    { id: 'Prestige', label: 'Milau Prestige' },
+    { id: 'Single Origins', label: 'Single Origin Coffee' },
+    { id: 'Barrel Aged', label: 'Barrel Aged Coffee' },
+    { id: 'Infused', label: 'Infused Coffee' },
   ];
 
   const types = [
@@ -34,27 +38,37 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
     { id: 'Specialty', label: 'Specialty & Barrel' },
   ];
 
+  const handleCollectionSelect = (colId: string) => {
+    setSelectedCollection(colId);
+    if (colId !== 'all') {
+      setActiveIntroCollection(colId);
+      setTimeout(() => {
+        introSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    } else {
+      setActiveIntroCollection(null);
+    }
+  };
+
+  const handleBlendClick = (coffee: CoffeeCatalogItem) => {
+    setActiveIntroCollection(coffee.collection);
+    setTimeout(() => {
+      introSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
   const filteredItems = CATALOG_ITEMS.filter((item) => {
     const matchesCollection = selectedCollection === 'all' || item.collection === selectedCollection;
     const matchesType = selectedType === 'all' || item.type === selectedType;
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.flavors.some((f) => f.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      item.beanSelection.toLowerCase().includes(searchQuery.toLowerCase());
+      item.beanSelection.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.collection.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCollection && matchesType && matchesSearch;
   });
 
-  const toggleCompare = (item: CoffeeCatalogItem) => {
-    if (compareList.some((c) => c.id === item.id)) {
-      setCompareList(compareList.filter((c) => c.id !== item.id));
-    } else {
-      if (compareList.length >= 3) {
-        alert('U kunt maximaal 3 koffies tegelijk vergelijken.');
-        return;
-      }
-      setCompareList([...compareList, item]);
-    }
-  };
+  const activeIntro = activeIntroCollection ? COLLECTION_INTROS[activeIntroCollection] : null;
 
   return (
     <div className="bg-stone-50 min-h-screen text-stone-800 pb-24">
@@ -72,7 +86,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
             </h1>
             {/* Body: 16-18px, font-weight 400, line-height 1.6 */}
             <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed">
-              Deze catalogus is ingericht om te ontdekken, leren en vergelijken. Hier vindt u gedetailleerde informatie over brandprofielen, SCA cupping scores, origines en smaaknotities.
+              Deze catalogus is ingericht om te ontdekken, leren en proeven. Klik op een blend of collectie om de introductie en het unieke karakter van elke koffielijn te bekijken.
             </p>
           </div>
 
@@ -112,55 +126,157 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
             {collections.map((col) => (
               <button
                 key={col.id}
-                onClick={() => setSelectedCollection(col.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                onClick={() => handleCollectionSelect(col.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   selectedCollection === col.id
                     ? 'bg-amber-900 text-amber-50 shadow-xs'
                     : 'bg-white border border-stone-300 text-stone-700 hover:border-stone-400'
                 }`}
               >
-                {col.label}
+                <span>{col.label}</span>
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Catalog Cards Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      {/* Main Catalog Content */}
+      <section ref={introSectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        {/* Collection Intro Banner: Appears when clicking on a specific blend or selecting a collection */}
+        {activeIntro && (
+          <div className="mb-10 bg-white rounded-2xl border border-amber-200/90 shadow-sm p-6 sm:p-8 relative overflow-hidden transition-all animate-fadeIn">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-amber-100/40 via-transparent to-transparent rounded-full pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 text-xs font-bold uppercase tracking-wider">
+                  <Coffee className="w-3.5 h-3.5 text-amber-800" />
+                  <span>Collectie Introductie</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/70">
+                    {activeIntro.priceFrom}
+                  </span>
+                  <button
+                    onClick={() => setActiveIntroCollection(null)}
+                    className="p-1 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+                    title="Introductie sluiten"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mb-3">
+                {activeIntro.title}
+              </h2>
+
+              <div className="space-y-3 text-stone-600 text-sm sm:text-base leading-relaxed max-w-4xl">
+                {activeIntro.description.map((paragraph, idx) => (
+                  <p key={idx}>{paragraph}</p>
+                ))}
+              </div>
+
+              {/* Target Audience (e.g. Voor wie?) */}
+              {activeIntro.targetAudience && (
+                <div className="mt-6 pt-5 border-t border-stone-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 mb-3 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-800" />
+                    <span>{activeIntro.targetAudienceTitle || 'Voor wie?'}</span>
+                  </h4>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs sm:text-sm text-stone-700">
+                    {activeIntro.targetAudience.map((item, idx) => (
+                      <li key={idx} className="flex items-center gap-2 bg-stone-50 px-3 py-2 rounded-lg border border-stone-200/60 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-800 shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Barrel Profiles if applicable */}
+              {activeIntro.barrelProfiles && (
+                <div className="mt-6 pt-5 border-t border-stone-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 mb-3">
+                    Afhankelijk van het gebruikte vat ontstaan unieke smaakprofielen:
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {activeIntro.barrelProfiles.map((barrel, idx) => (
+                      <div key={idx} className="bg-stone-50 rounded-xl p-4 border border-stone-200/80 text-xs">
+                        <div className="font-bold text-stone-900 mb-2 text-xs sm:text-sm">
+                          {barrel.caskName}
+                        </div>
+                        <ul className="space-y-1.5 text-stone-600">
+                          {barrel.notes.map((note, nIdx) => (
+                            <li key={nIdx} className="flex items-center gap-2">
+                              <span className="text-amber-800 font-bold">•</span>
+                              <span>{note}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Extra Note (e.g. limited batch) */}
+              {activeIntro.extraNote && (
+                <div className="mt-4 text-xs font-medium text-amber-900 bg-amber-50/90 px-3.5 py-2 rounded-xl border border-amber-200/70 inline-block">
+                  {activeIntro.extraNote}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Count overview */}
         <div className="mb-6 flex items-center justify-between text-xs text-stone-500">
           <div>
             Toont <strong className="text-stone-800">{filteredItems.length}</strong> koffieprofielen met productcontainers
           </div>
-          {compareList.length > 0 && (
-            <div className="text-amber-900 font-semibold">
-              {compareList.length} geselecteerd voor vergelijking
-            </div>
+          {selectedCollection !== 'all' && (
+            <button
+              onClick={() => handleCollectionSelect('all')}
+              className="text-amber-900 hover:underline font-semibold"
+            >
+              Toon alle collecties
+            </button>
           )}
         </div>
 
+        {/* Catalog Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.map((coffee) => {
-            const isComparing = compareList.some((c) => c.id === coffee.id);
             return (
               <div
                 key={coffee.id}
-                className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+                className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
               >
                 <div>
                   {/* Top Badge: Collection & SCA Score */}
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-800 text-[11px] font-semibold tracking-wide uppercase">
-                      {coffee.collection}
-                    </span>
+                    <button
+                      onClick={() => handleBlendClick(coffee)}
+                      className="px-2.5 py-0.5 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-800 hover:text-amber-950 text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center gap-1"
+                      title="Klik om collectie-introductie te lezen"
+                    >
+                      <BookOpen className="w-3 h-3 text-amber-800" />
+                      <span>{coffee.collection}</span>
+                    </button>
                     <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
                       <Award className="w-3 h-3 text-amber-700" />
                       <span>SCA: {coffee.scaScore}</span>
                     </span>
                   </div>
 
-                  {/* FOTO BIJ ELK PRODUCT IN DE CATALOGUS (MediaPlaceholder) */}
-                  <div className="mb-4">
+                  {/* Product Visual with Country of Origin Badge in top-left corner */}
+                  <div
+                    className="mb-4 relative cursor-pointer"
+                    onClick={() => handleBlendClick(coffee)}
+                    title="Klik om collectie-introductie te lezen"
+                  >
+                    <CoffeeOriginBadge origins={coffee.origins} />
                     <MediaPlaceholder
                       type="image"
                       badgeText="Productverpakking"
@@ -168,18 +284,21 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                       subtitle={`${coffee.collection} · ${coffee.type}`}
                       recommendedSize="800 × 800 (1:1 Vierkant)"
                       aspectRatio="square"
-                      className="min-h-[160px] border-stone-200"
+                      className="min-h-[160px] border-stone-200 group-hover:border-amber-300 transition-colors"
                     />
                   </div>
 
-                  {/* H3: 24-28px font-weight 600 */}
-                  <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1">
-                    {coffee.name}
-                  </h3>
+                  {/* Title & Info */}
+                  <div className="cursor-pointer" onClick={() => handleBlendClick(coffee)}>
+                    {/* H3: 24-28px font-weight 600 */}
+                    <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1 group-hover:text-amber-950 transition-colors">
+                      {coffee.name}
+                    </h3>
 
-                  <div className="text-xs text-stone-500 mb-4">
-                    Type: <span className="font-medium text-stone-700">{coffee.type}</span> ·{' '}
-                    <span className="text-amber-800 font-semibold">{coffee.retailPriceGuide}</span>
+                    <div className="text-xs text-stone-500 mb-3">
+                      Type: <span className="font-medium text-stone-700">{coffee.type}</span> ·{' '}
+                      <span className="text-amber-800 font-semibold">{coffee.retailPriceGuide}</span>
+                    </div>
                   </div>
 
                   {/* Flavors Chips */}
@@ -199,22 +318,12 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                     </div>
                   </div>
 
-                  {/* Character & Terroir */}
+                  {/* Improved Star System & Karakter */}
                   <div className="mb-4">
-                    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold mb-1">
-                      Karakter
-                    </div>
-                    <p className="text-xs text-stone-600 leading-relaxed">
-                      {coffee.character}
-                    </p>
-                  </div>
-
-                  {/* Bean Breakdown */}
-                  <div className="mb-4 p-3 bg-stone-50 rounded-xl border border-stone-200/80 text-xs">
-                    <div className="font-semibold text-stone-800 mb-1">Samenstelling & Origine:</div>
-                    <div className="text-stone-600 leading-relaxed font-mono text-[11px]">
-                      {coffee.beanSelection}
-                    </div>
+                    <CoffeeCharacterCard
+                      profile={coffee.characterProfile}
+                      fallbackText={coffee.character}
+                    />
                   </div>
 
                   {/* Roast & Brewing */}
@@ -229,9 +338,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                   </div>
                 </div>
 
-                {/* Actions: Compare + Bi-directional Link to Webshop */}
+                {/* Actions: Direct Link to Webshop & Intro Toggle */}
                 <div className="pt-4 border-t border-stone-100 flex flex-col gap-2">
-                  {/* Call to action strictly formatted as requested: "ORDER THIS COFFEE" */}
                   <button
                     id={`btn-order-${coffee.slug}`}
                     onClick={() => navigate(`/webshop?highlight=${coffee.webshopProductId}`)}
@@ -242,15 +350,11 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                   </button>
 
                   <button
-                    onClick={() => toggleCompare(coffee)}
-                    className={`w-full py-2 px-3 rounded-lg text-xs font-semibold border transition-colors flex items-center justify-center gap-1.5 ${
-                      isComparing
-                        ? 'bg-amber-50 border-amber-400 text-amber-950'
-                        : 'border-stone-300 text-stone-600 hover:bg-stone-50'
-                    }`}
+                    onClick={() => handleBlendClick(coffee)}
+                    className="w-full py-2 px-3 rounded-lg text-xs font-semibold border border-stone-200 text-stone-600 hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <Scale className="w-3.5 h-3.5" />
-                    <span>{isComparing ? 'In vergelijking ✓' : 'Vergelijk deze koffie'}</span>
+                    <BookOpen className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Lees collectie-introductie</span>
                   </button>
                 </div>
               </div>
@@ -258,71 +362,6 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
           })}
         </div>
       </section>
-
-      {/* Comparison Drawer (Bottom Fixed) */}
-      {compareList.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 bg-white border-t-2 border-amber-900 shadow-2xl z-30 p-4 sm:p-6 animate-slideUp max-h-[85vh] overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-4 border-b border-stone-200 pb-3">
-              <div className="flex items-center gap-2">
-                <Scale className="w-5 h-5 text-amber-800" />
-                <h3 className="text-lg font-bold text-stone-900">
-                  Koffievergelijking ({compareList.length} van 3 geselecteerd)
-                </h3>
-              </div>
-              <button
-                onClick={() => setCompareList([])}
-                className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1 font-semibold"
-              >
-                <X className="w-4 h-4" />
-                <span>Sluit vergelijker</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {compareList.map((item) => (
-                <div key={item.id} className="bg-stone-50 p-4 rounded-xl border border-stone-200 text-xs">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-bold text-sm text-stone-900">{item.name}</h4>
-                    <button
-                      onClick={() => toggleCompare(item)}
-                      className="text-stone-400 hover:text-red-600"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="space-y-2 text-stone-600">
-                    <div>
-                      <strong className="text-stone-800">SCA Score:</strong> {item.scaScore}
-                    </div>
-                    <div>
-                      <strong className="text-stone-800">Smaaktoetsen:</strong>{' '}
-                      {item.flavors.join(', ')}
-                    </div>
-                    <div>
-                      <strong className="text-stone-800">Samenstelling:</strong>{' '}
-                      <p className="font-mono text-[11px] text-stone-700 mt-0.5">{item.beanSelection}</p>
-                    </div>
-                    <div>
-                      <strong className="text-stone-800">Karakter:</strong> {item.character}
-                    </div>
-                    <div>
-                      <strong className="text-stone-800">Richtprijs:</strong> {item.retailPriceGuide}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => navigate(`/webshop?highlight=${item.webshopProductId}`)}
-                    className="mt-3 w-full bg-stone-900 text-white py-1.5 rounded-lg font-semibold text-[11px] uppercase tracking-wider hover:bg-stone-800"
-                  >
-                    ORDER THIS COFFEE
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,8 +1,9 @@
 // Maison Milau Product Information System (PIS) & Catalog Data
 // Verbatim content strictly following user specification.
 import { CoffeeCatalogItem } from '../types';
+import { COFFEE_METADATA } from './coffeeProfiles';
 
-export const CATALOG_ITEMS: CoffeeCatalogItem[] = [
+const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
   // --- Milau Budget Collection ---
   {
     id: 'budget-espresso',
@@ -379,3 +380,15 @@ export const CATALOG_ITEMS: CoffeeCatalogItem[] = [
     webshopProductId: 'prod-so-chelbesa',
   },
 ];
+
+export const CATALOG_ITEMS: CoffeeCatalogItem[] = RAW_CATALOG_ITEMS.map((item) => {
+  const meta = COFFEE_METADATA[item.slug];
+  if (meta) {
+    return {
+      ...item,
+      origins: meta.origins,
+      characterProfile: meta.characterProfile,
+    };
+  }
+  return item;
+});

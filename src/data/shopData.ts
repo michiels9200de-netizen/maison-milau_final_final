@@ -1,7 +1,8 @@
 // Maison Milau Webshop Products & Pricing Ladders
 import { Product } from '../types';
+import { COFFEE_METADATA } from './coffeeProfiles';
 
-export const SHOP_PRODUCTS: Product[] = [
+const RAW_SHOP_PRODUCTS: Product[] = [
   // --- Blends: Budget ---
   {
     id: 'prod-budget-espresso',
@@ -657,3 +658,16 @@ export const SHOP_PRODUCTS: Product[] = [
     imagePlaceholderText: 'Cadeau Koffieabonnement',
   },
 ];
+
+export const SHOP_PRODUCTS: Product[] = RAW_SHOP_PRODUCTS.map((p) => {
+  const metaKey = p.catalogSlug || p.id.replace('prod-', '');
+  const meta = COFFEE_METADATA[metaKey];
+  if (meta) {
+    return {
+      ...p,
+      origins: meta.origins,
+      characterProfile: meta.characterProfile,
+    };
+  }
+  return p;
+});

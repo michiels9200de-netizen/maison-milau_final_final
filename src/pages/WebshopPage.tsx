@@ -4,6 +4,8 @@ import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { ShoppingBag, ArrowRight, ExternalLink, Check, Sparkles, Filter, Tag } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
+import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
+import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
 
 interface WebshopPageProps {
   navigate: (path: string) => void;
@@ -176,8 +178,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     </span>
                   </div>
 
-                  {/* Product Visual Placeholder */}
-                  <div className="mb-4">
+                  {/* Product Visual Placeholder with Origin Badge in top-left corner */}
+                  <div className="mb-4 relative">
+                    <CoffeeOriginBadge origins={product.origins} />
                     <MediaPlaceholder
                       type="image"
                       badgeText="Productfoto"
@@ -199,6 +202,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       {product.shortDescription}
                     </p>
                   </div>
+
+                  {/* Improved Star System & Karakter */}
+                  {product.characterProfile && (
+                    <div className="mb-4">
+                      <CoffeeCharacterCard profile={product.characterProfile} />
+                    </div>
+                  )}
 
                   {/* Weight Selector */}
                   <div className="mb-4">
