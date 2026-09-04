@@ -1,19 +1,24 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// URL normalization for Vercel Serverless Functions
+app.use((req, res, next) => {
+  if (!req.url.startsWith('/api')) {
+    req.url = '/api' + req.url;
+  }
+  next();
+});
 
 // In-memory persistent state for development/demonstration
 let orders: any[] = [
@@ -909,9 +914,16 @@ app.get('/api/admin/metrics', (req: Request, res: Response) => {
   });
 });
 
-// --- Server & Vite Setup ---
+// Export app for Vercel Serverless Functions and standalone runner
+export default app;
+export { app };
+
+// --- Standalone Server & Vite Setup ---
+const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION);
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -930,4 +942,6 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!isVercel) {
+  startServer();
+}
