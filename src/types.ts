@@ -21,6 +21,7 @@ export interface User {
   accountType: 'particulier' | 'professioneel';
   role: UserRole;
   companyId?: string;
+  companyName?: string;
   vatNumber?: string;
   addresses: UserAddress[];
   loyaltyPoints: number;
@@ -107,6 +108,7 @@ export interface Product {
   imagePlaceholderText: string;
   origins?: CoffeeOrigin[];
   characterProfile?: CharacterProfile;
+  scaScore?: string;
 }
 
 export interface CartItem {
@@ -117,6 +119,9 @@ export interface CartItem {
   grindOption: 'Volle bonen' | 'Gemalen (Filter)';
   unitPrice: number;
   quantity: number;
+  purchaseType?: 'eenmalig' | 'abonnement';
+  subscriptionFrequency?: '2_weken' | '4_weken';
+  selectedBeans?: string[];
 }
 
 export type OrderStatus =
@@ -257,4 +262,26 @@ export interface ReturnRequest {
   status: 'aangevraagd' | 'goedgekeurd' | 'product_ontvangen' | 'terugbetaling_uitgevoerd';
   mollieRefundId?: string;
   createdAt: string;
+}
+
+export interface CoffeeReview {
+  id: string;
+  coffeeName: string;
+  customerName: string;
+  rating: number; // 1-5
+  flavorNotes: string[];
+  tasteReview: string;
+  profileAccuracy: 'Exact conform beloofd profiel' | 'Rijker & voller dan verwacht' | 'Zachter & ronder van smaak' | 'Fruitiger / frisser van smaak';
+  verifiedPurchase: boolean;
+  createdAt: string;
+}
+
+export interface EmailNotification {
+  id: string;
+  type: 'admin_registration' | 'customer_welcome' | 'admin_appointment' | 'customer_appointment' | 'admin_b2b' | 'admin_question' | 'customer_question';
+  recipient: string;
+  subject: string;
+  preview: string;
+  body: string;
+  sentAt: string;
 }

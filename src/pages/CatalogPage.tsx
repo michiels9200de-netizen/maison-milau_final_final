@@ -12,14 +12,13 @@ interface CatalogPageProps {
 }
 
 export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
-  const [selectedCollection, setSelectedCollection] = useState<string>('all');
+  const [selectedCollection, setSelectedCollection] = useState<string>('Budget');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>(null);
+  const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>('Budget');
   const introSectionRef = useRef<HTMLDivElement>(null);
 
   const collections = [
-    { id: 'all', label: 'Alle Collecties' },
     { id: 'Budget', label: 'Milau Budget' },
     { id: 'Value', label: 'Milau Value' },
     { id: 'Selection', label: 'Milau Selection' },
@@ -233,16 +232,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
         {/* Count overview */}
         <div className="mb-6 flex items-center justify-between text-xs text-stone-500">
           <div>
-            Toont <strong className="text-stone-800">{filteredItems.length}</strong> koffieprofielen met productcontainers
+            Toont <strong className="text-stone-800">{filteredItems.length}</strong> koffieprofielen met herkomst en smaaknotities
           </div>
-          {selectedCollection !== 'all' && (
-            <button
-              onClick={() => handleCollectionSelect('all')}
-              className="text-amber-900 hover:underline font-semibold"
-            >
-              Toon alle collecties
-            </button>
-          )}
         </div>
 
         {/* Catalog Cards Grid */}
@@ -254,7 +245,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                 className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
               >
                 <div>
-                  {/* Top Badge: Collection & SCA Score */}
+                  {/* Top Badge: Collection */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <button
                       onClick={() => handleBlendClick(coffee)}
@@ -264,19 +255,24 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                       <BookOpen className="w-3 h-3 text-amber-800" />
                       <span>{coffee.collection}</span>
                     </button>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                      <Award className="w-3 h-3 text-amber-700" />
-                      <span>SCA: {coffee.scaScore}</span>
+                    <span className="text-[11px] font-medium text-stone-500">
+                      {coffee.type}
                     </span>
                   </div>
 
-                  {/* Product Visual with Country of Origin Badge in top-left corner */}
+                  {/* Product Visual with Country of Origin Badge top-left & SCA Score top-right */}
                   <div
                     className="mb-4 relative cursor-pointer"
                     onClick={() => handleBlendClick(coffee)}
                     title="Klik om collectie-introductie te lezen"
                   >
                     <CoffeeOriginBadge origins={coffee.origins} />
+                    {coffee.scaScore && (
+                      <div className="absolute top-2.5 right-2.5 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
+                        <Award className="w-3.5 h-3.5 text-amber-400" />
+                        <span>SCA: {coffee.scaScore}</span>
+                      </div>
+                    )}
                     <MediaPlaceholder
                       type="image"
                       badgeText="Productverpakking"

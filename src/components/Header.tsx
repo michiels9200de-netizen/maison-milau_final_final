@@ -13,8 +13,18 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isWebshopSubmenuOpen, setIsWebshopSubmenuOpen] = useState(false);
+  const [isBlendsSubmenuOpen, setIsBlendsSubmenuOpen] = useState(false);
   const { itemCount, setIsCartOpen } = useCart();
   const { user, accountType, switchAccountType } = useAuth();
+
+  const blendCategories = [
+    { id: 'all', name: 'Alle Blends' },
+    { id: 'budget', name: 'Budget' },
+    { id: 'value', name: 'Value' },
+    { id: 'selection', name: 'Selection' },
+    { id: 'prestige', name: 'Prestige' },
+    { id: 'ultimate', name: 'Ultimate' },
+  ];
 
   const handleNavClick = (path: string) => {
     if (!isValidRoute(path)) {
@@ -24,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
     navigate(path);
     setIsMenuOpen(false);
     setIsWebshopSubmenuOpen(false);
+    setIsBlendsSubmenuOpen(false);
   };
 
   return (
@@ -140,16 +151,48 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               <div className="px-3 py-1.5 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">
                 Webshop Assortiment
               </div>
-              {WEBSHOP_SUBCATEGORIES.map((sub) => (
-                <button
-                  key={sub.id}
-                  onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
-                  className="w-full text-left px-4 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
-                >
-                  <span>{sub.name}</span>
-                  <ChevronRight className="w-3 h-3 text-stone-400" />
-                </button>
-              ))}
+              {WEBSHOP_SUBCATEGORIES.map((sub) => {
+                if (sub.id === 'blends') {
+                  return (
+                    <div key={sub.id} className="border-b border-stone-100 pb-1 mb-1">
+                      <button
+                        onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
+                        className="w-full text-left px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
+                      >
+                        <span>{sub.name}</span>
+                        <ChevronRight className="w-3 h-3 text-stone-400" />
+                      </button>
+                      <div className="pl-6 pr-4 py-1 grid grid-cols-2 gap-1 bg-stone-50/60 rounded-lg mx-2 mb-1">
+                        {blendCategories.map((b) => (
+                          <button
+                            key={b.id}
+                            onClick={() =>
+                              handleNavClick(
+                                b.id === 'all'
+                                  ? '/webshop?category=blends'
+                                  : `/webshop?category=blends&sub=${b.id}`
+                              )
+                            }
+                            className="text-left text-[11px] text-stone-600 hover:text-amber-900 py-1 px-1 rounded hover:bg-white"
+                          >
+                            {b.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <button
+                    key={sub.id}
+                    onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
+                    className="w-full text-left px-4 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
+                  >
+                    <span>{sub.name}</span>
+                    <ChevronRight className="w-3 h-3 text-stone-400" />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -264,12 +307,50 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                   >
                     → Naar Volledige Webshop
                   </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=blends')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Maison Milau Speciality Blends
-                  </button>
+                  <div>
+                    <div className="flex items-center justify-between py-1">
+                      <button
+                        onClick={() => handleNavClick('/webshop?category=blends')}
+                        className="text-left text-sm font-semibold text-stone-800 hover:text-stone-950"
+                      >
+                        Maison Milau Speciality Blends
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsBlendsSubmenuOpen(!isBlendsSubmenuOpen);
+                        }}
+                        className="p-1 text-stone-500 hover:text-stone-800"
+                        title="Subcategorieën openen"
+                      >
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform ${
+                            isBlendsSubmenuOpen ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {isBlendsSubmenuOpen && (
+                      <div className="pl-3 py-1 space-y-1.5 border-l-2 border-amber-800/40 my-1">
+                        {blendCategories.map((sub) => (
+                          <button
+                            key={sub.id}
+                            onClick={() =>
+                              handleNavClick(
+                                sub.id === 'all'
+                                  ? '/webshop?category=blends'
+                                  : `/webshop?category=blends&sub=${sub.id}`
+                              )
+                            }
+                            className="w-full text-left text-xs text-stone-600 hover:text-amber-900 py-1 block"
+                          >
+                            • {sub.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={() => handleNavClick('/webshop?category=barrel_aged')}
                     className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"

@@ -667,6 +667,7 @@ export const SHOP_PRODUCTS: Product[] = RAW_SHOP_PRODUCTS.map((p) => {
       ...p,
       origins: meta.origins,
       characterProfile: meta.characterProfile,
+      scaScore: meta.scaScore || p.scaScore,
     };
   }
   return p;

@@ -1,43 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { User, Building2, Package, FileText, Repeat, Pause, Play, Download, ExternalLink, CheckCircle, Landmark, AlertCircle, RefreshCw, CheckCircle2, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import {
+  User,
+  Building2,
+  Package,
+  FileText,
+  Repeat,
+  Pause,
+  Play,
+  Download,
+  ExternalLink,
+  CheckCircle,
+  Landmark,
+  AlertCircle,
+  RefreshCw,
+  CheckCircle2,
+  ShieldCheck,
+  ArrowUpRight,
+  Star,
+  Coffee,
+  LogOut,
+  Key,
+  Sparkles,
+  Lock,
+} from 'lucide-react';
 import { Order, Invoice, Subscription } from '../types';
+import { CoffeeReviewModal } from '../components/CoffeeReviewModal';
 
 interface AccountPageProps {
   navigate: (path: string) => void;
 }
 
 export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
-  const { currentUser, accountType, setAccountType, switchUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'subscriptions' | 'invoices' | 'payouts'>('orders');
+  const { currentUser, user, accountType, setAccountType, switchUser, loginWithPassword, registerUser, logout, isAuthenticated } = useAuth();
+  const [activeTab, setActiveTab] = useState<'orders' | 'subscriptions' | 'invoices' | 'reviews' | 'payouts'>('orders');
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [payoutData, setPayoutData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isTestingPipeline, setIsTestingPipeline] = useState(false);
   const [pipelineTestResult, setPipelineTestResult] = useState<any>(null);
 
+  // Auth Modal State
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authPhone, setAuthPhone] = useState('');
+  const [authAccountType, setAuthAccountType] = useState<'particulier' | 'professioneel'>('particulier');
+  const [authCompanyName, setAuthCompanyName] = useState('');
+  const [authVatNumber, setAuthVatNumber] = useState('');
+  const [authStreet, setAuthStreet] = useState('');
+  const [authCity, setAuthCity] = useState('');
+  const [authPostalCode, setAuthPostalCode] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+
+  // Review Modal State
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewCoffeeName, setReviewCoffeeName] = useState<string>('Selection Daily');
+
   const fetchAccountData = async () => {
     setIsLoading(true);
     try {
-      const [ordRes, invRes, subRes, payRes] = await Promise.all([
+      const [ordRes, invRes, subRes, payRes, revRes] = await Promise.all([
         fetch('/api/orders'),
         fetch('/api/invoices'),
         fetch('/api/subscriptions'),
         fetch('/api/mollie/payouts/status'),
+        fetch('/api/reviews'),
       ]);
-      const [ordData, invData, subData, payData] = await Promise.all([
+      const [ordData, invData, subData, payData, revData] = await Promise.all([
         ordRes.json(),
         invRes.json(),
         subRes.json(),
         payRes.json(),
+        revRes.json(),
       ]);
       if (ordData.success) setOrders(ordData.data);
       if (invData.success) setInvoices(invData.data);
       if (subData.success) setSubscriptions(subData.data);
       if (payData.success) setPayoutData(payData);
+      if (revData.success) setReviews(revData.data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -47,7 +96,56 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
 
   useEffect(() => {
     fetchAccountData();
-  }, [currentUser]);
+  }, [currentUser, user]);
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccess('');
+    setIsAuthSubmitting(true);
+
+    if (authMode === 'login') {
+      const res = await loginWithPassword(authEmail, authPassword);
+      if (res.success) {
+        setAuthSuccess(`Welkom terug, ${res.user?.name}!`);
+        setTimeout(() => {
+          setShowAuthModal(false);
+          setAuthSuccess('');
+        }, 1200);
+      } else {
+        setAuthError(res.error || 'Inloggen mislukt.');
+      }
+    } else {
+      const res = await registerUser({
+        email: authEmail,
+        password: authPassword,
+        name: authName,
+        phone: authPhone,
+        accountType: authAccountType,
+        companyName: authCompanyName,
+        vatNumber: authVatNumber,
+        street: authStreet,
+        city: authCity,
+        postalCode: authPostalCode,
+      });
+
+      if (res.success) {
+        setAuthSuccess('Registratie gelukt! Bevestigingsmail en notificaties verzonden.');
+        setTimeout(() => {
+          setShowAuthModal(false);
+          setAuthSuccess('');
+        }, 1500);
+      } else {
+        setAuthError(res.error || 'Registratie mislukt.');
+      }
+    }
+    setIsAuthSubmitting(false);
+  };
+
+  const handleOpenReview = (coffeeName: string) => {
+    setReviewCoffeeName(coffeeName);
+    setIsReviewModalOpen(true);
+  };
 
   const handleRunPipelineTest = async () => {
     setIsTestingPipeline(true);
@@ -86,45 +184,53 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
       <section className="bg-white border-b border-stone-200 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-3">
-              <User className="w-3.5 h-3.5 text-amber-900" />
-              <span>Klantenportaal · Maison Milau</span>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider">
+                <User className="w-3.5 h-3.5 text-amber-900" />
+                <span>Klantenportaal · Maison Milau</span>
+              </div>
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-bold border border-amber-300/60">
+                <Sparkles className="w-3 h-3 text-amber-700" />
+                <span>{currentUser?.loyaltyPoints || 100} Spaarpunten</span>
+              </div>
             </div>
+
             <h1 className="text-3xl font-bold tracking-tight text-stone-900">
-              Welkom terug, {currentUser?.name}
+              Welkom terug, {currentUser?.name || 'Maison Milau Gast'}
             </h1>
             <p className="text-xs text-stone-500 mt-1">
-              Beheer uw bestellingen, maandelijkse verzamelfacturen en flexibele koffie-abonnementen.
+              {currentUser?.email ? `${currentUser.email} · ` : ''}Beheer uw bestellingen, live brandplanning, verzamelfacturen en koffie-abonnementen.
             </p>
           </div>
 
-          {/* Account Switcher Bar */}
-          <div className="flex items-center gap-2 p-1.5 bg-stone-100 rounded-xl border border-stone-200 self-start">
+          {/* Account Actions Bar */}
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => {
-                setAccountType('particulier');
-                switchUser('user-1');
+                setAuthMode('login');
+                setShowAuthModal(true);
               }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                accountType === 'particulier'
-                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-stone-900 text-white hover:bg-stone-800 transition-colors shadow-xs flex items-center gap-1.5"
             >
-              Particulier Profiel
+              <Key className="w-3.5 h-3.5 text-amber-400" />
+              <span>Inloggen / Registreren</span>
             </button>
+
             <button
-              onClick={() => {
-                setAccountType('zakelijk');
-                switchUser('b2b-1');
-              }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                accountType === 'zakelijk'
-                  ? 'bg-amber-900 text-white shadow-xs font-semibold'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
+              onClick={() => navigate('/admin')}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 border border-stone-200"
             >
-              Zakelijk Account (B2B)
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+              <span>Roastery Admin</span>
+            </button>
+
+            <button
+              onClick={logout}
+              className="px-3 py-2 rounded-xl text-xs font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors flex items-center gap-1"
+              title="Uitloggen"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Afmelden</span>
             </button>
           </div>
         </div>
@@ -166,6 +272,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           </button>
 
           <button
+            onClick={() => setActiveTab('reviews')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              activeTab === 'reviews'
+                ? 'bg-stone-900 text-white'
+                : 'text-stone-600 hover:bg-stone-100'
+            }`}
+          >
+            <Coffee className="w-4 h-4 text-amber-600" />
+            <span>Smaak Reviews ({reviews.length})</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('payouts')}
             className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
               activeTab === 'payouts'
@@ -174,7 +292,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
             }`}
           >
             <Landmark className="w-4 h-4" />
-            <span>Uitbetalingen & Mollie (Payout Systeem)</span>
+            <span>Uitbetalingen (Mollie Payout)</span>
           </button>
         </div>
       </section>
@@ -209,7 +327,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="px-2.5 py-1 bg-stone-100 text-stone-800 rounded-full font-bold uppercase text-[10px] border border-stone-200">
+                          Branderij: {(ord as any).roasteryStatus || 'In brandplanning'}
+                        </span>
                         <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-full font-semibold uppercase text-[11px]">
                           {ord.status}
                         </span>
@@ -221,16 +342,31 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                       <div>
-                        <div className="font-semibold text-stone-800 mb-1">Artikelen:</div>
-                        <ul className="space-y-1 text-stone-600">
+                        <div className="font-semibold text-stone-800 mb-1">Artikelen & Smaakprofiel:</div>
+                        <ul className="space-y-2 text-stone-600">
                           {ord.items.map((item, idx) => (
-                            <li key={idx} className="flex justify-between">
-                              <span>
-                                {item.productName} ({item.variantWeight}, {item.grindOption}) × {item.quantity}
-                              </span>
-                              <span className="font-mono">
-                                €{(item.unitPrice * item.quantity).toFixed(2)}
-                              </span>
+                            <li key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 rounded-lg bg-stone-50 border border-stone-100">
+                              <div>
+                                <span className="font-medium text-stone-900">
+                                  {item.productName}
+                                </span>{' '}
+                                <span className="text-[11px] text-stone-500">
+                                  ({item.variantWeight}, {item.grindOption}) × {item.quantity}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-stone-800 font-semibold">
+                                  €{(item.unitPrice * item.quantity).toFixed(2)}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenReview(item.productName)}
+                                  className="px-2.5 py-1 rounded-md bg-amber-900 hover:bg-amber-800 text-white font-semibold text-[10px] flex items-center gap-1 transition-colors shadow-2xs"
+                                >
+                                  <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+                                  <span>Review</span>
+                                </button>
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -251,6 +387,78 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                           <strong>Factuur:</strong> {ord.invoiceNumber}
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* REVIEWS TAB */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-stone-900">
+                  Mijn Koffie & Smaakprofiel Reviews
+                </h2>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Deel uw proefnotities (chocolade, fruit, karamel) en help andere koffieliefhebbers.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleOpenReview('Selection Daily')}
+                className="bg-amber-900 hover:bg-amber-800 text-white px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-2 shadow-xs transition-colors self-start"
+              >
+                <Coffee className="w-4 h-4" />
+                <span>Nieuwe Review Schrijven</span>
+              </button>
+            </div>
+
+            {reviews.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center text-xs text-stone-500">
+                Nog geen reviews gevonden. Schrijf de eerste beoordeling!
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {reviews.map((rev) => (
+                  <div key={rev.id} className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-bold text-stone-900 text-sm">{rev.coffeeName}</h3>
+                        <div className="text-[11px] text-stone-500">
+                          Door {rev.customerName} · {rev.createdAt?.slice(0, 10)}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-3.5 h-3.5 ${
+                              star <= rev.rating ? 'text-amber-500 fill-amber-500' : 'text-stone-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200">
+                      Profiel: {rev.profileAccuracy}
+                    </div>
+
+                    <p className="text-xs text-stone-700 italic leading-relaxed">
+                      "{rev.tasteReview}"
+                    </p>
+
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {(rev.flavorNotes || []).map((fn: string, i: number) => (
+                        <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
+                          {fn}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 ))}
@@ -657,6 +865,231 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           </div>
         )}
       </div>
+
+      {/* Auth Modal (Login / Register) */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-5 right-5 text-stone-400 hover:text-stone-700 text-lg font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-stone-100"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="p-2 rounded-xl bg-amber-100 text-amber-900">
+                <Lock className="w-5 h-5" />
+              </span>
+              <h2 className="text-xl font-bold text-stone-900">
+                {authMode === 'login' ? 'Inloggen op Klantenportaal' : 'Nieuw Account Registreren'}
+              </h2>
+            </div>
+            <p className="text-xs text-stone-500 mb-6">
+              Maison Milau Specialty Coffee · Toegang tot facturen, leveringen en abonnementen
+            </p>
+
+            {/* Mode Switcher */}
+            <div className="flex rounded-xl bg-stone-100 p-1 mb-6 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setAuthMode('login')}
+                className={`flex-1 py-2 rounded-lg transition-colors ${
+                  authMode === 'login' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500'
+                }`}
+              >
+                Inloggen
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMode('register')}
+                className={`flex-1 py-2 rounded-lg transition-colors ${
+                  authMode === 'register' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500'
+                }`}
+              >
+                Registreren
+              </button>
+            </div>
+
+            {authError && (
+              <div className="p-3 mb-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            {authSuccess && (
+              <div className="p-3 mb-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{authSuccess}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAuthSubmit} className="space-y-4 text-xs">
+              {authMode === 'register' && (
+                <>
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setAuthAccountType('particulier')}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-medium ${
+                        authAccountType === 'particulier'
+                          ? 'bg-amber-50 border-amber-900 text-amber-950 font-bold'
+                          : 'bg-white border-stone-200 text-stone-600'
+                      }`}
+                    >
+                      Particulier
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAuthAccountType('professioneel')}
+                      className={`flex-1 py-1.5 rounded-lg border text-xs font-medium ${
+                        authAccountType === 'professioneel'
+                          ? 'bg-amber-50 border-amber-900 text-amber-950 font-bold'
+                          : 'bg-white border-stone-200 text-stone-600'
+                      }`}
+                    >
+                      Zakelijk / Horeca (B2B)
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">Volledige Naam *</label>
+                    <input
+                      type="text"
+                      required
+                      value={authName}
+                      onChange={(e) => setAuthName(e.target.value)}
+                      placeholder="bijv. Laurent Michiels"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                    />
+                  </div>
+
+                  {authAccountType === 'professioneel' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block font-medium text-stone-700 mb-1">Bedrijfsnaam *</label>
+                        <input
+                          type="text"
+                          required
+                          value={authCompanyName}
+                          onChange={(e) => setAuthCompanyName(e.target.value)}
+                          placeholder="Maison Milau BV"
+                          className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-medium text-stone-700 mb-1">BTW Nummer *</label>
+                        <input
+                          type="text"
+                          required
+                          value={authVatNumber}
+                          onChange={(e) => setAuthVatNumber(e.target.value)}
+                          placeholder="BE 1041.542.844"
+                          className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">Telefoonnummer</label>
+                    <input
+                      type="tel"
+                      value={authPhone}
+                      onChange={(e) => setAuthPhone(e.target.value)}
+                      placeholder="+32 4..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-medium text-stone-700 mb-1">Adres (Straat & Nr)</label>
+                    <input
+                      type="text"
+                      value={authStreet}
+                      onChange={(e) => setAuthStreet(e.target.value)}
+                      placeholder="Ouburg 42"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block font-medium text-stone-700 mb-1">Postcode</label>
+                      <input
+                        type="text"
+                        value={authPostalCode}
+                        onChange={(e) => setAuthPostalCode(e.target.value)}
+                        placeholder="9200"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-medium text-stone-700 mb-1">Gemeente / Stad</label>
+                      <input
+                        type="text"
+                        value={authCity}
+                        onChange={(e) => setAuthCity(e.target.value)}
+                        placeholder="Dendermonde"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block font-medium text-stone-700 mb-1">E-mailadres *</label>
+                <input
+                  type="email"
+                  required
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  placeholder="klant@domein.be"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium text-stone-700 mb-1">Wachtwoord *</label>
+                <input
+                  type="password"
+                  required
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isAuthSubmitting}
+                className="w-full py-3 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-semibold text-xs uppercase tracking-wider transition-colors shadow-xs"
+              >
+                {isAuthSubmitting
+                  ? 'Verwerken...'
+                  : authMode === 'login'
+                  ? 'Veilig Inloggen'
+                  : 'Account Aanmaken & Aanmelden'}
+              </button>
+
+              <div className="pt-2 text-center text-stone-400 text-[11px]">
+                Tip: U kunt direct inloggen met een demo-profiel of uw eigen e-mail registreren.
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Coffee Taste Review Modal */}
+      <CoffeeReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        coffeeName={reviewCoffeeName}
+        onReviewSubmitted={fetchAccountData}
+      />
     </div>
   );
 };

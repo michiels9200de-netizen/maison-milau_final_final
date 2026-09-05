@@ -35,7 +35,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
       questions: [
         {
           q: 'Wat is jullie levertermijn voor vers gebrande koffie?',
-          a: 'Producten die op voorraad zijn, worden binnen 1-2 weken na de brandronde verzonden (zodra de bonen na de brandbatch ontgast en kwaliteitsgecontroleerd zijn). Bij producten die in batch-planning staan (oranje indicator) bedraagt de levertermijn uiterlijk 2 weken.',
+          a: 'Producten die op voorraad zijn, worden binnen 1-2 werkdagen na de brandronde verzonden (zodra de bonen na de brandbatch ontgast en kwaliteitsgecontroleerd zijn). Bij producten die in batch-planning staan bedraagt de levertermijn uiterlijk 1-2 weken.',
           link: '/webshop',
           linkText: 'Bekijk actuele voorraad in de Webshop',
         },
@@ -49,23 +49,6 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
           link: '/kantoor-en-horeca',
           linkText: 'Bekijk onze B2B-formules',
         },
-      ],
-    },
-    {
-      id: 'maalgraden',
-      category: '2. Maalgraden & Zettechnieken',
-      intro: 'Alles over waarom bepaalde blends enkel in volle bonen geleverd worden en hoe je maalt.',
-      questions: [
-        {
-          q: 'Waarom worden Le Daily, Le Premium, Tres Bayards en De Drie Reuzen uitsluitend als volle bonen geleverd?',
-          a: 'Om de absolute topkwaliteit en aroma\'s op jouw specifieke machine of volautomaat te garanderen, leveren we deze blends uitsluitend in volle bonen. Zo kun je de maalgraad perfect afstemmen op jouw apparatuur.',
-          link: '/webshop',
-          linkText: 'Bekijk onze maalgraadregels in de Webshop',
-        },
-        {
-          q: 'Welke koffies zijn wel verkrijgbaar als gemalen koffie (filter)?',
-          a: 'Onze filterblends (Budget Filter, Value Filter, Selection Filter, Premium Filter en Prestige Filter) zijn beschikbaar als professioneel gemalen filterkoffie. Selecteer bij de aankoop simpelweg de optie "Gemalen (Filter)".',
-        },
         {
           q: 'Hoe bewaar ik gebrande koffiebonen het best?',
           a: 'Bewaar je koffie altijd in de originele hersluitbare zak met eenrichtingsventiel op een koele, donkere en droge plek. Niet in de koelkast, want vocht tast de aromarijke oliën aan.',
@@ -74,12 +57,12 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
     },
     {
       id: 'b2b',
-      category: '3. Zakelijk & B2B',
+      category: '2. Zakelijk & B2B (Milau at Work)',
       intro: 'Kantoorconcepten, horecagroothandel, kantoren, residentiele voorzieningen, 24/7 service, private label en machinelease.',
       questions: [
         {
           q: 'Wat zijn de voordelen van Milau at Work voor ons bedrijf of kantoor?',
-          a: 'Wij leveren vers gebrande specialty koffie met aantrekkelijke B2B staffelkortingen, transparante maandfacturen, flexibele abonnementen zonder wurgcontracten en optionele volautomaten of espressomachines (Jura, Thermoplan) met all-in onderhoudsservice.',
+          a: 'Wij leveren vers gebrande specialty koffie met aantrekkelijke B2B staffelkortingen, transparante maandfacturen, flexibele abonnementen zonder wurgcontracten en optionele volautomaten of espressomachines met all-in gratis service en onderhoud.',
           link: '/kantoor-en-horeca',
           linkText: 'Bekijk B2B Formules',
         },
@@ -99,7 +82,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
     },
     {
       id: 'events',
-      category: '4. Evenementen & Verhuur (Milau at Events)',
+      category: '3. Evenementen & Verhuur (Milau at Events)',
       intro: 'Mobiele barista-bars, espressomachines en dry-hire verhuur voor feesten en beurzen.',
       questions: [
         {
@@ -118,7 +101,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
     },
     {
       id: 'branderij',
-      category: '5. Onze Branderij & Kwaliteit (Herkomst & Versheid)',
+      category: '4. Onze Branderij & Kwaliteit (Herkomst & Versheid)',
       intro: 'Onze filosofie, het ambachtelijk branden in Oudegem en onze kwaliteitsnormen.',
       questions: [
         {

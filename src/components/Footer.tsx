@@ -235,14 +235,28 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   Offerte of Vraag Sturen
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="hover:text-amber-300 transition-colors text-stone-500 text-[11px]"
+                >
+                  Branderij Admin Dashboard
+                </button>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Legal & Copyright Bar */}
         <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-3">
-          <div>
-            © 2026 Maison Milau · Ambachtelijke Koffiebranderij Oudegem. Alle rechten voorbehouden.
+          <div className="flex items-center gap-2">
+            <span>© 2026 Maison Milau · Ambachtelijke Koffiebranderij Oudegem.</span>
+            <button
+              onClick={() => navigate('/admin')}
+              className="text-stone-600 hover:text-stone-400 transition-colors text-[10px]"
+            >
+              · Roastery Management
+            </button>
           </div>
           <div className="text-center md:text-right">
             BTW BE 1041.542.844 · Specialty Coffee Belgium · Vers gebrand in Dendermonde

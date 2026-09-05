@@ -29,12 +29,13 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formFeedback, setFormFeedback] = useState<string>('');
 
-  // Event calculations
+  // Event calculations based on Milau Budget prices (€19.95 / kg)
+  const MILAU_BUDGET_PRICE_PER_KG = 19.95;
   const cupsPerGuest = Math.max(1, Math.min(4, durationHours * 0.45));
   const estimatedCups = Math.round(guestsCount * cupsPerGuest);
   const recommendedKg = Number((estimatedCups / 125).toFixed(1));
-  const coffeePrice = recommendedKg * 28.0;
-  const machinePrice = includeMachine ? 95.0 : 0;
+  const coffeePrice = recommendedKg * MILAU_BUDGET_PRICE_PER_KG;
+  const machinePrice = includeMachine ? 75.0 : 0;
   const baristaPrice = includeBarista ? durationHours * 45.0 : 0;
   const estimatedTotal = coffeePrice + machinePrice + baristaPrice;
 
@@ -312,7 +313,11 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-stone-800 flex justify-between items-baseline">
+              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-800/60 text-[11px] text-amber-200/90 leading-relaxed">
+                <span className="font-bold text-amber-300">✓ Service is ALTIJD 100% GRATIS:</span> Gratis afstelling op uw wensen, reinigingsmiddelen en telefonische stand-by support tijdens het evenement inbegrepen.
+              </div>
+
+              <div className="pt-3 border-t border-stone-800 flex justify-between items-baseline">
                 <div className="text-sm font-medium text-stone-300">Indicatieve Totaalprijs:</div>
                 <div className="text-3xl font-bold text-amber-100">
                   €{estimatedTotal.toFixed(2)}

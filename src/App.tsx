@@ -14,6 +14,7 @@ import { FAQPage } from './pages/FAQPage';
 import { AppointmentPage } from './pages/AppointmentPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { AccountPage } from './pages/AccountPage';
+import { AdminPage } from './pages/AdminPage';
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
@@ -62,6 +63,8 @@ export default function App() {
         return <CheckoutPage navigate={navigate} />;
       case '/account':
         return <AccountPage navigate={navigate} />;
+      case '/admin':
+        return <AdminPage navigate={navigate} />;
       default:
         return <HomePage navigate={navigate} />;
     }

@@ -35,10 +35,3 @@
     "vite": "^6.2.3"
   }
 }
-{
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "dist/server.cjs"
-    }
-  }
-}

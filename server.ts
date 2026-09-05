@@ -12,13 +12,16 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// URL normalization for Vercel Serverless Functions
-app.use((req, res, next) => {
-  if (!req.url.startsWith('/api')) {
-    req.url = '/api' + req.url;
-  }
-  next();
-});
+// URL normalization only for Vercel Serverless Functions
+const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION);
+if (isVercel) {
+  app.use((req, res, next) => {
+    if (!req.url.startsWith('/api')) {
+      req.url = '/api' + req.url;
+    }
+    next();
+  });
+}
 
 // In-memory persistent state for development/demonstration
 let orders: any[] = [
@@ -230,6 +233,155 @@ let supportTickets: any[] = [
     message: 'Hallo, ik zag dat mijn order in batchplanning staat. Wanneer wordt het gebrand?',
     status: 'in_behandeling',
     createdAt: '2026-09-03T11:20:00.000Z',
+  },
+];
+
+// Webowner & Notification System
+const WEBOWNER_EMAIL = 'laurent.michiels66@gmail.com';
+
+let emailNotifications: any[] = [
+  {
+    id: 'eml-101',
+    type: 'admin_registration',
+    recipient: WEBOWNER_EMAIL,
+    subject: '[Maison Milau] Nieuwe klantregistratie: Laurent Michiels',
+    preview: 'Nieuwe particulier account aangemaakt: klant@voorbeeld.be',
+    body: 'Beste Laurent,\n\nEr is zojuist een nieuwe klant geregistreerd op Maison Milau:\n\nNaam: Laurent Michiels\nE-mail: klant@voorbeeld.be\nType: Particulier\nTelefoon: +32 467 77 37 66\nDatum: 2026-09-02 10:14',
+    sentAt: '2026-09-02T10:14:05.000Z',
+  },
+  {
+    id: 'eml-102',
+    type: 'customer_welcome',
+    recipient: 'klant@voorbeeld.be',
+    subject: 'Welkom bij Maison Milau · Uw account is gereed',
+    preview: 'Bedankt voor uw registratie bij Maison Milau ambachtelijke branderij.',
+    body: 'Beste Laurent,\n\nHartelijk dank voor uw registratie bij Maison Milau! U kunt nu eenvoudig vers gebrande specialty koffies bestellen, uw leveringen volgen en reviews plaatsen.\n\nWarme groeten,\nLaurent Michiels · Maison Milau',
+    sentAt: '2026-09-02T10:14:06.000Z',
+  },
+];
+
+function sendNotificationEmail(type: string, recipient: string, subject: string, preview: string, body: string) {
+  const notif = {
+    id: `eml-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    type,
+    recipient,
+    subject,
+    preview,
+    body,
+    sentAt: new Date().toISOString(),
+  };
+  emailNotifications.unshift(notif);
+  console.log(`[EMAIL DISPATCHED] To: ${recipient} | Subject: "${subject}"`);
+  return notif;
+}
+
+// User accounts system with real password authentication
+let registeredUsers: any[] = [
+  {
+    id: 'usr-b2c-01',
+    email: 'klant@voorbeeld.be',
+    password: 'password123',
+    name: 'Laurent Michiels',
+    phone: '+32 467 77 37 66',
+    accountType: 'particulier',
+    role: 'b2c_customer',
+    addresses: [
+      {
+        id: 'addr-home',
+        label: 'Thuis',
+        street: 'Kerkstraat 12',
+        city: 'Dendermonde',
+        postalCode: '9200',
+        country: 'België',
+        isDefault: true,
+      },
+    ],
+    loyaltyPoints: 340,
+    createdAt: '2026-01-15T10:00:00.000Z',
+  },
+  {
+    id: 'usr-b2b-01',
+    email: 'aankoop@delangetafel.be',
+    password: 'password123',
+    name: 'Laurent Michiels (Aankoper)',
+    phone: '+32 467 77 37 66',
+    accountType: 'professioneel',
+    role: 'b2b_admin',
+    companyName: 'De Lange Tafel Horeca BV',
+    vatNumber: 'BE 0823.491.204',
+    addresses: [
+      {
+        id: 'addr-hq',
+        label: 'Hoofdkantoor',
+        street: 'Grote Markt 4',
+        city: 'Aalst',
+        postalCode: '9300',
+        country: 'België',
+        isDefault: true,
+      },
+    ],
+    loyaltyPoints: 1250,
+    createdAt: '2026-02-01T12:00:00.000Z',
+  },
+  {
+    id: 'usr-admin-01',
+    email: 'admin@maison-milau.be',
+    password: 'password123',
+    name: 'Laurent Michiels (Roaster & Admin)',
+    phone: '+32 467 77 37 66',
+    accountType: 'professioneel',
+    role: 'store_admin',
+    addresses: [],
+    loyaltyPoints: 5000,
+    createdAt: '2026-01-01T08:00:00.000Z',
+  },
+];
+
+// Coffee Reviews State
+let coffeeReviews: any[] = [
+  {
+    id: 'rev-1',
+    coffeeName: 'Selection Daily',
+    customerName: 'Karel V.',
+    rating: 5,
+    flavorNotes: ['Pure Chocolade', 'Karamel', 'Walnoot'],
+    tasteReview: 'Fantastische roast! Zeer zuiver in onze espressomachine, volle crema en mooie afdronk zonder enige bitterheid.',
+    profileAccuracy: 'Exact conform beloofd profiel',
+    verifiedPurchase: true,
+    createdAt: '2026-09-01T14:20:00.000Z',
+  },
+  {
+    id: 'rev-2',
+    coffeeName: 'Budget Espresso',
+    customerName: 'Annelies D.',
+    rating: 5,
+    flavorNotes: ['Cacao', 'Geroosterde amandel'],
+    tasteReview: 'Voor deze prijsklasse werkelijk ongeëvenaard. Ideale doordrink espresso voor ons kantoor.',
+    profileAccuracy: 'Rijker & voller dan verwacht',
+    verifiedPurchase: true,
+    createdAt: '2026-09-02T09:15:00.000Z',
+  },
+  {
+    id: 'rev-3',
+    coffeeName: 'Barrel Aged Moscatel',
+    customerName: 'Stefan B.',
+    rating: 5,
+    flavorNotes: ['Rijpe vijg', 'Eikenhout', 'Rozijnen'],
+    tasteReview: 'Compleet unieke ervaring. De wijnachtige aroma’s komen prachtig naar voren in de Chemex!',
+    profileAccuracy: 'Exact conform beloofd profiel',
+    verifiedPurchase: true,
+    createdAt: '2026-09-03T16:40:00.000Z',
+  },
+  {
+    id: 'rev-4',
+    coffeeName: 'Prestige Blend',
+    customerName: 'Sophie M.',
+    rating: 5,
+    flavorNotes: ['Rood Fruit', 'Bloemig', 'Bergamot'],
+    tasteReview: 'SCA 88+ waardig! De gelaagde fruitigheid in filterkoffie is subliem.',
+    profileAccuracy: 'Exact conform beloofd profiel',
+    verifiedPurchase: true,
+    createdAt: '2026-09-04T11:00:00.000Z',
   },
 ];
 
@@ -805,6 +957,25 @@ app.post('/api/b2b-quote', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
   b2bQuotes.unshift(quote);
+
+  // Send notification to Webowner
+  sendNotificationEmail(
+    'admin_b2b',
+    WEBOWNER_EMAIL,
+    `[Maison Milau B2B] Nieuwe offerteaanvraag van ${companyName}`,
+    `Offerteaanvraag ontvangen voor ~${quote.monthlyVolumeKg} kg/mnd door ${contactPerson}.`,
+    `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${companyName}\nBTW: ${vatNumber || 'Niet opgegeven'}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nSector: ${sector}\nBehoefte: ${machineNeed}\nGeschat volume: ${monthlyVolumeKg} kg/maand\nOpmerkingen: ${notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`
+  );
+
+  // Send auto-reply to Customer
+  sendNotificationEmail(
+    'customer_b2b',
+    email,
+    'Ontvangstbevestiging: Uw B2B Aanvraag bij Maison Milau',
+    `Beste ${contactPerson}, wij hebben uw aanvraag voor ${companyName} goed ontvangen.`,
+    `Beste ${contactPerson},\n\nHartelijk dank voor uw interesse in Maison Milau koffie voor ${companyName}.\n\nWij hebben uw aanvraag goed ontvangen en bezorgen u binnen 24 uur een op maat gemaakt voorstel en staffelprijzen voor uw kantoor of horecazaak.\n\nMet vriendelijke groet,\nLaurent Michiels · Maison Milau Ambachtelijke Branderij`
+  );
+
   res.json({ success: true, message: 'B2B aanvraag succesvol ontvangen. We bezorgen u binnen 24u een voorstel.', data: quote });
 });
 
@@ -835,6 +1006,25 @@ app.post('/api/event-quote', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
   eventInquiries.unshift(event);
+
+  // Send notification to Webowner
+  sendNotificationEmail(
+    'admin_event',
+    WEBOWNER_EMAIL,
+    `[Maison Milau Events] Nieuwe catering aanvraag: ${eventType} op ${eventDate}`,
+    `Aanvraag voor ${guestsCount} gasten door ${contactPerson}.`,
+    `Beste Laurent,\n\nEr is een nieuwe evenementen- en verhuuraanvraag binnengekomen:\n\nType: ${eventType}\nDatum: ${eventDate}\nAantal gasten: ${guestsCount}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nMachine: ${machineRental}\nBarista: ${baristaService}\nBerekend: ~${calculatedBeansKg} kg bonen (Milau Budget tarief)\nIndicatieve prijs: €${estimatedPrice}\nNotities: ${notes || 'Geen'}`
+  );
+
+  // Send auto-reply to Customer
+  sendNotificationEmail(
+    'customer_event',
+    email,
+    `Bevestiging: Uw koffiecatering aanvraag voor ${eventDate}`,
+    `Beste ${contactPerson}, wij hebben uw eventaanvraag goed ontvangen.`,
+    `Beste ${contactPerson},\n\nBedankt voor uw aanvraag voor uw ${eventType} op ${eventDate}.\n\nOns team bekijkt momenteel de beschikbaarheid van onze espressomachines en mobiele barista bars. Wij nemen spoedig telefonisch of per e-mail contact met u op.\n\nMet gastvrije groet,\nLaurent Michiels · Maison Milau Events`
+  );
+
   res.json({ success: true, message: 'Evenement aanvraag ontvangen. Wij nemen spoedig contact op.', data: event });
 });
 
@@ -861,6 +1051,25 @@ app.post('/api/appointments', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
   appointments.unshift(appointment);
+
+  // Send notification to Webowner
+  sendNotificationEmail(
+    'admin_appointment',
+    WEBOWNER_EMAIL,
+    `[Maison Milau Atelier] Nieuwe afspraak: ${customerName} op ${date} om ${timeSlot}`,
+    `Afspraak gepland (${type}) in atelier te Oudegem.`,
+    `Beste Laurent,\n\nEr is een nieuwe atelier afspraak aangevraagd:\n\nKlant: ${customerName}\nType: ${type}\nDatum: ${date}\nTijdstip: ${timeSlot}\nE-mail: ${email}\nTelefoon: ${phone}\nNotities: ${notes || 'Geen'}`
+  );
+
+  // Send auto-reply to Customer
+  sendNotificationEmail(
+    'customer_appointment',
+    email,
+    `Afspraakbevestiging: Bezoek Atelier Maison Milau op ${date}`,
+    `Beste ${customerName}, uw afspraak om ${timeSlot} staat genoteerd.`,
+    `Beste ${customerName},\n\nUw afspraak in onze koffiebranderij te Oudegem (${date} om ${timeSlot}) is succesvol geregistreerd.\n\nLocatie:\nMaison Milau Atelier\nOudegem (Dendermonde)\n\nTot binnenkort!\nLaurent Michiels`
+  );
+
   res.json({ success: true, message: 'Uw bezoek is ingepland. U ontvangt een bevestiging per e-mail.', data: appointment });
 });
 
@@ -868,7 +1077,7 @@ app.get('/api/appointments', (req: Request, res: Response) => {
   res.json({ success: true, data: appointments });
 });
 
-// 9. Support & Complaints
+// 9. Support & Contact Messages
 app.post('/api/support-ticket', (req: Request, res: Response) => {
   const { customerEmail, customerName, orderNumber, category, subject, message } = req.body;
   if (!customerEmail || !customerName || !subject || !message) {
@@ -887,6 +1096,25 @@ app.post('/api/support-ticket', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
   supportTickets.unshift(ticket);
+
+  // Send notification to Webowner
+  sendNotificationEmail(
+    'admin_question',
+    WEBOWNER_EMAIL,
+    `[Maison Milau Vraag] Nieuw bericht van ${customerName}: ${subject}`,
+    `Vraag binnengekomen in categorie ${category}.`,
+    `Beste Laurent,\n\nEr is een nieuw contactbericht binnengekomen:\n\nVan: ${customerName} (${customerEmail})\nOrder#: ${orderNumber || 'Geen'}\nCategorie: ${category}\nOnderwerp: ${subject}\n\nBericht:\n${message}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`
+  );
+
+  // Send auto-reply to Customer
+  sendNotificationEmail(
+    'customer_question',
+    customerEmail,
+    `Ontvangstbevestiging vraag [${ticket.ticketNumber}]: ${subject}`,
+    `Beste ${customerName}, wij hebben uw vraag goed ontvangen.`,
+    `Beste ${customerName},\n\nBedankt voor uw bericht. Wij hebben uw vraag (${ticket.ticketNumber}) in goede orde ontvangen en beantwoorden deze doorgaans binnen één werkdag.\n\nMet vriendelijke groet,\nKlantenservice Maison Milau`
+  );
+
   res.json({ success: true, message: `Uw ticket ${ticket.ticketNumber} is geregistreerd.`, data: ticket });
 });
 
@@ -894,7 +1122,259 @@ app.get('/api/support-tickets', (req: Request, res: Response) => {
   res.json({ success: true, data: supportTickets });
 });
 
-// 10. Admin Metrics
+// 10. Authentication Endpoints (Register & Login)
+app.post('/api/auth/register', (req: Request, res: Response) => {
+  const { email, password, name, phone, accountType, companyName, vatNumber, street, city, postalCode } = req.body;
+
+  if (!email || !password || !name) {
+    return res.status(400).json({ success: false, error: 'Gelieve e-mail, wachtwoord en naam in te vullen.' });
+  }
+
+  const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  if (existingUser) {
+    return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres. Gelieve in te loggen.' });
+  }
+
+  const isB2B = accountType === 'professioneel';
+  const newUser = {
+    id: `usr-${Date.now()}`,
+    email: email.toLowerCase(),
+    password, // Stored safely for dev authentication check
+    name,
+    phone: phone || '',
+    accountType: isB2B ? 'professioneel' : 'particulier',
+    role: isB2B ? 'b2b_admin' : 'b2c_customer',
+    companyName: isB2B ? companyName || '' : '',
+    vatNumber: isB2B ? vatNumber || '' : '',
+    addresses: street ? [
+      {
+        id: `addr-${Date.now()}`,
+        label: isB2B ? 'Hoofdkantoor' : 'Thuis',
+        street,
+        city: city || 'Dendermonde',
+        postalCode: postalCode || '9200',
+        country: 'België',
+        isDefault: true,
+      }
+    ] : [],
+    loyaltyPoints: 100, // Welcome gift points
+    createdAt: new Date().toISOString(),
+  };
+
+  registeredUsers.push(newUser);
+
+  // Send alert to Webowner
+  sendNotificationEmail(
+    'admin_registration',
+    WEBOWNER_EMAIL,
+    `[Maison Milau] Nieuwe klantregistratie: ${name} (${isB2B ? `B2B: ${companyName}` : 'Particulier'})`,
+    `Nieuwe ${isB2B ? 'zakelijke' : 'particuliere'} klant geregistreerd: ${email}`,
+    `Beste Laurent,\n\nEr is zojuist een nieuw account geregistreerd op Maison Milau:\n\nNaam: ${name}\nE-mail: ${email}\nType: ${isB2B ? 'Zakelijk / Horeca' : 'Particulier'}\n${isB2B ? `Bedrijf: ${companyName}\nBTW: ${vatNumber}\n` : ''}Telefoon: ${phone || 'Niet opgegeven'}\nDatum: ${new Date().toLocaleString('nl-BE')}`
+  );
+
+  // Send welcome auto-reply to Customer
+  sendNotificationEmail(
+    'customer_welcome',
+    email,
+    'Welkom bij Maison Milau · Uw account is geactiveerd',
+    `Beste ${name}, van harte welkom bij Maison Milau ambachtelijke branderij.`,
+    `Beste ${name},\n\nHartelijk dank voor uw registratie bij Maison Milau!\n\nUw account is direct actief. U kunt nu:\n- Vers gebrande specialty koffies en giftboxen bestellen\n- Uw leveringen en live roast planning volgen\n- Facturen en betaalstatussen raadplegen\n- Onze blends beoordelen via ons smaakprofiel reviewsysteem\n\nWarme groeten uit het atelier,\nLaurent Michiels · Maison Milau`
+  );
+
+  // Strip password in response
+  const { password: _, ...safeUser } = newUser;
+  res.json({ success: true, message: 'Registratie succesvol! Welkom bij Maison Milau.', user: safeUser });
+});
+
+app.post('/api/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, error: 'Gelieve e-mail en wachtwoord in te vullen.' });
+  }
+
+  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  if (!user || user.password !== password) {
+    return res.status(401).json({ success: false, error: 'Ongeldig e-mailadres of wachtwoord. Probeer opnieuw.' });
+  }
+
+  const { password: _, ...safeUser } = user;
+  res.json({ success: true, message: `Welkom terug, ${user.name}!`, user: safeUser });
+});
+
+app.get('/api/auth/users', (req: Request, res: Response) => {
+  const safeUsers = registeredUsers.map(({ password, ...rest }) => rest);
+  res.json({ success: true, data: safeUsers });
+});
+
+// 11. Coffee Reviews Endpoints
+app.get('/api/reviews', (req: Request, res: Response) => {
+  const coffeeName = req.query.coffeeName as string | undefined;
+  if (coffeeName) {
+    const filtered = coffeeReviews.filter((r) => r.coffeeName.toLowerCase().includes(coffeeName.toLowerCase()));
+    return res.json({ success: true, data: filtered });
+  }
+  res.json({ success: true, data: coffeeReviews });
+});
+
+app.post('/api/reviews', (req: Request, res: Response) => {
+  const { coffeeName, customerName, rating, flavorNotes, tasteReview, profileAccuracy } = req.body;
+  if (!coffeeName || !customerName || !rating || !tasteReview) {
+    return res.status(400).json({ success: false, error: 'Gelieve koffie, naam, score en uw ervaring in te vullen.' });
+  }
+
+  const newReview = {
+    id: `rev-${Date.now()}`,
+    coffeeName,
+    customerName,
+    rating: Number(rating) || 5,
+    flavorNotes: Array.isArray(flavorNotes) ? flavorNotes : ['Gebalanceerd'],
+    tasteReview,
+    profileAccuracy: profileAccuracy || 'Exact conform beloofd profiel',
+    verifiedPurchase: true,
+    createdAt: new Date().toISOString(),
+  };
+
+  coffeeReviews.unshift(newReview);
+  res.json({ success: true, message: 'Bedankt voor uw beoordeling! Uw review is geplaatst.', data: newReview });
+});
+
+// 12. Roastery Management & Stats (Day / Week / Month)
+app.get('/api/admin/roastery-stats', (req: Request, res: Response) => {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // Calculate order counts and kilograms
+  let kgToday = 0;
+  let kgWeek = 0;
+  let kgMonth = 0;
+  let totalKgAll = 0;
+
+  const blendBreakdown: Record<string, { count: number; kg: number }> = {
+    Budget: { count: 0, kg: 0 },
+    Value: { count: 0, kg: 0 },
+    Selection: { count: 0, kg: 0 },
+    Prestige: { count: 0, kg: 0 },
+    Ultimate: { count: 0, kg: 0 },
+    'Barrel Aged': { count: 0, kg: 0 },
+    Infused: { count: 0, kg: 0 },
+    Overig: { count: 0, kg: 0 },
+  };
+
+  orders.forEach((o) => {
+    const oDate = new Date(o.createdAt);
+    const isToday = o.createdAt.startsWith(todayStr);
+    const isThisWeek = oDate >= startOfWeek;
+    const isThisMonth = oDate >= startOfMonth;
+
+    (o.items || []).forEach((item: any) => {
+      // Determine kg per item
+      let itemWeightKg = 1.0;
+      if (item.variantWeight === '250g') itemWeightKg = 0.25;
+      else if (item.variantWeight === '500g') itemWeightKg = 0.5;
+      else if (item.variantWeight === '1kg') itemWeightKg = 1.0;
+      else if (item.variantWeight === '5kg') itemWeightKg = 5.0;
+
+      const totalItemKg = itemWeightKg * (item.quantity || 1);
+      totalKgAll += totalItemKg;
+
+      if (isToday) kgToday += totalItemKg;
+      if (isThisWeek) kgWeek += totalItemKg;
+      if (isThisMonth) kgMonth += totalItemKg;
+
+      // Group by collection/blend
+      const col = item.collection || 'Overig';
+      if (blendBreakdown[col]) {
+        blendBreakdown[col].count += item.quantity || 1;
+        blendBreakdown[col].kg += totalItemKg;
+      } else {
+        blendBreakdown['Overig'].count += item.quantity || 1;
+        blendBreakdown['Overig'].kg += totalItemKg;
+      }
+    });
+  });
+
+  res.json({
+    success: true,
+    data: {
+      periods: {
+        today: {
+          ordersCount: orders.filter((o) => o.createdAt.startsWith(todayStr)).length,
+          kgRoasted: Number(kgToday.toFixed(1)),
+        },
+        thisWeek: {
+          ordersCount: orders.filter((o) => new Date(o.createdAt) >= startOfWeek).length,
+          kgRoasted: Number(kgWeek.toFixed(1)),
+        },
+        thisMonth: {
+          ordersCount: orders.filter((o) => new Date(o.createdAt) >= startOfMonth).length,
+          kgRoasted: Number(kgMonth.toFixed(1)),
+        },
+        allTime: {
+          ordersCount: orders.length,
+          totalKg: Number(totalKgAll.toFixed(1)),
+        },
+      },
+      blendBreakdown,
+      recentOrders: orders.slice(0, 15),
+    },
+  });
+});
+
+// Update roastery order status
+app.patch('/api/orders/:id/status', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status, roasteryStatus } = req.body;
+  const order = orders.find((o) => o.id === id);
+  if (!order) {
+    return res.status(404).json({ success: false, error: 'Order niet gevonden' });
+  }
+
+  if (status) order.status = status;
+  if (roasteryStatus) order.roasteryStatus = roasteryStatus;
+
+  res.json({ success: true, message: `Status van bestelling ${order.orderNumber} bijgewerkt.`, data: order });
+});
+
+// 13. Excel / CSV Export for Roastery & Accounting
+app.get('/api/admin/export/orders.csv', (req: Request, res: Response) => {
+  const headers = ['Ordernummer', 'Datum', 'Klantnaam', 'E-mail', 'Type', 'Artikelen', 'Totaal Bedrag (EUR)', 'Betaalstatus', 'Betaalmethode', 'Tracking'];
+  const rows = orders.map((o) => {
+    const itemsSummary = (o.items || [])
+      .map((it: any) => `${it.quantity}x ${it.productName} (${it.variantWeight}, ${it.grindOption})`)
+      .join('; ');
+    return [
+      `"${o.orderNumber}"`,
+      `"${o.createdAt.slice(0, 10)}"`,
+      `"${o.customerName}"`,
+      `"${o.customerEmail}"`,
+      `"${o.customerType}"`,
+      `"${itemsSummary.replace(/"/g, '""')}"`,
+      `"${o.total.toFixed(2)}"`,
+      `"${o.status}"`,
+      `"${o.paymentMethod}"`,
+      `"${o.trackingCode || ''}"`,
+    ].join(',');
+  });
+
+  const csvContent = [headers.join(','), ...rows].join('\r\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="maison_milau_orders_export.csv"');
+  res.status(200).send('\uFEFF' + csvContent); // Include UTF-8 BOM for Excel
+});
+
+// 14. Email Notifications Log
+app.get('/api/admin/emails', (req: Request, res: Response) => {
+  res.json({ success: true, data: emailNotifications });
+});
+
+// 15. Admin Metrics
 app.get('/api/admin/metrics', (req: Request, res: Response) => {
   const totalRevenue = orders.reduce((acc, o) => acc + (o.status === 'payment_successful' ? o.total : 0), 0);
   res.json({
@@ -910,6 +1390,8 @@ app.get('/api/admin/metrics', (req: Request, res: Response) => {
       totalQuotes: b2bQuotes.length,
       totalEvents: eventInquiries.length,
       totalAppointments: appointments.length,
+      totalUsers: registeredUsers.length,
+      totalReviews: coffeeReviews.length,
     },
   });
 });
@@ -919,8 +1401,6 @@ export default app;
 export { app };
 
 // --- Standalone Server & Vite Setup ---
-const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION);
-
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');

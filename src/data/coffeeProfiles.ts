@@ -3,6 +3,7 @@ import { CoffeeOrigin, CharacterProfile } from '../types';
 export interface CoffeeMeta {
   origins: CoffeeOrigin[];
   characterProfile: CharacterProfile;
+  scaScore?: string;
 }
 
 export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
@@ -18,6 +19,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 2,
     },
+    scaScore: '80-82',
   },
   'budget-omni': {
     origins: [
@@ -30,6 +32,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 2,
     },
+    scaScore: '80-81',
   },
   'budget-filter': {
     origins: [
@@ -42,6 +45,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 2,
       sweetness: 2,
     },
+    scaScore: '80-82',
   },
 
   // --- Value ---
@@ -57,6 +61,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 2,
       sweetness: 3,
     },
+    scaScore: '83-84',
   },
   'value-omni': {
     origins: [
@@ -70,6 +75,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 2,
       sweetness: 3,
     },
+    scaScore: '84+',
   },
   'value-filter': {
     origins: [
@@ -83,6 +89,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 3,
       sweetness: 4,
     },
+    scaScore: '84+',
   },
 
   // --- Selection ---
@@ -98,6 +105,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 3,
       sweetness: 4,
     },
+    scaScore: '85',
   },
   'selection-espresso': {
     origins: [
@@ -111,6 +119,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 3,
     },
+    scaScore: '84-85',
   },
   'selection-filter': {
     origins: [
@@ -124,6 +133,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 4,
       sweetness: 4,
     },
+    scaScore: '85+',
   },
 
   // --- Premium ---
@@ -134,11 +144,12 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       { country: 'Kenia', flag: '🇰🇪' },
     ],
     characterProfile: {
-      description: 'SCA 86. Cacao nibs, melkchocolade, rijpe abrikoos en zwarte bes.',
+      description: 'Cacao nibs, melkchocolade, rijpe abrikoos en zwarte bes.',
       body: 3,
       acidity: 3,
       sweetness: 5,
     },
+    scaScore: '86',
   },
   'premium-espresso': {
     origins: [
@@ -147,11 +158,12 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       { country: 'Colombia', flag: '🇨🇴' },
     ],
     characterProfile: {
-      description: 'SCA 87. Kers, pruim, kokos, hazelnoot, honing en vanille.',
+      description: 'Kers, pruim, kokos, hazelnoot, honing en vanille.',
       body: 4,
       acidity: 3,
       sweetness: 5,
     },
+    scaScore: '87',
   },
   'premium-filter': {
     origins: [
@@ -160,11 +172,12 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       { country: 'Indonesië', flag: '🇮🇩' },
     ],
     characterProfile: {
-      description: 'SCA 87. Groene appel, grapefruit, groene thee, witte druif en sencha.',
+      description: 'Groene appel, grapefruit, groene thee, witte druif en sencha.',
       body: 2,
       acidity: 5,
       sweetness: 4,
     },
+    scaScore: '87',
   },
 
   // --- Prestige ---
@@ -175,11 +188,12 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       { country: 'Colombia', flag: '🇨🇴' },
     ],
     characterProfile: {
-      description: 'SCA 88. Bloesem, lemongrass, delicate bloemen en warme specerijen.',
+      description: 'Bloesem, lemongrass, delicate bloemen en warme specerijen.',
       body: 3,
       acidity: 4,
       sweetness: 5,
     },
+    scaScore: '88',
   },
   'prestige-espresso': {
     origins: [
@@ -188,11 +202,12 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       { country: 'Costa Rica', flag: '🇨🇷' },
     ],
     characterProfile: {
-      description: 'SCA 88. Exotisch met cacao, rode druif en diepe wijnachtige zoetheid.',
+      description: 'Exotisch met cacao, rode druif en diepe wijnachtige zoetheid.',
       body: 4,
       acidity: 4,
       sweetness: 5,
     },
+    scaScore: '88',
   },
   'prestige-filter': {
     origins: [
@@ -200,11 +215,12 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       { country: 'Kenia', flag: '🇰🇪' },
     ],
     characterProfile: {
-      description: 'SCA 89+. Gesha-karakter met jasmijn, bergamot, witte perzik en watermeloen.',
+      description: 'Gesha-karakter met jasmijn, bergamot, witte perzik en watermeloen.',
       body: 2,
       acidity: 5,
       sweetness: 5,
     },
+    scaScore: '89+',
   },
 
   // --- Barrel Aged ---
@@ -216,6 +232,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 2,
       sweetness: 5,
     },
+    scaScore: '87+',
   },
   'casknolia-pedro-ximenez-cask': {
     origins: [{ country: 'Honduras', flag: '🇭🇳' }],
@@ -225,6 +242,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 5,
     },
+    scaScore: '88',
   },
   'buffalo-trace-bourbon-barrel': {
     origins: [{ country: 'Brazilië', flag: '🇧🇷' }],
@@ -234,6 +252,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 4,
     },
+    scaScore: '87+',
   },
 
   // --- Infused ---
@@ -245,6 +264,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 5,
     },
+    scaScore: 'Infused',
   },
   'milau-cinnamon': {
     origins: [
@@ -257,6 +277,7 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 2,
       sweetness: 4,
     },
+    scaScore: 'Infused',
   },
   'milau-almond': {
     origins: [{ country: 'Brazilië', flag: '🇧🇷' }],
@@ -266,34 +287,38 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
       acidity: 1,
       sweetness: 4,
     },
+    scaScore: 'Infused',
   },
 
   // --- Single Origins ---
   'ethiopia-chelbesa-8': {
     origins: [{ country: 'Ethiopië', flag: '🇪🇹' }],
     characterProfile: {
-      description: 'SCA 88.5. Jasmijnbloesem, bergamot en sappige witte perzik.',
+      description: 'Jasmijnbloesem, bergamot en sappige witte perzik.',
       body: 2,
       acidity: 5,
       sweetness: 5,
     },
+    scaScore: '88.5',
   },
   'colombia-ambrosia-pink-bourbon': {
     origins: [{ country: 'Colombia', flag: '🇨🇴' }],
     characterProfile: {
-      description: 'SCA 87. Zeldzame Pink Bourbon met rode bessen, honing en citroen.',
+      description: 'Zeldzame Pink Bourbon met rode bessen, honing en citroen.',
       body: 3,
       acidity: 4,
       sweetness: 5,
     },
+    scaScore: '87',
   },
   'ethiopia-gesha-bench-maji': {
     origins: [{ country: 'Ethiopië', flag: '🇪🇹' }],
     characterProfile: {
-      description: 'SCA 88+. Exclusieve heirloom Gesha met uitzonderlijke florale klasse.',
+      description: 'Exclusieve heirloom Gesha met uitzonderlijke florale klasse.',
       body: 2,
       acidity: 5,
       sweetness: 5,
     },
+    scaScore: '88+',
   },
 };

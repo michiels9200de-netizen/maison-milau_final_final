@@ -4,12 +4,17 @@ import { CONFIG } from '../config';
 
 interface AuthContextType {
   user: User | null;
+  currentUser: User | null;
   company: Company | null;
   isAuthenticated: boolean;
   activeRole: UserRole;
   accountType: 'particulier' | 'professioneel';
   switchAccountType: (type: 'particulier' | 'professioneel') => void;
+  setAccountType: (type: any) => void;
+  switchUser: (id: string) => void;
   login: (email: string, role?: UserRole) => void;
+  loginWithPassword: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  registerUser: (data: any) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
   addAddress: (address: Omit<UserAddress, 'id'>) => void;
   wishlist: string[];
@@ -143,6 +148,70 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithPassword = async (email: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Inloggen mislukt.' };
+      }
+
+      const loggedInUser: User = data.user;
+      setUser(loggedInUser);
+      setAccountType(loggedInUser.accountType);
+
+      if (loggedInUser.accountType === 'professioneel') {
+        setCompany({
+          ...DEFAULT_B2B_COMPANY,
+          name: loggedInUser.companyName || DEFAULT_B2B_COMPANY.name,
+          vatNumber: loggedInUser.vatNumber || DEFAULT_B2B_COMPANY.vatNumber,
+        });
+      } else {
+        setCompany(null);
+      }
+
+      return { success: true, user: loggedInUser };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens inloggen.' };
+    }
+  };
+
+  const registerUser = async (registrationData: any): Promise<{ success: boolean; error?: string; user?: User }> => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Registratie mislukt.' };
+      }
+
+      const newUser: User = data.user;
+      setUser(newUser);
+      setAccountType(newUser.accountType);
+
+      if (newUser.accountType === 'professioneel') {
+        setCompany({
+          ...DEFAULT_B2B_COMPANY,
+          name: newUser.companyName || 'Nieuw B2B Bedrijf',
+          vatNumber: newUser.vatNumber || '',
+        });
+      } else {
+        setCompany(null);
+      }
+
+      return { success: true, user: newUser };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens registratie.' };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setCompany(null);
@@ -166,16 +235,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const switchUser = (id: string) => {
+    if (id.startsWith('b2b')) {
+      switchAccountType('professioneel');
+    } else {
+      switchAccountType('particulier');
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
+        currentUser: user,
         company,
         isAuthenticated: !!user,
         activeRole: user?.role || 'b2c_customer',
         accountType,
         switchAccountType,
+        setAccountType: (type: any) => switchAccountType(type === 'zakelijk' ? 'professioneel' : type),
+        switchUser,
         login,
+        loginWithPassword,
+        registerUser,
         logout,
         addAddress,
         wishlist,

@@ -9,7 +9,10 @@ interface B2BPageProps {
 
 export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   // Calculator State
-  const [monthlyKg, setMonthlyKg] = useState<number>(15);
+  const [settingType, setSettingType] = useState<'kantoor' | 'horeca' | 'residentieel' | 'evenement'>('kantoor');
+  const [peopleCount, setPeopleCount] = useState<number>(15);
+  const [cupsPerPersonPerDay, setCupsPerPersonPerDay] = useState<number>(2.5);
+  const [tasteProfile, setTasteProfile] = useState<'krachtig' | 'toegankelijk' | 'gebalanceerd' | 'exclusief'>('toegankelijk');
   const [machineOption, setMachineOption] = useState<string>('beans_only');
 
   // Form State
@@ -19,20 +22,23 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
     contactPerson: '',
     email: '',
     phone: '',
-    sector: 'Horeca / Restaurant / Café / Koffiebar',
+    sector: 'Kantoor / Bedrijf',
     machineNeed: 'Enkel verse specialty koffiebonen (wij hebben al een machine)',
     notes: '',
   });
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formFeedback, setFormFeedback] = useState<string>('');
 
-  // Indicative calculations
-  // Average 8g of coffee per cup = ~125 cups per kg
-  const estimatedCups = monthlyKg * 125;
-  const basePricePerKg = 28.0; // Base reference price for specialty blend
+  // Dynamic calculations based strictly on Milau Budget pricing (€19.95 / kg)
+  const basePricePerKg = 19.95; // Based on Milau Budget Blend
+  const workingDays = settingType === 'horeca' ? 26 : settingType === 'evenement' ? 12 : 22;
+  const estimatedCups = Math.round(peopleCount * cupsPerPersonPerDay * workingDays);
+  // 8g of coffee per cup = 125 cups per kg
+  const calculatedKg = Math.max(5, Math.ceil((estimatedCups / 125)));
+  const monthlyKg = calculatedKg;
 
-  // B2B discount ladder strictly following instructions:
-  // < 5 kg: 10%
+  // B2B discount ladder:
+  // < 10 kg: 10%
   // 10 to 15 kg: 12%
   // 15 to 30 kg: 15%
   // 30 to 50 kg: 18%
@@ -46,10 +52,34 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   const discountedPricePerKg = basePricePerKg * (1 - discountPct / 100);
   const totalMonthlyCoffee = monthlyKg * discountedPricePerKg;
   const machineCost =
-    machineOption === 'volautomaat' ? 95 : machineOption === 'piston' ? 180 : 0;
+    machineOption === 'volautomaat' ? 69 : machineOption === 'piston' ? 165 : machineOption === 'heavy' ? 99 : 0;
   const totalMonthly = totalMonthlyCoffee + machineCost;
   const costPerCup = totalMonthlyCoffee / estimatedCups;
   const monthlySavings = monthlyKg * basePricePerKg * (discountPct / 100);
+
+  // Dynamic profile recommendation
+  const profileDetails = {
+    krachtig: {
+      name: 'Milau Budget Espresso',
+      notes: 'Donkere cacao, karamel & volle crema. Ideaal voor krachtige espresso en cappuccino.',
+      beans: 'Milau Budget Espresso (SCA 83+)',
+    },
+    toegankelijk: {
+      name: 'Milau Budget Omni',
+      notes: 'Zacht, nootachtig en rond met melkchocolade. Dé allemansvriend voor kantoor en horeca.',
+      beans: 'Milau Budget Omni (SCA 83.5)',
+    },
+    gebalanceerd: {
+      name: 'Milau Budget Filter',
+      notes: 'Subtiele zoetheid, lichte hazelnoot en zuivere afdronk. Perfect voor doordrinkkoffie.',
+      beans: 'Milau Budget Filter (SCA 84)',
+    },
+    exclusief: {
+      name: 'Milau Selection Blend',
+      notes: 'Complexe tonen van steenvruchten en verfijnde citrus. Voor kenners en specialty bars.',
+      beans: 'Milau Selection Daily (SCA 86+)',
+    },
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,34 +173,130 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Controls */}
             <div className="lg:col-span-6 space-y-6">
+              {/* Setting Type Selection */}
               <div>
-                <div className="flex justify-between items-center text-xs font-semibold text-stone-700 mb-2">
-                  <span>Maandelijks volume</span>
-                  <span className="text-sm font-bold text-amber-900">{monthlyKg} kg per maand</span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  step="5"
-                  value={monthlyKg}
-                  onChange={(e) => setMonthlyKg(Number(e.target.value))}
-                  className="w-full accent-amber-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[11px] text-stone-400 mt-1">
-                  <span>5 kg (-10%)</span>
-                  <span>15 kg (-15%)</span>
-                  <span>30 kg (-18%)</span>
-                  <span>50+ kg (-20%)</span>
+                <label className="block text-xs font-semibold text-stone-700 mb-2">
+                  1. Type Onderneming / Setting:
+                </label>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    { id: 'kantoor', label: 'Kantoor / Bedrijf', sub: '22 werkdagen' },
+                    { id: 'horeca', label: 'Horeca Zaak / Café', sub: '26 dagen per mnd' },
+                    { id: 'residentieel', label: 'Residentiële Voorziening', sub: 'Zorg & Co-living' },
+                    { id: 'evenement', label: 'Evenement / Pop-up', sub: 'Flexibele periode' },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        setSettingType(s.id as any);
+                        setFormData((prev) => ({ ...prev, sector: s.label }));
+                      }}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        settingType === s.id
+                          ? 'border-amber-900 bg-amber-50/80 text-amber-950 font-semibold ring-1 ring-amber-900'
+                          : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                      }`}
+                    >
+                      <div>{s.label}</div>
+                      <div className="text-[10px] text-stone-400 font-normal">{s.sub}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div>
-                <div className="text-xs font-semibold text-stone-700 mb-2">
-                  Machineformule optie:
+              {/* People and Daily Cups */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex justify-between items-center text-xs font-semibold text-stone-700 mb-2">
+                    <span>Aantal personen / gasten</span>
+                    <span className="text-sm font-bold text-amber-900">{peopleCount} pers.</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="150"
+                    step="5"
+                    value={peopleCount}
+                    onChange={(e) => setPeopleCount(Number(e.target.value))}
+                    className="w-full accent-amber-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+                    <span>5</span>
+                    <span>50</span>
+                    <span>100</span>
+                    <span>150+</span>
+                  </div>
                 </div>
+
+                <div>
+                  <div className="flex justify-between items-center text-xs font-semibold text-stone-700 mb-2">
+                    <span>Kopjes per persoon/dag</span>
+                    <span className="text-sm font-bold text-amber-900">{cupsPerPersonPerDay} koppen</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    step="0.5"
+                    value={cupsPerPersonPerDay}
+                    onChange={(e) => setCupsPerPersonPerDay(Number(e.target.value))}
+                    className="w-full accent-amber-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+                    <span>1 kop</span>
+                    <span>2.5 koppen</span>
+                    <span>5 koppen</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Taste Profile with dynamic suggestions */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-2">
+                  2. Gewenst Smaak- & Koffieprofiel:
+                </label>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    { id: 'krachtig', label: 'Krachtig & Chocolade', desc: 'Intens, donkere cacao, stevige body' },
+                    { id: 'toegankelijk', label: 'Toegankelijk & Nootachtig', desc: 'Rond, melkchocolade, allemansvriend' },
+                    { id: 'gebalanceerd', label: 'Gebalanceerd & Zacht', desc: 'Lichte hazelnoot, zuivere afdronk' },
+                    { id: 'exclusief', label: 'Exclusief Specialty', desc: 'SCA 86+ complexiteit, fruittoetsen' },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setTasteProfile(p.id as any)}
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                        tasteProfile === p.id
+                          ? 'border-amber-900 bg-amber-50/80 text-amber-950 font-semibold ring-1 ring-amber-900'
+                          : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                      }`}
+                    >
+                      <div className="text-xs">{p.label}</div>
+                      <div className="text-[10px] text-stone-500 font-normal leading-tight mt-0.5">{p.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Dynamic Blend Recommendation Pill */}
+                <div className="mt-2.5 p-3 bg-amber-100/70 border border-amber-300/80 rounded-xl flex items-start gap-2.5">
+                  <Coffee className="w-4 h-4 text-amber-900 shrink-0 mt-0.5" />
+                  <div className="text-xs text-amber-950">
+                    <span className="font-bold">Aanbevolen Blend: </span>
+                    <span className="underline decoration-amber-900/40 font-semibold">{profileDetails[tasteProfile].name}</span>
+                    <p className="text-[11px] text-amber-900/80 mt-0.5">{profileDetails[tasteProfile].notes}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Machine Lease Option */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-2">
+                  3. Machinelease Optie (optioneel):
+                </label>
                 <div className="space-y-2 text-xs">
-                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:bg-stone-50 cursor-pointer">
+                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 cursor-pointer">
                     <input
                       type="radio"
                       name="machine"
@@ -180,15 +306,15 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     />
                     <div>
                       <span className="font-semibold text-stone-800">
-                        Enkel specialty koffiebonen
+                        Enkel verse koffiebonen (+€0 / mnd)
                       </span>
                       <span className="block text-[11px] text-stone-500">
-                        (Wij beschikken reeds over een eigen machine)
+                        Wij beschikken reeds over een eigen machine of leasen elders.
                       </span>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:bg-stone-50 cursor-pointer">
+                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 cursor-pointer">
                     <input
                       type="radio"
                       name="machine"
@@ -198,15 +324,33 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     />
                     <div>
                       <span className="font-semibold text-stone-800">
-                        Bonen + Professionele Volautomaat (+€95/mnd)
+                        Compacte Office Bean-to-Cup Volautomaat (+€69 / mnd)
                       </span>
                       <span className="block text-[11px] text-stone-500">
-                        (One-touch espresso, cappuccino, warm water voor thee)
+                        Tot 40 koppen per dag. One-touch espresso, lungo en warm water.
                       </span>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:bg-stone-50 cursor-pointer">
+                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="machine"
+                      checked={machineOption === 'heavy'}
+                      onChange={() => setMachineOption('heavy')}
+                      className="accent-amber-900"
+                    />
+                    <div>
+                      <span className="font-semibold text-stone-800">
+                        High-Capacity Professionele Volautomaat (+€99 / mnd)
+                      </span>
+                      <span className="block text-[11px] text-stone-500">
+                        Tot 120 koppen per dag. Dubbele uitloop, verse melkopschuimer, vaste wateraansluiting.
+                      </span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 cursor-pointer">
                     <input
                       type="radio"
                       name="machine"
@@ -216,10 +360,10 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     />
                     <div>
                       <span className="font-semibold text-stone-800">
-                        Bonen + 2-groeps Horeca Espressomachine (+€180/mnd)
+                        Traditionele 2-Groeps Horeca Espressomachine (+€165 / mnd)
                       </span>
                       <span className="block text-[11px] text-stone-500">
-                        (Voor restaurants, brasseries en koffiebars inclusief molen)
+                        Voor restaurants, bars en brasseries inclusief professionele on-demand molen.
                       </span>
                     </div>
                   </label>
@@ -229,33 +373,46 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
 
             {/* Results Card */}
             <div className="lg:col-span-6 bg-stone-900 text-stone-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-md">
-              <div className="text-xs uppercase tracking-widest text-amber-400 font-semibold">
-                Indicatieve Berekening
+              <div className="flex items-center justify-between">
+                <div className="text-xs uppercase tracking-widest text-amber-400 font-semibold">
+                  Indicatieve B2B Berekening
+                </div>
+                <div className="text-[11px] text-stone-400">
+                  Basis: Milau Budget (€{basePricePerKg.toFixed(2)}/kg)
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 pb-4 border-b border-stone-800 text-xs">
                 <div>
-                  <div className="text-stone-400">Geschat aantal kopjes per maand</div>
+                  <div className="text-stone-400">Geschat aantal kopjes / mnd</div>
                   <div className="text-xl sm:text-2xl font-bold text-white mt-0.5">
                     ~{estimatedCups} kopjes
                   </div>
                 </div>
                 <div>
-                  <div className="text-stone-400">Kostprijs per kopje:</div>
+                  <div className="text-stone-400">Benodigd bonenvolume:</div>
                   <div className="text-xl sm:text-2xl font-bold text-amber-300 mt-0.5">
-                    €{costPerCup.toFixed(2)}
+                    {monthlyKg} kg / maand
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs text-stone-300 py-2">
+              <div className="space-y-2 text-xs text-stone-300 py-1">
                 <div className="flex justify-between">
-                  <span>Uw B2B prijs per kg:</span>
-                  <span className="font-semibold text-white">€{discountedPricePerKg.toFixed(2)} / kg</span>
+                  <span>Aanbevolen blend:</span>
+                  <span className="font-semibold text-amber-200">{profileDetails[tasteProfile].name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Toegepaste volumekorting:</span>
+                  <span>Uw B2B bonenprijs:</span>
+                  <span className="font-semibold text-white">€{discountedPricePerKg.toFixed(2)} / kg (excl. btw)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Toegepaste staffelkorting:</span>
                   <span className="font-semibold text-emerald-400">-{discountPct}% korting</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Kostprijs per kopje specialty koffie:</span>
+                  <span className="font-bold text-amber-300 text-sm">€{costPerCup.toFixed(2)} per kop</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Uw maandelijkse besparing:</span>
@@ -263,8 +420,22 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-stone-800 flex justify-between items-baseline">
-                <div className="text-sm font-medium text-stone-300">Totaal maandelijks:</div>
+              {/* Service Always Free Notice */}
+              <div className="p-3.5 bg-amber-950/80 rounded-xl border border-amber-700/80 text-xs text-amber-100 space-y-1">
+                <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>SERVICE IS ALTIJD 100% GRATIS & INBEGREPEN</span>
+                </div>
+                <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                  Geen voorrijkosten, all-in preventief onderhoud, periodieke ontkalking en gratis wisselmachine binnen 24 uur bij storing. Geen verborgen kosten.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-stone-800 flex justify-between items-baseline">
+                <div>
+                  <div className="text-sm font-medium text-stone-300">Totaal maandelijks:</div>
+                  <div className="text-[11px] text-stone-400">Koffie + gekozen apparatuur</div>
+                </div>
                 <div className="text-2xl sm:text-3xl font-bold text-amber-100">
                   €{totalMonthly.toFixed(2)}{' '}
                   <span className="text-xs text-stone-400 font-normal">/ mnd</span>
@@ -273,9 +444,9 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
 
               <a
                 href="#b2b-form"
-                className="w-full mt-4 bg-amber-700 hover:bg-amber-600 text-white py-3 rounded-xl font-semibold text-xs uppercase tracking-wider text-center block transition-colors shadow-xs"
+                className="w-full mt-2 bg-amber-700 hover:bg-amber-600 text-white py-3 rounded-xl font-semibold text-xs uppercase tracking-wider text-center block transition-colors shadow-xs"
               >
-                Vraag Offerte aan
+                Vraag B2B Voorstel aan voor {peopleCount} personen
               </a>
             </div>
           </div>
