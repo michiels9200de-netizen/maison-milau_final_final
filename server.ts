@@ -693,7 +693,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
   const isKeyValid = Boolean(apiKey && (apiKey.startsWith('live_') || apiKey.startsWith('test_')) && apiKey.length >= 25);
 
   let realMolliePayment: any = null;
-  let checkoutUrl = `/checkout/success?orderId=${orderId}`;
+  let checkoutUrl = payload.redirectUrl ? `${payload.redirectUrl}${payload.redirectUrl.includes('?') ? '&' : '?'}orderId=${orderId}` : `/checkout?orderId=${orderId}&status=success`;
   let molliePaymentId = `sim_${Date.now()}`;
 
   // Call Mollie API via official @mollie/api-client if MOLLIE_API_KEY is configured
@@ -702,7 +702,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
       const mollieClient = getMollieClient(apiKey);
       const profile = await getMollieProfileInfo(apiKey);
       const registeredDomain = profile?.website?.replace(/\/$/, '') || 'https://www.maison-milau.be';
-      const redirectUrl = payload.redirectUrl || `${registeredDomain}/checkout/success?orderId=${orderId}`;
+      const redirectUrl = payload.redirectUrl || `${registeredDomain}/checkout?orderId=${orderId}&status=success`;
       const webhookUrl = payload.webhookUrl || `${registeredDomain}/api/mollie/webhook`;
 
       // Map method to Mollie API method if specified
@@ -732,6 +732,10 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
             ...(payload.metadata || {}),
           },
         };
+
+        if (payload.cancelUrl) {
+          paymentParams.cancelUrl = payload.cancelUrl;
+        }
 
         if (mollieMethod) {
           paymentParams.method = mollieMethod;

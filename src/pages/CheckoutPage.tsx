@@ -37,6 +37,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState<any>(null);
+  const [paymentCancelled, setPaymentCancelled] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pendingPayment, setPendingPayment] = useState<{
     paymentId: string;
     checkoutUrl: string;
@@ -52,9 +54,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
       .then((data: MollieStatus) => setMollieStatus(data))
       .catch((err) => console.error('Fout bij controleren van Mollie status:', err));
 
-    // Check if customer returned with orderId parameter
+    // Check if customer returned with orderId or cancel parameter
     const params = new URLSearchParams(window.location.search);
     const orderIdParam = params.get('orderId');
+    const statusParam = params.get('status');
+
+    if (statusParam === 'cancelled' || statusParam === 'canceled' || params.get('canceled') === 'true') {
+      setPaymentCancelled(true);
+    }
+
     if (orderIdParam) {
       fetch(`/api/orders/${orderIdParam}`)
         .then((res) => res.json())
@@ -126,6 +134,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
     if (items.length === 0) return;
 
     setIsProcessing(true);
+    setErrorMessage(null);
+    setPaymentCancelled(false);
+
     try {
       const orderPayload = {
         userId: currentUser?.id || 'guest',
@@ -142,38 +153,48 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
           postalCode: formData.postalCode,
           country: 'België',
         },
+        billingAddress: {
+          street: formData.street,
+          houseNumber: formData.houseNumber,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          country: 'België',
+        },
         paymentMethod: formData.paymentMethod,
         subtotal,
         shippingCost: effectiveShipping,
         total: grandTotal,
+        redirectUrl: `${window.location.origin}/checkout?status=success`,
+        cancelUrl: `${window.location.origin}/checkout?status=cancelled`,
       };
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload),
       });
+
       const data = await res.json();
-      if (data.success) {
-        if (data.checkoutUrl && data.checkoutUrl.startsWith('http')) {
-          // Open Mollie's real hosted checkout page in a secure window
-          try {
-            window.open(data.checkoutUrl, '_blank');
-          } catch (e) {
-            console.warn('Popup geblokkeerd door browser:', e);
-          }
-          setPendingPayment({
-            paymentId: data.molliePaymentId,
-            checkoutUrl: data.checkoutUrl,
-            order: data.data,
-          });
-        } else {
-          setOrderComplete(data.data);
-          clearCart();
-        }
+
+      if (!res.ok || (!data.success && !data.checkoutUrl)) {
+        const errorMsg = data.error || 'Er is een fout opgetreden bij het starten van de Mollie betaling.';
+        setErrorMessage(errorMsg);
+        alert(errorMsg);
+        return;
       }
-    } catch (err) {
-      console.error(err);
+
+      if (data.checkoutUrl) {
+        // Automatically redirect user to Mollie checkout page or success page
+        window.location.href = data.checkoutUrl;
+      } else if (data.data) {
+        setOrderComplete(data.data);
+        clearCart();
+      }
+    } catch (err: any) {
+      console.error('Betalingsfout:', err);
+      const errorMsg = err.message || 'Kon geen verbinding maken met de betaalserver.';
+      setErrorMessage(errorMsg);
+      alert(errorMsg);
     } finally {
       setIsProcessing(false);
     }
@@ -332,6 +353,28 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 mb-8">
           Afrekenen & Betaling
         </h1>
+
+        {paymentCancelled && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-900 text-sm">
+            <AlertCircle className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold">Betaling geannuleerd via Mollie</p>
+              <p className="text-xs text-amber-800 mt-0.5">
+                Uw betaling is geannuleerd of niet voltooid. Uw winkelmand is bewaard zodat u het opnieuw kunt proberen.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-900 text-sm">
+            <AlertCircle className="w-5 h-5 text-rose-700 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold">Fout bij starten van betaling</p>
+              <p className="text-xs text-rose-800 mt-0.5">{errorMessage}</p>
+            </div>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
@@ -674,19 +717,27 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 </div>
 
                 <button
+                  id="btn-pay-now"
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full bg-amber-900 hover:bg-amber-800 text-white py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-colors"
+                  className="w-full bg-amber-900 hover:bg-amber-800 disabled:bg-stone-400 disabled:cursor-not-allowed text-white py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-colors"
                 >
-                  <Lock className="w-4 h-4" />
-                  <span>
-                    {isProcessing ? 'Betaling Verwerken via Mollie...' : `Betaal €${grandTotal.toFixed(2)} via Mollie`}
-                  </span>
+                  {isProcessing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin text-amber-200" />
+                      <span>Bezig met doorsturen naar Mollie...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span>Betaal nu</span>
+                    </>
+                  )}
                 </button>
 
                 <div className="flex items-center justify-center gap-2 text-[11px] text-stone-500 pt-1">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>256-bit SSL beveiligde checkout · Mollie Payments</span>
+                  <span>256-bit SSL beveiligde checkout · Mollie Payments (€{grandTotal.toFixed(2)})</span>
                 </div>
               </div>
             </div>
