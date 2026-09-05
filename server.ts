@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
+import { createMollieClient } from '@mollie/api-client';
 
 dotenv.config();
 
@@ -403,6 +404,18 @@ app.get('/api/config', (req: Request, res: Response) => {
   });
 });
 
+// Helper: Get Mollie SDK Client Instance
+export function getMollieClient(apiKey?: string) {
+  const key = apiKey || process.env.MOLLIE_API_KEY || '';
+  if (!key || key.includes('your_mollie')) return null;
+  try {
+    return createMollieClient({ apiKey: key });
+  } catch (err) {
+    console.error('[Mollie Client Init Error]', err);
+    return null;
+  }
+}
+
 // Helper: Fetch Mollie Profile Info
 async function getMollieProfileInfo(apiKey: string) {
   if (!apiKey || apiKey.includes('your_mollie')) return null;
@@ -630,9 +643,28 @@ app.post('/api/mollie/test-pipeline', async (req: Request, res: Response) => {
 
 // Shared Order & Payment Creation Function
 async function handleCreateOrderAndPayment(payload: any, req: Request) {
-  const items = payload.items || payload.orderData?.items || [];
+  let items = payload.items || payload.orderData?.items || [];
+  
+  // Allow direct payment payloads (e.g. { amount: 15.00, description: '...' })
   if (!items || items.length === 0) {
-    throw new Error('Winkelmand is leeg');
+    const rawAmt = typeof payload.amount === 'number'
+      ? payload.amount
+      : typeof payload.amount === 'string'
+      ? parseFloat(payload.amount)
+      : payload.amount?.value
+      ? parseFloat(payload.amount.value)
+      : null;
+
+    if (rawAmt && !isNaN(rawAmt)) {
+      items = [{
+        id: 'item-direct',
+        name: payload.description || 'Maison Milau Koffie & Producten',
+        price: rawAmt,
+        quantity: 1,
+      }];
+    } else {
+      throw new Error('Winkelmand is leeg');
+    }
   }
 
   const customerName = payload.customerName || payload.orderData?.customerName || 'Klant';
@@ -648,7 +680,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     country: 'België',
   };
   const paymentMethod = payload.paymentMethod || payload.orderData?.paymentMethod || 'bancontact';
-  const subtotal = Number(payload.subtotal || payload.orderData?.subtotal || 0);
+  const subtotal = Number(payload.subtotal || payload.orderData?.subtotal || items.reduce((sum: number, it: any) => sum + (it.price * (it.quantity || 1)), 0));
   const shippingCost = Number(payload.shippingCost || payload.orderData?.shippingCost || 0);
   const total = Number(payload.total || payload.orderData?.total || (subtotal + shippingCost));
   const vatAmount = Number((((subtotal / 1.06) * 0.06) + ((shippingCost / 1.21) * 0.21)).toFixed(2));
@@ -658,22 +690,23 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
   const invoiceNumber = `INV-2026-${Date.now().toString().slice(-4)}`;
 
   const apiKey = process.env.MOLLIE_API_KEY || '';
-  const isKeyValid = Boolean(apiKey && (apiKey.startsWith('live_') || apiKey.startsWith('test_')) && apiKey.length >= 30);
+  const isKeyValid = Boolean(apiKey && (apiKey.startsWith('live_') || apiKey.startsWith('test_')) && apiKey.length >= 25);
 
   let realMolliePayment: any = null;
   let checkoutUrl = `/checkout/success?orderId=${orderId}`;
   let molliePaymentId = `sim_${Date.now()}`;
 
-  // Call real Mollie API if API key is configured
+  // Call Mollie API via official @mollie/api-client if MOLLIE_API_KEY is configured
   if (isKeyValid) {
     try {
+      const mollieClient = getMollieClient(apiKey);
       const profile = await getMollieProfileInfo(apiKey);
       const registeredDomain = profile?.website?.replace(/\/$/, '') || 'https://www.maison-milau.be';
-      const redirectUrl = `${registeredDomain}/checkout/success?orderId=${orderId}`;
-      const webhookUrl = `${registeredDomain}/api/mollie/webhook`;
+      const redirectUrl = payload.redirectUrl || `${registeredDomain}/checkout/success?orderId=${orderId}`;
+      const webhookUrl = payload.webhookUrl || `${registeredDomain}/api/mollie/webhook`;
 
       // Map method to Mollie API method if specified
-      let mollieMethod: string | undefined = undefined;
+      let mollieMethod: any = undefined;
       if (paymentMethod === 'bancontact') mollieMethod = 'bancontact';
       else if (paymentMethod === 'ideal') mollieMethod = 'ideal';
       else if (paymentMethod === 'creditcard') mollieMethod = 'creditcard';
@@ -681,47 +714,41 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
       else if (paymentMethod === 'kbc') mollieMethod = 'kbc';
       else if (paymentMethod === 'belfius') mollieMethod = 'belfius';
 
-      const molliePayload: any = {
-        amount: {
-          currency: 'EUR',
-          value: total.toFixed(2),
-        },
-        description: `Maison Milau - Bestelling ${orderNumber}`,
-        redirectUrl,
-        webhookUrl,
-        metadata: {
-          orderId,
-          orderNumber,
-          customerEmail,
-          deliveryMethod,
-        },
-      };
+      if (mollieClient) {
+        console.log(`[Mollie SDK] Creating payment for ${orderNumber}, amount: €${total.toFixed(2)}`);
+        const paymentParams: any = {
+          amount: {
+            currency: 'EUR',
+            value: total.toFixed(2),
+          },
+          description: payload.description || `Maison Milau - Bestelling ${orderNumber}`,
+          redirectUrl,
+          webhookUrl,
+          metadata: {
+            orderId,
+            orderNumber,
+            customerEmail,
+            deliveryMethod,
+            ...(payload.metadata || {}),
+          },
+        };
 
-      if (mollieMethod) {
-        molliePayload.method = mollieMethod;
-      }
+        if (mollieMethod) {
+          paymentParams.method = mollieMethod;
+        }
 
-      console.log(`[Mollie API] Creating real payment for ${orderNumber}, amount: €${total.toFixed(2)}`);
-      const mollieRes = await fetch('https://api.mollie.com/v2/payments', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(molliePayload),
-      });
-
-      const mollieData = await mollieRes.json();
-      if (mollieRes.ok && mollieData.id) {
-        realMolliePayment = mollieData;
-        molliePaymentId = mollieData.id;
-        checkoutUrl = mollieData._links?.checkout?.href || checkoutUrl;
-        console.log(`[Mollie API] Payment created successfully: ${molliePaymentId}, checkoutUrl: ${checkoutUrl}`);
-      } else {
-        console.warn('[Mollie API Warning] Payment creation returned:', mollieData);
+        const payment = await mollieClient.payments.create(paymentParams);
+        realMolliePayment = payment;
+        molliePaymentId = payment.id;
+        const url = (typeof payment.getCheckoutUrl === 'function' ? payment.getCheckoutUrl() : null) || payment._links?.checkout?.href;
+        if (url) {
+          checkoutUrl = url;
+        }
+        console.log(`[Mollie SDK] Payment created successfully: ${molliePaymentId}, checkoutUrl: ${checkoutUrl}`);
       }
     } catch (mollieErr: any) {
-      console.error('[Mollie API Error]', mollieErr.message);
+      console.error('[Mollie SDK Payment Error]', mollieErr.message);
+      // If live credentials are in verification mode, retain simulated checkoutUrl for preview stability
     }
   }
 
@@ -811,10 +838,39 @@ app.post('/api/orders', async (req: Request, res: Response) => {
 });
 
 // 3. MOLLIE Payments Integration
+// Server-side API endpoint that creates a Mollie payment using MOLLIE_API_KEY and returns checkoutUrl
 app.post('/api/mollie/create-payment', async (req: Request, res: Response) => {
   try {
     const result = await handleCreateOrderAndPayment(req.body, req);
-    res.json(result);
+    res.json({
+      success: true,
+      checkoutUrl: result.checkoutUrl,
+      paymentId: result.molliePaymentId,
+      orderId: result.orderId,
+      orderNumber: result.orderNumber,
+      invoiceNumber: result.invoiceNumber,
+      isRealMollie: result.isRealMollie,
+      data: result.data,
+    });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// Direct alias endpoint for Mollie payment creation
+app.post('/api/create-payment', async (req: Request, res: Response) => {
+  try {
+    const result = await handleCreateOrderAndPayment(req.body, req);
+    res.json({
+      success: true,
+      checkoutUrl: result.checkoutUrl,
+      paymentId: result.molliePaymentId,
+      orderId: result.orderId,
+      orderNumber: result.orderNumber,
+      invoiceNumber: result.invoiceNumber,
+      isRealMollie: result.isRealMollie,
+      data: result.data,
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });
   }
