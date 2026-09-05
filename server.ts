@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // URL normalization only for Vercel Serverless Functions
-const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION);
+const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
 if (isVercel) {
   app.use((req, res, next) => {
     if (!req.url.startsWith('/api')) {
