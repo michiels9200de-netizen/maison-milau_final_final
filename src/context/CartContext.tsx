@@ -4,8 +4,21 @@ import { CartItem } from '../types';
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
-  updateQuantity: (productId: string, variantWeight: string, grind: string, delta: number) => void;
-  removeItem: (productId: string, variantWeight: string, grind: string) => void;
+  updateQuantity: (
+    productId: string,
+    variantWeight: string,
+    grind: string,
+    delta: number,
+    selectedColor?: string,
+    selectedSize?: string
+  ) => void;
+  removeItem: (
+    productId: string,
+    variantWeight: string,
+    grind: string,
+    selectedColor?: string,
+    selectedSize?: string
+  ) => void;
   clearCart: () => void;
   itemCount: number;
   subtotal: number;
@@ -45,7 +58,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         (i) =>
           i.productId === itemToAdd.productId &&
           i.variantWeight === itemToAdd.variantWeight &&
-          i.grindOption === itemToAdd.grindOption
+          i.grindOption === itemToAdd.grindOption &&
+          i.selectedColor === itemToAdd.selectedColor &&
+          i.selectedSize === itemToAdd.selectedSize &&
+          JSON.stringify(i.selectedBeans || []) === JSON.stringify(itemToAdd.selectedBeans || [])
       );
       if (index > -1) {
         const updated = [...prev];
@@ -57,14 +73,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsCartOpen(true);
   };
 
-  const updateQuantity = (productId: string, variantWeight: string, grind: string, delta: number) => {
+  const updateQuantity = (
+    productId: string,
+    variantWeight: string,
+    grind: string,
+    delta: number,
+    selectedColor?: string,
+    selectedSize?: string
+  ) => {
     setItems((prev) => {
       return prev
         .map((item) => {
           if (
             item.productId === productId &&
             item.variantWeight === variantWeight &&
-            item.grindOption === grind
+            item.grindOption === grind &&
+            (!selectedColor || item.selectedColor === selectedColor) &&
+            (!selectedSize || item.selectedSize === selectedSize)
           ) {
             const newQty = item.quantity + delta;
             return newQty > 0 ? { ...item, quantity: newQty } : null;
@@ -75,14 +100,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const removeItem = (productId: string, variantWeight: string, grind: string) => {
+  const removeItem = (
+    productId: string,
+    variantWeight: string,
+    grind: string,
+    selectedColor?: string,
+    selectedSize?: string
+  ) => {
     setItems((prev) =>
       prev.filter(
         (i) =>
           !(
             i.productId === productId &&
             i.variantWeight === variantWeight &&
-            i.grindOption === grind
+            i.grindOption === grind &&
+            (!selectedColor || i.selectedColor === selectedColor) &&
+            (!selectedSize || i.selectedSize === selectedSize)
           )
       )
     );

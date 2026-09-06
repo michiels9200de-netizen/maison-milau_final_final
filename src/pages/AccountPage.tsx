@@ -351,8 +351,17 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                                   {item.productName}
                                 </span>{' '}
                                 <span className="text-[11px] text-stone-500">
-                                  ({item.variantWeight}, {item.grindOption}) × {item.quantity}
+                                  {item.selectedColor ? (
+                                    <span>(Kleur: {item.selectedColor}, Maat: {item.selectedSize || 'L'}) × {item.quantity}</span>
+                                  ) : (
+                                    <span>({item.variantWeight}, {item.grindOption}) × {item.quantity}</span>
+                                  )}
                                 </span>
+                                {item.selectedBeans && item.selectedBeans.length > 0 && (
+                                  <div className="text-[10px] text-amber-900 mt-0.5">
+                                    Bonenselectie: {item.selectedBeans.join(', ')}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="font-mono text-stone-800 font-semibold">

@@ -359,14 +359,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                           <td className="p-3">
                             <ul className="space-y-1">
                               {(order.items || []).map((it, idx) => (
-                                <li key={idx} className="flex items-center gap-1.5">
-                                  <Coffee className="w-3.5 h-3.5 text-amber-900 shrink-0" />
-                                  <span className="font-medium text-stone-900">
-                                    {it.quantity}x {it.productName}
-                                  </span>
-                                  <span className="text-[10px] text-stone-500">
-                                    ({it.variantWeight}, {it.grindOption})
-                                  </span>
+                                <li key={idx} className="flex flex-col text-xs">
+                                  <div className="flex items-center gap-1.5">
+                                    <Coffee className="w-3.5 h-3.5 text-amber-900 shrink-0" />
+                                    <span className="font-medium text-stone-900">
+                                      {it.quantity}x {it.productName}
+                                    </span>
+                                    <span className="text-[10px] text-stone-500">
+                                      {it.selectedColor ? `(${it.selectedColor}, ${it.selectedSize || 'L'})` : `(${it.variantWeight}, ${it.grindOption})`}
+                                    </span>
+                                  </div>
+                                  {it.selectedBeans && it.selectedBeans.length > 0 && (
+                                    <div className="text-[10px] text-amber-800 ml-5 font-mono">
+                                      ↳ Bonen: {it.selectedBeans.join(', ')}
+                                    </div>
+                                  )}
                                 </li>
                               ))}
                             </ul>

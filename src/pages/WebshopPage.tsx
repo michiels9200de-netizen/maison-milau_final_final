@@ -14,15 +14,40 @@ interface WebshopPageProps {
 }
 
 const AVAILABLE_BEANS_FOR_GIFTBOX = [
-  'Milau Selection Daily (SCA 85)',
-  'Milau Value Espresso (SCA 84)',
-  'Milau Premium Filter (SCA 87)',
-  'Milau Prestige Espresso (SCA 88)',
+  'Budget Espresso (SCA 82)',
+  'Budget Omni (SCA 82)',
+  'Budget Filter (SCA 82)',
+  'Value Espresso (SCA 84)',
+  'Value Omni (SCA 84)',
+  'Value Filter (SCA 84)',
+  'Selection Daily (SCA 85)',
+  'Selection Espresso (SCA 85)',
+  'Selection Filter (SCA 85)',
+  'Premium Daily (SCA 87)',
+  'Premium Espresso (SCA 87)',
+  'Premium Filter (SCA 87)',
+  'Prestige Daily (SCA 88)',
+  'Prestige Espresso (SCA 88)',
+  'Prestige Filter (SCA 88)',
   'Moscatel Barrel Aged (SCA 87+)',
-  'Ethiopia Chelbesa #8 Single Origin (SCA 88.5)',
-  'Colombia Ambrosia Pink Bourbon (SCA 87)',
-  'Milau Infused Bourbon Vanille',
+  'Pedro Ximénez Barrel Aged (SCA 87+)',
+  'Buffalo Trace Bourbon Barrel (SCA 88+)',
+  'Milau Vanilla Infused',
+  'Milau Cinnamon Infused',
+  'Milau Almond Infused',
+  'Gesha Betulia Single Origin (SCA 90+)',
+  'Pink Bourbon Betulia Single Origin (SCA 88+)',
 ];
+
+const TSHIRT_COLORS = [
+  { name: 'Zwart', hex: '#1c1917' },
+  { name: 'Blauw', hex: '#2563eb' },
+  { name: 'Groen', hex: '#15803d' },
+  { name: 'Rood', hex: '#dc2626' },
+  { name: 'Roze', hex: '#ec4899' },
+];
+
+const TSHIRT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
 export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams }) => {
   const { addItem } = useCart();
@@ -33,6 +58,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const [purchaseTypes, setPurchaseTypes] = useState<{ [productId: string]: 'eenmalig' | 'abonnement' }>({});
   const [subscriptionFrequencies, setSubscriptionFrequencies] = useState<{ [productId: string]: '2_weken' | '4_weken' }>({});
   const [giftboxSelections, setGiftboxSelections] = useState<{ [productId: string]: string[] }>({});
+  const [selectedTshirtColor, setSelectedTshirtColor] = useState<{ [productId: string]: string }>({});
+  const [selectedTshirtSize, setSelectedTshirtSize] = useState<{ [productId: string]: string }>({});
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewCoffeeName, setReviewCoffeeName] = useState('Selection Daily');
@@ -54,6 +81,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const categories = [
     { id: 'all', name: 'Alles' },
     { id: 'blends', name: 'Maison Milau Speciality Blends' },
+    { id: 'single_origins', name: 'Single Origins' },
     { id: 'barrel_aged', name: 'Barrel Aged Coffees' },
     { id: 'infused', name: 'Infused Coffees' },
     { id: 'giftboxes', name: 'Giftboxen & Proefpakketten' },
@@ -123,6 +151,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
       ? (giftboxSelections[product.id] || AVAILABLE_BEANS_FOR_GIFTBOX.slice(0, choiceCount))
       : undefined;
 
+    const isTshirt = product.id === 'prod-acc-tshirt';
+    const selectedColor = isTshirt ? (selectedTshirtColor[product.id] || 'Zwart') : undefined;
+    const selectedSize = isTshirt ? (selectedTshirtSize[product.id] || 'L') : undefined;
+
     addItem({
       productId: product.id,
       productName: product.name,
@@ -135,6 +167,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
       purchaseType,
       subscriptionFrequency: purchaseType === 'abonnement' ? frequency : undefined,
       selectedBeans,
+      selectedColor,
+      selectedSize,
     });
   };
 
@@ -357,6 +391,67 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                             {grind}
                           </button>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* T-shirt Color and Size Selectors */}
+                  {product.id === 'prod-acc-tshirt' && (
+                    <div className="mb-4 space-y-3 bg-stone-50 border border-stone-200 rounded-xl p-3">
+                      <div>
+                        <div className="text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <span>Kleur:</span>
+                          <span className="font-bold text-stone-800">{selectedTshirtColor[product.id] || 'Zwart'}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {TSHIRT_COLORS.map((col) => {
+                            const isSelected = (selectedTshirtColor[product.id] || 'Zwart') === col.name;
+                            return (
+                              <button
+                                key={col.name}
+                                type="button"
+                                onClick={() => setSelectedTshirtColor({ ...selectedTshirtColor, [product.id]: col.name })}
+                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                  isSelected
+                                    ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
+                                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                                }`}
+                              >
+                                <span
+                                  className="w-3 h-3 rounded-full border border-black/20 shrink-0"
+                                  style={{ backgroundColor: col.hex }}
+                                />
+                                <span>{col.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <span>Maat:</span>
+                          <span className="font-bold text-stone-800">{selectedTshirtSize[product.id] || 'L'}</span>
+                        </div>
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {TSHIRT_SIZES.map((sz) => {
+                            const isSelected = (selectedTshirtSize[product.id] || 'L') === sz;
+                            return (
+                              <button
+                                key={sz}
+                                type="button"
+                                onClick={() => setSelectedTshirtSize({ ...selectedTshirtSize, [product.id]: sz })}
+                                className={`py-1.5 rounded-lg text-xs font-bold border text-center transition-all ${
+                                  isSelected
+                                    ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
+                                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                                }`}
+                              >
+                                {sz}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}

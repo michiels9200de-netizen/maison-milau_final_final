@@ -313,6 +313,35 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
               <span className="text-stone-500">Trackingcode:</span>
               <span className="font-mono text-amber-900">{orderComplete.trackingCode}</span>
             </div>
+
+            {orderComplete.items && orderComplete.items.length > 0 && (
+              <div className="pt-2.5 border-t border-stone-200 space-y-1.5">
+                <span className="text-stone-500 font-medium">Bestelde artikelen:</span>
+                <div className="space-y-1.5">
+                  {orderComplete.items.map((it: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-start text-[11px] gap-2">
+                      <div>
+                        <span className="font-semibold text-stone-900">{it.productName}</span>
+                        <div className="text-stone-500 text-[10px]">
+                          {it.selectedColor ? (
+                            <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
+                          ) : (
+                            <span>{it.variantWeight} · {it.grindOption} × {it.quantity}</span>
+                          )}
+                          {it.selectedBeans && it.selectedBeans.length > 0 && (
+                            <div className="text-amber-900">
+                              Bonen: {it.selectedBeans.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="font-medium text-stone-800 shrink-0">€{((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between pt-2 border-t border-stone-200 font-bold text-stone-900 text-sm">
               <span>Totaal voldaan:</span>
               <span>€{orderComplete.total.toFixed(2)}</span>
@@ -675,17 +704,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 </h2>
 
                 <div className="divide-y divide-stone-100 max-h-72 overflow-y-auto text-xs">
-                  {items.map((it) => (
+                  {items.map((it, idx) => (
                     <div
-                      key={`${it.productId}-${it.variantWeight}-${it.grindOption}`}
-                      className="py-3 flex justify-between items-center gap-3"
+                      key={`${it.productId}-${it.variantWeight}-${it.grindOption}-${it.selectedColor || ''}-${it.selectedSize || ''}-${idx}`}
+                      className="py-3 flex justify-between items-start gap-3"
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-start gap-2.5 min-w-0">
                         {it.imageUrl && (
                           <img
                             src={it.imageUrl}
                             alt={it.productName}
-                            className="w-9 h-9 object-cover rounded-md border border-stone-200 shrink-0"
+                            className="w-9 h-9 object-cover rounded-md border border-stone-200 shrink-0 mt-0.5"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
@@ -694,8 +723,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         <div className="min-w-0">
                           <div className="font-semibold text-stone-900 truncate">{it.productName}</div>
                           <div className="text-stone-500 text-[11px]">
-                            {it.variantWeight} · {it.grindOption} × {it.quantity}
+                            {it.selectedColor ? (
+                              <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
+                            ) : (
+                              <span>{it.variantWeight} · {it.grindOption} × {it.quantity}</span>
+                            )}
                           </div>
+                          {it.selectedBeans && it.selectedBeans.length > 0 && (
+                            <div className="text-[10px] text-amber-900 line-clamp-2 mt-0.5">
+                              Bonen: {it.selectedBeans.join(', ')}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="font-semibold text-stone-900 shrink-0">

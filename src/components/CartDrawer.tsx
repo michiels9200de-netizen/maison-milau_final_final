@@ -99,9 +99,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                 </button>
               </div>
             ) : (
-              items.map((item) => (
+              items.map((item, idx) => (
                 <div
-                  key={`${item.productId}-${item.variantWeight}-${item.grindOption}`}
+                  key={`${item.productId}-${item.variantWeight}-${item.grindOption}-${item.selectedColor || ''}-${item.selectedSize || ''}-${idx}`}
                   className="py-4 flex gap-4 items-start"
                 >
                   <div className="w-16 h-16 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
@@ -155,7 +155,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                       <div className="flex items-center border border-stone-200 rounded-md">
                         <button
                           onClick={() =>
-                            updateQuantity(item.productId, item.variantWeight, item.grindOption, -1)
+                            updateQuantity(item.productId, item.variantWeight, item.grindOption, -1, item.selectedColor, item.selectedSize)
                           }
                           className="p-1 hover:bg-stone-100 text-stone-600"
                           aria-label="Aantal verlagen"
@@ -167,7 +167,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                         </span>
                         <button
                           onClick={() =>
-                            updateQuantity(item.productId, item.variantWeight, item.grindOption, 1)
+                            updateQuantity(item.productId, item.variantWeight, item.grindOption, 1, item.selectedColor, item.selectedSize)
                           }
                           className="p-1 hover:bg-stone-100 text-stone-600"
                           aria-label="Aantal verhogen"
@@ -182,7 +182,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                         </span>
                         <button
                           onClick={() =>
-                            removeItem(item.productId, item.variantWeight, item.grindOption)
+                            removeItem(item.productId, item.variantWeight, item.grindOption, item.selectedColor, item.selectedSize)
                           }
                           className="text-stone-400 hover:text-red-600 p-1 transition-colors"
                           aria-label="Verwijderen"
