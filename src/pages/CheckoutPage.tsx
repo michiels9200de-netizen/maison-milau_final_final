@@ -25,15 +25,29 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   const [deliveryMethod, setDeliveryMethod] = useState<'bpost' | 'atelier' | 'markt'>('bpost');
   const [marketLocation, setMarketLocation] = useState<string>('Dendermonde (Maandag)');
   const [formData, setFormData] = useState({
-    name: currentUser?.name || 'Laurent Michiels',
-    email: currentUser?.email || 'laurent@example.be',
-    phone: '+32 470 12 34 56',
-    street: 'Kerkstraat',
-    houseNumber: '14',
-    postalCode: '9200',
-    city: 'Dendermonde',
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    phone: currentUser?.phone || '',
+    street: currentUser?.addresses?.[0]?.street || '',
+    houseNumber: '1',
+    postalCode: currentUser?.addresses?.[0]?.postalCode || '',
+    city: currentUser?.addresses?.[0]?.city || '',
     paymentMethod: 'bancontact',
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: currentUser.name || prev.name,
+        email: currentUser.email || prev.email,
+        phone: currentUser.phone || prev.phone,
+        street: currentUser.addresses?.[0]?.street || prev.street,
+        postalCode: currentUser.addresses?.[0]?.postalCode || prev.postalCode,
+        city: currentUser.addresses?.[0]?.city || prev.city,
+      }));
+    }
+  }, [currentUser]);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState<any>(null);
@@ -168,9 +182,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
         cancelUrl: `${window.location.origin}/checkout?status=cancelled`,
       };
 
+      const authToken = localStorage.getItem('mm_auth_token');
       const res = await fetch('/api/create-payment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
         body: JSON.stringify(orderPayload),
       });
 

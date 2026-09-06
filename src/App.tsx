@@ -67,6 +67,11 @@ export default function App() {
       case '/checkout':
         return <CheckoutPage navigate={navigate} />;
       case '/account':
+      case '/login':
+      case '/register':
+      case '/forgot-password':
+      case '/reset-password':
+      case '/verify-email':
         return <AccountPage navigate={navigate} />;
       case '/admin':
         return <AdminPage navigate={navigate} />;

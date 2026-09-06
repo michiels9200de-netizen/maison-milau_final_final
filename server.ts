@@ -447,6 +447,18 @@ export function verifyPassword(password: string, storedHash: string): boolean {
 // User accounts system with durable file persistence (data/users.json)
 const DATA_DIR = path.join(process.cwd(), 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const USERS_BAK_FILE = path.join(DATA_DIR, 'users.json.bak');
+const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+
+// Helper to write JSON files atomically via unique .tmp file and atomic fs.renameSync
+function writeAtomicJson(filePath: string, data: any): void {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  const tmpFile = `${filePath}.${Date.now()}.${Math.random().toString(36).substring(2, 7)}.tmp`;
+  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
+  fs.renameSync(tmpFile, filePath);
+}
 
 let registeredUsers: any[] = [
   {
@@ -532,8 +544,16 @@ export function saveUsersToDisk(): void {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(USERS_FILE, JSON.stringify(registeredUsers, null, 2), 'utf-8');
-    lastUsersLoadedMtime = fs.statSync(USERS_FILE).mtimeMs;
+    // Always preserve previous valid database state to backup
+    if (fs.existsSync(USERS_FILE)) {
+      try {
+        fs.copyFileSync(USERS_FILE, USERS_BAK_FILE);
+      } catch {}
+    }
+    writeAtomicJson(USERS_FILE, registeredUsers);
+    if (fs.existsSync(USERS_FILE)) {
+      lastUsersLoadedMtime = fs.statSync(USERS_FILE).mtimeMs;
+    }
   } catch (err) {
     console.error('[AUTH ERROR] Failed to persist users to disk:', err);
   }
@@ -545,12 +565,13 @@ export function loadUsersFromDisk(): void {
       const stat = fs.statSync(USERS_FILE);
       if (stat.mtimeMs > lastUsersLoadedMtime) {
         const content = fs.readFileSync(USERS_FILE, 'utf-8');
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          registeredUsers = parsed;
-          lastUsersLoadedMtime = stat.mtimeMs;
-          console.log(`[AUTH] Loaded ${registeredUsers.length} user account records from disk.`);
-          return;
+        if (content.trim()) {
+          const parsed = JSON.parse(content);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            registeredUsers = parsed;
+            lastUsersLoadedMtime = stat.mtimeMs;
+            return;
+          }
         }
       } else {
         // Up to date
@@ -558,9 +579,29 @@ export function loadUsersFromDisk(): void {
       }
     }
   } catch (err) {
-    console.error('[AUTH ERROR] Error loading users from disk, using defaults:', err);
+    console.error('[AUTH ERROR] Error loading users from disk:', err);
+    // Attempt recovery from backup if primary failed
+    if (fs.existsSync(USERS_BAK_FILE)) {
+      try {
+        const bakContent = fs.readFileSync(USERS_BAK_FILE, 'utf-8');
+        const parsedBak = JSON.parse(bakContent);
+        if (Array.isArray(parsedBak) && parsedBak.length > 0) {
+          registeredUsers = parsedBak;
+          console.log(`[AUTH] Recovered ${registeredUsers.length} user records from backup file.`);
+          return;
+        }
+      } catch (bakErr) {
+        console.error('[AUTH ERROR] Backup recovery also failed:', bakErr);
+      }
+    }
+    // CRITICAL: NEVER overwrite user database with defaults on read error
+    return;
   }
-  saveUsersToDisk();
+
+  // Only create users.json initially if it does not exist at all
+  if (!fs.existsSync(USERS_FILE)) {
+    saveUsersToDisk();
+  }
 }
 
 // Initialise user accounts from persistent store on startup
@@ -608,17 +649,61 @@ export function clearRateLimit(key: string): void {
   loginRateLimiter.delete(key);
 }
 
-// Active sessions token registry for secure server-side session management
-const activeSessions = new Map<string, {
+// Durable session token registry for secure server-side session management across restarts
+export interface ActiveSession {
   userId: string;
   email: string;
   role: string;
   accountType: string;
   companyName?: string;
   expiresAt: number;
-}>();
+}
+
+const activeSessions = new Map<string, ActiveSession>();
+
+export function saveSessionsToDisk(): void {
+  try {
+    const obj: Record<string, ActiveSession> = {};
+    const now = Date.now();
+    for (const [token, sess] of activeSessions.entries()) {
+      if (sess && sess.expiresAt > now) {
+        obj[token] = sess;
+      }
+    }
+    writeAtomicJson(SESSIONS_FILE, obj);
+  } catch (err) {
+    console.error('[AUTH ERROR] Failed to persist sessions to disk:', err);
+  }
+}
+
+export function loadSessionsFromDisk(): void {
+  try {
+    if (fs.existsSync(SESSIONS_FILE)) {
+      const content = fs.readFileSync(SESSIONS_FILE, 'utf-8');
+      if (content.trim()) {
+        const parsed = JSON.parse(content);
+        if (parsed && typeof parsed === 'object') {
+          const now = Date.now();
+          activeSessions.clear();
+          for (const [token, sess] of Object.entries(parsed as Record<string, ActiveSession>)) {
+            if (sess && sess.expiresAt > now) {
+              activeSessions.set(token, sess);
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[AUTH ERROR] Error loading sessions from disk:', err);
+  }
+}
+
+// Load sessions on startup
+loadSessionsFromDisk();
 
 export function getAuthenticatedUser(req: Request): any | null {
+  loadUsersFromDisk();
+  loadSessionsFromDisk();
   const authHeader = req.headers.authorization;
   let token = '';
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -636,6 +721,7 @@ export function getAuthenticatedUser(req: Request): any | null {
       if (user) return user;
     } else {
       activeSessions.delete(token);
+      saveSessionsToDisk();
     }
   }
 
@@ -2332,6 +2418,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     companyName: newUser.companyName,
     expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   });
+  saveSessionsToDisk();
 
   // Return user without credentials or internal security tokens
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = newUser as any;
@@ -2426,6 +2513,7 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
       activeSessions.delete(sTok);
     }
   }
+  saveSessionsToDisk();
 
   saveUsersToDisk();
 
@@ -2473,14 +2561,14 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   });
 });
 
-// Verify email GET endpoint (direct click from email client)
+// Verify email GET endpoint (direct click from email client or API verification)
 app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   const token = (req.query.token || req.query.verifyToken) as string;
   const email = req.query.email as string;
-  const wantsJson = req.headers.accept?.includes('application/json');
+  const isBrowserNav = req.headers.accept?.includes('text/html') && !req.headers.accept?.includes('application/json');
 
   if (!token && !email) {
-    if (wantsJson) {
+    if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Ongeldige of ontbrekende verificatiecode.' });
     }
     return res.redirect('/account?verifyStatus=invalid');
@@ -2492,14 +2580,14 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   );
 
   if (!user) {
-    if (wantsJson) {
+    if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
     }
     return res.redirect('/account?verifyStatus=invalid');
   }
 
   if (user.verificationTokenExpiry && Date.now() > user.verificationTokenExpiry) {
-    if (wantsJson) {
+    if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Deze verificatielink is verlopen (geldigheidsduur: 24 uur). Vraag een nieuwe link aan.' });
     }
     return res.redirect(`/account?verifyStatus=expired&email=${encodeURIComponent(user.email)}`);
@@ -2512,7 +2600,7 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
 
   saveUsersToDisk();
 
-  if (wantsJson) {
+  if (!isBrowserNav) {
     return res.json({
       success: true,
       message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu inloggen met uw wachtwoord.',
@@ -2594,6 +2682,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     companyName: user.companyName,
     expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   });
+  saveSessionsToDisk();
 
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
   res.json({
@@ -2609,6 +2698,7 @@ app.post('/api/auth/logout', (req: Request, res: Response) => {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.slice(7).trim();
     activeSessions.delete(token);
+    saveSessionsToDisk();
   }
   res.json({ success: true, message: 'Succesvol uitgelogd.' });
 });
@@ -2728,6 +2818,7 @@ app.post('/api/admin/verify-pin', (req: Request, res: Response) => {
     companyName: 'Maison Milau Roastery Atelier',
     expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
   });
+  saveSessionsToDisk();
 
   const safeAdmin = adminUser ? { ...adminUser } : {
     id: 'usr-admin-01',
@@ -2750,6 +2841,7 @@ app.post('/api/admin/logout', (req: Request, res: Response) => {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.slice(7).trim();
     activeSessions.delete(token);
+    saveSessionsToDisk();
   }
   res.json({ success: true, message: 'Succesvol afgemeld als beheerder.' });
 });

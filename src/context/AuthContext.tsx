@@ -205,12 +205,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const switchAccountType = (type: 'particulier' | 'professioneel') => {
     setAccountType(type);
-    if (type === 'professioneel') {
-      setUser(DEFAULT_B2B_USER);
-      setCompany(DEFAULT_B2B_COMPANY);
-    } else {
-      setUser(DEFAULT_B2C_USER);
-      setCompany(null);
+    // Never overwrite an authenticated user account with dummy data
+    if (user) {
+      return;
     }
   };
 

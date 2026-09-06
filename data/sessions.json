@@ -1,0 +1,18 @@
+{
+  "tok_1788734352321_0b6ac48c6825e870e25e29e161c4fb7c": {
+    "userId": "usr-1788734352311-sojby",
+    "email": "test_customer_1788734352211@example.com",
+    "role": "b2c_customer",
+    "accountType": "particulier",
+    "companyName": "",
+    "expiresAt": 1791326352321
+  },
+  "tok_1788734379429_467af1ed4120bca9bac646499f0ff09a": {
+    "userId": "usr-1788734379086-unz6s",
+    "email": "test_customer_1788734378995@example.com",
+    "role": "b2c_customer",
+    "accountType": "particulier",
+    "companyName": "",
+    "expiresAt": 1791326379429
+  }
+}
