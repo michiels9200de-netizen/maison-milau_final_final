@@ -21,7 +21,9 @@
     ],
     "loyaltyPoints": 340,
     "isEmailVerified": true,
-    "createdAt": "2026-01-15T10:00:00.000Z"
+    "createdAt": "2026-01-15T10:00:00.000Z",
+    "resetToken": "17c3f937a4ae24340e874aecba332950e3fb73f275f9210d65f1dfd70cf320a1",
+    "resetTokenExpiry": 1788739236757
   },
   {
     "id": "usr-b2b-01",
@@ -74,171 +76,21 @@
     "createdAt": "2026-01-01T08:00:00.000Z"
   },
   {
-    "id": "usr-1788731707940-dp4bu",
-    "email": "test_customer_1788731707838@example.be",
-    "username": "user_1788731707838",
-    "password": "96effc808c98b4777fe338571c80c9b9:a8c7b4c1375a39ce3d8283ff42169b215195f6d32f779c281c1c0016cd272b9ab8b937428a7de098a99e3bd2d3d7093856c719815ff005cc43186f491cd8e9e1",
-    "name": "Audited Customer",
-    "phone": "+32 470 12 34 56",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [
-      {
-        "id": "addr-1788731707946",
-        "label": "Thuis",
-        "street": "Koffielaan 42",
-        "city": "Dendermonde",
-        "postalCode": "9200",
-        "country": "België",
-        "isDefault": true
-      }
-    ],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T21:55:07.946Z"
-  },
-  {
-    "id": "usr-1788731733057-516vu",
-    "email": "test_customer_1788731732960@example.be",
-    "username": "user_1788731732960",
-    "password": "5e06d2bd341b63e92e9fbcdc13f90664:8d3c99a56003c3cf62484ee547d56e85b5adfcf8ecf5c836187fd91f13841842d3f69845a2469c547112bff55f66ae0c0cca6500efa250b9f2d533dec6113e40",
-    "name": "Audited Customer",
-    "phone": "+32 470 12 34 56",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [
-      {
-        "id": "addr-1788731733063",
-        "label": "Thuis",
-        "street": "Koffielaan 42",
-        "city": "Dendermonde",
-        "postalCode": "9200",
-        "country": "België",
-        "isDefault": true
-      }
-    ],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T21:55:33.063Z",
-    "resetToken": "c66c3eb28bf5286c07f896de3522a8501c1de8dd2043c6be9b93b08ed7e062f6",
-    "resetTokenExpiry": 1788735333130
-  },
-  {
-    "id": "usr-1788731761876-gbkpt",
-    "email": "test_customer_1788731761778@example.be",
-    "username": "user_1788731761778",
-    "password": "165bbae2e077b2cb0618301b3571be35:0105c4315d3ab4e1618c6e6d3b2cc3f1f348b018b3030128eddfdc52ac96f21de92800d94341c1497c43534668df846df241ea600c8c3032d287af13d12602b8",
-    "name": "Audited Customer",
-    "phone": "+32 470 12 34 56",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [
-      {
-        "id": "addr-1788731761882",
-        "label": "Thuis",
-        "street": "Koffielaan 42",
-        "city": "Dendermonde",
-        "postalCode": "9200",
-        "country": "België",
-        "isDefault": true
-      }
-    ],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T21:56:01.882Z",
-    "resetToken": "rst_expired_1788731762000",
-    "resetTokenExpiry": 1788731752000
-  },
-  {
-    "id": "usr-1788731787570-qm2pc",
-    "email": "test_customer_1788731787465@example.be",
-    "username": "user_1788731787465",
-    "password": "8f31cf311869492244ad563ecf4a35bb:8c6ac87b1e5c86b63023d54117bd7aea35421bd784615079c82a82579e973a386032ece7eff0d67e7cdef69ac72a792ff539e4ef357d8ea4e13844cca3b6d2e9",
-    "name": "Audited Customer",
-    "phone": "+32 470 12 34 56",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [
-      {
-        "id": "addr-1788731787576",
-        "label": "Thuis",
-        "street": "Koffielaan 42",
-        "city": "Dendermonde",
-        "postalCode": "9200",
-        "country": "België",
-        "isDefault": true
-      }
-    ],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T21:56:27.576Z"
-  },
-  {
-    "id": "usr-1788734012863-mwt55",
-    "email": "audit_test_1788734012744@example.be",
-    "username": "audit_test_1788734012744",
-    "password": "18be89ce55733dcc535e54b41ff9c38f:b9937fdfb923756365dde8c0dd315a9126519167f8c5d0e19c9aa764fe2f9c55967896f6c04f31595fd47a250cc3949eb939a80bc74563f66d438c6342417567",
+    "id": "usr-1788735843645-50xyq",
+    "email": "audit_e2e_user@example.be",
+    "username": "audit_e2e_user",
+    "password": "8ac8a1b61420775ff7a163eceb0e4dca:d9992ae55ebd2b4b61db8b8868c87ab7dc0afd3ec853ee2767e0018234eedbee2946addb73194db15ca9f26fad8644fc2933147de99240e0ca9c73d7f4a31aad",
     "name": "Audit Tester",
     "phone": "",
     "accountType": "particulier",
     "role": "b2c_customer",
     "companyName": "",
     "vatNumber": "",
-    "addresses": [
-      {
-        "id": "addr-1788734012870",
-        "label": "Thuis",
-        "street": "Kerkstraat 1",
-        "city": "Dendermonde",
-        "postalCode": "9200",
-        "country": "België",
-        "isDefault": true
-      }
-    ],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T22:33:32.870Z"
-  },
-  {
-    "id": "usr-1788734352311-sojby",
-    "email": "test_customer_1788734352211@example.com",
-    "username": "test_customer_1788734352211",
-    "password": "70ee9e5e07491b9c8ff81ef9bf3f5ca3:a2859f658a44530937ff39d564b07790522af10a533a84f7abccf617822e3c7f659b06d2ef3df91726f2a3265aa874bf687bf99f08ed169e051444adede1756f",
-    "name": "Test Customer",
-    "phone": "+32 470 00 00 00",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
     "addresses": [],
     "loyaltyPoints": 100,
     "isEmailVerified": true,
-    "createdAt": "2026-09-06T22:39:12.317Z"
-  },
-  {
-    "id": "usr-1788734379086-unz6s",
-    "email": "test_customer_1788734378995@example.com",
-    "username": "test_customer_1788734378995",
-    "password": "39abf45149c3b2c30323084c819ca8c6:f9456851a00e202b16c86a2b43e94b63a14543a7c369f8b7a0a747be195571ff75ad0081fbb8832cab85e4b1d7094c377e292b31fb40f86023df53f6bbf22c14",
-    "name": "Test Customer",
-    "phone": "+32 470 00 00 00",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T22:39:39.092Z",
-    "resetToken": "160f079670378103cb93b1e2bf36a7a4e3a773115476b15791e6077e0afc4915",
-    "resetTokenExpiry": 1788737979400
+    "createdAt": "2026-09-06T23:04:03.651Z",
+    "resetToken": "2af488f2cea12061e3663d83a98d54df0602062bbb33ee66ff3b5b0254fb1181",
+    "resetTokenExpiry": 1788739443703
   }
 ]

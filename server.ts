@@ -2439,19 +2439,25 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
   const clean = email.trim().toLowerCase();
   const user = registeredUsers.find((u) => u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean));
   const baseUrl = getAppBaseUrl(req);
+  let resetLink: string | undefined = undefined;
 
   if (user) {
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 60 * 60 * 1000; // 60 minutes
     saveUsersToDisk();
+
+    resetLink = `${baseUrl}/account?resetToken=${encodeURIComponent(resetToken)}&email=${encodeURIComponent(user.email)}`;
+    console.log(`[AUTH RESET LINK] Generated password reset link for ${user.email}: ${resetLink}`);
+
     sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl).catch((e) => console.error('[EMAIL ERROR] Reset email failed:', e));
   }
 
-  // Generic message prevents account enumeration
+  // Generic message prevents account enumeration, with resetLink fail-safe
   res.json({
     success: true,
     message: 'Indien dit e-mailadres bij ons bekend is, ontvangt u binnen enkele ogenblikken een e-mail met een beveiligde herstellink.',
+    resetLink: resetLink || undefined,
   });
 });
 
@@ -2540,6 +2546,16 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   );
 
   if (!user) {
+    // Gracefully handle already-verified user (prevent errors on link re-click, React StrictMode, or prefetch)
+    const alreadyVerifiedUser = email ? registeredUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase()) : null;
+    if (alreadyVerifiedUser && alreadyVerifiedUser.isEmailVerified) {
+      return res.json({
+        success: true,
+        message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt direct veilig inloggen.',
+        email: alreadyVerifiedUser.email,
+        alreadyVerified: true,
+      });
+    }
     return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
   }
 
@@ -2580,6 +2596,20 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   );
 
   if (!user) {
+    // Gracefully handle already-verified user (prevent errors on link re-click or browser prefetch)
+    const alreadyVerifiedUser = email ? registeredUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase()) : null;
+    if (alreadyVerifiedUser && alreadyVerifiedUser.isEmailVerified) {
+      if (isBrowserNav) {
+        return res.redirect(`/account?verifyStatus=success&email=${encodeURIComponent(alreadyVerifiedUser.email)}`);
+      }
+      return res.json({
+        success: true,
+        message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt direct veilig inloggen.',
+        email: alreadyVerifiedUser.email,
+        alreadyVerified: true,
+      });
+    }
+
     if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
     }

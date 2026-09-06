@@ -21,7 +21,9 @@
     ],
     "loyaltyPoints": 340,
     "isEmailVerified": true,
-    "createdAt": "2026-01-15T10:00:00.000Z"
+    "createdAt": "2026-01-15T10:00:00.000Z",
+    "resetToken": "17c3f937a4ae24340e874aecba332950e3fb73f275f9210d65f1dfd70cf320a1",
+    "resetTokenExpiry": 1788739236757
   },
   {
     "id": "usr-b2b-01",
@@ -72,31 +74,5 @@
     "loyaltyPoints": 5000,
     "isEmailVerified": true,
     "createdAt": "2026-01-01T08:00:00.000Z"
-  },
-  {
-    "id": "usr-1788734012863-mwt55",
-    "email": "audit_test_1788734012744@example.be",
-    "username": "audit_test_1788734012744",
-    "password": "18be89ce55733dcc535e54b41ff9c38f:b9937fdfb923756365dde8c0dd315a9126519167f8c5d0e19c9aa764fe2f9c55967896f6c04f31595fd47a250cc3949eb939a80bc74563f66d438c6342417567",
-    "name": "Audit Tester",
-    "phone": "",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [
-      {
-        "id": "addr-1788734012870",
-        "label": "Thuis",
-        "street": "Kerkstraat 1",
-        "city": "Dendermonde",
-        "postalCode": "9200",
-        "country": "België",
-        "isDefault": true
-      }
-    ],
-    "loyaltyPoints": 100,
-    "isEmailVerified": true,
-    "createdAt": "2026-09-06T22:33:32.870Z"
   }
 ]
