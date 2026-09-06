@@ -1104,3 +1104,125 @@ Laurent Michiels · Maison Milau`;
     text: customerText,
   });
 }
+
+/**
+ * 11. B2B Quote Request Emails
+ */
+export async function sendB2BQuoteEmails(quote: any) {
+  const adminSubject = `[Maison Milau B2B] Nieuwe offerteaanvraag van ${quote.companyName}`;
+  const adminText = `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${quote.companyName}\nBTW: ${quote.vatNumber || 'Niet opgegeven'}\nContactpersoon: ${quote.contactPerson}\nE-mail: ${quote.email}\nTelefoon: ${quote.phone}\nSector: ${quote.sector || 'Kantoor'}\nBehoefte: ${quote.machineNeed || 'Verse bonen'}\nGeschat volume: ${quote.monthlyVolumeKg} kg/maand\nOpmerkingen: ${quote.notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`;
+  const adminHtml = buildHtmlWrapper(
+    adminSubject,
+    `Offerteaanvraag van ${quote.companyName} (${quote.monthlyVolumeKg} kg/mnd)`,
+    `<p>Beste Laurent,</p>
+    <p>Er is een nieuwe B2B aanvraag ingediend:</p>
+    <div class="box">
+      <table style="width:100%;font-size:14px;border-collapse:collapse;">
+        <tr><td style="padding:4px 0;font-weight:600;width:140px;">Bedrijf:</td><td>${quote.companyName}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">BTW-nummer:</td><td>${quote.vatNumber || 'Niet opgegeven'}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Contactpersoon:</td><td>${quote.contactPerson}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">E-mail:</td><td><a href="mailto:${quote.email}">${quote.email}</a></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Telefoon:</td><td><a href="tel:${quote.phone}">${quote.phone}</a></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Sector:</td><td>${quote.sector || 'Kantoor'}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Behoefte:</td><td>${quote.machineNeed || 'Verse bonen'}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Maandvolume:</td><td><strong>${quote.monthlyVolumeKg} kg / maand</strong></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Opmerkingen:</td><td>${quote.notes || 'Geen'}</td></tr>
+      </table>
+    </div>`
+  );
+
+  const customerSubject = `Ontvangstbevestiging: Uw B2B Aanvraag bij Maison Milau`;
+  const customerText = `Beste ${quote.contactPerson},\n\nHartelijk dank voor uw interesse in Maison Milau koffie voor ${quote.companyName}.\n\nWij hebben uw offerteaanvraag goed ontvangen en bezorgen u binnen 24 uur een voorstel op maat.\n\nMet vriendelijke groet,\nLaurent Michiels · Maison Milau Ambachtelijke Branderij`;
+  const customerHtml = buildHtmlWrapper(
+    customerSubject,
+    `Uw offerteaanvraag voor ${quote.companyName} is goed ontvangen`,
+    `<p>Beste ${quote.contactPerson},</p>
+    <p>Hartelijk dank voor uw interesse in de ambachtelijke koffie en espressomachines van Maison Milau voor <strong>${quote.companyName}</strong>.</p>
+    <div class="box">
+      <p style="margin:0 0 6px 0;font-weight:600;">Overzicht van uw aanvraag:</p>
+      <p style="margin:0;font-size:14px;">Sector: ${quote.sector || 'Kantoor'}<br>Geschat verbruik: ${quote.monthlyVolumeKg} kg per maand<br>Behoefte: ${quote.machineNeed || 'Verse specialty koffiebonen'}</p>
+    </div>
+    <p>Onze koffie-expert analyseert uw aanvraag en bezorgt u binnen 24 uur een passend staffel- en servicevoorstel.</p>
+    <p style="font-size:14px;color:#78716c;margin-top:20px;">Heeft u dringende vragen? U kunt ons altijd rechtstreeks bereiken op <a href="mailto:${WEBOWNER_EMAIL}" style="color:#78350f;">${WEBOWNER_EMAIL}</a>.</p>`
+  );
+
+  await sendEmail({
+    type: 'admin_b2b',
+    recipient: WEBOWNER_EMAIL,
+    subject: adminSubject,
+    preview: `B2B offerteaanvraag van ${quote.companyName}`,
+    text: adminText,
+    html: adminHtml,
+  });
+
+  await sendEmail({
+    type: 'customer_b2b',
+    recipient: quote.email,
+    subject: customerSubject,
+    preview: `Bevestiging B2B aanvraag voor ${quote.companyName}`,
+    text: customerText,
+    html: customerHtml,
+  });
+}
+
+/**
+ * 12. Event Quote Request Emails
+ */
+export async function sendEventQuoteEmails(event: any) {
+  const adminSubject = `[Maison Milau Events] Nieuwe catering aanvraag: ${event.eventType} op ${event.eventDate}`;
+  const adminText = `Beste Laurent,\n\nEr is een nieuwe evenementen- en verhuuraanvraag binnengekomen:\n\nType: ${event.eventType}\nDatum: ${event.eventDate}\nAantal gasten: ${event.guestsCount}\nContactpersoon: ${event.contactPerson}\nE-mail: ${event.email}\nTelefoon: ${event.phone}\nMachine: ${event.machineRental}\nBarista: ${event.baristaService}\nBerekend: ~${event.calculatedBeansKg} kg bonen\nIndicatieve prijs: €${event.estimatedPrice}\nNotities: ${event.notes || 'Geen'}`;
+  const adminHtml = buildHtmlWrapper(
+    adminSubject,
+    `Catering aanvraag voor ${event.eventType} (${event.guestsCount} gasten)`,
+    `<p>Beste Laurent,</p>
+    <p>Er is een nieuwe evenementenaanvraag ontvangen:</p>
+    <div class="box">
+      <table style="width:100%;font-size:14px;border-collapse:collapse;">
+        <tr><td style="padding:4px 0;font-weight:600;width:140px;">Type evenement:</td><td>${event.eventType}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Datum:</td><td><strong>${event.eventDate}</strong></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Gasten:</td><td>${event.guestsCount} personen</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Contactpersoon:</td><td>${event.contactPerson}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">E-mail:</td><td><a href="mailto:${event.email}">${event.email}</a></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Telefoon:</td><td><a href="tel:${event.phone}">${event.phone}</a></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Machine huur:</td><td>${event.machineRental}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Barista service:</td><td>${event.baristaService}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Bonen (geschat):</td><td>~${event.calculatedBeansKg} kg</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Indicatieve prijs:</td><td><strong>€${event.estimatedPrice}</strong></td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Notities:</td><td>${event.notes || 'Geen'}</td></tr>
+      </table>
+    </div>`
+  );
+
+  const customerSubject = `Bevestiging: Uw koffiecatering aanvraag voor ${event.eventDate}`;
+  const customerText = `Beste ${event.contactPerson},\n\nBedankt voor uw aanvraag voor uw ${event.eventType} op ${event.eventDate}.\n\nOns team bekijkt momenteel de beschikbaarheid van onze espressomachines en mobiele barista bars. Wij nemen spoedig telefonisch of per e-mail contact met u op.\n\nMet gastvrije groet,\nLaurent Michiels · Maison Milau Events`;
+  const customerHtml = buildHtmlWrapper(
+    customerSubject,
+    `Uw aanvraag voor ${event.eventDate} is ontvangen`,
+    `<p>Beste ${event.contactPerson},</p>
+    <p>Hartelijk dank voor uw aanvraag voor <strong>${event.eventType}</strong> op <strong>${event.eventDate}</strong> (${event.guestsCount} gasten).</p>
+    <div class="box">
+      <p style="margin:0 0 6px 0;font-weight:600;">Samenvatting opties:</p>
+      <p style="margin:0;font-size:14px;">Espressomachine huur: ${event.machineRental}<br>Barista service: ${event.baristaService}<br>Indicatieve richtprijs: €${event.estimatedPrice}</p>
+    </div>
+    <p>Wij controleren onze agenda en nemen zo snel mogelijk contact met u op om de details af te stemmen.</p>
+    <p style="font-size:14px;color:#78716c;margin-top:20px;">Vragen? Contacteer ons via <a href="mailto:${WEBOWNER_EMAIL}" style="color:#78350f;">${WEBOWNER_EMAIL}</a>.</p>`
+  );
+
+  await sendEmail({
+    type: 'admin_event',
+    recipient: WEBOWNER_EMAIL,
+    subject: adminSubject,
+    preview: `Evenementenaanvraag ${event.eventType} op ${event.eventDate}`,
+    text: adminText,
+    html: adminHtml,
+  });
+
+  await sendEmail({
+    type: 'customer_event',
+    recipient: event.email,
+    subject: customerSubject,
+    preview: `Bevestiging event aanvraag voor ${event.eventDate}`,
+    text: customerText,
+    html: customerHtml,
+  });
+}

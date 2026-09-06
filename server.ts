@@ -20,7 +20,9 @@ import {
   sendNewsletterEmails,
   sendFailedPaymentEmail,
   sendReviewRequestEmail,
-} from './server/emailService';
+  sendB2BQuoteEmails,
+  sendEventQuoteEmails,
+} from './server/emailService.js';
 
 dotenv.config();
 
@@ -1161,23 +1163,18 @@ app.post('/api/b2b-quote', (req: Request, res: Response) => {
   };
   b2bQuotes.unshift(quote);
 
-  // Send notification to Webowner
-  sendNotificationEmail(
-    'admin_b2b',
-    WEBOWNER_EMAIL,
-    `[Maison Milau B2B] Nieuwe offerteaanvraag van ${companyName}`,
-    `Offerteaanvraag ontvangen voor ~${quote.monthlyVolumeKg} kg/mnd door ${contactPerson}.`,
-    `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${companyName}\nBTW: ${vatNumber || 'Niet opgegeven'}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nSector: ${sector}\nBehoefte: ${machineNeed}\nGeschat volume: ${monthlyVolumeKg} kg/maand\nOpmerkingen: ${notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`
-  );
-
-  // Send auto-reply to Customer
-  sendNotificationEmail(
-    'customer_b2b',
-    email,
-    'Ontvangstbevestiging: Uw B2B Aanvraag bij Maison Milau',
-    `Beste ${contactPerson}, wij hebben uw aanvraag voor ${companyName} goed ontvangen.`,
-    `Beste ${contactPerson},\n\nHartelijk dank voor uw interesse in Maison Milau koffie voor ${companyName}.\n\nWij hebben uw aanvraag goed ontvangen en bezorgen u binnen 24 uur een op maat gemaakt voorstel en staffelprijzen voor uw kantoor of horecazaak.\n\nMet vriendelijke groet,\nLaurent Michiels · Maison Milau Ambachtelijke Branderij`
-  );
+  // Dispatch rich B2B quote confirmation and notification emails
+  sendB2BQuoteEmails(quote).catch((e) => {
+    console.error('[EMAIL ERROR] Failed to dispatch B2B quote emails:', e);
+    // Fallback to basic notification email
+    sendNotificationEmail(
+      'admin_b2b',
+      WEBOWNER_EMAIL,
+      `[Maison Milau B2B] Nieuwe offerteaanvraag van ${companyName}`,
+      `Offerteaanvraag ontvangen voor ~${quote.monthlyVolumeKg} kg/mnd door ${contactPerson}.`,
+      `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${companyName}\nBTW: ${vatNumber || 'Niet opgegeven'}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nSector: ${sector}\nBehoefte: ${machineNeed}\nGeschat volume: ${monthlyVolumeKg} kg/maand\nOpmerkingen: ${notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`
+    );
+  });
 
   res.json({ success: true, message: 'B2B aanvraag succesvol ontvangen. We bezorgen u binnen 24u een voorstel.', data: quote });
 });
@@ -1210,23 +1207,18 @@ app.post('/api/event-quote', (req: Request, res: Response) => {
   };
   eventInquiries.unshift(event);
 
-  // Send notification to Webowner
-  sendNotificationEmail(
-    'admin_event',
-    WEBOWNER_EMAIL,
-    `[Maison Milau Events] Nieuwe catering aanvraag: ${eventType} op ${eventDate}`,
-    `Aanvraag voor ${guestsCount} gasten door ${contactPerson}.`,
-    `Beste Laurent,\n\nEr is een nieuwe evenementen- en verhuuraanvraag binnengekomen:\n\nType: ${eventType}\nDatum: ${eventDate}\nAantal gasten: ${guestsCount}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nMachine: ${machineRental}\nBarista: ${baristaService}\nBerekend: ~${calculatedBeansKg} kg bonen (Milau Budget tarief)\nIndicatieve prijs: €${estimatedPrice}\nNotities: ${notes || 'Geen'}`
-  );
-
-  // Send auto-reply to Customer
-  sendNotificationEmail(
-    'customer_event',
-    email,
-    `Bevestiging: Uw koffiecatering aanvraag voor ${eventDate}`,
-    `Beste ${contactPerson}, wij hebben uw eventaanvraag goed ontvangen.`,
-    `Beste ${contactPerson},\n\nBedankt voor uw aanvraag voor uw ${eventType} op ${eventDate}.\n\nOns team bekijkt momenteel de beschikbaarheid van onze espressomachines en mobiele barista bars. Wij nemen spoedig telefonisch of per e-mail contact met u op.\n\nMet gastvrije groet,\nLaurent Michiels · Maison Milau Events`
-  );
+  // Dispatch rich Event quote confirmation and notification emails
+  sendEventQuoteEmails(event).catch((e) => {
+    console.error('[EMAIL ERROR] Failed to dispatch event quote emails:', e);
+    // Fallback to basic notification email
+    sendNotificationEmail(
+      'admin_event',
+      WEBOWNER_EMAIL,
+      `[Maison Milau Events] Nieuwe catering aanvraag: ${eventType} op ${eventDate}`,
+      `Aanvraag voor ${guestsCount} gasten door ${contactPerson}.`,
+      `Beste Laurent,\n\nEr is een nieuwe evenementen- en verhuuraanvraag binnengekomen:\n\nType: ${eventType}\nDatum: ${eventDate}\nAantal gasten: ${guestsCount}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nMachine: ${machineRental}\nBarista: ${baristaService}\nBerekend: ~${calculatedBeansKg} kg bonen (Milau Budget tarief)\nIndicatieve prijs: €${estimatedPrice}\nNotities: ${notes || 'Geen'}`
+    );
+  });
 
   res.json({ success: true, message: 'Evenement aanvraag ontvangen. Wij nemen spoedig contact op.', data: event });
 });
