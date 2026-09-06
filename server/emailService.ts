@@ -70,8 +70,9 @@ export async function getTransporter(): Promise<Transporter> {
     const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER || 'smtp.gmail.com';
     const smtpPort = Number(process.env.SMTP_PORT) || 587;
     const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
-    const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER;
-    const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS;
+    const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER;
+    const smtpUser = rawUser ? rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim() : undefined;
+    const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS)?.trim();
 
     if (smtpUser && smtpPass) {
       console.log(`[EMAIL] Initializing live SMTP with host: ${smtpHost}:${smtpPort} (user: ${smtpUser})`);
@@ -136,8 +137,10 @@ export async function auditEmailConfiguration() {
   const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER || 'smtp.gmail.com';
   const smtpPort = Number(process.env.SMTP_PORT) || 587;
   const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
-  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const hasPass = Boolean(process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD);
+  const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const smtpUser = rawUser ? rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim() : undefined;
+  const smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD)?.trim();
+  const hasPass = Boolean(smtpPass);
 
   let connectionOk = false;
   let testMessageId: string | undefined;
