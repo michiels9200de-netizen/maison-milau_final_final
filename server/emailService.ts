@@ -59,6 +59,11 @@ export const emailNotificationLogs: EmailLogEntry[] = [
 let transporterPromise: Promise<Transporter> | null = null;
 let activeProvider = 'uninitialized';
 
+export function resetTransporterCache() {
+  transporterPromise = null;
+  console.log('[SMTP CACHE] Transporter cache cleared. Next request will read latest environment variables.');
+}
+
 /**
  * Initializes and caches the nodemailer transporter.
  * Supports:
@@ -70,14 +75,14 @@ export async function getTransporter(): Promise<Transporter> {
 
   transporterPromise = (async () => {
     const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER || 'smtp.gmail.com';
-    const smtpPort = Number(process.env.SMTP_PORT) || 587;
+    const smtpPort = Number(process.env.SMTP_PORT) || 465;
     const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
     const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER;
     const smtpUser = rawUser ? rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim() : undefined;
     const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS)?.trim();
 
     if (smtpUser && smtpPass) {
-      console.log(`[SMTP CONFIG] Live SMTP credentials detected: host=${smtpHost}:${smtpPort} (user: ${smtpUser})`);
+      console.log(`[SMTP CONFIG] Live SMTP credentials loaded: host=${smtpHost}:${smtpPort}, secure=${smtpSecure}, user=${smtpUser}, passLength=${smtpPass.length}`);
       activeProvider = `SMTP (${smtpHost}:${smtpPort})`;
       const transporter = nodemailer.createTransport({
         host: smtpHost,
@@ -87,6 +92,8 @@ export async function getTransporter(): Promise<Transporter> {
           user: smtpUser,
           pass: smtpPass,
         },
+        debug: true,
+        logger: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -101,6 +108,8 @@ export async function getTransporter(): Promise<Transporter> {
         console.error(`[SMTP AUTH FAILED] Reason: ${verifyErr.message}`);
         if (verifyErr.code) console.error(`[SMTP AUTH FAILED] Error Code: ${verifyErr.code}`);
         if (verifyErr.response) console.error(`[SMTP AUTH FAILED] SMTP Response: ${verifyErr.response}`);
+        // Reset cache so that subsequent attempts can pick up newly injected environment variables
+        transporterPromise = null;
       }
       return transporter;
     }
@@ -119,6 +128,8 @@ export async function getTransporter(): Promise<Transporter> {
           user: testAccount.user,
           pass: testAccount.pass,
         },
+        debug: true,
+        logger: true,
       });
       await testTransporter.verify();
       console.log('[EMAIL] Ethereal SMTP connection verified successfully.');
@@ -137,55 +148,152 @@ export async function getTransporter(): Promise<Transporter> {
 }
 
 /**
+ * Perform a real-time SMTP connection, authentication, and transmission test to a specific address
+ */
+export async function performSmtpDiagnosticTest(targetEmail = 'maisonmilau@gmail.com') {
+  resetTransporterCache();
+
+  const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER || 'smtp.gmail.com';
+  const smtpPort = Number(process.env.SMTP_PORT) || 465;
+  const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+  const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER || '';
+  const smtpUser = rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim();
+  const rawPass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS || '';
+  const smtpPass = rawPass.trim();
+
+  console.log('\n[SMTP DIAGNOSTICS TEST START] =======================================');
+  console.log(`[SMTP DIAGNOSTICS] Loaded host: ${smtpHost}`);
+  console.log(`[SMTP DIAGNOSTICS] Loaded port: ${smtpPort}`);
+  console.log(`[SMTP DIAGNOSTICS] Loaded secure: ${smtpSecure}`);
+  console.log(`[SMTP DIAGNOSTICS] Loaded user: "${smtpUser}"`);
+  console.log(`[SMTP DIAGNOSTICS] Loaded pass length: ${smtpPass.length}`);
+  console.log(`[SMTP DIAGNOSTICS] Target recipient: ${targetEmail}`);
+
+  if (!smtpUser || !smtpPass) {
+    return {
+      smtpHost,
+      smtpPort,
+      smtpSecure,
+      smtpUser: smtpUser || '(niet geconfigureerd)',
+      passConfigured: Boolean(smtpPass),
+      authResult: 'failed' as const,
+      exactSmtpResponse: 'Geen SMTP_USER of SMTP_PASS gevonden in omgevingsvariabelen.',
+      messageId: null,
+      deliveryStatus: 'failed' as const,
+      error: 'Ontbrekende SMTP inloggegevens in environment variables.',
+    };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    debug: true,
+    logger: true,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  let authSuccess = false;
+  let exactSmtpResponse = '';
+  let authError: any = null;
+
+  try {
+    console.log('[SMTP DIAGNOSTICS] Verifying connection & authenticating with Gmail...');
+    await transporter.verify();
+    authSuccess = true;
+    exactSmtpResponse = '235 2.7.0 Accepted: Authentication succeeded';
+    console.log('[SMTP DIAGNOSTICS] ✅ Gmail SMTP Authentication succeeded!');
+  } catch (err: any) {
+    authSuccess = false;
+    authError = err;
+    exactSmtpResponse = err.response || err.message;
+    console.error('[SMTP DIAGNOSTICS] ❌ Gmail SMTP Authentication failed:', exactSmtpResponse);
+  }
+
+  if (!authSuccess) {
+    return {
+      smtpHost,
+      smtpPort,
+      smtpSecure,
+      smtpUser,
+      authResult: 'failed' as const,
+      exactSmtpResponse,
+      messageId: null,
+      deliveryStatus: 'failed' as const,
+      error: authError?.message || 'SMTP Authentication Failed',
+      errorCode: authError?.code,
+      responseCode: authError?.responseCode,
+    };
+  }
+
+  // Attempt to send real message
+  try {
+    console.log(`[SMTP DIAGNOSTICS] Sending real test email to ${targetEmail}...`);
+    const info = await transporter.sendMail({
+      from: `"${SENDER_NAME}" <${smtpUser}>`,
+      to: targetEmail,
+      subject: `[SMTP Live Test] Maison Milau Delivery Verification · ${new Date().toLocaleTimeString('nl-BE')}`,
+      text: `Beste Laurent,\n\nDit is een live verificatie-e-mail verzonden via Google SMTP (${smtpHost}:${smtpPort}).\n\nVerzonden naar: ${targetEmail}\nDatum: ${new Date().toLocaleString('nl-BE')}\n\nAls u dit bericht ontvangt in uw inbox, functioneert de e-mailtransmissie vlekkeloos.\n\nWarme groeten,\nMaison Milau Systeembeheer`,
+      html: buildHtmlWrapper(
+        'Live SMTP Afleveringstest',
+        `Verzonden naar ${targetEmail} via ${smtpHost}`,
+        `<p>Beste Laurent,</p>
+        <p>Dit is een <strong>live verificatie-e-mail</strong> verstuurd via het geauthenticeerde Google SMTP-kanaal.</p>
+        <div class="box">
+          <p style="margin:0 0 6px 0;font-weight:600;">Verzenddetails:</p>
+          <p style="margin:0;font-size:14px;">
+            Host: <code>${smtpHost}:${smtpPort}</code><br>
+            Afzender: <code>${smtpUser}</code><br>
+            Ontvanger: <code>${targetEmail}</code><br>
+            Tijdstip: <strong>${new Date().toLocaleString('nl-BE')}</strong>
+          </p>
+        </div>
+        <p>Als u dit bericht leest in uw inbox, heeft Gmail de authenticatie geaccepteerd en het bericht direct afgeleverd.</p>`
+      ),
+    });
+
+    console.log(`[SMTP DIAGNOSTICS] ✅ Gmail accepted message! Message-ID: ${info.messageId}`);
+    console.log(`[SMTP DIAGNOSTICS] Response from Gmail: ${info.response}`);
+
+    return {
+      smtpHost,
+      smtpPort,
+      smtpSecure,
+      smtpUser,
+      authResult: 'success' as const,
+      exactSmtpResponse: info.response || 'Message accepted by Gmail',
+      messageId: info.messageId,
+      deliveryStatus: 'accepted' as const,
+      accepted: info.accepted,
+      rejected: info.rejected,
+    };
+  } catch (sendErr: any) {
+    console.error('[SMTP DIAGNOSTICS] ❌ Sending email failed:', sendErr);
+    return {
+      smtpHost,
+      smtpPort,
+      smtpSecure,
+      smtpUser,
+      authResult: 'success' as const,
+      exactSmtpResponse: sendErr.response || sendErr.message,
+      messageId: null,
+      deliveryStatus: 'failed' as const,
+      error: sendErr.message,
+    };
+  }
+}
+
+/**
  * Diagnostic check for SMTP connectivity and configuration
  */
 export async function auditEmailConfiguration() {
-  const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER || 'smtp.gmail.com';
-  const smtpPort = Number(process.env.SMTP_PORT) || 587;
-  const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
-  const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const smtpUser = rawUser ? rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim() : undefined;
-  const smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD)?.trim();
-  const hasPass = Boolean(smtpPass);
-
-  let connectionOk = false;
-  let testMessageId: string | undefined;
-  let previewUrl: string | undefined;
-  let errorMessage: string | undefined;
-
-  try {
-    const transporter = await getTransporter();
-    connectionOk = true;
-
-    // Send a dry diagnostic test ping to verify acceptance
-    const ping = await transporter.sendMail({
-      from: `"${SENDER_NAME}" <${SENDER_EMAIL}>`,
-      to: WEBOWNER_EMAIL,
-      subject: `[Diagnostic Ping] Maison Milau Email Engine · ${new Date().toLocaleTimeString('nl-BE')}`,
-      text: 'Dit is een automatische validatie-ping om de SMTP-verbinding en e-mailtransmissie te testen.',
-    });
-    testMessageId = ping.messageId;
-    const testUrl = nodemailer.getTestMessageUrl(ping);
-    if (testUrl) previewUrl = testUrl;
-  } catch (err: any) {
-    errorMessage = err.message;
-  }
-
-  return {
-    provider: activeProvider,
-    connectionOk,
-    smtpHost,
-    smtpPort,
-    smtpSecure,
-    authenticated: Boolean(smtpUser && hasPass),
-    configuredUser: smtpUser || '(geen SMTP_USER opgegeven; actieve testaccount in gebruik)',
-    adminEmail: WEBOWNER_EMAIL,
-    senderEmail: SENDER_EMAIL,
-    testMessageId,
-    previewUrl,
-    error: errorMessage,
-    timestamp: new Date().toISOString(),
-  };
+  return performSmtpDiagnosticTest(WEBOWNER_EMAIL);
 }
 
 /**

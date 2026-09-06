@@ -23,6 +23,8 @@ import {
   sendReviewRequestEmail,
   sendB2BQuoteEmails,
   sendEventQuoteEmails,
+  performSmtpDiagnosticTest,
+  resetTransporterCache,
 } from './server/emailService.js';
 
 dotenv.config();
@@ -2301,7 +2303,37 @@ app.post('/api/admin/emails/test', async (req: Request, res: Response) => {
       preview: 'Handmatige verificatie van e-mailverzending',
       text: `Beste Laurent,\n\nDit is een handmatig geactiveerde test vanuit het administratiepaneel om de SMTP-transmissie van Maison Milau te verifiëren.\n\nOntvanger: ${targetEmail}\nDatum: ${new Date().toLocaleString('nl-BE')}\n\nAls u dit bericht leest, is de aflevering succesvol gevalideerd.\n\nWarme groeten,\nMaison Milau Systeembeheer`,
     });
-    res.json({ success: true, message: `Test e-mail succesvol verzonden naar ${targetEmail}`, data: testLog });
+
+    if (testLog.status === 'failed') {
+      res.status(502).json({
+        success: false,
+        error: testLog.error || 'SMTP aflevering mislukt',
+        data: testLog,
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: `Test e-mail succesvol verzonden naar ${targetEmail}`,
+      messageId: testLog.messageId,
+      data: testLog,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Dedicated Real-time SMTP Diagnostics & Verification Endpoint
+app.all('/api/admin/smtp/diagnostics', async (req: Request, res: Response) => {
+  try {
+    const targetEmail = req.body?.email || req.query?.email?.toString() || 'maisonmilau@gmail.com';
+    const result = await performSmtpDiagnosticTest(targetEmail);
+    const statusCode = result.authResult === 'success' && result.deliveryStatus === 'accepted' ? 200 : 502;
+    res.status(statusCode).json({
+      success: result.authResult === 'success' && result.deliveryStatus === 'accepted',
+      data: result,
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
