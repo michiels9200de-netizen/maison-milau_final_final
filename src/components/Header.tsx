@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, ShoppingBag, User, ChevronDown, Coffee, ChevronRight, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { WEBSHOP_SUBCATEGORIES, isValidRoute } from '../data/sitemap';
@@ -12,6 +13,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isWebshopSubmenuOpen, setIsWebshopSubmenuOpen] = useState(false);
   const [isBlendsSubmenuOpen, setIsBlendsSubmenuOpen] = useState(false);
@@ -105,35 +107,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
         {/* Brand Identity with Logo.png */}
         <div
           onClick={() => handleNavClick('/')}
-          className="cursor-pointer flex items-center gap-3 select-none"
+          className="cursor-pointer flex items-center gap-3 select-none py-1"
         >
-          <picture>
-            <source srcSet="/Logo.webp" type="image/webp" />
-            <img
-              src="/Logo.png"
-              alt="Maison Milau Logo"
-              className="h-11 w-auto object-contain max-w-[120px]"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const fallback = document.getElementById('brand-initial-fallback');
-                if (fallback) fallback.style.display = 'flex';
-              }}
-            />
-          </picture>
-          <div
-            id="brand-initial-fallback"
-            className="w-10 h-10 rounded-full bg-stone-900 text-amber-100 hidden items-center justify-center font-bold text-lg shadow-xs"
-          >
-            M
-          </div>
-          <div>
-            <div className="font-bold text-xl tracking-tight text-stone-900 uppercase">
-              Maison Milau
-            </div>
-            <div className="text-[10px] tracking-widest text-stone-500 uppercase font-medium">
-              Ambachtelijke Koffiebranderij · Oudegem
-            </div>
-          </div>
+          <img
+            src="/images/logo.png"
+            alt="Maison Milau Logo"
+            className="h-12 w-auto object-contain"
+          />
         </div>
 
         {/* Desktop Navigation Links */}
@@ -144,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            Home
+            {t('nav.home')}
           </button>
           <button
             onClick={() => handleNavClick('/koffies')}
@@ -152,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/koffies' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            Onze Koffies
+            {t('nav.our_coffees')}
           </button>
 
           {/* Webshop with Hover/Click dropdown */}
@@ -163,13 +143,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                 currentPath.startsWith('/webshop') ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
               }`}
             >
-              <span>Webshop</span>
+              <span>{t('nav.webshop')}</span>
               <ChevronDown className="w-3.5 h-3.5 text-stone-400 group-hover:rotate-180 transition-transform" />
             </button>
 
             <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-stone-200 py-2 hidden group-hover:block transition-all animate-fadeIn">
               <div className="px-3 py-1.5 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">
-                Webshop Assortiment
+                {t('nav.shop_assortment')}
               </div>
               {WEBSHOP_SUBCATEGORIES.map((sub) => {
                 if (sub.id === 'blends') {
@@ -222,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/kantoor-en-horeca' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            Kantoor en Horeca
+            {t('nav.office_hospitality')}
           </button>
           <button
             onClick={() => handleNavClick('/events')}
@@ -230,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/events' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            Events
+            {t('nav.events')}
           </button>
           <button
             onClick={() => handleNavClick('/faq')}
@@ -238,7 +218,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/faq' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            FAQ
+            {t('nav.faq')}
           </button>
           <button
             onClick={() => handleNavClick('/over-ons')}
@@ -246,7 +226,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/over-ons' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            Over ons
+            {t('nav.about')}
           </button>
         </nav>
 
@@ -295,13 +275,23 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       {/* Hamburger Drawer Menu (Strictly matches the exact requested items) */}
       {isMenuOpen && (
         <div className="lg:hidden bg-stone-50 border-b border-stone-300 px-6 py-6 shadow-xl animate-fadeIn">
+          {/* Mobile Menu Header with Logo and LanguageSwitcher */}
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-200">
+            <img
+              src="/images/logo.png"
+              alt="Maison Milau Logo"
+              className="h-10 w-auto object-contain"
+            />
+            <LanguageSwitcher />
+          </div>
+
           <div className="space-y-4">
             {/* My Account */}
             <button
               onClick={() => handleNavClick('/account')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>My Account ({accountType === 'professioneel' ? 'Professioneel' : 'Particulier'})</span>
+              <span>{t('nav.account')} ({accountType === 'professioneel' ? t('nav.b2b') : t('nav.b2c')})</span>
               <User className="w-5 h-5 text-stone-500" />
             </button>
 
@@ -311,7 +301,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                 onClick={() => setIsWebshopSubmenuOpen(!isWebshopSubmenuOpen)}
                 className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
               >
-                <span>Webshop</span>
+                <span>{t('nav.webshop')}</span>
                 <ChevronDown
                   className={`w-5 h-5 text-stone-500 transition-transform ${
                     isWebshopSubmenuOpen ? 'rotate-180' : ''
@@ -325,7 +315,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                     onClick={() => handleNavClick('/webshop')}
                     className="w-full text-left text-xs font-semibold uppercase tracking-wider text-amber-900 py-1"
                   >
-                    → Naar Volledige Webshop
+                    → {t('nav.webshop')}
                   </button>
                   <div>
                     <div className="flex items-center justify-between py-1">
@@ -333,7 +323,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                         onClick={() => handleNavClick('/webshop?category=blends')}
                         className="text-left text-sm font-semibold text-stone-800 hover:text-stone-950"
                       >
-                        Maison Milau Speciality Blends
+                        Maison Milau Specialty Blends
                       </button>
                       <button
                         onClick={(e) => {
@@ -410,7 +400,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/koffies')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>Onze Koffies</span>
+              <span>{t('nav.our_coffees')}</span>
               <Coffee className="w-5 h-5 text-stone-500" />
             </button>
 
@@ -419,7 +409,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/kantoor-en-horeca')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>Kantoor en Horeca</span>
+              <span>{t('nav.office_hospitality')}</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
             </button>
 
@@ -428,7 +418,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/events')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>Events</span>
+              <span>{t('nav.events')}</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
             </button>
 
@@ -437,7 +427,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/faq')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>FAQ</span>
+              <span>{t('nav.faq')}</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
             </button>
 
@@ -446,7 +436,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/over-ons')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>Over ons</span>
+              <span>{t('nav.about')}</span>
               <ChevronRight className="w-5 h-5 text-stone-500" />
             </button>
 
@@ -455,7 +445,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/afspraakplanner')}
               className="w-full text-left py-2 text-sm font-medium text-amber-800"
             >
-              Afspraakplanner (Atelier Bezoek)
+              {t('nav.appointment')}
             </button>
           </div>
         </div>

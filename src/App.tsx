@@ -86,7 +86,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen flex flex-col bg-stone-50 text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950">
+        <div className="min-h-screen flex flex-col text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950">
           <Header currentPath={currentPath} navigate={navigate} />
 
           <main className="flex-1">

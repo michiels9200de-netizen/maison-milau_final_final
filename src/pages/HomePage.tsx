@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Sparkles, Clock, ShieldCheck, Truck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
 interface HomePageProps {
@@ -7,27 +8,29 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
+  const { t } = useTranslation();
+
   return (
-    <div className="bg-stone-50 min-h-screen text-stone-800">
+    <div className="min-h-screen text-stone-800">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 sm:pt-16 pb-16 lg:pb-24 border-b border-stone-200 bg-white">
+      <section className="relative overflow-hidden pt-12 sm:pt-16 pb-16 lg:pb-24 border-b border-stone-200/80 bg-white/70 backdrop-blur-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left: Hero Copy */}
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-6 border border-stone-200">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100/90 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-6 border border-stone-200">
                 <Sparkles className="w-3.5 h-3.5 text-amber-900" />
-                <span>Ambachtelijke Koffiebranderij · Oudegem (Dendermonde)</span>
+                <span>{t('hero.badge')}</span>
               </div>
 
               {/* H1: 48-64px, font-weight 700 */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 leading-[1.12] mb-6">
-                Maison Milau Artisanale Koffiebranderij.
+                {t('hero.title')}
               </h1>
 
               {/* Lopende tekst: 16-18px, font-weight 400, line-height 1.6 */}
               <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed mb-8">
-                Ambachtelijk gebrande specialty koffies voor elke gelegenheid. Bij jou thuis, voor op kantoor, in je horecazaak of exclusieve koffiecatering voor jouw tuinfeest.
+                {t('hero.subtitle')}
               </p>
 
               {/* Action Buttons: font-weight 600 */}
@@ -37,7 +40,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   onClick={() => navigate('/webshop')}
                   className="inline-flex items-center gap-2 bg-amber-900 hover:bg-amber-800 text-white px-5 py-3 rounded-xl text-sm font-semibold transition-colors shadow-xs"
                 >
-                  <span>Naar Webshop</span>
+                  <span>{t('hero.to_webshop')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -46,7 +49,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   onClick={() => navigate('/kantoor-en-horeca')}
                   className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-900 px-5 py-3 rounded-xl text-sm font-semibold transition-colors border border-stone-200"
                 >
-                  <span>Kantoor & Horeca</span>
+                  <span>{t('hero.office_hospitality')}</span>
                 </button>
 
                 <button
@@ -54,7 +57,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   onClick={() => navigate('/events')}
                   className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-900 px-5 py-3 rounded-xl text-sm font-semibold transition-colors border border-stone-200"
                 >
-                  <span>Events & Barista</span>
+                  <span>{t('hero.events_barista')}</span>
                 </button>
 
                 <button
@@ -62,7 +65,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   onClick={() => navigate('/afspraakplanner')}
                   className="inline-flex items-center gap-2 bg-stone-50 hover:bg-stone-100 text-stone-800 border border-stone-300 px-5 py-3 rounded-xl text-sm font-semibold transition-colors"
                 >
-                  <span>Afspraak Inplannen</span>
+                  <span>{t('hero.schedule')}</span>
                 </button>
               </div>
             </div>
@@ -86,20 +89,20 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      {/* Maison Milau Beloften (moved to replace the removed Ambacht in beeld video section) */}
-      <section className="py-16 sm:py-20 bg-stone-100/60 border-b border-stone-200">
+      {/* Maison Milau Beloften */}
+      <section className="py-16 sm:py-20 bg-stone-100/40 border-b border-stone-200/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-stone-700 text-xs font-semibold uppercase tracking-wider mb-3 border border-stone-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-900" />
-              <span>Onze Toewijding</span>
+              <span>{t('promises.badge')}</span>
             </div>
             {/* H2: 32-40px, font-weight 600 */}
             <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
-              Maison Milau beloften
+              {t('promises.title')}
             </h2>
             <p className="text-base text-stone-500 mt-2">
-              Onze toewijding aan ambacht, versheid en transparante kwaliteit in elk kopje.
+              {t('promises.subtitle')}
             </p>
           </div>
 

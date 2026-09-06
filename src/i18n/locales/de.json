@@ -10,17 +10,35 @@
     "contact": "Kontakt",
     "cart": "Warenkorb",
     "account": "Mein Konto",
-    "admin": "Rösterei-Verwaltung"
+    "admin": "Rösterei-Verwaltung",
+    "appointment": "Termin Vereinbaren",
+    "b2c": "Privatkunden (B2C)",
+    "b2b": "Geschäftskunden (B2B)",
+    "plan_visit": "Besuch Planen",
+    "call_us": "Anrufen",
+    "shop_assortment": "Webshop-Sortiment"
   },
   "hero": {
+    "badge": "Handwerkliche Kaffeerösterei · Oudegem (Dendermonde)",
     "title": "Maison Milau Handwerkliche Kaffeerösterei.",
     "subtitle": "Handwerklich geröstete Spezialitätenkaffees für jeden Anlass. Bei Ihnen zu Hause, im Büro, in der Gastronomie oder exklusives Barista-Catering für Ihre Veranstaltung.",
     "to_webshop": "Zum Webshop",
+    "office_hospitality": "Büro & Gastronomie",
+    "events_barista": "Events & Barista",
     "schedule": "Termin Vereinbaren"
   },
   "promises": {
+    "badge": "Unsere Hingabe",
     "title": "Maison Milau Versprechen",
-    "subtitle": "Unser Bekenntnis zu Handwerk, Frische und transparenter Spitzenqualität in jeder Tasse."
+    "subtitle": "Unser Bekenntnis zu Handwerk, Frische und transparenter Spitzenqualität in jeder Tasse.",
+    "freshness": "Wöchentlich Frisch Geröstet",
+    "freshness_desc": "Keine alten Lagerbestände. Alle unsere Kaffees werden wöchentlich in kleinen Chargen in Oudegem geröstet.",
+    "specialty": "100% Specialty Grade",
+    "specialty_desc": "Ausschließlich rückverfolgbare Premiumbohnen (SCA 84+ Punkte), mit Respekt für Herkunft und Kaffeebauern.",
+    "personal": "Individuell & Nach Maß",
+    "personal_desc": "Von Degustationssets bis zu maßgeschneiderten Hausmischungen für Gastronomie und Büros.",
+    "sustainability": "Nachhaltig & Transparent",
+    "sustainability_desc": "Direkter Handel, recycelbare Verpackungen und faire Entlohnung direkt am Ursprung."
   },
   "webshop": {
     "title": "Handwerkliche Kaffees & Zubehör",
@@ -38,7 +56,15 @@
     "free_shipping_500g": "Kostenloser Versand ab 500g",
     "frequency_2w": "Alle 2 Wochen",
     "frequency_4w": "Alle 4 Wochen",
-    "frequency_6w": "Alle 6 Wochen"
+    "frequency_6w": "Alle 6 Wochen",
+    "search_placeholder": "Kaffee nach Namen, Geschmacksnoten oder Herkunft suchen...",
+    "filters": "Filter",
+    "view_details": "Details Anzeigen",
+    "in_stock": "Auf Lager",
+    "out_of_stock": "Vorübergehend Ausverkauft",
+    "grind_beans": "Ganze Bohnen",
+    "grind_espresso": "Gemahlen Espresso",
+    "grind_filter": "Gemahlen Filter"
   },
   "cart": {
     "title": "Ihr Warenkorb",
@@ -46,6 +72,50 @@
     "subtotal": "Zwischensumme",
     "shipping": "Versandkosten",
     "free_shipping": "KOSTENLOS",
-    "checkout": "Zur Kasse mit Mollie"
+    "checkout": "Zur Kasse mit Mollie",
+    "continue_shopping": "Weiter einkaufen",
+    "items": "Artikel",
+    "total": "Gesamtsumme"
+  },
+  "footer": {
+    "atelier_title": "Atelier Maison Milau",
+    "roastery_name": "MAISON MILAU",
+    "roastery_subtitle": "Handwerkliche Kaffeerösterei · Oudegem (Dendermonde)",
+    "whatsapp_us": "WhatsApp Nachricht",
+    "plan_visit": "Besuch planen",
+    "about_title": "Handwerkliche Kaffeerösterei",
+    "about_desc": "Artisanale Mikrorösterei in Oudegem (Dendermonde). Mit Sorgfalt und Leidenschaft geröstete Kaffees, Büro- und Gastronomielösungen sowie Siebträger-Vermietung.",
+    "company_details": "Unternehmensdaten",
+    "vat_number": "USt-IdNr. & Unternehmensnummer",
+    "follow_us": "Maison Milau Folgen",
+    "contact_title": "Atelier & Kontakt",
+    "atelier_address": "Rösterei-Atelier",
+    "phone_label": "Telefon & WhatsApp",
+    "email_label": "E-Mail-Adresse",
+    "visit_title": "Atelier-Besuch",
+    "visit_desc": "Besuche in unserem Rösterei-Atelier in Oudegem sind nach Absprache oder an Abholtagen möglich.",
+    "markets_title": "Lokale Wochenmärkte",
+    "markets_desc": "Verkosten und kaufen Sie frisch geröstete Bohnen direkt auf den Wochenmärkten:",
+    "monday": "Montag",
+    "monday_market": "Dendermonde (Zentrumsmarkt)",
+    "thursday": "Donnerstag",
+    "thursday_market": "Wetteren (Wochenmarkt)",
+    "saturday": "Samstag",
+    "saturday_market": "Aalst (Grote Markt)",
+    "sitemap_title": "Sitemap & Angebote",
+    "legal_privacy": "Datenschutzerklärung",
+    "legal_cookies": "Cookie-Richtlinie",
+    "legal_terms": "AGB & Abonnements",
+    "legal_shipping": "Versand- & Rückgabebestimmungen",
+    "copyright": "© 2026 Maison Milau · Handwerkliche Kaffeerösterei Oudegem.",
+    "management": "Rösterei-Verwaltung"
+  },
+  "common": {
+    "read_more": "Mehr Erfahren",
+    "view_more": "Mehr Anzeigen",
+    "contact_us": "Kontakt Aufnehmen",
+    "loading": "Wird geladen...",
+    "success": "Erfolgreich",
+    "error": "Ein Fehler ist aufgetreten"
   }
 }

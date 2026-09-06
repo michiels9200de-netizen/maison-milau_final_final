@@ -1,5 +1,6 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Instagram, Facebook, MessageCircle, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { CONFIG } from '../config';
 
 interface FooterProps {
@@ -7,21 +8,30 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ navigate }) => {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-stone-900 text-stone-300 pt-16 pb-12 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Roastery Top Header Highlight */}
+        {/* Roastery Top Header Highlight with logo.png */}
         <div className="border-b border-stone-800 pb-10 mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">
-              Atelier Maison Milau
+          <div className="flex items-center gap-4">
+            <img
+              src="/images/logo.png"
+              alt="Maison Milau Logo"
+              className="h-14 w-auto object-contain brightness-110"
+            />
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">
+                {t('footer.atelier_title')}
+              </div>
+              <h3 className="text-2xl sm:text-3xl text-stone-100 font-bold tracking-tight">
+                {t('footer.roastery_name')}
+              </h3>
+              <p className="text-sm text-stone-400 mt-1">
+                {t('footer.roastery_subtitle')}
+              </p>
             </div>
-            <h3 className="text-2xl sm:text-3xl text-stone-100 font-bold tracking-tight">
-              MAISON MILAU
-            </h3>
-            <p className="text-sm text-stone-400 mt-1">
-              Ambachtelijke Koffiebranderij · Oudegem (Dendermonde)
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -32,14 +42,14 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
               className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Ons</span>
+              <span>{t('footer.whatsapp_us')}</span>
             </a>
             <button
               onClick={() => navigate('/afspraakplanner')}
               className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
             >
               <Calendar className="w-4 h-4" />
-              <span>Plan een bezoek</span>
+              <span>{t('footer.plan_visit')}</span>
             </button>
           </div>
         </div>
@@ -49,19 +59,19 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
           {/* Column 1: Over Atelier & Bedrijfsgegevens */}
           <div>
             <h4 className="text-stone-100 font-semibold mb-3">
-              Ambachtelijke Koffiebranderij
+              {t('footer.about_title')}
             </h4>
             <p className="text-xs text-stone-400 leading-relaxed mb-4">
-              Artisanale micro-roastery in Oudegem (Dendermonde). Met zorg en passie gebrande specialty koffies, kantoor- en horeca-oplossingen en machine-verhuur voor evenementen.
+              {t('footer.about_desc')}
             </p>
             <div className="text-xs text-stone-400 space-y-1">
-              <div className="font-medium text-stone-300">Bedrijfsgegevens:</div>
-              <div>BTW & Ondernemingsnummer:</div>
+              <div className="font-medium text-stone-300">{t('footer.company_details')}:</div>
+              <div>{t('footer.vat_number')}:</div>
               <div className="font-mono text-stone-200">{CONFIG.vatNumber}</div>
             </div>
 
             <div className="mt-5">
-              <div className="text-xs text-stone-400 mb-2 font-medium">Volg Maison Milau:</div>
+              <div className="text-xs text-stone-400 mb-2 font-medium">{t('footer.follow_us')}:</div>
               <div className="flex items-center gap-3">
                 <a
                   href={CONFIG.social.instagram}
@@ -97,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
           {/* Column 2: Atelier & Contact */}
           <div>
             <h4 className="text-stone-100 font-semibold mb-3">
-              Atelier & Contact
+              {t('footer.contact_title')}
             </h4>
             <ul className="text-xs space-y-3 text-stone-400">
               <li className="flex items-start gap-2">
@@ -111,7 +121,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   <MapPin className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
                 </a>
                 <span>
-                  <strong className="text-stone-300">Roastery Atelier:</strong><br />
+                  <strong className="text-stone-300">{t('footer.atelier_address')}:</strong><br />
                   <a
                     href={CONFIG.atelierAddress.googleMapsUrl}
                     target="_blank"
@@ -125,7 +135,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-stone-300">Telefoon & WhatsApp:</strong><br />
+                  <strong className="text-stone-300">{t('footer.phone_label')}:</strong><br />
                   <a href={`tel:${CONFIG.whatsappNumber}`} className="hover:text-stone-200">
                     +32 (0)467 77 37 66
                   </a>
@@ -134,7 +144,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-stone-300">E-mailadres:</strong><br />
+                  <strong className="text-stone-300">{t('footer.email_label')}:</strong><br />
                   <a href={`mailto:${CONFIG.supportEmail}`} className="hover:text-stone-200">
                     {CONFIG.supportEmail}
                   </a>
@@ -143,15 +153,15 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
             </ul>
 
             <div className="mt-5 pt-4 border-t border-stone-800">
-              <div className="font-medium text-stone-300 text-xs mb-1">Atelier Bezoek</div>
+              <div className="font-medium text-stone-300 text-xs mb-1">{t('footer.visit_title')}</div>
               <p className="text-xs text-stone-400 leading-relaxed mb-2">
-                Bezoek aan ons branderij-atelier in Oudegem is mogelijk op afspraak of tijdens onze afhaaldagen.
+                {t('footer.visit_desc')}
               </p>
               <button
                 onClick={() => navigate('/afspraakplanner')}
                 className="text-xs text-amber-400 hover:text-amber-300 underline font-medium"
               >
-                Plan een bezoek of neem contact op (afspraak planner) →
+                {t('footer.plan_visit')} →
               </button>
             </div>
           </div>
@@ -159,23 +169,23 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
           {/* Column 3: Lokale Markten */}
           <div>
             <h4 className="text-stone-100 font-semibold mb-3">
-              Lokale Markten
+              {t('footer.markets_title')}
             </h4>
             <p className="text-xs text-stone-400 leading-relaxed mb-3">
-              Kom proeven en koop je vers gebrande bonen rechtstreeks op de wekelijkse markten:
+              {t('footer.markets_desc')}
             </p>
             <div className="space-y-2 text-xs">
               <div className="bg-stone-800/60 p-2.5 rounded-lg border border-stone-800">
-                <div className="font-semibold text-stone-200">Maandag</div>
-                <div className="text-stone-400">Dendermonde (Centrum markt)</div>
+                <div className="font-semibold text-stone-200">{t('footer.monday')}</div>
+                <div className="text-stone-400">{t('footer.monday_market')}</div>
               </div>
               <div className="bg-stone-800/60 p-2.5 rounded-lg border border-stone-800">
-                <div className="font-semibold text-stone-200">Donderdag</div>
-                <div className="text-stone-400">Wetteren (Wekelijkse markt)</div>
+                <div className="font-semibold text-stone-200">{t('footer.thursday')}</div>
+                <div className="text-stone-400">{t('footer.thursday_market')}</div>
               </div>
               <div className="bg-stone-800/60 p-2.5 rounded-lg border border-stone-800">
-                <div className="font-semibold text-stone-200">Zaterdag</div>
-                <div className="text-stone-400">Aalst (Grote Markt)</div>
+                <div className="font-semibold text-stone-200">{t('footer.saturday')}</div>
+                <div className="text-stone-400">{t('footer.saturday_market')}</div>
               </div>
             </div>
           </div>
@@ -183,7 +193,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
           {/* Column 4: Sitemap & Formules */}
           <div>
             <h4 className="text-stone-100 font-semibold mb-3">
-              Sitemap & Formules
+              {t('footer.sitemap_title')}
             </h4>
             <ul className="space-y-2 text-xs text-stone-400">
               <li>
@@ -191,7 +201,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/account')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  Mijn Account
+                  {t('nav.account')}
                 </button>
               </li>
               <li>
@@ -199,7 +209,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/koffies')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  Onze Koffies (Catalogus)
+                  {t('nav.our_coffees')}
                 </button>
               </li>
               <li>
@@ -207,7 +217,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/webshop')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  Webshop
+                  {t('nav.webshop')}
                 </button>
               </li>
               <li>
@@ -215,7 +225,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/kantoor-en-horeca')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  Kantoor & Horeca
+                  {t('nav.office_hospitality')}
                 </button>
               </li>
               <li>
@@ -223,7 +233,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/events')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  Event Planner & Verhuur
+                  {t('nav.events')}
                 </button>
               </li>
               <li>
@@ -231,7 +241,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/faq')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  FAQ & Klantenservice
+                  {t('nav.faq')}
                 </button>
               </li>
               <li>
@@ -239,15 +249,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/over-ons')}
                   className="hover:text-stone-100 transition-colors"
                 >
-                  Over Ons
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => navigate('/kantoor-en-horeca#offerte')}
-                  className="hover:text-stone-100 transition-colors text-amber-400"
-                >
-                  Offerte of Vraag Sturen
+                  {t('nav.about')}
                 </button>
               </li>
               <li>
@@ -255,7 +257,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                   onClick={() => navigate('/admin')}
                   className="hover:text-amber-300 transition-colors text-stone-500 text-[11px]"
                 >
-                  Branderij Admin Dashboard
+                  {t('footer.management')}
                 </button>
               </li>
             </ul>
@@ -268,40 +270,40 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
             onClick={() => navigate('/privacy')}
             className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
           >
-            Privacy Policy
+            {t('footer.legal_privacy')}
           </button>
           <span className="text-stone-700">·</span>
           <button
             onClick={() => navigate('/cookies')}
             className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
           >
-            Cookie Policy
+            {t('footer.legal_cookies')}
           </button>
           <span className="text-stone-700">·</span>
           <button
             onClick={() => navigate('/terms')}
             className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
           >
-            Algemene Voorwaarden & Abonnementen
+            {t('footer.legal_terms')}
           </button>
           <span className="text-stone-700">·</span>
           <button
             onClick={() => navigate('/shipping')}
             className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
           >
-            Verzending & Retourbeleid
+            {t('footer.legal_shipping')}
           </button>
         </div>
 
         {/* Bottom Legal & Copyright Bar */}
         <div className="border-t border-stone-800 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-3">
           <div className="flex items-center gap-2">
-            <span>© 2026 Maison Milau · Ambachtelijke Koffiebranderij Oudegem.</span>
+            <span>{t('footer.copyright')}</span>
             <button
               onClick={() => navigate('/admin')}
               className="text-stone-600 hover:text-stone-400 transition-colors text-[10px]"
             >
-              · Roastery Management
+              · {t('footer.management')}
             </button>
           </div>
           <div className="text-center md:text-right">
