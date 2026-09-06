@@ -103,16 +103,16 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 lg:py-3.5 flex items-center justify-between gap-4">
         {/* Brand Identity with Logo.png */}
         <div
           onClick={() => handleNavClick('/')}
-          className="cursor-pointer flex items-center gap-3 select-none py-1"
+          className="cursor-pointer flex items-center select-none shrink-0"
         >
           <img
             src="/images/logo.png"
             alt="Maison Milau Logo"
-            className="h-12 w-auto object-contain"
+            className="h-[52px] sm:h-[64px] lg:h-[80px] w-auto max-w-none object-contain transition-all"
           />
         </div>
 
@@ -280,7 +280,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             <img
               src="/images/logo.png"
               alt="Maison Milau Logo"
-              className="h-10 w-auto object-contain"
+              className="h-[50px] w-auto max-w-none object-contain"
             />
             <LanguageSwitcher />
           </div>
