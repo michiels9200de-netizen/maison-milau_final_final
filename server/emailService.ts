@@ -98,16 +98,20 @@ export async function getTransporter(): Promise<Transporter> {
           rejectUnauthorized: false,
         },
       });
+      console.log(`[EMAIL STEP 2] Transporter created (host: ${smtpHost}:${smtpPort}, user: ${smtpUser})`);
 
       try {
-        console.log(`[SMTP AUTH ATTEMPT] Verifying SMTP authentication with ${smtpHost}:${smtpPort} for ${smtpUser}...`);
+        console.log(`[EMAIL STEP 3] SMTP verify started with ${smtpHost}:${smtpPort}...`);
         await transporter.verify();
-        console.log(`[SMTP AUTH SUCCESS] ✅ SMTP authentication succeeded for ${smtpUser} on ${smtpHost}:${smtpPort}`);
+        console.log(`[EMAIL STEP 4] SMTP verify success for ${smtpUser} on ${smtpHost}:${smtpPort}`);
       } catch (verifyErr: any) {
-        console.error(`[SMTP AUTH FAILED] ❌ SMTP authentication failed on ${smtpHost}:${smtpPort}:`);
-        console.error(`[SMTP AUTH FAILED] Reason: ${verifyErr.message}`);
-        if (verifyErr.code) console.error(`[SMTP AUTH FAILED] Error Code: ${verifyErr.code}`);
-        if (verifyErr.response) console.error(`[SMTP AUTH FAILED] SMTP Response: ${verifyErr.response}`);
+        console.error(`[EMAIL ERROR] Full error details during SMTP verify on ${smtpHost}:${smtpPort}:`, {
+          message: verifyErr.message,
+          code: verifyErr.code,
+          command: verifyErr.command,
+          response: verifyErr.response,
+          responseCode: verifyErr.responseCode,
+        });
         // Reset cache so that subsequent attempts can pick up newly injected environment variables
         transporterPromise = null;
       }
@@ -115,7 +119,7 @@ export async function getTransporter(): Promise<Transporter> {
     }
 
     // When live credentials are not set, provision an Ethereal SMTP test account for real SMTP transmission
-    console.log('[EMAIL] No SMTP_USER/SMTP_PASS in environment. Provisioning real Ethereal SMTP test account for live delivery testing...');
+    console.warn('[EMAIL ERROR] Full error details: Missing SMTP_USER or SMTP_PASS environment variables! Provisioning real Ethereal SMTP test account...');
     try {
       const testAccount = await nodemailer.createTestAccount();
       activeProvider = `Ethereal Test SMTP (${testAccount.user})`;
@@ -131,13 +135,14 @@ export async function getTransporter(): Promise<Transporter> {
         debug: true,
         logger: true,
       });
+      console.log(`[EMAIL STEP 2] Transporter created (Ethereal test account: ${testAccount.user})`);
+      console.log('[EMAIL STEP 3] SMTP verify started with Ethereal...');
       await testTransporter.verify();
-      console.log('[EMAIL] Ethereal SMTP connection verified successfully.');
+      console.log('[EMAIL STEP 4] SMTP verify success with Ethereal');
       return testTransporter;
     } catch (testErr: any) {
-      console.error('[EMAIL] Failed to create Ethereal test account:', testErr.message);
+      console.error('[EMAIL ERROR] Full error details: Failed to create Ethereal test account:', testErr);
       activeProvider = 'Direct Fallback Transport';
-      // Final fallback to JSON direct transport if ethereal fails
       return nodemailer.createTransport({
         jsonTransport: true,
       });
@@ -400,14 +405,14 @@ export async function sendEmail(options: {
         html: html || buildHtmlWrapper(subject, preview, `<pre style="font-family:inherit;white-space:pre-wrap;">${text}</pre>`),
       };
 
-      console.log(`[SMTP DISPATCH] Calling transporter.sendMail via ${activeProvider} to ${recipient}...`);
+      console.log(`[EMAIL STEP 5] sendMail started (attempt ${attempt}/${maxAttempts}) via ${activeProvider} to ${recipient}...`);
       const info = await transporter.sendMail(mailOptions);
       logEntry.status = 'sent';
       logEntry.messageId = info.messageId;
       logEntry.provider = activeProvider;
 
-      console.log(`[SMTP ACCEPTED] ✅ Message ACCEPTED by SMTP provider for ${recipient}!`);
-      console.log(`[SMTP MESSAGE ID] ✅ Message-ID returned: ${info.messageId}`);
+      console.log(`[EMAIL STEP 6] sendMail success for ${recipient}`);
+      console.log(`[EMAIL STEP 7] Message-ID returned: ${info.messageId}`);
       if (info.response) {
         console.log(`[SMTP RESPONSE] ✅ Provider SMTP Response: ${info.response}`);
       }
@@ -427,20 +432,14 @@ export async function sendEmail(options: {
       return logEntry;
     } catch (err: any) {
       lastError = err;
-      console.error(`[SMTP SEND FAILURE] ❌ Attempt ${attempt}/${maxAttempts} rejected/failed for ${recipient}:`);
-      console.error(`[SMTP SEND FAILURE REASON] Error Message: ${err.message}`);
-      if (err.code) {
-        console.error(`[SMTP SEND FAILURE REASON] Error Code: ${err.code}`);
-      }
-      if (err.command) {
-        console.error(`[SMTP SEND FAILURE REASON] Failed Command: ${err.command}`);
-      }
-      if (err.response) {
-        console.error(`[SMTP SEND FAILURE REASON] SMTP Server Response: ${err.response}`);
-      }
-      if (err.responseCode) {
-        console.error(`[SMTP SEND FAILURE REASON] SMTP Response Code: ${err.responseCode}`);
-      }
+      console.error(`[EMAIL ERROR] Full error details during sendMail (attempt ${attempt}/${maxAttempts}) for ${recipient}:`, {
+        message: err.message,
+        code: err.code,
+        command: err.command,
+        response: err.response,
+        responseCode: err.responseCode,
+        stack: err.stack,
+      });
 
       if (attempt < maxAttempts) {
         await new Promise((r) => setTimeout(r, 600 * attempt));
@@ -450,7 +449,7 @@ export async function sendEmail(options: {
 
   logEntry.status = 'failed';
   logEntry.error = lastError?.message || 'Onbekende fout tijdens transmissie';
-  console.error(`[EMAIL FATAL] ❌ ALL ${maxAttempts} attempts failed for recipient: ${recipient}. Final reason: ${logEntry.error}`);
+  console.error(`[EMAIL ERROR] Full error details: All ${maxAttempts} attempts failed for recipient: ${recipient}. Final reason: ${logEntry.error}`);
 
   return logEntry;
 }
@@ -1500,7 +1499,7 @@ export async function sendEventQuoteEmails(event: any) {
     <p style="font-size:14px;color:#78716c;margin-top:20px;">Vragen? Contacteer ons via <a href="mailto:${WEBOWNER_EMAIL}" style="color:#78350f;">${WEBOWNER_EMAIL}</a>.</p>`
   );
 
-  await sendEmail({
+  const adminResult = await sendEmail({
     type: 'admin_event',
     recipient: WEBOWNER_EMAIL,
     subject: adminSubject,
@@ -1509,7 +1508,7 @@ export async function sendEventQuoteEmails(event: any) {
     html: adminHtml,
   });
 
-  await sendEmail({
+  const customerResult = await sendEmail({
     type: 'customer_event',
     recipient: event.email,
     subject: customerSubject,
@@ -1517,4 +1516,18 @@ export async function sendEventQuoteEmails(event: any) {
     text: customerText,
     html: customerHtml,
   });
+
+  if (adminResult.status !== 'sent' || !adminResult.messageId) {
+    const errorMsg = `Admin notification email failed to send: ${adminResult.error || 'No messageId returned'}`;
+    console.error('[EMAIL ERROR] Full error details:', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  if (customerResult.status !== 'sent' || !customerResult.messageId) {
+    const errorMsg = `Customer confirmation email failed to send: ${customerResult.error || 'No messageId returned'}`;
+    console.error('[EMAIL ERROR] Full error details:', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  return { adminResult, customerResult };
 }

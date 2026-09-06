@@ -1731,6 +1731,7 @@ app.get('/api/b2b-quotes', (req: Request, res: Response) => {
 
 // 7. Event Quotes
 app.post('/api/event-quote', async (req: Request, res: Response) => {
+  console.log('[EMAIL STEP 1] Request received');
   const { contactPerson, email, phone, eventType, eventDate, guestsCount, machineRental, baristaService, calculatedBeansKg, estimatedPrice, notes } = req.body;
   if (!contactPerson || !email || !phone || !eventDate) {
     return res.status(400).json({ success: false, error: 'Gelieve contactpersoon, email, telefoon en datum in te vullen.' });
@@ -1753,15 +1754,23 @@ app.post('/api/event-quote', async (req: Request, res: Response) => {
   };
   eventInquiries.unshift(event);
 
-  console.log(`[EVENT QUOTE] Processing event quote for "${contactPerson}" (${email}) on ${eventDate}. Awaiting email dispatch...`);
   try {
-    await sendEventQuoteEmails(event);
+    const emailResult = await sendEventQuoteEmails(event);
     console.log(`[EVENT QUOTE] ✅ Emails successfully dispatched for event ${event.id}`);
-  } catch (e) {
-    console.error('[EVENT QUOTE] ❌ Failed to dispatch event quote emails:', e);
+    return res.status(200).json({
+      success: true,
+      message: 'Evenement aanvraag ontvangen en bevestigd via e-mail.',
+      data: event,
+      emailResult,
+    });
+  } catch (e: any) {
+    console.error('[EMAIL ERROR] Full error details:', e?.message || e);
+    return res.status(500).json({
+      success: false,
+      error: 'E-mailverzending via SMTP is mislukt.',
+      details: e?.message || String(e),
+    });
   }
-
-  res.json({ success: true, message: 'Evenement aanvraag ontvangen. Wij nemen spoedig contact op.', data: event });
 });
 
 app.get('/api/event-quotes', (req: Request, res: Response) => {
