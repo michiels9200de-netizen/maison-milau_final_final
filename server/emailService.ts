@@ -77,7 +77,7 @@ export async function getTransporter(): Promise<Transporter> {
     const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS)?.trim();
 
     if (smtpUser && smtpPass) {
-      console.log(`[EMAIL] Initializing live SMTP with host: ${smtpHost}:${smtpPort} (user: ${smtpUser})`);
+      console.log(`[SMTP CONFIG] Live SMTP credentials detected: host=${smtpHost}:${smtpPort} (user: ${smtpUser})`);
       activeProvider = `SMTP (${smtpHost}:${smtpPort})`;
       const transporter = nodemailer.createTransport({
         host: smtpHost,
@@ -93,10 +93,14 @@ export async function getTransporter(): Promise<Transporter> {
       });
 
       try {
+        console.log(`[SMTP AUTH ATTEMPT] Verifying SMTP authentication with ${smtpHost}:${smtpPort} for ${smtpUser}...`);
         await transporter.verify();
-        console.log(`[EMAIL] SMTP connection to ${smtpHost}:${smtpPort} verified successfully.`);
+        console.log(`[SMTP AUTH SUCCESS] ✅ SMTP authentication succeeded for ${smtpUser} on ${smtpHost}:${smtpPort}`);
       } catch (verifyErr: any) {
-        console.error(`[EMAIL] Warning: SMTP verification failed: ${verifyErr.message}`);
+        console.error(`[SMTP AUTH FAILED] ❌ SMTP authentication failed on ${smtpHost}:${smtpPort}:`);
+        console.error(`[SMTP AUTH FAILED] Reason: ${verifyErr.message}`);
+        if (verifyErr.code) console.error(`[SMTP AUTH FAILED] Error Code: ${verifyErr.code}`);
+        if (verifyErr.response) console.error(`[SMTP AUTH FAILED] SMTP Response: ${verifyErr.response}`);
       }
       return transporter;
     }
@@ -247,6 +251,13 @@ export async function sendEmail(options: {
   const { type, recipient, subject, preview, text, html, replyTo } = options;
   const logId = `eml-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
+  console.log(`\n[EMAIL SEND ATTEMPT] =================================================`);
+  console.log(`[EMAIL SEND ATTEMPT] Type: ${type}`);
+  console.log(`[EMAIL SEND ATTEMPT] Recipient Address: "${recipient}"`);
+  console.log(`[EMAIL SEND ATTEMPT] Sender: "${SENDER_NAME}" <${SENDER_EMAIL}>`);
+  console.log(`[EMAIL SEND ATTEMPT] Subject: "${subject}"`);
+  console.log(`[EMAIL SEND ATTEMPT] =================================================`);
+
   const logEntry: EmailLogEntry = {
     id: logId,
     type,
@@ -269,6 +280,7 @@ export async function sendEmail(options: {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     logEntry.attempts = attempt;
+    console.log(`[EMAIL SEND ATTEMPT] Dispatch attempt ${attempt}/${maxAttempts} for ${recipient}...`);
     try {
       const transporter = await getTransporter();
       const mailOptions: SendMailOptions = {
@@ -280,25 +292,48 @@ export async function sendEmail(options: {
         html: html || buildHtmlWrapper(subject, preview, `<pre style="font-family:inherit;white-space:pre-wrap;">${text}</pre>`),
       };
 
+      console.log(`[SMTP DISPATCH] Calling transporter.sendMail via ${activeProvider} to ${recipient}...`);
       const info = await transporter.sendMail(mailOptions);
       logEntry.status = 'sent';
       logEntry.messageId = info.messageId;
       logEntry.provider = activeProvider;
 
+      console.log(`[SMTP ACCEPTED] ✅ Message ACCEPTED by SMTP provider for ${recipient}!`);
+      console.log(`[SMTP MESSAGE ID] ✅ Message-ID returned: ${info.messageId}`);
+      if (info.response) {
+        console.log(`[SMTP RESPONSE] ✅ Provider SMTP Response: ${info.response}`);
+      }
+      if (info.accepted) {
+        console.log(`[SMTP ACCEPTED RECIPIENTS] ${JSON.stringify(info.accepted)}`);
+      }
+      if (info.rejected && info.rejected.length > 0) {
+        console.warn(`[SMTP REJECTED RECIPIENTS] ⚠️ ${JSON.stringify(info.rejected)}`);
+      }
+
       const previewUrl = nodemailer.getTestMessageUrl(info);
       if (previewUrl) {
         logEntry.previewUrl = previewUrl;
-      }
-
-      console.log(`[EMAIL SENT] Type: ${type} | To: ${recipient} | MsgId: ${info.messageId} | Provider: ${activeProvider}`);
-      if (previewUrl) {
         console.log(`[EMAIL PREVIEW URL] ${previewUrl}`);
       }
 
       return logEntry;
     } catch (err: any) {
       lastError = err;
-      console.error(`[EMAIL ERROR] Attempt ${attempt}/${maxAttempts} failed for ${recipient}: ${err.message}`);
+      console.error(`[SMTP SEND FAILURE] ❌ Attempt ${attempt}/${maxAttempts} rejected/failed for ${recipient}:`);
+      console.error(`[SMTP SEND FAILURE REASON] Error Message: ${err.message}`);
+      if (err.code) {
+        console.error(`[SMTP SEND FAILURE REASON] Error Code: ${err.code}`);
+      }
+      if (err.command) {
+        console.error(`[SMTP SEND FAILURE REASON] Failed Command: ${err.command}`);
+      }
+      if (err.response) {
+        console.error(`[SMTP SEND FAILURE REASON] SMTP Server Response: ${err.response}`);
+      }
+      if (err.responseCode) {
+        console.error(`[SMTP SEND FAILURE REASON] SMTP Response Code: ${err.responseCode}`);
+      }
+
       if (attempt < maxAttempts) {
         await new Promise((r) => setTimeout(r, 600 * attempt));
       }
@@ -307,7 +342,7 @@ export async function sendEmail(options: {
 
   logEntry.status = 'failed';
   logEntry.error = lastError?.message || 'Onbekende fout tijdens transmissie';
-  console.error(`[EMAIL FATAL] Failed to send email to ${recipient} after ${maxAttempts} attempts: ${logEntry.error}`);
+  console.error(`[EMAIL FATAL] ❌ ALL ${maxAttempts} attempts failed for recipient: ${recipient}. Final reason: ${logEntry.error}`);
 
   return logEntry;
 }
@@ -331,7 +366,14 @@ export async function sendContactFormEmails(data: {
 }) {
   const ticketRef = data.ticketNumber || `ML-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  // Email to Administrator (maisonmilau@gmail.com)
+  console.log(`\n[CONTACT WORKFLOW AUDIT] ---------------------------------------------`);
+  console.log(`[CONTACT WORKFLOW AUDIT] Step 2: emailService.sendContactFormEmails invoked`);
+  console.log(`[CONTACT WORKFLOW AUDIT] Ticket Reference: #${ticketRef}`);
+  console.log(`[CONTACT WORKFLOW AUDIT] Administrator Recipient: "${WEBOWNER_EMAIL}"`);
+  console.log(`[CONTACT WORKFLOW AUDIT] Customer Recipient: "${data.customerEmail}"`);
+  console.log(`[CONTACT WORKFLOW AUDIT] ---------------------------------------------`);
+
+  // 1. Email to Administrator (maisonmilau@gmail.com)
   const adminSubject = `[Nieuw Contactbericht #${ticketRef}] ${data.subject} · ${data.customerName}`;
   const adminText = `Beste Laurent,
 
@@ -371,7 +413,8 @@ U kunt rechtstreeks op deze e-mail antwoorden om contact op te nemen met de klan
     <a href="mailto:${data.customerEmail}?subject=Re: [${ticketRef}] ${encodeURIComponent(data.subject)}" class="btn">Beantwoord ${data.customerName}</a>`
   );
 
-  await sendEmail({
+  console.log(`[CONTACT WORKFLOW AUDIT] Step 3: Dispatching Administrator notification email...`);
+  const adminResult = await sendEmail({
     type: 'contact_form_admin',
     recipient: WEBOWNER_EMAIL,
     replyTo: data.customerEmail,
@@ -380,8 +423,9 @@ U kunt rechtstreeks op deze e-mail antwoorden om contact op te nemen met de klan
     text: adminText,
     html: adminHtml,
   });
+  console.log(`[CONTACT WORKFLOW AUDIT] Administrator notification result: status="${adminResult.status}", msgId="${adminResult.messageId || 'none'}"`);
 
-  // Auto-reply to Customer
+  // 2. Auto-reply to Customer
   const customerSubject = `Ontvangstbevestiging vraag [#${ticketRef}]: ${data.subject}`;
   const customerText = `Beste ${data.customerName},
 
@@ -418,7 +462,8 @@ Tel: +32 467 77 37 66 · E-mail: ${WEBOWNER_EMAIL}`;
     <p>Met vriendelijke groet,<br><strong>Laurent Michiels</strong><br>Maison Milau Ambachtelijke Branderij</p>`
   );
 
-  await sendEmail({
+  console.log(`[CONTACT WORKFLOW AUDIT] Step 4: Dispatching Customer confirmation email...`);
+  const customerResult = await sendEmail({
     type: 'contact_form_customer',
     recipient: data.customerEmail,
     subject: customerSubject,
@@ -426,6 +471,9 @@ Tel: +32 467 77 37 66 · E-mail: ${WEBOWNER_EMAIL}`;
     text: customerText,
     html: customerHtml,
   });
+  console.log(`[CONTACT WORKFLOW AUDIT] Customer confirmation result: status="${customerResult.status}", msgId="${customerResult.messageId || 'none'}"`);
+
+  return { adminResult, customerResult };
 }
 
 /**

@@ -1295,9 +1295,19 @@ app.post('/api/contact', (req: Request, res: Response) => {
   const { name, customerName, email, customerEmail, phone, orderNumber, category, subject, message } = req.body;
   const cName = name || customerName;
   const cEmail = email || customerEmail;
+
+  console.log(`[CONTACT WORKFLOW] 1. Form submission received:`);
+  console.log(`[CONTACT WORKFLOW]    - Customer Name: "${cName}"`);
+  console.log(`[CONTACT WORKFLOW]    - Customer Email: "${cEmail}"`);
+  console.log(`[CONTACT WORKFLOW]    - Subject: "${subject || '(geen onderwerp)'}"`);
+  console.log(`[CONTACT WORKFLOW]    - Category: "${category || 'Contactformulier'}"`);
+  console.log(`[CONTACT WORKFLOW]    - Message Length: ${message ? message.length : 0} chars`);
+
   if (!cEmail || !cName || !message) {
+    console.warn(`[CONTACT WORKFLOW] ❌ Validation failed: missing name, email, or message`);
     return res.status(400).json({ success: false, error: 'Gelieve naam, e-mail en bericht in te vullen.' });
   }
+
   const ticket = {
     id: `tkt-${Date.now()}`,
     ticketNumber: `ML-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -1311,7 +1321,9 @@ app.post('/api/contact', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
   supportTickets.unshift(ticket);
+  console.log(`[CONTACT WORKFLOW] 2. Ticket created: #${ticket.ticketNumber} (ID: ${ticket.id})`);
 
+  console.log(`[CONTACT WORKFLOW] 3. Calling sendContactFormEmails for ticket #${ticket.ticketNumber}...`);
   sendContactFormEmails({
     customerName: cName,
     customerEmail: cEmail,
@@ -1321,7 +1333,16 @@ app.post('/api/contact', (req: Request, res: Response) => {
     subject: ticket.subject,
     message,
     ticketNumber: ticket.ticketNumber,
-  }).catch((e) => console.error('[EMAIL ERROR] Contact form emails failed:', e));
+  })
+    .then((results) => {
+      console.log(`[CONTACT WORKFLOW] 6. sendContactFormEmails execution completed for #${ticket.ticketNumber}. Summary:`, {
+        adminStatus: results?.adminResult?.status,
+        adminMessageId: results?.adminResult?.messageId,
+        customerStatus: results?.customerResult?.status,
+        customerMessageId: results?.customerResult?.messageId,
+      });
+    })
+    .catch((e) => console.error(`[CONTACT WORKFLOW] ❌ [EMAIL ERROR] Contact form emails failed:`, e));
 
   res.json({ success: true, message: `Uw bericht (referentie ${ticket.ticketNumber}) is ontvangen. U ontvangt een bevestiging per e-mail.`, data: ticket });
 });
