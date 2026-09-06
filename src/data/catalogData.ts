@@ -365,21 +365,6 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     retailPriceGuide: 'Vanaf €15,50 per 250g',
     webshopProductId: 'prod-so-pink-bourbon',
   },
-  {
-    id: 'so-chelbesa',
-    slug: 'ethiopia-chelbesa-8',
-    name: 'Milau Single Origin: Ethiopia Chelbesa #8',
-    collection: 'Single Origins',
-    type: 'Specialty',
-    scaScore: '88.5',
-    beanSelection: 'Washed heirloom, Grade 1 Chelbesa, Yirgacheffe / Gedeb.',
-    roastProfile: 'Nordic light filter roast',
-    flavors: ['Jasmijn', 'Bergamot', 'Witte perzik'],
-    character: 'Klassiek verfijnd Ethiopisch profiel vol jasmijnbloesem, bergamot en sappige perzik.',
-    brewRecommendations: ['V60', 'Aeropress', 'Kalita'],
-    retailPriceGuide: 'Vanaf €11,50 per 250g',
-    webshopProductId: 'prod-so-chelbesa',
-  },
 ];
 
 export const CATALOG_ITEMS: CoffeeCatalogItem[] = RAW_CATALOG_ITEMS.map((item) => {

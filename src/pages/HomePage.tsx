@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Sparkles, Play } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Sparkles, Clock, ShieldCheck, Truck } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
 interface HomePageProps {
@@ -78,6 +78,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   recommendedSize="1920 × 1280 (16:9 of 4:3)"
                   aspectRatio="video"
                   className="shadow-sm border-stone-200 min-h-[320px] sm:min-h-[380px]"
+                  imageUrl="/first homepage picture website.JPG"
                 />
               </div>
             </div>
@@ -85,33 +86,65 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      {/* Process & Craftsmanship Video Section (1 VIDEO OP HOME PAGE) */}
-      <section className="py-16 sm:py-20 bg-stone-100/70 border-b border-stone-200">
+      {/* Maison Milau Beloften (moved to replace the removed Ambacht in beeld video section) */}
+      <section className="py-16 sm:py-20 bg-stone-100/60 border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto text-center mb-10">
+          <div className="max-w-3xl mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-stone-700 text-xs font-semibold uppercase tracking-wider mb-3 border border-stone-200">
-              <Play className="w-3.5 h-3.5 text-amber-900 fill-amber-900" />
-              <span>Ambacht in Beeld</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-900" />
+              <span>Onze Toewijding</span>
             </div>
             {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900 mb-3">
-              Ontdek Het Brandproces van Maison Milau
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
+              Maison Milau beloften
             </h2>
-            <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed">
-              Van zorgvuldig geselecteerde groene specialty koffiebonen tot de perfecte branding in kleine batches. Bekijk hieronder hoe onze meesterbrander het unieke smaakprofiel tot leven wekt.
+            <p className="text-base text-stone-500 mt-2">
+              Onze toewijding aan ambacht, versheid en transparante kwaliteit in elk kopje.
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto">
-            <MediaPlaceholder
-              type="video"
-              badgeText="Video Home 1"
-              title="Brandproces Video: Van Groene Boon tot Specialty Koffie"
-              subtitle="Professionele video van het ambachtelijk roosteren in kleine batches op onze micro-brander in Oudegem (met geluid van het kraken van de bonen & cupping rituelen)."
-              recommendedSize="1920 × 1080 (16:9 High Definition)"
-              aspectRatio="video"
-              className="shadow-md min-h-[360px] sm:min-h-[460px]"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
+              <Clock className="w-5 h-5 text-amber-800 shrink-0 mt-1" />
+              <div className="text-sm font-medium text-stone-800 leading-relaxed">
+                Altijd vers gebrande koffie, geleverd binnen 2 weken na branding.
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
+              <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
+              <div className="text-sm font-medium text-stone-800 leading-relaxed">
+                Zeer democratische prijzen en gegarandeerd beter dan koffie uit de supermarktrekkerij.
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
+              <Coffee className="w-5 h-5 text-amber-900 shrink-0 mt-1" />
+              <div className="text-sm font-medium text-stone-800 leading-relaxed">
+                Kortingen, flexibele abonnementen (-10%) en persoonlijke klantenservice direct bereikbaar.
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
+              <Sparkles className="w-5 h-5 text-amber-700 shrink-0 mt-1" />
+              <div className="text-sm font-medium text-stone-800 leading-relaxed">
+                Bezoek ons en ontwikkel je eigen custom koffieblend en huismerk in ons atelier in Oudegem.
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
+              <CalendarCheck className="w-5 h-5 text-indigo-700 shrink-0 mt-1" />
+              <div className="text-sm font-medium text-stone-800 leading-relaxed">
+                Voorzie je trouwfeest, verjaardag of receptie met een complete barista bar setup.
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
+              <Truck className="w-5 h-5 text-stone-700 shrink-0 mt-1" />
+              <div className="text-sm font-medium text-stone-800 leading-relaxed">
+                Vind ons op de wekelijkse markten in Dendermonde (ma), Wetteren (do) en Aalst (za).
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -202,64 +235,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      {/* Maison Milau beloften */}
-      <section className="py-16 sm:py-20 bg-stone-100/60 border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="max-w-3xl mb-12">
-            {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
-              Maison Milau beloften
-            </h2>
-            <p className="text-base text-stone-500 mt-2">
-              Onze toewijding aan ambacht, versheid en transparante kwaliteit in elk kopje.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
-              <div className="text-sm font-medium text-stone-800 leading-relaxed">
-                Altijd vers gebrande koffie, geleverd binnen 2 weken na branding.
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
-              <div className="text-sm font-medium text-stone-800 leading-relaxed">
-                Zeer democratische prijzen en gegarandeerd beter dan koffie uit de supermarktrekkerij.
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
-              <div className="text-sm font-medium text-stone-800 leading-relaxed">
-                Kortingen, flexibele abonnementen (-10%) en persoonlijke klantenservice direct bereikbaar.
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
-              <div className="text-sm font-medium text-stone-800 leading-relaxed">
-                Bezoek ons en ontwikkel je eigen custom koffieblend en huismerk in ons atelier in Oudegem.
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
-              <div className="text-sm font-medium text-stone-800 leading-relaxed">
-                Voorzie je trouwfeest, verjaardag of receptie met een complete barista bar setup.
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-1" />
-              <div className="text-sm font-medium text-stone-800 leading-relaxed">
-                Vind ons op de wekelijkse markten in Dendermonde (ma), Wetteren (do) en Aalst (za).
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Roastery Atelier Highlight Banner */}
       <section className="py-16 bg-stone-900 text-stone-100">

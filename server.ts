@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import { createMollieClient } from '@mollie/api-client';
 
@@ -12,6 +13,55 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Case-insensitive image file resolver for assets uploaded to public/
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const rawPath = req.path;
+
+  // Never intercept API routes, Vite internals, source code, or node_modules
+  if (
+    rawPath.startsWith('/api') ||
+    rawPath.startsWith('/@') ||
+    rawPath.startsWith('/src') ||
+    rawPath.startsWith('/node_modules')
+  ) {
+    return next();
+  }
+
+  // Only handle image file extensions
+  if (!/\.(png|jpe?g|webp|svg|gif|ico)$/i.test(rawPath)) {
+    return next();
+  }
+
+  try {
+    const decodedName = decodeURIComponent(rawPath.replace(/^\//, ''));
+    if (!decodedName || decodedName.includes('..')) return next();
+
+    const publicDir = path.join(process.cwd(), 'public');
+    if (!fs.existsSync(publicDir)) return next();
+
+    // 1. Exact match in public
+    const exactPath = path.join(publicDir, decodedName);
+    if (fs.existsSync(exactPath) && fs.statSync(exactPath).isFile()) {
+      return res.sendFile(exactPath);
+    }
+
+    // 2. Case-insensitive match in public
+    const entries = fs.readdirSync(publicDir);
+    const lowerRequested = path.basename(decodedName).toLowerCase();
+    const matchedEntry = entries.find((e) => e.toLowerCase() === lowerRequested);
+    if (matchedEntry) {
+      const fullMatch = path.join(publicDir, matchedEntry);
+      if (fs.existsSync(fullMatch) && fs.statSync(fullMatch).isFile()) {
+        return res.sendFile(fullMatch);
+      }
+    }
+  } catch (err) {
+    // Pass through on any error
+  }
+  next();
+});
 
 // URL normalization only for Vercel Serverless Functions
 const isVercel = process.env.VERCEL === '1' || Boolean(process.env.NOW_REGION) || Boolean(process.env.VERCEL_ENV) || Boolean(process.env.VERCEL_REGION) || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);

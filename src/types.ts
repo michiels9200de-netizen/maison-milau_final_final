@@ -98,7 +98,7 @@ export interface Product {
   sku: string;
   name: string;
   collection: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origins' | 'Barrel Aged' | 'Infused' | 'Giftboxes' | 'Toebehoren' | 'Abonnementen';
-  category: 'blends' | 'barrel_aged' | 'infused' | 'giftboxes' | 'merchandise' | 'subscriptions';
+  category: 'blends' | 'single_origins' | 'barrel_aged' | 'infused' | 'giftboxes' | 'merchandise' | 'subscriptions';
   shortDescription: string;
   variants: ProductVariant[];
   grindOptions: ('Volle bonen' | 'Gemalen (Filter)')[];
@@ -121,9 +121,12 @@ export interface CartItem {
   grindOption: 'Volle bonen' | 'Gemalen (Filter)';
   unitPrice: number;
   quantity: number;
+  imageUrl?: string;
   purchaseType?: 'eenmalig' | 'abonnement';
   subscriptionFrequency?: '2_weken' | '4_weken';
   selectedBeans?: string[];
+  selectedColor?: string;
+  selectedSize?: string;
 }
 
 export type OrderStatus =

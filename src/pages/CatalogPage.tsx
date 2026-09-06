@@ -12,21 +12,22 @@ interface CatalogPageProps {
 }
 
 export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
-  const [selectedCollection, setSelectedCollection] = useState<string>('Budget');
+  const [selectedCollection, setSelectedCollection] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>('Budget');
+  const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>(null);
   const introSectionRef = useRef<HTMLDivElement>(null);
 
   const collections = [
+    { id: 'all', label: 'Alle Koffies' },
     { id: 'Budget', label: 'Milau Budget' },
     { id: 'Value', label: 'Milau Value' },
     { id: 'Selection', label: 'Milau Selection' },
     { id: 'Premium', label: 'Milau Premium' },
     { id: 'Prestige', label: 'Milau Prestige' },
-    { id: 'Single Origins', label: 'Single Origin Coffee' },
-    { id: 'Barrel Aged', label: 'Barrel Aged Coffee' },
-    { id: 'Infused', label: 'Infused Coffee' },
+    { id: 'Single Origins', label: 'Single Origins' },
+    { id: 'Barrel Aged', label: 'Barrel Aged' },
+    { id: 'Infused', label: 'Infusion' },
   ];
 
   const types = [

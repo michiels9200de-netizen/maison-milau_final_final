@@ -131,6 +131,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
       grindOption: currentGrind,
       unitPrice,
       quantity: 1,
+      imageUrl: product.imageUrl,
       purchaseType,
       subscriptionFrequency: purchaseType === 'abonnement' ? frequency : undefined,
       selectedBeans,

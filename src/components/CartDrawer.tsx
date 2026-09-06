@@ -104,22 +104,48 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                   key={`${item.productId}-${item.variantWeight}-${item.grindOption}`}
                   className="py-4 flex gap-4 items-start"
                 >
-                  <div className="w-16 h-16 bg-stone-100 border border-stone-200 rounded-lg p-2 flex flex-col justify-center items-center text-center shrink-0">
-                    <span className="text-[10px] font-bold uppercase text-amber-900 line-clamp-1">
-                      {item.collection}
-                    </span>
-                    <span className="text-xs font-mono font-semibold text-stone-800">
-                      {item.variantWeight}
-                    </span>
+                  <div className="w-16 h-16 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="p-1 flex flex-col justify-center items-center text-center">
+                        <span className="text-[10px] font-bold uppercase text-amber-900 line-clamp-1">
+                          {item.collection}
+                        </span>
+                        <span className="text-xs font-mono font-semibold text-stone-800">
+                          {item.variantWeight}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-stone-900 truncate">
                       {item.productName}
                     </h3>
-                    <div className="text-xs text-stone-500 mt-0.5">
-                      Maalgraad: <span className="text-stone-700">{item.grindOption}</span>
-                    </div>
+                    {item.selectedColor && (
+                      <div className="text-xs text-stone-600 mt-0.5">
+                        Kleur: <span className="font-medium text-stone-800">{item.selectedColor}</span>
+                        {item.selectedSize && <span> · Maat: <span className="font-medium text-stone-800">{item.selectedSize}</span></span>}
+                      </div>
+                    )}
+                    {item.selectedBeans && item.selectedBeans.length > 0 && (
+                      <div className="text-[11px] text-stone-600 mt-0.5 line-clamp-2">
+                        Bonen: <span className="font-medium text-stone-800">{item.selectedBeans.join(', ')}</span>
+                      </div>
+                    )}
+                    {!item.selectedColor && (
+                      <div className="text-xs text-stone-500 mt-0.5">
+                        Maalgraad: <span className="text-stone-700">{item.grindOption}</span>
+                      </div>
+                    )}
                     <div className="text-xs font-medium text-amber-900 mt-1">
                       €{item.unitPrice.toFixed(2)} per stuk
                     </div>

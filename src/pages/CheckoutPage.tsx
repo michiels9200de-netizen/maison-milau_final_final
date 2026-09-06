@@ -678,15 +678,27 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   {items.map((it) => (
                     <div
                       key={`${it.productId}-${it.variantWeight}-${it.grindOption}`}
-                      className="py-3 flex justify-between items-start"
+                      className="py-3 flex justify-between items-center gap-3"
                     >
-                      <div>
-                        <div className="font-semibold text-stone-900">{it.productName}</div>
-                        <div className="text-stone-500">
-                          {it.variantWeight} · {it.grindOption} × {it.quantity}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {it.imageUrl && (
+                          <img
+                            src={it.imageUrl}
+                            alt={it.productName}
+                            className="w-9 h-9 object-cover rounded-md border border-stone-200 shrink-0"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-semibold text-stone-900 truncate">{it.productName}</div>
+                          <div className="text-stone-500 text-[11px]">
+                            {it.variantWeight} · {it.grindOption} × {it.quantity}
+                          </div>
                         </div>
                       </div>
-                      <div className="font-semibold text-stone-900">
+                      <div className="font-semibold text-stone-900 shrink-0">
                         €{(it.unitPrice * it.quantity).toFixed(2)}
                       </div>
                     </div>

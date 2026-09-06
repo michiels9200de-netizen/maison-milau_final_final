@@ -291,16 +291,6 @@ export const COFFEE_METADATA: Record<string, CoffeeMeta> = {
   },
 
   // --- Single Origins ---
-  'ethiopia-chelbesa-8': {
-    origins: [{ country: 'Ethiopië', flag: '🇪🇹' }],
-    characterProfile: {
-      description: 'Jasmijnbloesem, bergamot en sappige witte perzik.',
-      body: 2,
-      acidity: 5,
-      sweetness: 5,
-    },
-    scaScore: '88.5',
-  },
   'colombia-ambrosia-pink-bourbon': {
     origins: [{ country: 'Colombia', flag: '🇨🇴' }],
     characterProfile: {

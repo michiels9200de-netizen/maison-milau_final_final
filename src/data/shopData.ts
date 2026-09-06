@@ -42,7 +42,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'budget-omni',
     imagePlaceholderText: 'Budget Omni 250g / 500g / 1kg',
-    imageUrl: '/Budget Daily website.png',
+    imageUrl: '/budget daily website.png',
   },
   {
     id: 'prod-budget-filter',
@@ -84,7 +84,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'value-espresso',
     imagePlaceholderText: 'Value Espresso 250g / 500g / 1kg',
-    imageUrl: '/Value Espresso website.png',
+    imageUrl: '/Value Espresso Website.png',
   },
   {
     id: 'prod-value-omni',
@@ -146,7 +146,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'selection-daily',
     imagePlaceholderText: 'Selection Daily 250g / 500g / 1kg',
-    imageUrl: '/Selection Daily website.png',
+    imageUrl: '/Selection daily website.png',
   },
   {
     id: 'prod-selection-espresso',
@@ -439,30 +439,11 @@ const RAW_SHOP_PRODUCTS: Product[] = [
 
   // --- Single Origins ---
   {
-    id: 'prod-so-chelbesa',
-    sku: 'MM-SO-CHE',
-    name: 'Chelbesa #8 (Ethiopia)',
-    collection: 'Single Origins',
-    category: 'blends',
-    shortDescription: 'SCA 88.5. Jasmijn, bergamot en sappige witte perzik.',
-    variants: [
-      { weight: '250g', price: 11.50, inStock: true },
-      { weight: '500g', price: 21.50, inStock: true },
-      { weight: '1kg', price: 42.95, inStock: true },
-    ],
-    grindOptions: ['Volle bonen', 'Gemalen (Filter)'],
-    defaultGrind: 'Volle bonen',
-    inStock: true,
-    batchStatus: 'vers_gebrand',
-    catalogSlug: 'ethiopia-chelbesa-8',
-    imagePlaceholderText: '',
-  },
-  {
     id: 'prod-so-gesha',
     sku: 'MM-SO-GES',
     name: 'Gesha Betulia (Colombia / Ethiopia)',
     collection: 'Single Origins',
-    category: 'blends',
+    category: 'single_origins',
     shortDescription: 'SCA 90+. Jasmijn, witte thee, bergamot en perzik.',
     variants: [
       { weight: '250g', price: 22.95, inStock: true },
@@ -475,14 +456,14 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'ethiopia-gesha-bench-maji',
     imagePlaceholderText: 'Gesha Betulia Microlot 250g',
-    imageUrl: '/Ethiopia Gesha Bench Maji website.png',
+    imageUrl: '/single origin ethiopia website.png',
   },
   {
     id: 'prod-so-pink-bourbon',
     sku: 'MM-SO-PNK',
     name: 'Pink Bourbon Betulia',
     collection: 'Single Origins',
-    category: 'blends',
+    category: 'single_origins',
     shortDescription: 'SCA 88+. Rode bessen, florale honing, citroen en suikerriet.',
     variants: [
       { weight: '250g', price: 15.50, inStock: true },
@@ -495,7 +476,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'colombia-ambrosia-pink-bourbon',
     imagePlaceholderText: 'Pink Bourbon Single Origin 250g',
-    imageUrl: '/Colombia Ambrosia Pink Bourbon website.png',
+    imageUrl: '/single origin Colombia.png',
   },
 
   // --- Giftboxen & Proefpakketten ---
@@ -514,7 +495,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     inStock: true,
     batchStatus: 'op_voorraad',
     imagePlaceholderText: '',
-    imageUrl: '/Giftbox Duo website.png',
+    imageUrl: '/duo gift bag.png',
   },
   {
     id: 'prod-gift-trio',
@@ -531,7 +512,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     inStock: true,
     batchStatus: 'op_voorraad',
     imagePlaceholderText: '',
-    imageUrl: '/Giftbox Trio website.png',
+    imageUrl: '/gift bag 3 doypacks.png',
   },
   {
     id: 'prod-gift-quattro',
@@ -548,7 +529,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     inStock: true,
     batchStatus: 'op_voorraad',
     imagePlaceholderText: '',
-    imageUrl: '/Giftbox Quattro website.png',
+    imageUrl: '/gift bag 4 doypacks.png',
   },
 
   // --- Toebehoren & Merchandise ---
@@ -584,6 +565,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     inStock: true,
     batchStatus: 'op_voorraad',
     imagePlaceholderText: 'Espresso & Cappuccino Cups Set',
+    imageUrl: '/Maison Milau Espresso Cups website.png',
   },
   {
     id: 'prod-acc-coldbrew',
@@ -608,7 +590,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     name: 'Maison Milau Recycled koffiebekers',
     collection: 'Toebehoren',
     category: 'merchandise',
-    shortDescription: 'Duurzame, herbruikbare koffiebekers gemaakt van gerecycled koffiegruis.',
+    shortDescription: 'Milieuvriendelijke eco papieren koffiebekers voor warme en koude koffiedranken. Ideaal voor takeaway koffie, evenementen en dagelijks gebruik.',
     variants: [
       { weight: 'Stuk', price: 8.50, inStock: true },
     ],
@@ -617,6 +599,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     inStock: true,
     batchStatus: 'op_voorraad',
     imagePlaceholderText: 'Recycled Eco Coffee Cup',
+    imageUrl: '/Maison Milau Recycled Coffee Cup website.png',
   },
   {
     id: 'prod-acc-tshirt',
@@ -633,6 +616,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     inStock: true,
     batchStatus: 'op_voorraad',
     imagePlaceholderText: 'Maison Milau Roastery T-Shirt',
+    imageUrl: '/T-shirt zwart.png',
   },
 
   // --- Abonnementen (-10%) ---
