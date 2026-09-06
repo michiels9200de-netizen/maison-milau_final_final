@@ -1693,7 +1693,7 @@ app.post('/api/subscriptions', async (req: Request, res: Response) => {
 });
 
 // 6. B2B Quotes
-app.post('/api/b2b-quote', (req: Request, res: Response) => {
+app.post('/api/b2b-quote', async (req: Request, res: Response) => {
   const { companyName, vatNumber, contactPerson, email, phone, sector, machineNeed, monthlyVolumeKg, notes } = req.body;
   if (!companyName || !contactPerson || !email || !phone) {
     return res.status(400).json({ success: false, error: 'Gelieve alle verplichte velden (*) in te vullen.' });
@@ -1714,18 +1714,13 @@ app.post('/api/b2b-quote', (req: Request, res: Response) => {
   };
   b2bQuotes.unshift(quote);
 
-  // Dispatch rich B2B quote confirmation and notification emails
-  sendB2BQuoteEmails(quote).catch((e) => {
-    console.error('[EMAIL ERROR] Failed to dispatch B2B quote emails:', e);
-    // Fallback to basic notification email
-    sendNotificationEmail(
-      'admin_b2b',
-      WEBOWNER_EMAIL,
-      `[Maison Milau B2B] Nieuwe offerteaanvraag van ${companyName}`,
-      `Offerteaanvraag ontvangen voor ~${quote.monthlyVolumeKg} kg/mnd door ${contactPerson}.`,
-      `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${companyName}\nBTW: ${vatNumber || 'Niet opgegeven'}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nSector: ${sector}\nBehoefte: ${machineNeed}\nGeschat volume: ${monthlyVolumeKg} kg/maand\nOpmerkingen: ${notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`
-    );
-  });
+  console.log(`[B2B QUOTE] Processing quote request for "${companyName}" (${email}). Awaiting email dispatch...`);
+  try {
+    await sendB2BQuoteEmails(quote);
+    console.log(`[B2B QUOTE] ✅ Emails successfully dispatched for quote ${quote.id}`);
+  } catch (e) {
+    console.error('[B2B QUOTE] ❌ Failed to dispatch B2B quote emails:', e);
+  }
 
   res.json({ success: true, message: 'B2B aanvraag succesvol ontvangen. We bezorgen u binnen 24u een voorstel.', data: quote });
 });
@@ -1735,7 +1730,7 @@ app.get('/api/b2b-quotes', (req: Request, res: Response) => {
 });
 
 // 7. Event Quotes
-app.post('/api/event-quote', (req: Request, res: Response) => {
+app.post('/api/event-quote', async (req: Request, res: Response) => {
   const { contactPerson, email, phone, eventType, eventDate, guestsCount, machineRental, baristaService, calculatedBeansKg, estimatedPrice, notes } = req.body;
   if (!contactPerson || !email || !phone || !eventDate) {
     return res.status(400).json({ success: false, error: 'Gelieve contactpersoon, email, telefoon en datum in te vullen.' });
@@ -1758,18 +1753,13 @@ app.post('/api/event-quote', (req: Request, res: Response) => {
   };
   eventInquiries.unshift(event);
 
-  // Dispatch rich Event quote confirmation and notification emails
-  sendEventQuoteEmails(event).catch((e) => {
-    console.error('[EMAIL ERROR] Failed to dispatch event quote emails:', e);
-    // Fallback to basic notification email
-    sendNotificationEmail(
-      'admin_event',
-      WEBOWNER_EMAIL,
-      `[Maison Milau Events] Nieuwe catering aanvraag: ${eventType} op ${eventDate}`,
-      `Aanvraag voor ${guestsCount} gasten door ${contactPerson}.`,
-      `Beste Laurent,\n\nEr is een nieuwe evenementen- en verhuuraanvraag binnengekomen:\n\nType: ${eventType}\nDatum: ${eventDate}\nAantal gasten: ${guestsCount}\nContactpersoon: ${contactPerson}\nE-mail: ${email}\nTelefoon: ${phone}\nMachine: ${machineRental}\nBarista: ${baristaService}\nBerekend: ~${calculatedBeansKg} kg bonen (Milau Budget tarief)\nIndicatieve prijs: €${estimatedPrice}\nNotities: ${notes || 'Geen'}`
-    );
-  });
+  console.log(`[EVENT QUOTE] Processing event quote for "${contactPerson}" (${email}) on ${eventDate}. Awaiting email dispatch...`);
+  try {
+    await sendEventQuoteEmails(event);
+    console.log(`[EVENT QUOTE] ✅ Emails successfully dispatched for event ${event.id}`);
+  } catch (e) {
+    console.error('[EVENT QUOTE] ❌ Failed to dispatch event quote emails:', e);
+  }
 
   res.json({ success: true, message: 'Evenement aanvraag ontvangen. Wij nemen spoedig contact op.', data: event });
 });
@@ -1779,7 +1769,7 @@ app.get('/api/event-quotes', (req: Request, res: Response) => {
 });
 
 // 8. Appointments (Atelier / Cupping)
-app.post('/api/appointments', (req: Request, res: Response) => {
+app.post('/api/appointments', async (req: Request, res: Response) => {
   const { customerName, email, phone, type, date, timeSlot, notes } = req.body;
   if (!customerName || !email || !phone || !date || !timeSlot) {
     return res.status(400).json({ success: false, error: 'Gelieve alle verplichte afspraakvelden in te vullen.' });
@@ -1799,7 +1789,12 @@ app.post('/api/appointments', (req: Request, res: Response) => {
   appointments.unshift(appointment);
 
   // Send live email confirmations to customer and administrator
-  sendAppointmentEmails(appointment).catch((e) => console.error('[EMAIL ERROR] Appointment emails failed:', e));
+  try {
+    await sendAppointmentEmails(appointment);
+    console.log(`[APPOINTMENT] ✅ Email notifications sent for appointment ${appointment.id}`);
+  } catch (e) {
+    console.error('[EMAIL ERROR] Appointment emails failed:', e);
+  }
 
   res.json({ success: true, message: 'Uw bezoek is ingepland. U ontvangt een bevestiging per e-mail.', data: appointment });
 });
@@ -1809,7 +1804,7 @@ app.get('/api/appointments', (req: Request, res: Response) => {
 });
 
 // 9. Support & Contact Messages
-app.post('/api/support-ticket', (req: Request, res: Response) => {
+app.post('/api/support-ticket', async (req: Request, res: Response) => {
   const { customerEmail, customerName, orderNumber, category, subject, message } = req.body;
   if (!customerEmail || !customerName || !subject || !message) {
     return res.status(400).json({ success: false, error: 'Gelieve naam, e-mail, onderwerp en bericht in te vullen.' });
@@ -1829,20 +1824,25 @@ app.post('/api/support-ticket', (req: Request, res: Response) => {
   supportTickets.unshift(ticket);
 
   // Dispatch contact inquiry to admin (maisonmilau@gmail.com) and auto-reply to customer
-  sendContactFormEmails({
-    customerName,
-    customerEmail,
-    orderNumber,
-    category,
-    subject,
-    message,
-    ticketNumber: ticket.ticketNumber,
-  }).catch((e) => console.error('[EMAIL ERROR] Contact emails failed:', e));
+  try {
+    await sendContactFormEmails({
+      customerName,
+      customerEmail,
+      orderNumber,
+      category,
+      subject,
+      message,
+      ticketNumber: ticket.ticketNumber,
+    });
+    console.log(`[SUPPORT TICKET] ✅ Email notifications sent for ticket ${ticket.ticketNumber}`);
+  } catch (e) {
+    console.error('[EMAIL ERROR] Contact emails failed:', e);
+  }
 
   res.json({ success: true, message: `Uw ticket ${ticket.ticketNumber} is geregistreerd.`, data: ticket });
 });
 
-app.post('/api/contact', (req: Request, res: Response) => {
+app.post('/api/contact', async (req: Request, res: Response) => {
   const { name, customerName, email, customerEmail, phone, orderNumber, category, subject, message } = req.body;
   const cName = name || customerName;
   const cEmail = email || customerEmail;
@@ -1874,26 +1874,27 @@ app.post('/api/contact', (req: Request, res: Response) => {
   supportTickets.unshift(ticket);
   console.log(`[CONTACT WORKFLOW] 2. Ticket created: #${ticket.ticketNumber} (ID: ${ticket.id})`);
 
-  console.log(`[CONTACT WORKFLOW] 3. Calling sendContactFormEmails for ticket #${ticket.ticketNumber}...`);
-  sendContactFormEmails({
-    customerName: cName,
-    customerEmail: cEmail,
-    phone,
-    orderNumber,
-    category: ticket.category,
-    subject: ticket.subject,
-    message,
-    ticketNumber: ticket.ticketNumber,
-  })
-    .then((results) => {
-      console.log(`[CONTACT WORKFLOW] 6. sendContactFormEmails execution completed for #${ticket.ticketNumber}. Summary:`, {
-        adminStatus: results?.adminResult?.status,
-        adminMessageId: results?.adminResult?.messageId,
-        customerStatus: results?.customerResult?.status,
-        customerMessageId: results?.customerResult?.messageId,
-      });
-    })
-    .catch((e) => console.error(`[CONTACT WORKFLOW] ❌ [EMAIL ERROR] Contact form emails failed:`, e));
+  console.log(`[CONTACT WORKFLOW] 3. Awaiting sendContactFormEmails for ticket #${ticket.ticketNumber}...`);
+  try {
+    const results = await sendContactFormEmails({
+      customerName: cName,
+      customerEmail: cEmail,
+      phone,
+      orderNumber,
+      category: ticket.category,
+      subject: ticket.subject,
+      message,
+      ticketNumber: ticket.ticketNumber,
+    });
+    console.log(`[CONTACT WORKFLOW] 4. sendContactFormEmails execution completed for #${ticket.ticketNumber}. Summary:`, {
+      adminStatus: results?.adminResult?.status,
+      adminMessageId: results?.adminResult?.messageId,
+      customerStatus: results?.customerResult?.status,
+      customerMessageId: results?.customerResult?.messageId,
+    });
+  } catch (e) {
+    console.error(`[CONTACT WORKFLOW] ❌ [EMAIL ERROR] Contact form emails failed:`, e);
+  }
 
   res.json({ success: true, message: `Uw bericht (referentie ${ticket.ticketNumber}) is ontvangen. U ontvangt een bevestiging per e-mail.`, data: ticket });
 });
@@ -1909,7 +1910,12 @@ app.post('/api/newsletter', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'Gelieve een geldig e-mailadres in te vullen.' });
   }
 
-  sendNewsletterEmails(email).catch((e) => console.error('[EMAIL ERROR] Newsletter emails failed:', e));
+  try {
+    await sendNewsletterEmails(email);
+    console.log(`[NEWSLETTER] ✅ Welcome email sent to ${email}`);
+  } catch (e) {
+    console.error('[EMAIL ERROR] Newsletter emails failed:', e);
+  }
   res.json({ success: true, message: 'Bedankt voor uw inschrijving! Uw 10% welkomstcode is verzonden naar uw e-mailadres.' });
 });
 
