@@ -602,10 +602,30 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                       <div>
                         <span className="font-semibold">Type:</span> {eml.type}
                       </div>
+                      {eml.status && (
+                        <div>
+                          <span className="font-semibold">Status:</span>{' '}
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${eml.status === 'sent' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                            {eml.status.toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      {eml.previewUrl && (
+                        <div>
+                          <a
+                            href={eml.previewUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-amber-800 hover:text-amber-950 underline font-semibold text-[11px]"
+                          >
+                            Bekijk Ethereal Preview ↗
+                          </a>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-white border border-stone-200 font-mono text-[11px] text-stone-700 whitespace-pre-line leading-relaxed">
-                      {eml.body}
+                      {eml.text || eml.body}
                     </div>
                   </div>
                 ))

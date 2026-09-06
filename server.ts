@@ -3,6 +3,24 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import { createMollieClient } from '@mollie/api-client';
+import {
+  WEBOWNER_EMAIL,
+  SENDER_EMAIL,
+  SENDER_NAME,
+  emailNotificationLogs,
+  auditEmailConfiguration,
+  sendEmail,
+  sendContactFormEmails,
+  sendRegistrationEmails,
+  sendEmailVerificationEmail,
+  sendPasswordResetEmail,
+  sendOrderEmails,
+  sendSubscriptionEmail,
+  sendAppointmentEmails,
+  sendNewsletterEmails,
+  sendFailedPaymentEmail,
+  sendReviewRequestEmail,
+} from './server/emailService';
 
 dotenv.config();
 
@@ -288,42 +306,18 @@ let supportTickets: any[] = [
 ];
 
 // Webowner & Notification System
-const WEBOWNER_EMAIL = 'maisonmilau@gmail.com';
-
-let emailNotifications: any[] = [
-  {
-    id: 'eml-101',
-    type: 'admin_registration',
-    recipient: WEBOWNER_EMAIL,
-    subject: '[Maison Milau] Nieuwe klantregistratie: Laurent Michiels',
-    preview: 'Nieuwe particulier account aangemaakt: klant@voorbeeld.be',
-    body: 'Beste Laurent,\n\nEr is zojuist een nieuwe klant geregistreerd op Maison Milau:\n\nNaam: Laurent Michiels\nE-mail: klant@voorbeeld.be\nType: Particulier\nTelefoon: +32 467 77 37 66\nDatum: 2026-09-02 10:14',
-    sentAt: '2026-09-02T10:14:05.000Z',
-  },
-  {
-    id: 'eml-102',
-    type: 'customer_welcome',
-    recipient: 'klant@voorbeeld.be',
-    subject: 'Welkom bij Maison Milau · Uw account is gereed',
-    preview: 'Bedankt voor uw registratie bij Maison Milau ambachtelijke branderij.',
-    body: 'Beste Laurent,\n\nHartelijk dank voor uw registratie bij Maison Milau! U kunt nu eenvoudig vers gebrande specialty koffies bestellen, uw leveringen volgen en reviews plaatsen.\n\nWarme groeten,\nLaurent Michiels · Maison Milau',
-    sentAt: '2026-09-02T10:14:06.000Z',
-  },
-];
+// Re-export emailNotifications pointing to live log array
+export const emailNotifications = emailNotificationLogs;
 
 function sendNotificationEmail(type: string, recipient: string, subject: string, preview: string, body: string) {
-  const notif = {
-    id: `eml-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+  // Dispatches via robust email engine
+  return sendEmail({
     type,
     recipient,
     subject,
     preview,
-    body,
-    sentAt: new Date().toISOString(),
-  };
-  emailNotifications.unshift(notif);
-  console.log(`[EMAIL DISPATCHED] To: ${recipient} | Subject: "${subject}"`);
-  return notif;
+    text: body,
+  });
 }
 
 // User accounts system with real password authentication
@@ -570,7 +564,7 @@ app.get('/api/mollie/payouts/status', async (req: Request, res: Response) => {
       profileId: profile?.id || 'pfl_bXkNE5uroY',
       profileStatus: profile?.status || 'verified',
       registeredWebsite: profile?.website || 'https://www.maison-milau.be/',
-      email: profile?.email || 'michiels.laurent@yahoo.com',
+      email: profile?.email || 'maisonmilau@gmail.com',
       phone: profile?.phone || '+32467773766',
     },
     payoutChecklist: [
@@ -866,6 +860,34 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
 
   console.log(`\n========================================\n[ORDER CONFIRMATION EMAIL SENT]\nBestemmeling: ${newOrder.customerEmail}\nOrder: ${newOrder.orderNumber} (Factuur: ${newOrder.invoiceNumber})\nTotaal: €${newOrder.total.toFixed(2)}\nArtikelen:\n${emailItemLines}\nLeveringsmethode: ${newOrder.deliveryMethod}\n========================================\n`);
 
+  // Dispatch live order emails to customer and admin
+  sendOrderEmails(newOrder).catch((err) => console.error('[EMAIL ERROR] Order email dispatch failed:', err));
+
+  // If order contains a subscription item, register subscription and send subscription email
+  const subItem = (newOrder.items || []).find((it: any) => it.isSubscription || it.subscriptionFrequency || it.frequency);
+  if (subItem) {
+    const newSub = {
+      id: `sub-${Date.now()}`,
+      customerId: newOrder.id,
+      customerName: newOrder.customerName,
+      customerEmail: newOrder.customerEmail,
+      productName: subItem.productName,
+      grindOption: subItem.grindOption || 'Volle bonen',
+      weight: subItem.variantWeight || '1kg',
+      frequency: subItem.subscriptionFrequency || subItem.frequency || 'Elke 4 weken',
+      discountPercent: 10,
+      shippingCost: newOrder.shippingCost || 0,
+      pricePerDelivery: (subItem.unitPrice || 28.75) * 0.9,
+      nextBillingDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      nextDeliveryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      status: 'actief',
+      autoRenew: true,
+      type: 'standaard',
+    };
+    subscriptions.unshift(newSub);
+    sendSubscriptionEmail('created', newSub).catch((err) => console.error('[EMAIL ERROR] Subscription email dispatch failed:', err));
+  }
+
   return {
     success: true,
     orderId: newOrder.id,
@@ -962,8 +984,13 @@ app.get('/api/mollie/payment-status/:paymentId', async (req: Request, res: Respo
             if (invoice) invoice.status = 'paid';
           } else if (paymentData.status === 'canceled') {
             order.status = 'payment_cancelled';
+            sendFailedPaymentEmail(order, 'Betaling geannuleerd in checkout').catch((e) => console.error(e));
           } else if (paymentData.status === 'expired') {
             order.status = 'payment_expired';
+            sendFailedPaymentEmail(order, 'Betalingssessie verlopen').catch((e) => console.error(e));
+          } else if (paymentData.status === 'failed') {
+            order.status = 'payment_failed';
+            sendFailedPaymentEmail(order, 'Betaling geweigerd door bank/kaartuitgever').catch((e) => console.error(e));
           }
         }
 
@@ -1017,8 +1044,13 @@ app.post('/api/mollie/webhook', async (req: Request, res: Response) => {
             if (invoice) invoice.status = 'paid';
           } else if (payment.status === 'canceled') {
             order.status = 'payment_cancelled';
+            sendFailedPaymentEmail(order, 'Betaling geannuleerd').catch((e) => console.error(e));
           } else if (payment.status === 'expired') {
             order.status = 'payment_expired';
+            sendFailedPaymentEmail(order, 'Betalingssessie verlopen').catch((e) => console.error(e));
+          } else if (payment.status === 'failed') {
+            order.status = 'payment_failed';
+            sendFailedPaymentEmail(order, 'Betaling geweigerd door bank').catch((e) => console.error(e));
           }
         }
       }
@@ -1048,11 +1080,63 @@ app.get('/api/subscriptions', (req: Request, res: Response) => {
   res.json({ success: true, data: subscriptions });
 });
 
-app.post('/api/subscriptions/:id/toggle-status', (req: Request, res: Response) => {
+app.post('/api/subscriptions/:id/toggle-status', async (req: Request, res: Response) => {
   const sub = subscriptions.find((s) => s.id === req.params.id);
   if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
   sub.status = sub.status === 'actief' ? 'gepauzeerd' : 'actief';
+  if (sub.status === 'gepauzeerd') {
+    sendSubscriptionEmail('paused', sub).catch((e) => console.error(e));
+  } else {
+    sendSubscriptionEmail('resumed', sub).catch((e) => console.error(e));
+  }
   res.json({ success: true, data: sub });
+});
+
+app.post('/api/subscriptions/:id/cancel', async (req: Request, res: Response) => {
+  const sub = subscriptions.find((s) => s.id === req.params.id);
+  if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  sub.status = 'geannuleerd';
+  sendSubscriptionEmail('cancelled', sub).catch((e) => console.error(e));
+  res.json({ success: true, data: sub, message: 'Uw abonnement is succesvol stopgezet.' });
+});
+
+app.patch('/api/subscriptions/:id', async (req: Request, res: Response) => {
+  const sub = subscriptions.find((s) => s.id === req.params.id);
+  if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  if (req.body.grindOption) sub.grindOption = req.body.grindOption;
+  if (req.body.frequency) sub.frequency = req.body.frequency;
+  if (req.body.productName) sub.productName = req.body.productName;
+  if (req.body.weight) sub.weight = req.body.weight;
+  sendSubscriptionEmail('modified', sub).catch((e) => console.error(e));
+  res.json({ success: true, data: sub, message: 'Abonnementsinstellingen bijgewerkt.' });
+});
+
+app.post('/api/subscriptions', async (req: Request, res: Response) => {
+  const { customerEmail, customerName, productName, grindOption, weight, frequency, pricePerDelivery } = req.body;
+  if (!customerEmail || !productName) {
+    return res.status(400).json({ success: false, error: 'Gelieve klant e-mail en gewenste koffie op te geven.' });
+  }
+  const newSub = {
+    id: `sub-${Date.now()}`,
+    customerId: `cust-${Date.now()}`,
+    customerName: customerName || 'Koffieliefhebber',
+    customerEmail,
+    productName,
+    grindOption: grindOption || 'Volle bonen',
+    weight: weight || '1kg',
+    frequency: frequency || 'Elke 4 weken',
+    discountPercent: 10,
+    shippingCost: 0,
+    pricePerDelivery: Number(pricePerDelivery) || 28.75,
+    nextBillingDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextDeliveryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    status: 'actief',
+    autoRenew: true,
+    type: 'standaard',
+  };
+  subscriptions.unshift(newSub);
+  sendSubscriptionEmail('created', newSub).catch((e) => console.error(e));
+  res.json({ success: true, data: newSub, message: 'Abonnement succesvol aangemaakt.' });
 });
 
 // 6. B2B Quotes
@@ -1171,23 +1255,8 @@ app.post('/api/appointments', (req: Request, res: Response) => {
   };
   appointments.unshift(appointment);
 
-  // Send notification to Webowner
-  sendNotificationEmail(
-    'admin_appointment',
-    WEBOWNER_EMAIL,
-    `[Maison Milau Atelier] Nieuwe afspraak: ${customerName} op ${date} om ${timeSlot}`,
-    `Afspraak gepland (${type}) in atelier te Oudegem.`,
-    `Beste Laurent,\n\nEr is een nieuwe atelier afspraak aangevraagd:\n\nKlant: ${customerName}\nType: ${type}\nDatum: ${date}\nTijdstip: ${timeSlot}\nE-mail: ${email}\nTelefoon: ${phone}\nNotities: ${notes || 'Geen'}`
-  );
-
-  // Send auto-reply to Customer
-  sendNotificationEmail(
-    'customer_appointment',
-    email,
-    `Afspraakbevestiging: Bezoek Atelier Maison Milau op ${date}`,
-    `Beste ${customerName}, uw afspraak om ${timeSlot} staat genoteerd.`,
-    `Beste ${customerName},\n\nUw afspraak in onze koffiebranderij te Oudegem (${date} om ${timeSlot}) is succesvol geregistreerd.\n\nLocatie:\nMaison Milau Atelier\nOudegem (Dendermonde)\n\nTot binnenkort!\nLaurent Michiels`
-  );
+  // Send live email confirmations to customer and administrator
+  sendAppointmentEmails(appointment).catch((e) => console.error('[EMAIL ERROR] Appointment emails failed:', e));
 
   res.json({ success: true, message: 'Uw bezoek is ingepland. U ontvangt een bevestiging per e-mail.', data: appointment });
 });
@@ -1216,32 +1285,71 @@ app.post('/api/support-ticket', (req: Request, res: Response) => {
   };
   supportTickets.unshift(ticket);
 
-  // Send notification to Webowner
-  sendNotificationEmail(
-    'admin_question',
-    WEBOWNER_EMAIL,
-    `[Maison Milau Vraag] Nieuw bericht van ${customerName}: ${subject}`,
-    `Vraag binnengekomen in categorie ${category}.`,
-    `Beste Laurent,\n\nEr is een nieuw contactbericht binnengekomen:\n\nVan: ${customerName} (${customerEmail})\nOrder#: ${orderNumber || 'Geen'}\nCategorie: ${category}\nOnderwerp: ${subject}\n\nBericht:\n${message}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`
-  );
-
-  // Send auto-reply to Customer
-  sendNotificationEmail(
-    'customer_question',
+  // Dispatch contact inquiry to admin (maisonmilau@gmail.com) and auto-reply to customer
+  sendContactFormEmails({
+    customerName,
     customerEmail,
-    `Ontvangstbevestiging vraag [${ticket.ticketNumber}]: ${subject}`,
-    `Beste ${customerName}, wij hebben uw vraag goed ontvangen.`,
-    `Beste ${customerName},\n\nBedankt voor uw bericht. Wij hebben uw vraag (${ticket.ticketNumber}) in goede orde ontvangen en beantwoorden deze doorgaans binnen één werkdag.\n\nMet vriendelijke groet,\nKlantenservice Maison Milau`
-  );
+    orderNumber,
+    category,
+    subject,
+    message,
+    ticketNumber: ticket.ticketNumber,
+  }).catch((e) => console.error('[EMAIL ERROR] Contact emails failed:', e));
 
   res.json({ success: true, message: `Uw ticket ${ticket.ticketNumber} is geregistreerd.`, data: ticket });
+});
+
+app.post('/api/contact', (req: Request, res: Response) => {
+  const { name, customerName, email, customerEmail, phone, orderNumber, category, subject, message } = req.body;
+  const cName = name || customerName;
+  const cEmail = email || customerEmail;
+  if (!cEmail || !cName || !message) {
+    return res.status(400).json({ success: false, error: 'Gelieve naam, e-mail en bericht in te vullen.' });
+  }
+  const ticket = {
+    id: `tkt-${Date.now()}`,
+    ticketNumber: `ML-${Math.floor(1000 + Math.random() * 9000)}`,
+    customerEmail: cEmail,
+    customerName: cName,
+    orderNumber: orderNumber || '',
+    category: category || 'Contactformulier',
+    subject: subject || 'Bericht via website contactformulier',
+    message,
+    status: 'open',
+    createdAt: new Date().toISOString(),
+  };
+  supportTickets.unshift(ticket);
+
+  sendContactFormEmails({
+    customerName: cName,
+    customerEmail: cEmail,
+    phone,
+    orderNumber,
+    category: ticket.category,
+    subject: ticket.subject,
+    message,
+    ticketNumber: ticket.ticketNumber,
+  }).catch((e) => console.error('[EMAIL ERROR] Contact form emails failed:', e));
+
+  res.json({ success: true, message: `Uw bericht (referentie ${ticket.ticketNumber}) is ontvangen. U ontvangt een bevestiging per e-mail.`, data: ticket });
 });
 
 app.get('/api/support-tickets', (req: Request, res: Response) => {
   res.json({ success: true, data: supportTickets });
 });
 
-// 10. Authentication Endpoints (Register & Login)
+// Newsletter Subscription
+app.post('/api/newsletter', async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ success: false, error: 'Gelieve een geldig e-mailadres in te vullen.' });
+  }
+
+  sendNewsletterEmails(email).catch((e) => console.error('[EMAIL ERROR] Newsletter emails failed:', e));
+  res.json({ success: true, message: 'Bedankt voor uw inschrijving! Uw 10% welkomstcode is verzonden naar uw e-mailadres.' });
+});
+
+// 10. Authentication Endpoints (Register, Login, Password Reset, Verification)
 app.post('/api/auth/register', (req: Request, res: Response) => {
   const { email, password, name, phone, accountType, companyName, vatNumber, street, city, postalCode } = req.body;
 
@@ -1255,6 +1363,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   }
 
   const isB2B = accountType === 'professioneel';
+  const verificationToken = `vtok_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const newUser = {
     id: `usr-${Date.now()}`,
     email: email.toLowerCase(),
@@ -1277,32 +1386,50 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       }
     ] : [],
     loyaltyPoints: 100, // Welcome gift points
+    verificationToken,
+    isEmailVerified: false,
     createdAt: new Date().toISOString(),
   };
 
   registeredUsers.push(newUser);
 
-  // Send alert to Webowner
-  sendNotificationEmail(
-    'admin_registration',
-    WEBOWNER_EMAIL,
-    `[Maison Milau] Nieuwe klantregistratie: ${name} (${isB2B ? `B2B: ${companyName}` : 'Particulier'})`,
-    `Nieuwe ${isB2B ? 'zakelijke' : 'particuliere'} klant geregistreerd: ${email}`,
-    `Beste Laurent,\n\nEr is zojuist een nieuw account geregistreerd op Maison Milau:\n\nNaam: ${name}\nE-mail: ${email}\nType: ${isB2B ? 'Zakelijk / Horeca' : 'Particulier'}\n${isB2B ? `Bedrijf: ${companyName}\nBTW: ${vatNumber}\n` : ''}Telefoon: ${phone || 'Niet opgegeven'}\nDatum: ${new Date().toLocaleString('nl-BE')}`
-  );
-
-  // Send welcome auto-reply to Customer
-  sendNotificationEmail(
-    'customer_welcome',
-    email,
-    'Welkom bij Maison Milau · Uw account is geactiveerd',
-    `Beste ${name}, van harte welkom bij Maison Milau ambachtelijke branderij.`,
-    `Beste ${name},\n\nHartelijk dank voor uw registratie bij Maison Milau!\n\nUw account is direct actief. U kunt nu:\n- Vers gebrande specialty koffies en giftboxen bestellen\n- Uw leveringen en live roast planning volgen\n- Facturen en betaalstatussen raadplegen\n- Onze blends beoordelen via ons smaakprofiel reviewsysteem\n\nWarme groeten uit het atelier,\nLaurent Michiels · Maison Milau`
-  );
+  // Send welcome confirmation to customer & alert to administrator
+  sendRegistrationEmails(newUser).catch((e) => console.error('[EMAIL ERROR] Registration emails failed:', e));
+  // Send email verification link
+  sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name).catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
 
   // Strip password in response
   const { password: _, ...safeUser } = newUser;
-  res.json({ success: true, message: 'Registratie succesvol! Welkom bij Maison Milau.', user: safeUser });
+  res.json({ success: true, message: 'Registratie succesvol! Welkom bij Maison Milau. Bevestiging is verzonden per e-mail.', user: safeUser });
+});
+
+app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres in te vullen.' });
+  }
+  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const resetToken = `rst_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+  if (user) {
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
+    sendPasswordResetEmail(user.email, resetToken, user.name).catch((e) => console.error(e));
+  } else {
+    sendPasswordResetEmail(email, resetToken, 'Klant').catch((e) => console.error(e));
+  }
+  res.json({ success: true, message: 'Indien dit account bestaat, is er een e-mail verzonden met instructies om uw wachtwoord opnieuw in te stellen.' });
+});
+
+app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
+  const { email, token } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres op te geven.' });
+  }
+  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  if (user) {
+    user.isEmailVerified = true;
+  }
+  res.json({ success: true, message: 'Uw e-mailadres is succesvol geverifieerd!' });
 });
 
 app.post('/api/auth/login', (req: Request, res: Response) => {
@@ -1355,6 +1482,15 @@ app.post('/api/reviews', (req: Request, res: Response) => {
   };
 
   coffeeReviews.unshift(newReview);
+
+  sendEmail({
+    type: 'admin_review',
+    recipient: WEBOWNER_EMAIL,
+    subject: `[Nieuwe Review] ${coffeeName} (${newReview.rating}/5★ van ${customerName})`,
+    preview: `Nieuwe score ${newReview.rating}/5 voor ${coffeeName}`,
+    text: `Beste Laurent,\n\nEr is zojuist een nieuwe cupping review geplaatst:\n\nKoffie: ${coffeeName}\nKlant: ${customerName}\nScore: ${newReview.rating}/5 sterren\nSmaaknotities: ${newReview.flavorNotes.join(', ')}\nReview:\n${tasteReview}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`,
+  }).catch((e) => console.error(e));
+
   res.json({ success: true, message: 'Bedankt voor uw beoordeling! Uw review is geplaatst.', data: newReview });
 });
 
@@ -1488,9 +1624,34 @@ app.get('/api/admin/export/orders.csv', (req: Request, res: Response) => {
   res.status(200).send('\uFEFF' + csvContent); // Include UTF-8 BOM for Excel
 });
 
-// 14. Email Notifications Log
+// 14. Email Notifications Log, Diagnostics & Test Ping
 app.get('/api/admin/emails', (req: Request, res: Response) => {
-  res.json({ success: true, data: emailNotifications });
+  res.json({ success: true, data: emailNotificationLogs });
+});
+
+app.get('/api/admin/emails/audit', async (req: Request, res: Response) => {
+  try {
+    const audit = await auditEmailConfiguration();
+    res.json({ success: true, data: audit });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/admin/emails/test', async (req: Request, res: Response) => {
+  try {
+    const targetEmail = req.body?.email || WEBOWNER_EMAIL;
+    const testLog = await sendEmail({
+      type: 'admin_test_ping',
+      recipient: targetEmail,
+      subject: `[Maison Milau Test] Handmatige E-mailvalidatie · ${new Date().toLocaleTimeString('nl-BE')}`,
+      preview: 'Handmatige verificatie van e-mailverzending',
+      text: `Beste Laurent,\n\nDit is een handmatig geactiveerde test vanuit het administratiepaneel om de SMTP-transmissie van Maison Milau te verifiëren.\n\nOntvanger: ${targetEmail}\nDatum: ${new Date().toLocaleString('nl-BE')}\n\nAls u dit bericht leest, is de aflevering succesvol gevalideerd.\n\nWarme groeten,\nMaison Milau Systeembeheer`,
+    });
+    res.json({ success: true, message: `Test e-mail succesvol verzonden naar ${targetEmail}`, data: testLog });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // 15. Admin Metrics
