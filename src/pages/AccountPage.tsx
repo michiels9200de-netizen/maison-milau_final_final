@@ -88,6 +88,11 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     loginWithPassword,
     registerUser,
     changePassword,
+    forgotPassword,
+    resetPassword,
+    verifyEmail,
+    validateResetToken,
+    resendVerification,
     logout,
     isAuthenticated,
   } = useAuth();
@@ -107,10 +112,11 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   const [orderAccessError, setOrderAccessError] = useState<string | null>(null);
   const [isInspectingOrder, setIsInspectingOrder] = useState(false);
 
-  // Account Entry (Login / Register) Form State for unauthenticated users or manual switch
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
+  // Account Entry (Login / Register / Forgot Password / Reset Password) Form State
+  const [authTab, setAuthTab] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
   const [authEmailOrUsername, setAuthEmailOrUsername] = useState('');
   const [authPassword, setAuthPassword] = useState('');
+  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
   const [authName, setAuthName] = useState('');
   const [authUsername, setAuthUsername] = useState('');
   const [authPhone, setAuthPhone] = useState('');
@@ -123,6 +129,15 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
   const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+
+  // Password Reset / Verification token states
+  const [resetTokenParam, setResetTokenParam] = useState('');
+  const [resetTokenValidEmail, setResetTokenValidEmail] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [verificationBanner, setVerificationBanner] = useState<{ type: 'success' | 'warning' | 'error'; message: string; email?: string } | null>(null);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
 
   // Password Change Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -206,6 +221,65 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     if (orderIdParam && currentUser) {
       handleInspectOrderById(orderIdParam);
     }
+
+    const verifyStatus = params.get('verifyStatus');
+    const emailParam = params.get('email');
+    const tokenParam = params.get('token') || params.get('resetToken');
+    const verifyTokenParam = params.get('verifyToken');
+
+    if (verifyStatus === 'success') {
+      setVerificationBanner({
+        type: 'success',
+        message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu veilig inloggen met uw wachtwoord.',
+        email: emailParam || undefined,
+      });
+      if (emailParam) setAuthEmailOrUsername(emailParam);
+      setAuthTab('login');
+    } else if (verifyStatus === 'expired') {
+      setVerificationBanner({
+        type: 'warning',
+        message: 'De verificatielink is helaas verlopen. Vraag hieronder direct een nieuwe verificatiemail aan.',
+        email: emailParam || undefined,
+      });
+      if (emailParam) setAuthEmailOrUsername(emailParam);
+    } else if (verifyStatus === 'invalid') {
+      setVerificationBanner({
+        type: 'error',
+        message: 'De verificatielink is ongeldig of reeds gebruikt.',
+      });
+    }
+
+    if (verifyTokenParam) {
+      verifyEmail(verifyTokenParam, emailParam || undefined).then((res) => {
+        if (res.success) {
+          setVerificationBanner({
+            type: 'success',
+            message: res.message || 'Uw e-mailadres is succesvol geverifieerd! U kunt nu veilig inloggen.',
+            email: res.email || emailParam || undefined,
+          });
+          if (res.email || emailParam) setAuthEmailOrUsername(res.email || emailParam || '');
+          setAuthTab('login');
+        } else {
+          setVerificationBanner({
+            type: 'error',
+            message: res.error || 'Verificatie mislukt. De link is mogelijk verlopen.',
+          });
+        }
+      });
+    }
+
+    if (tokenParam && !currentUser) {
+      validateResetToken(tokenParam).then((res) => {
+        if (res.success) {
+          setResetTokenParam(tokenParam);
+          setResetTokenValidEmail(res.email || '');
+          setAuthTab('reset');
+        } else {
+          setAuthError(res.error || 'Ongeldige of verlopen herstelcode.');
+          setAuthTab('forgot');
+        }
+      });
+    }
   }, [currentUser]);
 
   const handleInspectOrderById = async (orderId: string) => {
@@ -232,7 +306,20 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     }
   };
 
-  // Auth Submit (Login / Register)
+  const handleResendVerification = async (targetEmail: string) => {
+    if (!targetEmail) return;
+    setIsResending(true);
+    setResendStatus(null);
+    const res = await resendVerification(targetEmail);
+    setIsResending(false);
+    if (res.success) {
+      setResendStatus(res.message || 'Nieuwe verificatiemail is succesvol verzonden!');
+    } else {
+      setResendStatus(res.error || 'Kon verificatiemail niet verzenden.');
+    }
+  };
+
+  // Auth Submit (Login / Register / Forgot / Reset)
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
@@ -248,13 +335,26 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           fetchAccountData();
         }, 800);
       } else {
-        setAuthError(res.error || 'Inloggen mislukt. Controleer uw e-mailadres/gebruikersnaam en wachtwoord.');
+        setAuthError(res.error || 'Ongeldige inloggegevens. Controleer uw e-mailadres/gebruikersnaam en wachtwoord.');
       }
-    } else {
+    } else if (authTab === 'register') {
+      if (authPassword !== authConfirmPassword) {
+        setAuthError('Wachtwoorden komen niet overeen. Gelieve beide velden identiek in te vullen.');
+        setIsAuthSubmitting(false);
+        return;
+      }
+
+      if (authPassword.length < 6) {
+        setAuthError('Het wachtwoord moet minstens 6 tekens bevatten.');
+        setIsAuthSubmitting(false);
+        return;
+      }
+
       const res = await registerUser({
         email: authEmailOrUsername,
         username: authUsername || undefined,
         password: authPassword,
+        confirmPassword: authConfirmPassword,
         name: authName,
         phone: authPhone,
         accountType: authAccountType,
@@ -267,7 +367,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
 
       if (res.success) {
         setAuthSuccess(
-          'Account succesvol aangemaakt! Een bevestigingsmail met verificatielink is verzonden naar uw e-mailadres.'
+          'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres.'
         );
         setTimeout(() => {
           setAuthSuccess('');
@@ -275,6 +375,46 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         }, 1200);
       } else {
         setAuthError(res.error || 'Registratie mislukt. Probeer het opnieuw.');
+      }
+    } else if (authTab === 'forgot') {
+      if (!authEmailOrUsername || !authEmailOrUsername.includes('@')) {
+        setAuthError('Gelieve een geldig e-mailadres in te vullen.');
+        setIsAuthSubmitting(false);
+        return;
+      }
+      const res = await forgotPassword(authEmailOrUsername);
+      if (res.success) {
+        setAuthSuccess(
+          res.message ||
+            'Indien dit e-mailadres bij ons bekend is, ontvangt u binnen enkele ogenblikken een e-mail met een herstellink.'
+        );
+      } else {
+        setAuthError(res.error || 'Aanvraag mislukt.');
+      }
+    } else if (authTab === 'reset') {
+      if (resetNewPassword !== resetConfirmPassword) {
+        setAuthError('Nieuwe wachtwoorden komen niet overeen.');
+        setIsAuthSubmitting(false);
+        return;
+      }
+      if (resetNewPassword.length < 6) {
+        setAuthError('Het nieuwe wachtwoord moet minstens 6 tekens bevatten.');
+        setIsAuthSubmitting(false);
+        return;
+      }
+      const res = await resetPassword(resetTokenParam, resetNewPassword, resetConfirmPassword);
+      if (res.success) {
+        setAuthSuccess(res.message || 'Uw wachtwoord is succesvol gewijzigd! U kunt nu veilig inloggen.');
+        setAuthPassword('');
+        setAuthConfirmPassword('');
+        setResetNewPassword('');
+        setResetConfirmPassword('');
+        if (resetTokenValidEmail) setAuthEmailOrUsername(resetTokenValidEmail);
+        setTimeout(() => {
+          setAuthTab('login');
+        }, 1500);
+      } else {
+        setAuthError(res.error || 'Wachtwoord instellen mislukt.');
       }
     }
     setIsAuthSubmitting(false);
@@ -519,53 +659,123 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           </div>
         </section>
 
-        {/* Login / Register Card */}
+        {/* Login / Register / Forgot Password Card */}
         <div className="max-w-xl mx-auto px-4 mt-8">
           <div className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
             {/* Tab Selector */}
-            <div className="flex border-b border-stone-100 bg-stone-50/70 p-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthTab('login');
-                  setAuthError('');
-                  setAuthSuccess('');
-                }}
-                className={`flex-1 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                  authTab === 'login'
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80'
-                    : 'text-stone-500 hover:text-stone-800'
-                }`}
-              >
-                <Key className="w-3.5 h-3.5 text-amber-900" />
-                <span>Veilig Inloggen</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthTab('register');
-                  setAuthError('');
-                  setAuthSuccess('');
-                }}
-                className={`flex-1 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                  authTab === 'register'
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80'
-                    : 'text-stone-500 hover:text-stone-800'
-                }`}
-              >
-                <UserIcon className="w-3.5 h-3.5 text-amber-900" />
-                <span>Nieuw Account Maken</span>
-              </button>
-            </div>
+            {authTab !== 'forgot' && authTab !== 'reset' ? (
+              <div className="flex border-b border-stone-100 bg-stone-50/70 p-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthTab('login');
+                    setAuthError('');
+                    setAuthSuccess('');
+                  }}
+                  className={`flex-1 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                    authTab === 'login'
+                      ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  <Key className="w-3.5 h-3.5 text-amber-900" />
+                  <span>Veilig Inloggen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthTab('register');
+                    setAuthError('');
+                    setAuthSuccess('');
+                  }}
+                  className={`flex-1 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                    authTab === 'register'
+                      ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-amber-900" />
+                  <span>Nieuw Account Maken</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 bg-stone-50/70">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-amber-900" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-900">
+                    {authTab === 'forgot' ? 'Wachtwoord Vergeten' : 'Nieuw Wachtwoord Instellen'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthTab('login');
+                    setAuthError('');
+                    setAuthSuccess('');
+                  }}
+                  className="text-xs text-stone-500 hover:text-amber-900 font-semibold flex items-center gap-1"
+                >
+                  <span>Terug naar inloggen</span>
+                </button>
+              </div>
+            )}
 
             <div className="p-6 sm:p-8">
+              {/* Verification Status Banner */}
+              {verificationBanner && (
+                <div
+                  className={`mb-6 p-4 rounded-2xl border text-xs flex flex-col gap-2 ${
+                    verificationBanner.type === 'success'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                      : verificationBanner.type === 'warning'
+                      ? 'bg-amber-50 border-amber-200 text-amber-950'
+                      : 'bg-red-50 border-red-200 text-red-800'
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    {verificationBanner.type === 'success' ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                    )}
+                    <div>
+                      <div className="font-semibold">{verificationBanner.message}</div>
+                      {verificationBanner.type === 'warning' && verificationBanner.email && (
+                        <div className="mt-2">
+                          <button
+                            type="button"
+                            disabled={isResending}
+                            onClick={() => handleResendVerification(verificationBanner.email!)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-900 text-white font-medium hover:bg-amber-800 transition-colors"
+                          >
+                            {isResending ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Mail className="w-3.5 h-3.5" />
+                            )}
+                            <span>Nieuwe verificatielink versturen</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {resendStatus && (
+                <div className="mb-6 p-3.5 rounded-2xl bg-stone-100 border border-stone-200 text-xs text-stone-800 flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>{resendStatus}</span>
+                </div>
+              )}
+
               {/* Order Security Assurance Note */}
               <div className="mb-6 p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 flex items-start gap-2.5">
                 <Lock className="w-4 h-4 text-amber-900 shrink-0 mt-0.5" />
                 <div>
                   <strong className="font-semibold text-amber-950">Geauthenticeerde Toegangsbeveiliging:</strong>{' '}
                   Uw bestelgeschiedenis en abonnementsgegevens zijn strikt afgeschermd en alleen toegankelijk na
-                  authenticatie.
+                  beveiligde authenticatie.
                 </div>
               </div>
 
@@ -583,7 +793,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                 </div>
               )}
 
+              {/* Form Views based on authTab */}
               <form onSubmit={handleAuthSubmit} className="space-y-4 text-xs">
+                {/* 1. REGISTER VIEW */}
                 {authTab === 'register' && (
                   <>
                     <div className="flex gap-2 mb-4">
@@ -708,57 +920,215 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                         />
                       </div>
                     </div>
+
+                    <div>
+                      <label className="block font-semibold text-stone-700 mb-1">E-mailadres *</label>
+                      <input
+                        type="email"
+                        required
+                        value={authEmailOrUsername}
+                        onChange={(e) => setAuthEmailOrUsername(e.target.value)}
+                        placeholder="klant@voorbeeld.be"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-semibold text-stone-700 mb-1">Wachtwoord (min. 6 tekens) *</label>
+                        <input
+                          type="password"
+                          required
+                          value={authPassword}
+                          onChange={(e) => setAuthPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-stone-700 mb-1">Bevestig Wachtwoord *</label>
+                        <input
+                          type="password"
+                          required
+                          value={authConfirmPassword}
+                          onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isAuthSubmitting}
+                      className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md mt-2 flex items-center justify-center gap-2"
+                    >
+                      {isAuthSubmitting ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Account aanmaken...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Account Aanmaken & Verificatiemail Ontvangen</span>
+                        </>
+                      )}
+                    </button>
                   </>
                 )}
 
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
-                    {authTab === 'login' ? 'E-mailadres of Gebruikersnaam *' : 'E-mailadres *'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={authEmailOrUsername}
-                    onChange={(e) => setAuthEmailOrUsername(e.target.value)}
-                    placeholder={authTab === 'login' ? 'klant@voorbeeld.be of laurent_michiels' : 'klant@voorbeeld.be'}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
-                  />
-                </div>
+                {/* 2. LOGIN VIEW */}
+                {authTab === 'login' && (
+                  <>
+                    <div>
+                      <label className="block font-semibold text-stone-700 mb-1">
+                        E-mailadres of Gebruikersnaam *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={authEmailOrUsername}
+                        onChange={(e) => setAuthEmailOrUsername(e.target.value)}
+                        placeholder="klant@voorbeeld.be of laurent_michiels"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block font-semibold text-stone-700 mb-1">Wachtwoord *</label>
-                  <input
-                    type="password"
-                    required
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
-                  />
-                </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="font-semibold text-stone-700">Wachtwoord *</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthTab('forgot');
+                            setAuthError('');
+                            setAuthSuccess('');
+                          }}
+                          className="text-[11px] text-amber-900 hover:underline font-medium"
+                        >
+                          Wachtwoord vergeten?
+                        </button>
+                      </div>
+                      <input
+                        type="password"
+                        required
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                      />
+                    </div>
 
-                <button
-                  type="submit"
-                  disabled={isAuthSubmitting}
-                  className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md mt-2 flex items-center justify-center gap-2"
-                >
-                  {isAuthSubmitting ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Verifiëren...</span>
-                    </>
-                  ) : authTab === 'login' ? (
-                    <>
-                      <Lock className="w-4 h-4" />
-                      <span>Veilig Inloggen</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Account Aanmaken & Verificatiemail Ontvangen</span>
-                    </>
-                  )}
-                </button>
+                    <button
+                      type="submit"
+                      disabled={isAuthSubmitting}
+                      className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md mt-2 flex items-center justify-center gap-2"
+                    >
+                      {isAuthSubmitting ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Inloggen...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-4 h-4" />
+                          <span>Veilig Inloggen</span>
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+
+                {/* 3. FORGOT PASSWORD VIEW */}
+                {authTab === 'forgot' && (
+                  <>
+                    <p className="text-stone-600 mb-2">
+                      Vul uw geregistreerd e-mailadres in. Wij sturen u direct een veilige herstellink om uw wachtwoord opnieuw in te stellen.
+                    </p>
+
+                    <div>
+                      <label className="block font-semibold text-stone-700 mb-1">E-mailadres *</label>
+                      <input
+                        type="email"
+                        required
+                        value={authEmailOrUsername}
+                        onChange={(e) => setAuthEmailOrUsername(e.target.value)}
+                        placeholder="klant@voorbeeld.be"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isAuthSubmitting}
+                      className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md mt-2 flex items-center justify-center gap-2"
+                    >
+                      {isAuthSubmitting ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Herstellink verzenden...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-4 h-4" />
+                          <span>Herstellink Verzenden</span>
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+
+                {/* 4. RESET PASSWORD VIEW */}
+                {authTab === 'reset' && (
+                  <>
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-stone-700 mb-2">
+                      <span className="font-semibold">Account:</span> {resetTokenValidEmail || 'Gevalideerde klant'}
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold text-stone-700 mb-1">Nieuw Wachtwoord (min. 6 tekens) *</label>
+                      <input
+                        type="password"
+                        required
+                        value={resetNewPassword}
+                        onChange={(e) => setResetNewPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold text-stone-700 mb-1">Bevestig Nieuw Wachtwoord *</label>
+                      <input
+                        type="password"
+                        required
+                        value={resetConfirmPassword}
+                        onChange={(e) => setResetConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-hidden focus:border-amber-900 text-stone-900"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isAuthSubmitting}
+                      className="w-full py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md mt-2 flex items-center justify-center gap-2"
+                    >
+                      {isAuthSubmitting ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Wachtwoord opslaan...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Key className="w-4 h-4" />
+                          <span>Nieuw Wachtwoord Opslaan</span>
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
               </form>
             </div>
           </div>

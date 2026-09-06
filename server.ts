@@ -25,6 +25,7 @@ import {
   sendEventQuoteEmails,
   performSmtpDiagnosticTest,
   resetTransporterCache,
+  getAppBaseUrl,
 } from './server/emailService.js';
 import crypto from 'node:crypto';
 import { generateInvoicePdfBuffer, FullInvoiceData } from './server/invoicePdfService.js';
@@ -427,18 +428,26 @@ export function verifyPassword(password: string, storedHash: string): boolean {
   if (!storedHash || !password) return false;
   try {
     if (!storedHash.includes(':')) {
-      // Direct comparison if legacy, but convert
+      // Legacy plaintext comparison fallback
       return password === storedHash;
     }
     const [salt, originalHash] = storedHash.split(':');
+    if (!salt || !originalHash) return false;
     const hashToVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-    return crypto.timingSafeEqual(Buffer.from(hashToVerify, 'hex'), Buffer.from(originalHash, 'hex'));
-  } catch {
+    const bufA = Buffer.from(hashToVerify, 'hex');
+    const bufB = Buffer.from(originalHash, 'hex');
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch (err) {
+    console.error('[AUTH ERROR] verifyPassword exception:', err);
     return false;
   }
 }
 
-// User accounts system with real password authentication (salted & hashed)
+// User accounts system with durable file persistence (data/users.json)
+const DATA_DIR = path.join(process.cwd(), 'data');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+
 let registeredUsers: any[] = [
   {
     id: 'usr-b2c-01',
@@ -515,6 +524,89 @@ let registeredUsers: any[] = [
     createdAt: '2026-01-01T08:00:00.000Z',
   },
 ];
+
+let lastUsersLoadedMtime = 0;
+
+export function saveUsersToDisk(): void {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(USERS_FILE, JSON.stringify(registeredUsers, null, 2), 'utf-8');
+    lastUsersLoadedMtime = fs.statSync(USERS_FILE).mtimeMs;
+  } catch (err) {
+    console.error('[AUTH ERROR] Failed to persist users to disk:', err);
+  }
+}
+
+export function loadUsersFromDisk(): void {
+  try {
+    if (fs.existsSync(USERS_FILE)) {
+      const stat = fs.statSync(USERS_FILE);
+      if (stat.mtimeMs > lastUsersLoadedMtime) {
+        const content = fs.readFileSync(USERS_FILE, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          registeredUsers = parsed;
+          lastUsersLoadedMtime = stat.mtimeMs;
+          console.log(`[AUTH] Loaded ${registeredUsers.length} user account records from disk.`);
+          return;
+        }
+      } else {
+        // Up to date
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('[AUTH ERROR] Error loading users from disk, using defaults:', err);
+  }
+  saveUsersToDisk();
+}
+
+// Initialise user accounts from persistent store on startup
+loadUsersFromDisk();
+
+// Rate limiting for login protection against brute-force attacks
+interface RateLimitRecord {
+  attempts: number;
+  lockedUntil?: number;
+  lastAttempt: number;
+}
+const loginRateLimiter = new Map<string, RateLimitRecord>();
+
+export function checkRateLimit(key: string): { allowed: boolean; waitSeconds?: number } {
+  const now = Date.now();
+  const record = loginRateLimiter.get(key);
+  if (!record) return { allowed: true };
+
+  if (record.lockedUntil && record.lockedUntil > now) {
+    const waitSeconds = Math.ceil((record.lockedUntil - now) / 1000);
+    return { allowed: false, waitSeconds };
+  }
+
+  // Reset if window has elapsed (15 minutes)
+  if (now - record.lastAttempt > 15 * 60 * 1000) {
+    loginRateLimiter.delete(key);
+    return { allowed: true };
+  }
+
+  return { allowed: true };
+}
+
+export function recordFailedLogin(key: string): void {
+  const now = Date.now();
+  const record = loginRateLimiter.get(key) || { attempts: 0, lastAttempt: now };
+  record.attempts += 1;
+  record.lastAttempt = now;
+  if (record.attempts >= 5) {
+    record.lockedUntil = now + 15 * 60 * 1000; // 15-minute lock
+  }
+  loginRateLimiter.set(key, record);
+}
+
+export function clearRateLimit(key: string): void {
+  loginRateLimiter.delete(key);
+}
 
 // Active sessions token registry for secure server-side session management
 const activeSessions = new Map<string, {
@@ -2144,11 +2236,38 @@ app.post('/api/newsletter', async (req: Request, res: Response) => {
 });
 
 // 10. Authentication Endpoints (Register, Login, Password Reset, Verification)
+app.use('/api/auth', (_req: Request, _res: Response, next) => {
+  loadUsersFromDisk();
+  next();
+});
+
 app.post('/api/auth/register', (req: Request, res: Response) => {
-  const { email, username, password, name, phone, accountType, companyName, vatNumber, street, city, postalCode } = req.body;
+  const {
+    email,
+    username,
+    password,
+    confirmPassword,
+    name,
+    phone,
+    accountType,
+    companyName,
+    vatNumber,
+    street,
+    city,
+    postalCode,
+  } = req.body;
 
   if (!email || !password || !name) {
-    return res.status(400).json({ success: false, error: 'Gelieve e-mail, wachtwoord en naam in te vullen.' });
+    return res.status(400).json({ success: false, error: 'Gelieve uw naam, e-mailadres en wachtwoord in te vullen.' });
+  }
+
+  // Password confirmation check
+  if (confirmPassword !== undefined && password !== confirmPassword) {
+    return res.status(400).json({ success: false, error: 'Wachtwoorden komen niet overeen.' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, error: 'Het wachtwoord moet minstens 6 tekens bevatten.' });
   }
 
   const cleanEmail = email.trim().toLowerCase();
@@ -2158,17 +2277,19 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     (u) => u.email.toLowerCase() === cleanEmail || (u.username && u.username.toLowerCase() === cleanUsername)
   );
   if (existingUser) {
-    return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres of gebruikersnaam. Gelieve in te loggen.' });
+    return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres of deze gebruikersnaam. Gelieve in te loggen.' });
   }
 
   const isB2B = accountType === 'professioneel';
-  const verificationToken = `vtok_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  const verificationTokenExpiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
+
   const newUser = {
-    id: `usr-${Date.now()}`,
+    id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     email: cleanEmail,
     username: cleanUsername,
     password: hashPassword(password),
-    name,
+    name: name.trim(),
     phone: phone || '',
     accountType: isB2B ? 'professioneel' : 'particulier',
     role: isB2B ? 'b2b_admin' : 'b2c_customer',
@@ -2178,28 +2299,31 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       {
         id: `addr-${Date.now()}`,
         label: isB2B ? 'Hoofdkantoor' : 'Thuis',
-        street,
-        city: city || 'Dendermonde',
-        postalCode: postalCode || '9200',
+        street: street.trim(),
+        city: (city || 'Dendermonde').trim(),
+        postalCode: (postalCode || '9200').trim(),
         country: 'België',
         isDefault: true,
       }
     ] : [],
-    loyaltyPoints: 100, // Welcome gift points
+    loyaltyPoints: 100, // Welcome loyalty points
     verificationToken,
-    isEmailVerified: true, // Auto-verified for seamless preview testing, while verification email is also dispatched
+    verificationTokenExpiry,
+    isEmailVerified: false,
     createdAt: new Date().toISOString(),
   };
 
   registeredUsers.push(newUser);
+  saveUsersToDisk();
 
-  // Send welcome confirmation to customer & alert to administrator
+  const baseUrl = getAppBaseUrl(req);
+  // Send welcome email & admin alert
   sendRegistrationEmails(newUser).catch((e) => console.error('[EMAIL ERROR] Registration emails failed:', e));
   // Send email verification link
-  sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name).catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
+  sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name, baseUrl).catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
 
   // Generate active session token
-  const token = `tok_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`;
+  const token = `tok_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
   activeSessions.set(token, {
     userId: newUser.id,
     email: newUser.email,
@@ -2209,53 +2333,238 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   });
 
-  // Strip password in response
-  const { password: _, ...safeUser } = newUser;
+  // Return user without credentials or internal security tokens
+  const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = newUser as any;
   res.json({
     success: true,
-    message: 'Registratie succesvol! Welkom bij Maison Milau. Bevestiging is verzonden per e-mail.',
+    message: 'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres.',
     user: safeUser,
     token,
   });
 });
 
+// Forgot password request
 app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
   const { email } = req.body;
   if (!email) {
-    return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres in te vullen.' });
+    return res.status(400).json({ success: false, error: 'Gelieve een geldig e-mailadres in te vullen.' });
   }
   const clean = email.trim().toLowerCase();
   const user = registeredUsers.find((u) => u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean));
-  const resetToken = `rst_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+  const baseUrl = getAppBaseUrl(req);
+
   if (user) {
+    const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetToken = resetToken;
-    user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
-    sendPasswordResetEmail(user.email, resetToken, user.name).catch((e) => console.error(e));
-  } else {
-    sendPasswordResetEmail(clean, resetToken, 'Klant').catch((e) => console.error(e));
+    user.resetTokenExpiry = Date.now() + 60 * 60 * 1000; // 60 minutes
+    saveUsersToDisk();
+    sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl).catch((e) => console.error('[EMAIL ERROR] Reset email failed:', e));
   }
-  res.json({ success: true, message: 'Indien dit account bestaat, is er een e-mail verzonden met instructies om uw wachtwoord opnieuw in te stellen.' });
+
+  // Generic message prevents account enumeration
+  res.json({
+    success: true,
+    message: 'Indien dit e-mailadres bij ons bekend is, ontvangt u binnen enkele ogenblikken een e-mail met een beveiligde herstellink.',
+  });
 });
 
+// Validate reset token before rendering password reset form (supports POST and GET)
+const handleValidateResetToken = (req: Request, res: Response) => {
+  const token = (req.body?.token || req.query?.token) as string;
+  if (!token) {
+    return res.status(400).json({ success: false, error: 'Geen herstelcode opgegeven.' });
+  }
+  const user = registeredUsers.find((u) => u.resetToken && u.resetToken === token);
+  if (!user) {
+    return res.status(400).json({ success: false, error: 'Deze herstelcode is ongeldig of reeds gebruikt.' });
+  }
+  if (user.resetTokenExpiry && Date.now() > user.resetTokenExpiry) {
+    return res.status(400).json({ success: false, error: 'Deze herstelcode is verlopen (geldigheidsduur: 60 minuten). Vraag een nieuwe herstellink aan.' });
+  }
+  res.json({ success: true, email: user.email });
+};
+app.post('/api/auth/validate-reset-token', handleValidateResetToken);
+app.get('/api/auth/validate-reset-token', handleValidateResetToken);
+
+// Reset password with token
+app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+  const { token, newPassword, confirmPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ success: false, error: 'Gelieve alle verplichte velden in te vullen.' });
+  }
+
+  if (confirmPassword && newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, error: 'Wachtwoorden komen niet overeen.' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, error: 'Het nieuwe wachtwoord moet minstens 6 tekens bevatten.' });
+  }
+
+  const user = registeredUsers.find((u) => u.resetToken && u.resetToken === token);
+  if (!user) {
+    return res.status(400).json({ success: false, error: 'Deze herstelcode is ongeldig of reeds gebruikt.' });
+  }
+
+  if (user.resetTokenExpiry && Date.now() > user.resetTokenExpiry) {
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    saveUsersToDisk();
+    return res.status(400).json({ success: false, error: 'Deze herstelcode is verlopen. Vraag een nieuwe herstellink aan.' });
+  }
+
+  // Update password with salted PBKDF2 hash
+  user.password = hashPassword(newPassword);
+
+  // Invalidate one-time reset token
+  user.resetToken = undefined;
+  user.resetTokenExpiry = undefined;
+
+  // Invalidate any existing active sessions for this user for security
+  for (const [sTok, session] of activeSessions.entries()) {
+    if (session.userId === user.id) {
+      activeSessions.delete(sTok);
+    }
+  }
+
+  saveUsersToDisk();
+
+  // Send confirmation email that password was changed
+  sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error('[EMAIL ERROR] Password reset confirmation email failed:', e));
+
+  res.json({
+    success: true,
+    message: 'Uw wachtwoord is succesvol gewijzigd! U kunt nu veilig inloggen met uw nieuwe wachtwoord.',
+  });
+});
+
+// Verify email POST endpoint
 app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   const { email, token } = req.body;
+  if (!token && !email) {
+    return res.status(400).json({ success: false, error: 'Gelieve een geldige verificatiecode mee te geven.' });
+  }
+
+  // Find user by verificationToken (or matching email + token)
+  const user = registeredUsers.find((u) =>
+    (token && u.verificationToken === token) ||
+    (email && u.email.toLowerCase() === email.trim().toLowerCase() && (!token || u.verificationToken === token))
+  );
+
+  if (!user) {
+    return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
+  }
+
+  if (user.verificationTokenExpiry && Date.now() > user.verificationTokenExpiry) {
+    return res.status(400).json({ success: false, error: 'Deze verificatielink is verlopen (geldigheidsduur: 24 uur). Vraag een nieuwe link aan.' });
+  }
+
+  // Strictly set verified flag WITHOUT TOUCHING the password
+  user.isEmailVerified = true;
+  user.verificationToken = undefined;
+  user.verificationTokenExpiry = undefined;
+
+  saveUsersToDisk();
+
+  res.json({
+    success: true,
+    message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu inloggen met uw wachtwoord.',
+    email: user.email,
+  });
+});
+
+// Verify email GET endpoint (direct click from email client)
+app.get('/api/auth/verify-email', (req: Request, res: Response) => {
+  const token = (req.query.token || req.query.verifyToken) as string;
+  const email = req.query.email as string;
+  const wantsJson = req.headers.accept?.includes('application/json');
+
+  if (!token && !email) {
+    if (wantsJson) {
+      return res.status(400).json({ success: false, error: 'Ongeldige of ontbrekende verificatiecode.' });
+    }
+    return res.redirect('/account?verifyStatus=invalid');
+  }
+
+  const user = registeredUsers.find((u) =>
+    (token && u.verificationToken === token) ||
+    (email && u.email.toLowerCase() === email.trim().toLowerCase() && (!token || u.verificationToken === token))
+  );
+
+  if (!user) {
+    if (wantsJson) {
+      return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
+    }
+    return res.redirect('/account?verifyStatus=invalid');
+  }
+
+  if (user.verificationTokenExpiry && Date.now() > user.verificationTokenExpiry) {
+    if (wantsJson) {
+      return res.status(400).json({ success: false, error: 'Deze verificatielink is verlopen (geldigheidsduur: 24 uur). Vraag een nieuwe link aan.' });
+    }
+    return res.redirect(`/account?verifyStatus=expired&email=${encodeURIComponent(user.email)}`);
+  }
+
+  // Strictly set verified flag WITHOUT TOUCHING the password
+  user.isEmailVerified = true;
+  user.verificationToken = undefined;
+  user.verificationTokenExpiry = undefined;
+
+  saveUsersToDisk();
+
+  if (wantsJson) {
+    return res.json({
+      success: true,
+      message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu inloggen met uw wachtwoord.',
+      isEmailVerified: true,
+      email: user.email,
+    });
+  }
+
+  res.redirect(`/account?verifyStatus=success&email=${encodeURIComponent(user.email)}`);
+});
+
+// Resend verification email
+app.post('/api/auth/resend-verification', async (req: Request, res: Response) => {
+  const { email } = req.body;
   if (!email) {
     return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres op te geven.' });
   }
-  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+  const clean = email.trim().toLowerCase();
+  const user = registeredUsers.find((u) => u.email.toLowerCase() === clean);
+
   if (user) {
-    user.isEmailVerified = true;
+    if (user.isEmailVerified) {
+      return res.json({ success: true, message: 'Dit e-mailadres is reeds geverifieerd. U kunt direct inloggen.' });
+    }
+    user.verificationToken = crypto.randomBytes(32).toString('hex');
+    user.verificationTokenExpiry = Date.now() + 24 * 60 * 60 * 1000;
+    saveUsersToDisk();
+
+    const baseUrl = getAppBaseUrl(req);
+    sendEmailVerificationEmail(user.email, user.verificationToken, user.name, baseUrl).catch((e) => console.error(e));
   }
-  res.json({ success: true, message: 'Uw e-mailadres is succesvol geverifieerd!' });
+
+  res.json({ success: true, message: 'Indien dit account bestaat en nog niet geverifieerd is, is er een nieuwe verificatiemail verzonden.' });
 });
 
-// Login supports Email OR Username + Password
+// Login supports Email OR Username + Password, with rate-limiting and generic errors
 app.post('/api/auth/login', (req: Request, res: Response) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
   const { email, username, emailOrUsername, password } = req.body;
   const identifier = (emailOrUsername || email || username || '').trim().toLowerCase();
 
+  const rateLimitKey = `${ip}_${identifier}`;
+  const rateLimit = checkRateLimit(rateLimitKey);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({
+      success: false,
+      error: `Te veel mislukte inlogpogingen. Probeer opnieuw over ${rateLimit.waitSeconds || 900} seconden.`,
+    });
+  }
+
   if (!identifier || !password) {
-    return res.status(400).json({ success: false, error: 'Gelieve e-mail/gebruikersnaam en wachtwoord in te vullen.' });
+    return res.status(400).json({ success: false, error: 'Gelieve uw e-mailadres/gebruikersnaam en wachtwoord in te vullen.' });
   }
 
   const user = registeredUsers.find(
@@ -2265,11 +2574,18 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   );
 
   if (!user || !verifyPassword(password, user.password)) {
-    return res.status(401).json({ success: false, error: 'Ongeldig e-mailadres, gebruikersnaam of wachtwoord. Probeer opnieuw.' });
+    recordFailedLogin(rateLimitKey);
+    return res.status(401).json({
+      success: false,
+      error: 'Ongeldige inloggegevens. Controleer uw e-mailadres/gebruikersnaam en wachtwoord.',
+    });
   }
 
-  // Issue session token
-  const token = `tok_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`;
+  // Clear failed login attempts upon successful authentication
+  clearRateLimit(rateLimitKey);
+
+  // Issue secure session token
+  const token = `tok_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
   activeSessions.set(token, {
     userId: user.id,
     email: user.email,
@@ -2279,7 +2595,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   });
 
-  const { password: _, ...safeUser } = user;
+  const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
   res.json({
     success: true,
     message: `Welkom terug, ${user.name}!`,
@@ -2303,7 +2619,7 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
   if (!user) {
     return res.status(401).json({ success: false, error: 'Niet ingelogd' });
   }
-  const { password: _, ...safeUser } = user;
+  const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
   res.json({ success: true, user: safeUser });
 });
 
@@ -2314,9 +2630,13 @@ app.post('/api/auth/change-password', async (req: Request, res: Response) => {
     return res.status(401).json({ success: false, error: 'Inloggen vereist.' });
   }
 
-  const { currentPassword, newPassword } = req.body;
+  const { currentPassword, newPassword, confirmPassword } = req.body;
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ success: false, error: 'Gelieve huidig en nieuw wachtwoord in te vullen.' });
+  }
+
+  if (confirmPassword && newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, error: 'Nieuwe wachtwoorden komen niet overeen.' });
   }
 
   if (!verifyPassword(currentPassword, user.password)) {
@@ -2328,13 +2648,15 @@ app.post('/api/auth/change-password', async (req: Request, res: Response) => {
   }
 
   user.password = hashPassword(newPassword);
+  saveUsersToDisk();
+
   sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error(e));
 
   res.json({ success: true, message: 'Wachtwoord succesvol gewijzigd. Bevestigingsmail is verzonden.' });
 });
 
 app.get('/api/auth/users', (req: Request, res: Response) => {
-  const safeUsers = registeredUsers.map(({ password, ...rest }) => rest);
+  const safeUsers = registeredUsers.map(({ password, resetToken, resetTokenExpiry, verificationToken, ...rest }) => rest);
   res.json({ success: true, data: safeUsers });
 });
 

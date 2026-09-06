@@ -673,10 +673,30 @@ Datum: ${new Date().toLocaleString('nl-BE')}`;
 }
 
 /**
+ * Helper to determine application base URL dynamically
+ */
+export function getAppBaseUrl(req?: any): string {
+  if (req) {
+    const origin = typeof req.get === 'function' ? req.get('origin') : (req.headers && req.headers.origin);
+    if (origin && typeof origin === 'string' && !origin.includes('localhost:3000')) {
+      return origin.replace(/\/+$/, '');
+    }
+    const host = typeof req.get === 'function' ? req.get('host') : (req.headers && req.headers.host);
+    if (host && typeof host === 'string') {
+      const proto = (typeof req.get === 'function' ? req.get('x-forwarded-proto') : (req.headers && req.headers['x-forwarded-proto'])) || 'https';
+      return `${proto}://${host}`.replace(/\/+$/, '');
+    }
+  }
+  return (process.env.APP_URL || 'https://www.maison-milau.be').replace(/\/+$/, '');
+}
+
+/**
  * 3. Email Verification
  */
-export async function sendEmailVerificationEmail(email: string, token: string, name: string) {
-  const verifyUrl = `https://www.maison-milau.be/account?verifyToken=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+export async function sendEmailVerificationEmail(email: string, token: string, name: string, baseUrl?: string) {
+  const base = baseUrl || process.env.APP_URL || 'https://www.maison-milau.be';
+  const cleanBase = base.replace(/\/+$/, '');
+  const verifyUrl = `${cleanBase}/account?verifyToken=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
   const subject = 'Verifieer uw e-mailadres voor Maison Milau';
   const text = `Beste ${name},
 
@@ -685,7 +705,7 @@ Gelieve uw e-mailadres te bevestigen om toegang te krijgen tot alle functies van
 Klik op onderstaande link om uw e-mailadres te verifiëren:
 ${verifyUrl}
 
-Deze verificatielink blijft 48 uur geldig.
+Deze verificatielink blijft 24 uur geldig.
 
 Met vriendelijke groet,
 Maison Milau Klantenservice`;
@@ -714,8 +734,10 @@ Maison Milau Klantenservice`;
 /**
  * 4. Password Reset
  */
-export async function sendPasswordResetEmail(email: string, resetToken: string, name: string) {
-  const resetUrl = `https://www.maison-milau.be/account?resetToken=${encodeURIComponent(resetToken)}&email=${encodeURIComponent(email)}`;
+export async function sendPasswordResetEmail(email: string, resetToken: string, name: string, baseUrl?: string) {
+  const base = baseUrl || process.env.APP_URL || 'https://www.maison-milau.be';
+  const cleanBase = base.replace(/\/+$/, '');
+  const resetUrl = `${cleanBase}/account?resetToken=${encodeURIComponent(resetToken)}&email=${encodeURIComponent(email)}`;
   const subject = 'Wachtwoord opnieuw instellen · Maison Milau';
   const text = `Beste ${name},
 
@@ -728,7 +750,7 @@ Deze link is om veiligheidsredenen 60 minuten geldig.
 Heeft u dit verzoek niet zelf ingediend? Dan kunt u deze e-mail veilig negeren; uw wachtwoord blijft ongewijzigd.
 
 Met vriendelijke groet,
-Maison Milau Beveiligingsteams`;
+Maison Milau Beveiligingsteam`;
 
   const html = buildHtmlWrapper(
     'Wachtwoord Herstellen',

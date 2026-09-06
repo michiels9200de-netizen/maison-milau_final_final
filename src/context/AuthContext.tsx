@@ -16,7 +16,12 @@ interface AuthContextType {
   login: (email: string, role?: UserRole) => void;
   loginWithPassword: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   registerUser: (data: any) => Promise<{ success: boolean; error?: string; user?: User }>;
-  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  changePassword: (currentPassword: string, newPassword: string, confirmPassword?: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  resetPassword: (token: string, newPassword: string, confirmPassword?: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  verifyEmail: (token: string, email?: string) => Promise<{ success: boolean; error?: string; message?: string; email?: string }>;
+  validateResetToken: (token: string) => Promise<{ success: boolean; error?: string; email?: string }>;
+  resendVerification: (email: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   logout: () => void;
   getAuthHeaders: () => Record<string, string>;
   addAddress: (address: Omit<UserAddress, 'id'>) => void;
@@ -297,12 +302,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const changePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+  const changePassword = async (currentPassword: string, newPassword: string, confirmPassword?: string): Promise<{ success: boolean; error?: string; message?: string }> => {
     try {
       const res = await fetch('/api/auth/change-password', {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ currentPassword, newPassword }),
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -311,6 +316,95 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true, message: data.message };
     } catch (err: any) {
       return { success: false, error: err.message || 'Verbindingsfout tijdens wijzigen wachtwoord.' };
+    }
+  };
+
+  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Aanvraag mislukt.' };
+      }
+      return { success: true, message: data.message };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens herstelaanvraag.' };
+    }
+  };
+
+  const validateResetToken = async (token: string): Promise<{ success: boolean; error?: string; email?: string }> => {
+    try {
+      const res = await fetch('/api/auth/validate-reset-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Ongeldige of verlopen herstelcode.' };
+      }
+      return { success: true, email: data.email };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens controleren code.' };
+    }
+  };
+
+  const resetPassword = async (token: string, newPassword: string, confirmPassword?: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, newPassword, confirmPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Wachtwoord instellen mislukt.' };
+      }
+      return { success: true, message: data.message };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens wachtwoordherstel.' };
+    }
+  };
+
+  const verifyEmail = async (token: string, email?: string): Promise<{ success: boolean; error?: string; message?: string; email?: string }> => {
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Verificatie mislukt.' };
+      }
+      // If the currently authenticated user matches, update their isEmailVerified flag
+      if (user && (user.email.toLowerCase() === (data.email || email || '').toLowerCase())) {
+        setUser({ ...user, isEmailVerified: true });
+      }
+      return { success: true, message: data.message, email: data.email };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens e-mailverificatie.' };
+    }
+  };
+
+  const resendVerification = async (email: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Verzenden mislukt.' };
+      }
+      return { success: true, message: data.message };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens verzenden verificatiemail.' };
     }
   };
 
@@ -372,6 +466,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithPassword,
         registerUser,
         changePassword,
+        forgotPassword,
+        resetPassword,
+        verifyEmail,
+        validateResetToken,
+        resendVerification,
         logout,
         getAuthHeaders,
         addAddress,
