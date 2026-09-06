@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import nodemailer, { Transporter, SendMailOptions } from 'nodemailer';
 
 export interface EmailLogEntry {
@@ -18,9 +19,10 @@ export interface EmailLogEntry {
   sentAt: string;
 }
 
-export const WEBOWNER_EMAIL = 'maisonmilau@gmail.com';
-export const SENDER_EMAIL = process.env.SENDER_EMAIL || process.env.SUPPORT_EMAIL || 'maisonmilau@gmail.com';
-export const SENDER_NAME = process.env.SENDER_NAME || 'Maison Milau Ambachtelijke Koffiebranderij';
+export const WEBOWNER_EMAIL = (process.env.ADMIN_EMAIL || 'maisonmilau@gmail.com').trim();
+export const SENDER_EMAIL = (process.env.SENDER_EMAIL || process.env.SUPPORT_EMAIL || 'maisonmilau@gmail.com').trim();
+const rawSenderName = process.env.SENDER_NAME;
+export const SENDER_NAME = (rawSenderName && rawSenderName !== 'Maison Milai' ? rawSenderName : 'Maison Milau').trim();
 
 // In-memory log of all dispatched and attempted emails
 export const emailNotificationLogs: EmailLogEntry[] = [
