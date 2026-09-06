@@ -70,7 +70,7 @@ export const COLLECTION_INTROS: Record<string, CollectionIntro> = {
     priceFrom: 'Vanaf €11,50 per 250g',
     description: [
       'Onze Single Origin Collection bestaat uit koffies afkomstig van één specifieke regio, washing station, boerderij of producent.',
-      'Elke coffee vertelt het verhaal van zijn herkomst. Van de florale elegantie van Ethiopische Chelbesa tot de intense fruitigheid van een Colombiaanse Pink Bourbon of de verfijnde complexiteit van een Gesha.',
+      'Elke coffee vertelt het verhaal van zijn herkomst. Van de florale elegantie van een Ethiopische Gesha tot de intense fruitigheid van een Colombiaanse Pink Bourbon.',
       'Deze koffies worden gebrand om hun unieke oorsprong maximaal tot hun recht te laten komen.',
     ],
   },

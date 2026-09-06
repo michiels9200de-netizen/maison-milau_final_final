@@ -857,6 +857,15 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
   };
   invoices.unshift(newInvoice);
 
+  // Generate and log order confirmation email with selected coffees
+  const emailItemLines = newOrder.items.map((it: any) => {
+    const details = it.selectedColor ? `Kleur: ${it.selectedColor}, Maat: ${it.selectedSize || 'L'}` : `${it.variantWeight || ''} · ${it.grindOption || ''}`;
+    const beanSelection = it.selectedBeans && it.selectedBeans.length > 0 ? `\n      ↳ Geselecteerde artisanale bonen: ${it.selectedBeans.join(', ')}` : '';
+    return `• ${it.quantity}x ${it.productName} (${details}) - €${((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}${beanSelection}`;
+  }).join('\n');
+
+  console.log(`\n========================================\n[ORDER CONFIRMATION EMAIL SENT]\nBestemmeling: ${newOrder.customerEmail}\nOrder: ${newOrder.orderNumber} (Factuur: ${newOrder.invoiceNumber})\nTotaal: €${newOrder.total.toFixed(2)}\nArtikelen:\n${emailItemLines}\nLeveringsmethode: ${newOrder.deliveryMethod}\n========================================\n`);
+
   return {
     success: true,
     orderId: newOrder.id,

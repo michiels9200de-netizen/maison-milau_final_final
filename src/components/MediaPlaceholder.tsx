@@ -28,36 +28,39 @@ export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
 }) => {
   const [imgError, setImgError] = useState(false);
 
-  // If a real image is provided and hasn't errored out, render it with WebP preference
+  // If a real image is provided and hasn't errored out, render it directly
   if (imageUrl && !imgError) {
-    const webpUrl = imageUrl.replace(/\.(png|jpe?g)$/i, '.webp');
     return (
       <div className={`relative overflow-hidden rounded-2xl bg-stone-100 ${className}`}>
-        <picture className="w-full h-full">
-          {webpUrl !== imageUrl && (
-            <source srcSet={encodeURI(webpUrl)} type="image/webp" />
-          )}
-          <img
-            src={encodeURI(imageUrl)}
-            alt={title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            onError={() => setImgError(true)}
-          />
-        </picture>
+        <img
+          src={encodeURI(imageUrl)}
+          alt={title}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={() => setImgError(true)}
+        />
       </div>
     );
   }
 
-  // If placeholders are removed for this item (e.g. Giftboxes), render a minimalist frame
-  if (hidePlaceholder) {
+  // If placeholders are disabled (e.g. Giftboxes) or an image errored, render a luxury Maison Milau showcase
+  if (hidePlaceholder || (imageUrl && imgError)) {
     return (
-      <div className={`relative overflow-hidden rounded-2xl bg-stone-100/60 border border-stone-200 flex items-center justify-center ${className}`}>
-        <div className="text-center p-4">
-          <div className="w-10 h-10 mx-auto rounded-full bg-stone-200/70 flex items-center justify-center text-stone-500 mb-2">
-            <ImageIcon className="w-5 h-5" />
-          </div>
-          <p className="text-xs font-medium text-stone-600">{title}</p>
+      <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-800 to-amber-950 text-amber-50 p-6 flex flex-col justify-between ${className}`}>
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-bold tracking-widest uppercase text-amber-300/80 bg-stone-950/40 px-2.5 py-1 rounded-full border border-amber-400/20">
+            Maison Milau Atelier
+          </span>
+          <span className="text-xs text-amber-200/60 font-mono">Artisanaal</span>
+        </div>
+        <div className="my-auto py-3 text-center">
+          <p className="text-base sm:text-lg font-semibold tracking-tight text-white">{title}</p>
+          {subtitle && <p className="text-xs text-amber-200/70 mt-1 max-w-xs mx-auto">{subtitle}</p>}
+        </div>
+        <div className="text-[11px] text-amber-400/80 font-medium flex items-center justify-between border-t border-amber-500/20 pt-2">
+          <span>Oudegem · Dendermonde</span>
+          <span>Vers gebrand</span>
         </div>
       </div>
     );

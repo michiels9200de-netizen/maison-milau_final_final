@@ -88,7 +88,7 @@ export interface CoffeeCatalogItem {
 }
 
 export interface ProductVariant {
-  weight: '250g' | '500g' | '1kg' | 'Box' | 'Stuk';
+  weight: string;
   price: number;
   inStock: boolean;
 }
@@ -108,6 +108,7 @@ export interface Product {
   catalogSlug?: string; // Bi-directional link to catalog
   imagePlaceholderText: string;
   imageUrl?: string;
+  galleryImages?: string[];
   origins?: CoffeeOrigin[];
   characterProfile?: CharacterProfile;
   scaScore?: string;
