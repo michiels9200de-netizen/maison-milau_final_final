@@ -78,7 +78,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   recommendedSize="1920 × 1280 (16:9 of 4:3)"
                   aspectRatio="video"
                   className="shadow-sm border-stone-200 min-h-[320px] sm:min-h-[380px]"
-                  imageUrl="/first homepage picture website.JPG"
+                  imageUrl="/images/first homepage picture website.JPG"
                 />
               </div>
             </div>

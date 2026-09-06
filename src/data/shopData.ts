@@ -22,7 +22,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'budget-espresso',
     imagePlaceholderText: 'Budget Espresso 250g / 500g / 1kg',
-    imageUrl: '/Budget Espresso website.png',
+    imageUrl: '/images/Budget Espresso website.png',
   },
   {
     id: 'prod-budget-omni',
@@ -42,7 +42,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'budget-omni',
     imagePlaceholderText: 'Budget Omni 250g / 500g / 1kg',
-    imageUrl: '/budget daily website.png',
+    imageUrl: '/images/budget daily website.png',
   },
   {
     id: 'prod-budget-filter',
@@ -62,7 +62,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'budget-filter',
     imagePlaceholderText: 'Budget Filter 250g / 500g / 1kg',
-    imageUrl: '/Budget Filter website.png',
+    imageUrl: '/images/Budget Filter website.png',
   },
 
   // --- Blends: Value ---
@@ -84,7 +84,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'value-espresso',
     imagePlaceholderText: 'Value Espresso 250g / 500g / 1kg',
-    imageUrl: '/Value Espresso Website.png',
+    imageUrl: '/images/Value Espresso Website.png',
   },
   {
     id: 'prod-value-omni',
@@ -104,7 +104,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'value-omni',
     imagePlaceholderText: 'Value Omni 250g / 500g / 1kg',
-    imageUrl: '/Value Daily website.png',
+    imageUrl: '/images/Value Daily website.png',
   },
   {
     id: 'prod-value-filter',
@@ -124,7 +124,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'op_voorraad',
     catalogSlug: 'value-filter',
     imagePlaceholderText: 'Value Filter 250g / 500g / 1kg',
-    imageUrl: '/Value Filter website.png',
+    imageUrl: '/images/Value Filter website.png',
   },
 
   // --- Blends: Selection ---
@@ -146,7 +146,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'selection-daily',
     imagePlaceholderText: 'Selection Daily 250g / 500g / 1kg',
-    imageUrl: '/Selection daily website.png',
+    imageUrl: '/images/Selection daily website.png',
   },
   {
     id: 'prod-selection-espresso',
@@ -166,7 +166,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'selection-espresso',
     imagePlaceholderText: 'Selection Espresso 250g / 500g / 1kg',
-    imageUrl: '/Selection Espresso website.png',
+    imageUrl: '/images/Selection Espresso website.png',
   },
   {
     id: 'prod-selection-filter',
@@ -186,7 +186,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'selection-filter',
     imagePlaceholderText: 'Selection Filter 250g / 500g / 1kg',
-    imageUrl: '/Selection Filter website.png',
+    imageUrl: '/images/Selection Filter website.png',
   },
 
   // --- Blends: Premium ---
@@ -208,7 +208,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'premium-daily',
     imagePlaceholderText: 'Premium Daily 250g / 500g / 1kg',
-    imageUrl: '/Premium Daily website.png',
+    imageUrl: '/images/Premium Daily website.png',
   },
   {
     id: 'prod-premium-espresso',
@@ -228,7 +228,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'premium-espresso',
     imagePlaceholderText: 'Premium Espresso 250g / 500g / 1kg',
-    imageUrl: '/Premium Espresso website.png',
+    imageUrl: '/images/Premium Espresso website.png',
   },
   {
     id: 'prod-premium-filter',
@@ -248,7 +248,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'premium-filter',
     imagePlaceholderText: 'Premium Filter 250g / 500g / 1kg',
-    imageUrl: '/Premium Filter website.png',
+    imageUrl: '/images/Premium Filter website.png',
   },
 
   // --- Blends: Prestige ---
@@ -270,7 +270,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'in_batchplanning',
     catalogSlug: 'prestige-daily',
     imagePlaceholderText: 'Prestige Daily 250g / 500g / 1kg',
-    imageUrl: '/Prestige Daily website.png',
+    imageUrl: '/images/Prestige Daily website.png',
   },
   {
     id: 'prod-prestige-espresso',
@@ -290,7 +290,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'prestige-espresso',
     imagePlaceholderText: 'Prestige Espresso 250g / 500g / 1kg',
-    imageUrl: '/Prestige Espresso website.png',
+    imageUrl: '/images/Prestige Espresso website.png',
   },
   {
     id: 'prod-prestige-filter',
@@ -310,7 +310,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'prestige-filter',
     imagePlaceholderText: 'Prestige Filter 250g / 500g / 1kg',
-    imageUrl: '/Prestige Filter website.png',
+    imageUrl: '/images/Prestige Filter website.png',
   },
 
   // --- Barrel Aged Coffees ---
@@ -332,7 +332,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'casknolia-moscatel-barrel',
     imagePlaceholderText: 'Casknolia Moscatel Barrel Aged 250g',
-    imageUrl: '/barrel aged moscatel website.png',
+    imageUrl: '/images/barrel aged moscatel website.png',
   },
   {
     id: 'prod-barrel-px',
@@ -352,7 +352,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'casknolia-pedro-ximenez-cask',
     imagePlaceholderText: 'PX Sherry Cask Barrel Aged 250g',
-    imageUrl: '/barrel aged sherry website.png',
+    imageUrl: '/images/barrel aged sherry website.png',
   },
   {
     id: 'prod-barrel-bourbon',
@@ -372,7 +372,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'buffalo-trace-bourbon-barrel',
     imagePlaceholderText: 'Buffalo Trace Bourbon Barrel 250g',
-    imageUrl: '/barrel aged bourbon website.png',
+    imageUrl: '/images/barrel aged bourbon website.png',
   },
 
   // --- Naturally Infused ---
@@ -394,7 +394,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'milau-vanilla',
     imagePlaceholderText: 'Milau Vanilla Infused 250g',
-    imageUrl: '/Infusion website.png',
+    imageUrl: '/images/Infusion website.png',
   },
   {
     id: 'prod-infused-cinnamon',
@@ -414,7 +414,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'milau-cinnamon',
     imagePlaceholderText: 'Milau Cinnamon Infused 250g',
-    imageUrl: '/Infusion kaneel website.png',
+    imageUrl: '/images/Infusion kaneel website.png',
   },
   {
     id: 'prod-infused-almond',
@@ -434,7 +434,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'milau-almond',
     imagePlaceholderText: 'Milau Almond Infused 250g',
-    imageUrl: '/infusion amandelen website.png',
+    imageUrl: '/images/infusion amandelen website.png',
   },
 
   // --- Single Origins ---
@@ -456,7 +456,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'ethiopia-gesha-bench-maji',
     imagePlaceholderText: 'Gesha Betulia Microlot 250g',
-    imageUrl: '/single origin ethiopia website.png',
+    imageUrl: '/images/single origin ethiopia website.png',
   },
   {
     id: 'prod-so-pink-bourbon',
@@ -476,7 +476,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'vers_gebrand',
     catalogSlug: 'colombia-ambrosia-pink-bourbon',
     imagePlaceholderText: 'Pink Bourbon Single Origin 250g',
-    imageUrl: '/single origin Colombia.png',
+    imageUrl: '/images/single origin Colombia.png',
   },
 
   // --- Giftboxen & Proefpakketten ---

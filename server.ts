@@ -1515,6 +1515,10 @@ app.get('/api/admin/metrics', (req: Request, res: Response) => {
   });
 });
 
+// Static image serving for /images
+app.use('/images', express.static(path.join(process.cwd(), 'public/images')));
+app.use('/public/images', express.static(path.join(process.cwd(), 'public/images')));
+
 // Export app for Vercel Serverless Functions and standalone runner
 export default app;
 export { app };
