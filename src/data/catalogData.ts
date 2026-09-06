@@ -2,6 +2,7 @@
 // Verbatim content strictly following user specification.
 import { CoffeeCatalogItem } from '../types';
 import { COFFEE_METADATA } from './coffeeProfiles';
+import { SHOP_PRODUCTS } from './shopData';
 
 const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
   // --- Milau Budget Collection ---
@@ -383,12 +384,11 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
 
 export const CATALOG_ITEMS: CoffeeCatalogItem[] = RAW_CATALOG_ITEMS.map((item) => {
   const meta = COFFEE_METADATA[item.slug];
-  if (meta) {
-    return {
-      ...item,
-      origins: meta.origins,
-      characterProfile: meta.characterProfile,
-    };
-  }
-  return item;
+  const shopProduct = SHOP_PRODUCTS.find((p) => p.id === item.webshopProductId);
+  return {
+    ...item,
+    imageUrl: shopProduct?.imageUrl,
+    origins: meta?.origins ?? item.origins,
+    characterProfile: meta?.characterProfile ?? item.characterProfile,
+  };
 });

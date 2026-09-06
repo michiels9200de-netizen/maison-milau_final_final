@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Home",
+    "our_coffees": "Our Coffees",
+    "webshop": "Webshop",
+    "office_hospitality": "Office & Hospitality",
+    "events": "Events & Barista",
+    "about": "About Us",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cart": "Cart",
+    "account": "My Account",
+    "admin": "Roastery Admin"
+  },
+  "hero": {
+    "title": "Maison Milau Artisanal Coffee Roastery.",
+    "subtitle": "Artisan roasted specialty coffees for every occasion. At home, for the office, in your café or exclusive mobile barista catering for your private garden event.",
+    "to_webshop": "Explore Webshop",
+    "schedule": "Schedule Atelier Visit"
+  },
+  "promises": {
+    "title": "Maison Milau Promises",
+    "subtitle": "Our dedication to craft, freshness, and transparent quality in every cup."
+  },
+  "webshop": {
+    "title": "Artisanal Coffees & Accessories",
+    "subtitle": "Order one-off or enjoy 10% off with our flexible coffee subscriptions. Freshly roasted in our roastery in Oudegem.",
+    "all": "All Coffees",
+    "single_origins": "Single Origins",
+    "blends": "Maison Milau Specialty Blends",
+    "barrel_aged": "Barrel Aged Coffees",
+    "infused": "Infused Coffees",
+    "giftboxes": "Gift Boxes & Samplers",
+    "merchandise": "Coffee Accessories & Merchandise",
+    "promotions": "Promotions",
+    "add_to_cart": "Add to Cart",
+    "subscribe_save": "Subscribe & Save (-10%)",
+    "free_shipping_500g": "Free shipping from 500g",
+    "frequency_2w": "Every 2 weeks",
+    "frequency_4w": "Every 4 weeks",
+    "frequency_6w": "Every 6 weeks"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "free_shipping": "FREE",
+    "checkout": "Checkout via Mollie"
+  }
+}

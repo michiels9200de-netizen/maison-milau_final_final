@@ -26,7 +26,7 @@ export const SITEMAP: RouteDefinition[] = [
     title: 'Onze Koffies · Product Informatie Systeem & Catalogus',
     description: 'Educatief koffie-overzicht met SCA scores, blendverhoudingen, origines en terroir.',
     inNavigation: true,
-    navLabel: 'Onze Koffies (Catalogus)',
+    navLabel: 'Onze Koffies',
   },
   {
     path: '/webshop',
@@ -104,9 +104,37 @@ export const SITEMAP: RouteDefinition[] = [
     requireAuth: true,
     role: 'store_admin',
   },
+  {
+    path: '/privacy',
+    title: 'Privacy Policy · Maison Milau',
+    description: 'AVG en GDPR gegevensbescherming voor klanten en bezoekers.',
+    inNavigation: false,
+    navLabel: 'Privacy Policy',
+  },
+  {
+    path: '/cookies',
+    title: 'Cookie Policy · Maison Milau',
+    description: 'Gebruik van noodzakelijke cookies voor webshop en beveiligde betalingen.',
+    inNavigation: false,
+    navLabel: 'Cookie Policy',
+  },
+  {
+    path: '/terms',
+    title: 'Algemene Voorwaarden & Abonnementen · Maison Milau',
+    description: 'Transparante voorwaarden en soepel maandelijks opzegbaar abonnementsbeleid.',
+    inNavigation: false,
+    navLabel: 'Algemene Voorwaarden',
+  },
+  {
+    path: '/shipping',
+    title: 'Verzending & Retourbeleid · Maison Milau',
+    description: 'Verzendtarieven, levertijden en herroepingsvoorwaarden.',
+    inNavigation: false,
+    navLabel: 'Verzending & Retourbeleid',
+  },
 ];
 
-// Webshop Subcategories (for expandable Hamburger Menu)
+// Webshop Subcategories (for expandable Hamburger Menu & Navigation)
 export interface SubCategory {
   id: string;
   name: string;
@@ -115,12 +143,12 @@ export interface SubCategory {
 
 export const WEBSHOP_SUBCATEGORIES: SubCategory[] = [
   { id: 'all', name: 'Alle Collecties & Producten', categoryFilter: 'all' },
+  { id: 'single_origins', name: 'Single Origins', categoryFilter: 'single_origins' },
   { id: 'blends', name: 'Maison Milau Speciality Blends', categoryFilter: 'blends' },
   { id: 'barrel-aged', name: 'Barrel Aged Coffees', categoryFilter: 'barrel_aged' },
   { id: 'infused', name: 'Infused Coffees', categoryFilter: 'infused' },
   { id: 'giftboxes', name: 'Giftboxen & Proefpakketten', categoryFilter: 'giftboxes' },
   { id: 'toebehoren', name: 'Koffie Toebehoren & merchandise', categoryFilter: 'merchandise' },
-  { id: 'abonnementen', name: 'Abonnementen (-10%)', categoryFilter: 'subscriptions' },
   { id: 'promoties', name: 'Promoties', categoryFilter: 'promotions' },
 ];
 

@@ -101,10 +101,25 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
             </h4>
             <ul className="text-xs space-y-3 text-stone-400">
               <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <a
+                  href={CONFIG.atelierAddress.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-500 hover:text-amber-400 shrink-0 mt-0.5 transition-colors group flex items-center"
+                  title="Open atelier locatie in Google Maps"
+                >
+                  <MapPin className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                </a>
                 <span>
                   <strong className="text-stone-300">Roastery Atelier:</strong><br />
-                  {CONFIG.atelierAddress.street}, {CONFIG.atelierAddress.city}
+                  <a
+                    href={CONFIG.atelierAddress.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-stone-200 transition-colors"
+                  >
+                    {CONFIG.atelierAddress.street}, {CONFIG.atelierAddress.city}
+                  </a>
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -247,8 +262,39 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
           </div>
         </div>
 
+        {/* Permanent Legal Links */}
+        <div className="border-t border-stone-800/80 pt-6 pb-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-stone-400">
+          <button
+            onClick={() => navigate('/privacy')}
+            className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
+          >
+            Privacy Policy
+          </button>
+          <span className="text-stone-700">·</span>
+          <button
+            onClick={() => navigate('/cookies')}
+            className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
+          >
+            Cookie Policy
+          </button>
+          <span className="text-stone-700">·</span>
+          <button
+            onClick={() => navigate('/terms')}
+            className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
+          >
+            Algemene Voorwaarden & Abonnementen
+          </button>
+          <span className="text-stone-700">·</span>
+          <button
+            onClick={() => navigate('/shipping')}
+            className="hover:text-amber-200 transition-colors underline-offset-2 hover:underline"
+          >
+            Verzending & Retourbeleid
+          </button>
+        </div>
+
         {/* Bottom Legal & Copyright Bar */}
-        <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-3">
+        <div className="border-t border-stone-800 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-3">
           <div className="flex items-center gap-2">
             <span>© 2026 Maison Milau · Ambachtelijke Koffiebranderij Oudegem.</span>
             <button

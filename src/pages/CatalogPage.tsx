@@ -281,6 +281,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                       recommendedSize="800 × 800 (1:1 Vierkant)"
                       aspectRatio="square"
                       className="min-h-[160px] border-stone-200 group-hover:border-amber-300 transition-colors"
+                      imageUrl={coffee.imageUrl}
                     />
                   </div>
 

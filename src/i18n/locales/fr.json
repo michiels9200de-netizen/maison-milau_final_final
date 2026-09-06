@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "our_coffees": "Nos Cafés",
+    "webshop": "Boutique en ligne",
+    "office_hospitality": "Bureau & Horeca",
+    "events": "Événements & Barista",
+    "about": "À Propos",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cart": "Panier",
+    "account": "Mon Compte",
+    "admin": "Gestion Torréfaction"
+  },
+  "hero": {
+    "title": "Maison Milau Torréfaction Artisanale.",
+    "subtitle": "Cafés de spécialité torréfiés artisanalement pour chaque occasion. Chez vous, au bureau, dans votre restaurant ou service barista exclusif pour vos événements.",
+    "to_webshop": "Vers la Boutique",
+    "schedule": "Prendre Rendez-vous"
+  },
+  "promises": {
+    "title": "Les promesses Maison Milau",
+    "subtitle": "Notre engagement envers l'artisanat, la fraîcheur et la qualité transparente dans chaque tasse."
+  },
+  "webshop": {
+    "title": "Cafés Artisanaux & Accessoires",
+    "subtitle": "Choisissez une commande unique ou profitez de 10% de réduction avec nos abonnements de café flexibles. Fraîchement torréfié à Oudegem.",
+    "all": "Tous les produits",
+    "single_origins": "Single Origins",
+    "blends": "Blends de Spécialité Maison Milau",
+    "barrel_aged": "Cafés Barrel Aged",
+    "infused": "Cafés Infusés",
+    "giftboxes": "Coffrets Cadeaux & Dégustation",
+    "merchandise": "Accessoires & Vêtements",
+    "promotions": "Promotions",
+    "add_to_cart": "Ajouter au Panier",
+    "subscribe_save": "Abonnez-vous & Économisez (-10%)",
+    "free_shipping_500g": "Livraison gratuite dès 500g",
+    "frequency_2w": "Toutes les 2 semaines",
+    "frequency_4w": "Toutes les 4 semaines",
+    "frequency_6w": "Toutes les 6 semaines"
+  },
+  "cart": {
+    "title": "Votre Panier",
+    "empty": "Votre panier est vide",
+    "subtotal": "Sous-total",
+    "shipping": "Frais de port",
+    "free_shipping": "GRATUIT",
+    "checkout": "Payer via Mollie"
+  }
+}

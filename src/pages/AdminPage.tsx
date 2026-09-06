@@ -175,7 +175,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
 
           <div className="text-center pt-2 border-t border-stone-700">
             <p className="text-[11px] text-stone-500">
-              Webowner contact: <span className="text-stone-400">laurent.michiels66@gmail.com</span>
+              Webowner contact: <span className="text-stone-400">maisonmilau@gmail.com</span>
             </p>
           </div>
         </div>
@@ -564,7 +564,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
               <div>
                 <h2 className="text-lg font-bold text-stone-900">E-mail Notificaties & Auto-Replies ({emails.length})</h2>
                 <p className="text-xs text-stone-500">
-                  Alle alerts naar webowner (<span className="font-semibold text-stone-800">laurent.michiels66@gmail.com</span>) en automatische ontvangstbevestigingen naar klanten.
+                  Alle alerts naar webowner (<span className="font-semibold text-stone-800">maisonmilau@gmail.com</span>) en automatische ontvangstbevestigingen naar klanten.
                 </p>
               </div>
             </div>

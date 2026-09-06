@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image as ImageIcon, Video as VideoIcon, Film, Sparkles } from 'lucide-react';
 
 interface MediaPlaceholderProps {
@@ -11,6 +11,7 @@ interface MediaPlaceholderProps {
   imageUrl?: string;
   videoUrl?: string;
   badgeText?: string;
+  hidePlaceholder?: boolean;
 }
 
 export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
@@ -23,17 +24,41 @@ export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
   imageUrl,
   videoUrl,
   badgeText,
+  hidePlaceholder = false,
 }) => {
-  // If a real image is provided in the future, render it directly
-  if (imageUrl) {
+  const [imgError, setImgError] = useState(false);
+
+  // If a real image is provided and hasn't errored out, render it with WebP preference
+  if (imageUrl && !imgError) {
+    const webpUrl = imageUrl.replace(/\.(png|jpe?g)$/i, '.webp');
     return (
       <div className={`relative overflow-hidden rounded-2xl bg-stone-100 ${className}`}>
-        <img
-          src={imageUrl}
-          alt={title}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+        <picture className="w-full h-full">
+          {webpUrl !== imageUrl && (
+            <source srcSet={encodeURI(webpUrl)} type="image/webp" />
+          )}
+          <img
+            src={encodeURI(imageUrl)}
+            alt={title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setImgError(true)}
+          />
+        </picture>
+      </div>
+    );
+  }
+
+  // If placeholders are removed for this item (e.g. Giftboxes), render a minimalist frame
+  if (hidePlaceholder) {
+    return (
+      <div className={`relative overflow-hidden rounded-2xl bg-stone-100/60 border border-stone-200 flex items-center justify-center ${className}`}>
+        <div className="text-center p-4">
+          <div className="w-10 h-10 mx-auto rounded-full bg-stone-200/70 flex items-center justify-center text-stone-500 mb-2">
+            <ImageIcon className="w-5 h-5" />
+          </div>
+          <p className="text-xs font-medium text-stone-600">{title}</p>
+        </div>
       </div>
     );
   }

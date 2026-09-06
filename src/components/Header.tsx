@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { WEBSHOP_SUBCATEGORIES, isValidRoute } from '../data/sitemap';
 import { CONFIG } from '../config';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
   currentPath: string;
@@ -60,6 +61,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
           </div>
 
           <div className="flex items-center gap-3 ml-auto">
+            {/* Multilingual Language Switcher */}
+            <LanguageSwitcher />
+
             {/* Account Switcher for Particulier / Professioneel */}
             <div className="flex items-center bg-stone-200/80 rounded-full p-0.5 text-[11px]">
               <button
@@ -98,12 +102,28 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-        {/* Brand Identity */}
+        {/* Brand Identity with Logo.png */}
         <div
           onClick={() => handleNavClick('/')}
           className="cursor-pointer flex items-center gap-3 select-none"
         >
-          <div className="w-10 h-10 rounded-full bg-stone-900 text-amber-100 flex items-center justify-center font-bold text-lg shadow-xs">
+          <picture>
+            <source srcSet="/Logo.webp" type="image/webp" />
+            <img
+              src="/Logo.png"
+              alt="Maison Milau Logo"
+              className="h-11 w-auto object-contain max-w-[120px]"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = document.getElementById('brand-initial-fallback');
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+          </picture>
+          <div
+            id="brand-initial-fallback"
+            className="w-10 h-10 rounded-full bg-stone-900 text-amber-100 hidden items-center justify-center font-bold text-lg shadow-xs"
+          >
             M
           </div>
           <div>
@@ -132,7 +152,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               currentPath === '/koffies' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
             }`}
           >
-            Onze Koffies (Catalogus)
+            Onze Koffies
           </button>
 
           {/* Webshop with Hover/Click dropdown */}
@@ -352,6 +372,12 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                     )}
                   </div>
                   <button
+                    onClick={() => handleNavClick('/webshop?category=single_origins')}
+                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
+                  >
+                    Single Origins
+                  </button>
+                  <button
                     onClick={() => handleNavClick('/webshop?category=barrel_aged')}
                     className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
                   >
@@ -375,12 +401,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                   >
                     Koffie Toebehoren & Merchandise
                   </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=subscriptions')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950 font-medium text-amber-950"
-                  >
-                    Koffie-abonnementen (-10%)
-                  </button>
                 </div>
               )}
             </div>
@@ -390,7 +410,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               onClick={() => handleNavClick('/koffies')}
               className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
             >
-              <span>Onze Koffies (Catalogus & Herkomst)</span>
+              <span>Onze Koffies</span>
               <Coffee className="w-5 h-5 text-stone-500" />
             </button>
 

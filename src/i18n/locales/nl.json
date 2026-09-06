@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Home",
+    "our_coffees": "Onze Koffies",
+    "webshop": "Webshop",
+    "office_hospitality": "Kantoor & Horeca",
+    "events": "Events & Barista",
+    "about": "Over Ons",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cart": "Winkelmand",
+    "account": "Mijn Account",
+    "admin": "Roastery Beheer"
+  },
+  "hero": {
+    "title": "Maison Milau Artisanale Koffiebranderij.",
+    "subtitle": "Ambachtelijk gebrande specialty koffies voor elke gelegenheid. Bij jou thuis, voor op kantoor, in je horecazaak of exclusieve koffiecatering voor jouw tuinfeest.",
+    "to_webshop": "Naar Webshop",
+    "schedule": "Afspraak Inplannen"
+  },
+  "promises": {
+    "title": "Maison Milau beloften",
+    "subtitle": "Onze toewijding aan ambacht, versheid en transparante kwaliteit in elk kopje."
+  },
+  "webshop": {
+    "title": "Artisanale Koffies & Accessoires",
+    "subtitle": "Kies voor een eenmalige bestelling of geniet van 10% korting met onze flexibele koffie-abonnementen. Vers gebrand in ons atelier te Oudegem.",
+    "all": "Alles",
+    "single_origins": "Single Origins",
+    "blends": "Maison Milau Speciality Blends",
+    "barrel_aged": "Barrel Aged Coffees",
+    "infused": "Infused Coffees",
+    "giftboxes": "Giftboxen & Proefpakketten",
+    "merchandise": "Koffie Toebehoren & merchandise",
+    "promotions": "Promoties",
+    "add_to_cart": "In Winkelmand",
+    "subscribe_save": "Subscribe & Save (-10%)",
+    "free_shipping_500g": "Gratis verzending vanaf 500g",
+    "frequency_2w": "Elke 2 weken",
+    "frequency_4w": "Elke 4 weken",
+    "frequency_6w": "Elke 6 weken"
+  },
+  "cart": {
+    "title": "Uw Winkelmand",
+    "empty": "Uw winkelmand is nog leeg",
+    "subtotal": "Subtotaal",
+    "shipping": "Verzendkosten",
+    "free_shipping": "GRATIS",
+    "checkout": "Afrekenen via Mollie"
+  }
+}

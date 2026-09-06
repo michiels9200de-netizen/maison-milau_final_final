@@ -84,6 +84,7 @@ export interface CoffeeCatalogItem {
   brewRecommendations: string[];
   retailPriceGuide: string; // e.g. "Vanaf €8,50 per 250g"
   webshopProductId: string; // Bi-directional link
+  imageUrl?: string;
 }
 
 export interface ProductVariant {
@@ -106,6 +107,7 @@ export interface Product {
   batchStatus: 'op_voorraad' | 'in_batchplanning' | 'vers_gebrand';
   catalogSlug?: string; // Bi-directional link to catalog
   imagePlaceholderText: string;
+  imageUrl?: string;
   origins?: CoffeeOrigin[];
   characterProfile?: CharacterProfile;
   scaScore?: string;

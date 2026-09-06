@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "our_coffees": "Unsere Kaffees",
+    "webshop": "Online-Shop",
+    "office_hospitality": "Büro & Gastronomie",
+    "events": "Events & Barista",
+    "about": "Über Uns",
+    "faq": "FAQ",
+    "contact": "Kontakt",
+    "cart": "Warenkorb",
+    "account": "Mein Konto",
+    "admin": "Rösterei-Verwaltung"
+  },
+  "hero": {
+    "title": "Maison Milau Handwerkliche Kaffeerösterei.",
+    "subtitle": "Handwerklich geröstete Spezialitätenkaffees für jeden Anlass. Bei Ihnen zu Hause, im Büro, in der Gastronomie oder exklusives Barista-Catering für Ihre Veranstaltung.",
+    "to_webshop": "Zum Webshop",
+    "schedule": "Termin Vereinbaren"
+  },
+  "promises": {
+    "title": "Maison Milau Versprechen",
+    "subtitle": "Unser Bekenntnis zu Handwerk, Frische und transparenter Spitzenqualität in jeder Tasse."
+  },
+  "webshop": {
+    "title": "Handwerkliche Kaffees & Zubehör",
+    "subtitle": "Wählen Sie eine Einzellieferung oder sparen Sie 10% mit unseren flexiblen Kaffee-Abonnements. Frisch geröstet in Oudegem.",
+    "all": "Alle Kaffees",
+    "single_origins": "Single Origins",
+    "blends": "Maison Milau Specialty Blends",
+    "barrel_aged": "Barrel Aged Kaffees",
+    "infused": "Infused Kaffees",
+    "giftboxes": "Geschenkboxen & Probiersets",
+    "merchandise": "Zubehör & Bekleidung",
+    "promotions": "Aktionen",
+    "add_to_cart": "In den Warenkorb",
+    "subscribe_save": "Abonnieren & Sparen (-10%)",
+    "free_shipping_500g": "Kostenloser Versand ab 500g",
+    "frequency_2w": "Alle 2 Wochen",
+    "frequency_4w": "Alle 4 Wochen",
+    "frequency_6w": "Alle 6 Wochen"
+  },
+  "cart": {
+    "title": "Ihr Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "subtotal": "Zwischensumme",
+    "shipping": "Versandkosten",
+    "free_shipping": "KOSTENLOS",
+    "checkout": "Zur Kasse mit Mollie"
+  }
+}

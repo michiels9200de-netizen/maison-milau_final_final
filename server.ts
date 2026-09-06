@@ -238,7 +238,7 @@ let supportTickets: any[] = [
 ];
 
 // Webowner & Notification System
-const WEBOWNER_EMAIL = 'laurent.michiels66@gmail.com';
+const WEBOWNER_EMAIL = 'maisonmilau@gmail.com';
 
 let emailNotifications: any[] = [
   {
@@ -396,7 +396,7 @@ app.get('/api/config', (req: Request, res: Response) => {
     loginUrl: process.env.LOGIN_URL || '/account/login',
     registerUrl: process.env.REGISTER_URL || '/account/register',
     apiBaseUrl: process.env.API_BASE_URL || '/api',
-    supportEmail: process.env.SUPPORT_EMAIL || 'Maison-milau@gmail.com',
+    supportEmail: process.env.SUPPORT_EMAIL || 'maisonmilau@gmail.com',
     vatNumber: 'BE 1041.542.844',
     mollieAvailable: true,
     mollieMode: apiKey.startsWith('live_') ? 'live' : apiKey.startsWith('test_') ? 'test' : 'simulation',

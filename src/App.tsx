@@ -15,6 +15,11 @@ import { AppointmentPage } from './pages/AppointmentPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { AccountPage } from './pages/AccountPage';
 import { AdminPage } from './pages/AdminPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { CookiePolicyPage } from './pages/CookiePolicyPage';
+import { TermsPage } from './pages/TermsPage';
+import { ShippingReturnsPage } from './pages/ShippingReturnsPage';
+import { CookieBanner } from './components/CookieBanner';
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
@@ -65,6 +70,14 @@ export default function App() {
         return <AccountPage navigate={navigate} />;
       case '/admin':
         return <AdminPage navigate={navigate} />;
+      case '/privacy':
+        return <PrivacyPage navigate={navigate} />;
+      case '/cookies':
+        return <CookiePolicyPage navigate={navigate} />;
+      case '/terms':
+        return <TermsPage navigate={navigate} />;
+      case '/shipping':
+        return <ShippingReturnsPage navigate={navigate} />;
       default:
         return <HomePage navigate={navigate} />;
     }
@@ -83,6 +96,7 @@ export default function App() {
           <Footer navigate={navigate} />
 
           <CartDrawer navigate={navigate} />
+          <CookieBanner />
         </div>
       </CartProvider>
     </AuthProvider>

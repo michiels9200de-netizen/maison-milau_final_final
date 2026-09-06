@@ -38,7 +38,7 @@ export const CONFIG: AppConfig = {
   loginUrl: '/account/login',
   registerUrl: '/account/register',
   apiBaseUrl: '/api',
-  supportEmail: 'Maison-milau@gmail.com',
+  supportEmail: 'maisonmilau@gmail.com',
   whatsappNumber: '+32467773766',
   whatsappUrl: 'https://wa.me/32467773766',
   vatNumber: 'BE 1041.542.844',

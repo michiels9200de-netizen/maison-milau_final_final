@@ -287,6 +287,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       recommendedSize="800 × 600 (4:3)"
                       aspectRatio="video"
                       className="min-h-[140px]"
+                      imageUrl={product.imageUrl}
+                      hidePlaceholder={product.category === 'giftboxes'}
                     />
                   </div>
 
