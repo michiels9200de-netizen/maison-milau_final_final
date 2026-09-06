@@ -280,25 +280,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     setIsAuthSubmitting(false);
   };
 
-  // Quick Demo Login Helper
-  const handleDemoLogin = async (emailOrUsername: string, pass: string) => {
-    setAuthEmailOrUsername(emailOrUsername);
-    setAuthPassword(pass);
-    setIsAuthSubmitting(true);
-    setAuthError('');
-    const res = await loginWithPassword(emailOrUsername, pass);
-    if (res.success) {
-      setAuthSuccess(`Succesvol ingelogd als ${res.user?.name}!`);
-      setTimeout(() => {
-        setAuthSuccess('');
-        fetchAccountData();
-      }, 600);
-    } else {
-      setAuthError(res.error || 'Inloggen met demo mislukt.');
-    }
-    setIsAuthSubmitting(false);
-  };
-
   // Change Password
   const handleChangePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -779,31 +760,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                   )}
                 </button>
               </form>
-
-              {/* Quick Testing Profiles Pill Section */}
-              <div className="mt-8 pt-6 border-t border-stone-100">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2.5">
-                  Snel testen met demo-accounts:
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleDemoLogin('klant@voorbeeld.be', 'demo1234')}
-                    className="flex-1 text-left p-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/60 border border-stone-200 transition-colors text-[11px]"
-                  >
-                    <div className="font-semibold text-stone-900">Laurent Michiels (B2C)</div>
-                    <div className="text-stone-500 text-[10px]">klant@voorbeeld.be</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDemoLogin('aankoop@delangetafel.be', 'demo1234')}
-                    className="flex-1 text-left p-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/60 border border-stone-200 transition-colors text-[11px]"
-                  >
-                    <div className="font-semibold text-stone-900">De Lange Tafel BV (B2B)</div>
-                    <div className="text-stone-500 text-[10px]">aankoop@delangetafel.be</div>
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1409,15 +1365,26 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                           €{inv.totalAmount.toFixed(2)}
                         </td>
                         <td className="p-4 text-right">
-                          <a
-                            href={inv.pdfDownloadUrl || '#'}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-amber-900 font-semibold hover:underline"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            <span>PDF Download</span>
-                          </a>
+                          <div className="flex items-center justify-end gap-3">
+                            <a
+                              href={inv.pdfDownloadUrl || `/api/invoices/${inv.invoiceNumber}/pdf`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-amber-900 font-semibold hover:underline text-xs"
+                              title="Bekijk officiële PDF factuur in browser"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>Bekijk PDF</span>
+                            </a>
+                            <a
+                              href={`${inv.pdfDownloadUrl || `/api/invoices/${inv.invoiceNumber}/pdf`}?download=1`}
+                              className="inline-flex items-center gap-1 text-stone-600 font-semibold hover:text-stone-900 hover:underline text-xs"
+                              title="Download PDF factuur"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Download</span>
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     ))}

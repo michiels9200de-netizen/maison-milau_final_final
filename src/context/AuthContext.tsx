@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Company, UserRole, UserAddress } from '../types';
 import { CONFIG } from '../config';
 
@@ -128,14 +128,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [accountType, setAccountType] = useState<'particulier' | 'professioneel'>('particulier');
   const [token, setToken] = useState<string | null>(() => {
     try {
-      return localStorage.getItem('mm_auth_token') || 'tok_demo_laurent_session';
+      const saved = localStorage.getItem('mm_auth_token');
+      // Invalidate and remove any legacy demo session tokens immediately
+      if (saved && (saved === 'tok_demo_laurent_session' || saved.startsWith('demo_'))) {
+        localStorage.removeItem('mm_auth_token');
+        return null;
+      }
+      return saved || null;
     } catch {
-      return 'tok_demo_laurent_session';
+      return null;
     }
   });
-  const [user, setUser] = useState<User | null>(DEFAULT_B2C_USER);
+  const [user, setUser] = useState<User | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [wishlist, setWishlist] = useState<string[]>(['prod-selection-daily', 'prod-barrel-moscatel']);
+
+  // Validate active session token against server on boot
+  useEffect(() => {
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    fetch('/api/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Session invalid');
+        return res.json();
+      })
+      .then((data) => {
+        if (data.success && data.user) {
+          setUser(data.user);
+          setAccountType(data.user.accountType || 'particulier');
+          if (data.user.accountType === 'professioneel') {
+            setCompany({
+              ...DEFAULT_B2B_COMPANY,
+              name: data.user.companyName || DEFAULT_B2B_COMPANY.name,
+              vatNumber: data.user.vatNumber || DEFAULT_B2B_COMPANY.vatNumber,
+            });
+          }
+        } else {
+          throw new Error('User not found');
+        }
+      })
+      .catch(() => {
+        // Token was revoked, expired, or admin session was invalidated
+        try {
+          localStorage.removeItem('mm_auth_token');
+        } catch (e) {}
+        setToken(null);
+        setUser(null);
+        setCompany(null);
+      });
+  }, [token]);
 
   const getAuthHeaders = (): Record<string, string> => {
     const headers: Record<string, string> = {

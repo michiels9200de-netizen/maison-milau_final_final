@@ -21,6 +21,7 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
+  FileText,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
 
@@ -54,28 +55,59 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
     }
   }, [user]);
 
-  const handleUnlock = (e: React.FormEvent) => {
+  const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPin === 'milau2026' || adminPin === 'password123' || adminPin === 'admin') {
-      setIsAdminUnlocked(true);
-      setPinError('');
-    } else {
-      setPinError('Ongeldige toegangscode. (Tip: standaard pincode is milau2026)');
+    setPinError('');
+    try {
+      const res = await fetch('/api/admin/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPin }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.token) {
+          localStorage.setItem('mm_auth_token', data.token);
+        }
+        setIsAdminUnlocked(true);
+        setPinError('');
+        setAdminPin('');
+      } else {
+        setPinError(data.error || 'Ongeldig beheerderswachtwoord. Toegang geweigerd.');
+      }
+    } catch (err) {
+      setPinError('Verbindingsfout tijdens verificatie van het beheerdersaccount.');
     }
+  };
+
+  const handleAdminLock = async () => {
+    try {
+      const token = localStorage.getItem('mm_auth_token');
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    } catch (e) {}
+    localStorage.removeItem('mm_auth_token');
+    setIsAdminUnlocked(false);
+    setAdminPin('');
   };
 
   const fetchAdminData = async () => {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
+      const authHeaders: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
       const [statsRes, ordRes, usrRes, emlRes, b2bRes, evtRes, aptRes, tktRes] = await Promise.all([
-        fetch('/api/admin/roastery-stats'),
-        fetch('/api/orders'),
-        fetch('/api/auth/users'),
-        fetch('/api/admin/emails'),
-        fetch('/api/b2b-quotes'),
-        fetch('/api/event-quotes'),
-        fetch('/api/appointments'),
-        fetch('/api/support-tickets'),
+        fetch('/api/admin/roastery-stats', { headers: authHeaders }),
+        fetch('/api/orders', { headers: authHeaders }),
+        fetch('/api/auth/users', { headers: authHeaders }),
+        fetch('/api/admin/emails', { headers: authHeaders }),
+        fetch('/api/b2b-quotes', { headers: authHeaders }),
+        fetch('/api/event-quotes', { headers: authHeaders }),
+        fetch('/api/appointments', { headers: authHeaders }),
+        fetch('/api/support-tickets', { headers: authHeaders }),
       ]);
 
       const [stats, ord, usr, eml, b2b, evt, apt, tkt] = await Promise.all([
@@ -113,9 +145,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const handleUpdateOrderStatus = async (orderId: string, roasteryStatus: string) => {
     setUpdatingOrderId(orderId);
     try {
+      const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ roasteryStatus }),
       });
       if (res.ok) {
@@ -152,15 +188,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           <form onSubmit={handleUnlock} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-stone-300 mb-1">
-                Voer beheerders pincode of wachtwoord in:
+                Voer beheerderswachtwoord in:
               </label>
               <input
                 type="password"
                 required
                 autoFocus
-                placeholder="Pincode (milau2026)"
+                placeholder="Voer wachtwoord in"
                 value={adminPin}
                 onChange={(e) => setAdminPin(e.target.value)}
+                autoComplete="current-password"
                 className="w-full text-sm p-3 rounded-xl border border-stone-600 bg-stone-900 text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -227,7 +264,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
               <span>Verversen</span>
             </button>
             <button
-              onClick={() => setIsAdminUnlocked(false)}
+              onClick={handleAdminLock}
               className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white transition-colors"
             >
               Vergrendel
@@ -508,8 +545,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                           {o.status}
                         </span>
                       </td>
-                      <td className="p-3 font-mono text-[11px] text-stone-500">
-                        {o.invoiceId || 'INV-2026'}
+                      <td className="p-3">
+                        <div className="font-mono font-bold text-stone-900">{o.invoiceId || o.invoiceNumber || 'INV-2026'}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <a
+                            href={`/api/invoices/${o.invoiceId || o.invoiceNumber || o.id}/pdf`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-900 hover:text-amber-700 hover:underline"
+                            title="Bekijk officiële PDF factuur in browser"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>PDF</span>
+                          </a>
+                          <span className="text-stone-300">·</span>
+                          <a
+                            href={`/api/invoices/${o.invoiceId || o.invoiceNumber || o.id}/pdf?download=1`}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-600 hover:text-stone-900 hover:underline"
+                            title="Download PDF factuur"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Download</span>
+                          </a>
+                        </div>
                       </td>
                     </tr>
                   ))}

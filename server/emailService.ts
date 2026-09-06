@@ -360,8 +360,9 @@ export async function sendEmail(options: {
   text: string;
   html?: string;
   replyTo?: string;
+  attachments?: any[];
 }): Promise<EmailLogEntry> {
-  const { type, recipient, subject, preview, text, html, replyTo } = options;
+  const { type, recipient, subject, preview, text, html, replyTo, attachments } = options;
   const logId = `eml-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
   console.log(`\n[EMAIL SEND ATTEMPT] =================================================`);
@@ -369,6 +370,7 @@ export async function sendEmail(options: {
   console.log(`[EMAIL SEND ATTEMPT] Recipient Address: "${recipient}"`);
   console.log(`[EMAIL SEND ATTEMPT] Sender: "${SENDER_NAME}" <${SENDER_EMAIL}>`);
   console.log(`[EMAIL SEND ATTEMPT] Subject: "${subject}"`);
+  console.log(`[EMAIL SEND ATTEMPT] Attachments count: ${attachments ? attachments.length : 0}`);
   console.log(`[EMAIL SEND ATTEMPT] =================================================`);
 
   const logEntry: EmailLogEntry = {
@@ -403,6 +405,7 @@ export async function sendEmail(options: {
         subject,
         text,
         html: html || buildHtmlWrapper(subject, preview, `<pre style="font-family:inherit;white-space:pre-wrap;">${text}</pre>`),
+        attachments,
       };
 
       console.log(`[EMAIL STEP 5] sendMail started (attempt ${attempt}/${maxAttempts}) via ${activeProvider} to ${recipient}...`);
@@ -799,7 +802,7 @@ Maison Milau Beveiliging`;
 /**
  * 5. New Order Confirmation (Customer & Admin)
  */
-export async function sendOrderEmails(order: any) {
+export async function sendOrderEmails(order: any, pdfBuffer?: Buffer) {
   const itemsListText = (order.items || []).map((it: any) => {
     const details = it.selectedColor ? `Kleur: ${it.selectedColor}, Maat: ${it.selectedSize || 'L'}` : `${it.variantWeight || ''} · ${it.grindOption || ''}`;
     const beanSelection = it.selectedBeans && it.selectedBeans.length > 0 ? ` (Bonen: ${it.selectedBeans.join(', ')})` : '';
@@ -894,6 +897,16 @@ Laurent Michiels · Maison Milau Ambachtelijke Koffiebranderij`;
     </div>`
   );
 
+  const invoiceAttachment = pdfBuffer
+    ? [
+        {
+          filename: `Maison-Milau-Factuur-${order.invoiceNumber || order.orderNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ]
+    : undefined;
+
   await sendEmail({
     type: 'order_confirmation_customer',
     recipient: order.customerEmail,
@@ -901,6 +914,7 @@ Laurent Michiels · Maison Milau Ambachtelijke Koffiebranderij`;
     preview: `Bevestiging van bestelling #${order.orderNumber}`,
     text: customerText,
     html: customerHtml,
+    attachments: invoiceAttachment,
   });
 
   // Admin Notification
@@ -932,6 +946,7 @@ Controleer de bestelling in het admin panel: https://www.maison-milau.be/admin`;
     subject: adminSubject,
     preview: `Nieuwe bestelling #${order.orderNumber} (€${(order.total || 0).toFixed(2)})`,
     text: adminText,
+    attachments: invoiceAttachment,
   });
 }
 
