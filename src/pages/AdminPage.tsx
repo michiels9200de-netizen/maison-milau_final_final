@@ -186,7 +186,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const currentPeriodStats = statsData?.periods?.[timeFilter] || { ordersCount: 0, kgRoasted: 0 };
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900 pb-24">
+    <div className="min-h-screen text-stone-900 pb-24">
       {/* Top Admin Navigation Banner */}
       <header className="bg-stone-900 text-stone-100 border-b border-stone-800 sticky top-0 z-30 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">

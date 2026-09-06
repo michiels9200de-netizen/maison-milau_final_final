@@ -67,9 +67,9 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="bg-stone-50 min-h-screen text-stone-800 pb-24">
+    <div className="min-h-screen text-stone-800 pb-24">
       {/* Header Banner */}
-      <section className="bg-white border-b border-stone-200 py-12 sm:py-16">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 max-w-2xl">

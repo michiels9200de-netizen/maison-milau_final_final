@@ -179,9 +179,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="bg-stone-50 min-h-screen text-stone-800 pb-24">
+    <div className="min-h-screen text-stone-800 pb-24">
       {/* Header Banner */}
-      <section className="bg-white border-b border-stone-200 py-10">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-3">

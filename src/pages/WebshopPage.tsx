@@ -217,9 +217,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   };
 
   return (
-    <div className="bg-stone-50 min-h-screen pb-24">
+    <div className="min-h-screen pb-24">
       {/* Webshop Header */}
-      <section className="bg-white border-b border-stone-200 pt-10 pb-8 px-4 sm:px-6">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 pt-10 pb-8 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>

@@ -368,7 +368,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   }
 
   return (
-    <div className="bg-stone-50 min-h-screen text-stone-800 py-12">
+    <div className="min-h-screen text-stone-800 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <button
           onClick={() => navigate('/webshop')}

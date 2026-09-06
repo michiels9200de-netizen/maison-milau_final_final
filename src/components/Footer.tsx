@@ -13,13 +13,13 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
   return (
     <footer className="bg-stone-900 text-stone-300 pt-16 pb-12 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Roastery Top Header Highlight with logo.png */}
+        {/* Roastery Top Header Highlight with logo1.png */}
         <div className="border-b border-stone-800 pb-10 mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <img
-              src="/images/logo.png"
+              src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-14 w-auto object-contain brightness-110"
+              className="h-16 sm:h-20 w-auto object-contain brightness-110"
             />
             <div>
               <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">

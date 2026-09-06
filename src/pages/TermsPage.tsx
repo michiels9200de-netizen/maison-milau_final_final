@@ -8,8 +8,8 @@ interface TermsPageProps {
 
 export const TermsPage: React.FC<TermsPageProps> = () => {
   return (
-    <div className="bg-stone-50 min-h-screen text-stone-800 pb-20">
-      <div className="bg-white border-b border-stone-200 py-12">
+    <div className="min-h-screen text-stone-800 pb-20">
+      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-stone-200">
             <FileText className="w-3.5 h-3.5 text-amber-800" />

@@ -86,7 +86,15 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen flex flex-col text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950">
+        <div
+          className="min-h-screen flex flex-col text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950"
+          style={{
+            backgroundColor: '#F8F6F2',
+            backgroundImage:
+              'radial-gradient(circle at top left, #EFE7DB 0%, transparent 40%), radial-gradient(circle at bottom right, #E8DDCF 0%, transparent 35%)',
+            backgroundAttachment: 'fixed',
+          }}
+        >
           <Header currentPath={currentPath} navigate={navigate} />
 
           <main className="flex-1">

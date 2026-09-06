@@ -41,9 +41,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-stone-50/95 backdrop-blur-md border-b border-stone-200">
+    <header className="sticky top-0 z-40 bg-[#F8F6F2]/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs">
       {/* Top Utility Bar with Real Contact & Account Switching */}
-      <div className="bg-stone-100 border-b border-stone-200 text-xs text-stone-600 px-4 py-1.5 sm:px-6">
+      <div className="bg-[#EFE7DB]/60 border-b border-stone-200/70 text-xs text-stone-700 px-4 py-1.5 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-4">
             <span className="font-medium text-stone-800">
@@ -103,16 +103,16 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 lg:py-3.5 flex items-center justify-between gap-4">
-        {/* Brand Identity with Logo.png */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5 lg:py-4 flex items-center justify-between gap-4">
+        {/* Brand Identity with Logo */}
         <div
           onClick={() => handleNavClick('/')}
           className="cursor-pointer flex items-center select-none shrink-0"
         >
           <img
-            src="/images/logo.png"
+            src="/images/logo1.png"
             alt="Maison Milau Logo"
-            className="h-[52px] sm:h-[64px] lg:h-[80px] w-auto max-w-none object-contain transition-all"
+            className="h-[58px] sm:h-[72px] lg:h-[92px] w-auto max-w-none object-contain transition-all"
           />
         </div>
 
@@ -274,13 +274,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
 
       {/* Hamburger Drawer Menu (Strictly matches the exact requested items) */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-stone-50 border-b border-stone-300 px-6 py-6 shadow-xl animate-fadeIn">
+        <div className="lg:hidden bg-[#F8F6F2] border-b border-stone-300 px-6 py-6 shadow-xl animate-fadeIn">
           {/* Mobile Menu Header with Logo and LanguageSwitcher */}
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-200">
             <img
-              src="/images/logo.png"
+              src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-[50px] w-auto max-w-none object-contain"
+              className="h-[58px] w-auto max-w-none object-contain"
             />
             <LanguageSwitcher />
           </div>
