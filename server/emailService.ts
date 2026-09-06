@@ -104,25 +104,22 @@ export async function getTransporter(): Promise<Transporter> {
         console.log(`[EMAIL STEP 3] SMTP verify started with ${smtpHost}:${smtpPort}...`);
         await transporter.verify();
         console.log(`[EMAIL STEP 4] SMTP verify success for ${smtpUser} on ${smtpHost}:${smtpPort}`);
-        return transporter;
       } catch (verifyErr: any) {
-        console.error(`[EMAIL ERROR] SMTP verification rejected on ${smtpHost}:${smtpPort}:`, {
+        console.error(`[EMAIL ERROR] Full error details during SMTP verify on ${smtpHost}:${smtpPort}:`, {
           message: verifyErr.message,
           code: verifyErr.code,
           command: verifyErr.command,
           response: verifyErr.response,
           responseCode: verifyErr.responseCode,
         });
-        if (verifyErr.message?.includes('Application-specific password required') || verifyErr.response?.includes('534')) {
-          console.warn(`[SMTP AUTH GUIDANCE] ⚠️ Gmail vereist een 16-cijferig 'App-wachtwoord' (App Password) via Google Account > Beveiliging > 2-stapsverificatie > App-wachtwoorden in plaats van het normale accountwachtwoord.`);
-        }
-        // Fall back to resilient Ethereal test account or JSON transport
-        console.warn(`[EMAIL FALLBACK] Switching to resilient fallback transport to ensure no verification or reset emails are lost.`);
+        // Reset cache so that subsequent attempts can pick up newly injected environment variables
+        transporterPromise = null;
       }
+      return transporter;
     }
 
-    // When live credentials are not set or failed verification, provision an Ethereal SMTP test account for real SMTP transmission
-    console.warn('[EMAIL SERVICE] Provisioning resilient Ethereal SMTP account or fallback transport...');
+    // When live credentials are not set, provision an Ethereal SMTP test account for real SMTP transmission
+    console.warn('[EMAIL ERROR] Full error details: Missing SMTP_USER or SMTP_PASS environment variables! Provisioning real Ethereal SMTP test account...');
     try {
       const testAccount = await nodemailer.createTestAccount();
       activeProvider = `Ethereal Test SMTP (${testAccount.user})`;
@@ -700,7 +697,6 @@ export async function sendEmailVerificationEmail(email: string, token: string, n
   const base = baseUrl || process.env.APP_URL || 'https://www.maison-milau.be';
   const cleanBase = base.replace(/\/+$/, '');
   const verifyUrl = `${cleanBase}/account?verifyToken=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
-  console.log(`[AUTH ACTION LINK] Verification link for ${email}: ${verifyUrl}`);
   const subject = 'Verifieer uw e-mailadres voor Maison Milau';
   const text = `Beste ${name},
 
@@ -742,7 +738,6 @@ export async function sendPasswordResetEmail(email: string, resetToken: string, 
   const base = baseUrl || process.env.APP_URL || 'https://www.maison-milau.be';
   const cleanBase = base.replace(/\/+$/, '');
   const resetUrl = `${cleanBase}/account?resetToken=${encodeURIComponent(resetToken)}&email=${encodeURIComponent(email)}`;
-  console.log(`[AUTH ACTION LINK] Password reset link for ${email}: ${resetUrl}`);
   const subject = 'Wachtwoord opnieuw instellen · Maison Milau';
   const text = `Beste ${name},
 

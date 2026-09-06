@@ -14,36 +14,5 @@
     "accountType": "particulier",
     "companyName": "",
     "expiresAt": 1791326379429
-  },
-  "tok_1788735690520_64b6e5c081c7bcbb766840d3b16cf699": {
-    "userId": "usr-b2c-01",
-    "email": "klant@voorbeeld.be",
-    "role": "b2c_customer",
-    "accountType": "particulier",
-    "expiresAt": 1791327690520
-  },
-  "tok_1788735695292_334e1b46634da1678eb7f39843ae385b": {
-    "userId": "usr-1788735695284-71k2i",
-    "email": "test_audit_flow@example.com",
-    "role": "b2c_customer",
-    "accountType": "particulier",
-    "companyName": "",
-    "expiresAt": 1791327695292
-  },
-  "tok_1788735695316_52bc91c467e1a931f947e34f7c73ec11": {
-    "userId": "usr-1788735695284-71k2i",
-    "email": "test_audit_flow@example.com",
-    "role": "b2c_customer",
-    "accountType": "particulier",
-    "companyName": "",
-    "expiresAt": 1791327695316
-  },
-  "tok_1788735843744_4afb0847325ae35e2cafa47845fc17d8": {
-    "userId": "usr-1788735843645-50xyq",
-    "email": "audit_e2e_user@example.be",
-    "role": "b2c_customer",
-    "accountType": "particulier",
-    "companyName": "",
-    "expiresAt": 1791327843744
   }
 }
