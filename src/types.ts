@@ -16,6 +16,7 @@ export interface UserAddress {
 export interface User {
   id: string;
   email: string;
+  username?: string;
   name: string;
   phone?: string;
   accountType: 'particulier' | 'professioneel';
@@ -25,6 +26,7 @@ export interface User {
   vatNumber?: string;
   addresses: UserAddress[];
   loyaltyPoints: number;
+  isEmailVerified?: boolean;
   createdAt: string;
 }
 
@@ -189,17 +191,29 @@ export interface Invoice {
 
 export interface Subscription {
   id: string;
-  customerId: string;
+  customerId?: string;
+  customerName?: string;
   customerEmail: string;
   productName: string;
-  grindOption: 'Volle bonen' | 'Gemalen (Filter)';
+  collection?: string;
+  grindOption: string;
   weight: string;
-  frequency: '2_weken' | '4_weken' | '6_weken';
+  frequency: string;
+  discountPercent?: number;
+  shippingCost?: number;
   pricePerDelivery: number;
-  status: 'actief' | 'gepauzeerd' | 'opgezegd';
+  totalRecurring?: number;
+  status: 'actief' | 'gepauzeerd' | 'geannuleerd' | 'opgezegd';
+  nextBillingDate?: string;
   nextDeliveryDate: string;
   autoRenew: boolean;
   type: 'standaard' | 'coffee_of_the_month' | 'cadeau';
+  mollieCustomerId?: string;
+  mollieSubscriptionId?: string;
+  shippingAddress?: UserAddress | null;
+  billingAddress?: UserAddress | null;
+  cancelledAt?: string;
+  updatedAt?: string;
 }
 
 export interface B2BQuoteRequest {

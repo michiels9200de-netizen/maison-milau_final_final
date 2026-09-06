@@ -646,6 +646,50 @@ Maison Milau Beveiligingsteams`;
 }
 
 /**
+ * 4b. Password Successfully Changed Confirmation
+ */
+export async function sendPasswordChangedEmail(email: string, name: string) {
+  const subject = 'Uw wachtwoord is gewijzigd · Maison Milau';
+  const accountUrl = 'https://www.maison-milau.be/account';
+  const text = `Beste ${name},
+
+Het wachtwoord van uw Maison Milau account is zojuist succesvol gewijzigd.
+
+Heeft u deze wijziging zelf uitgevoerd? Dan hoeft u niets te doen.
+Heeft u deze wijziging niet uitgevoerd? Neem dan onmiddellijk contact op met onze klantenservice via ${WEBOWNER_EMAIL}.
+
+Met vriendelijke groet,
+Maison Milau Beveiliging`;
+
+  const html = buildHtmlWrapper(
+    'Wachtwoord Gewijzigd',
+    'Beveiligingsbevestiging Maison Milau account',
+    `<p>Beste ${name},</p>
+    <p>Het wachtwoord van uw Maison Milau account is zojuist succesvol gewijzigd.</p>
+    <div class="box">
+      <p style="margin:0;font-size:13px;color:#15803d;font-weight:600;">
+        ✓ Uw nieuwe wachtwoord is per direct actief en beveiligd.
+      </p>
+      <p style="margin:8px 0 0 0;font-size:12px;color:#78716c;">
+        Indien u dit niet zelf heeft gedaan, contacteer ons dan meteen via <a href="mailto:${WEBOWNER_EMAIL}" style="color:#78350f;">${WEBOWNER_EMAIL}</a>.
+      </p>
+    </div>
+    <div style="text-align:center;margin:20px 0;">
+      <a href="${accountUrl}" class="btn">Naar Mijn Account</a>
+    </div>`
+  );
+
+  return sendEmail({
+    type: 'password_changed',
+    recipient: email,
+    subject,
+    preview: 'Uw accountwachtwoord is succesvol gewijzigd',
+    text,
+    html,
+  });
+}
+
+/**
  * 5. New Order Confirmation (Customer & Admin)
  */
 export async function sendOrderEmails(order: any) {
@@ -800,26 +844,44 @@ Controleer de bestelling in het admin panel: https://www.maison-milau.be/admin`;
  * - Cancellation instructions
  */
 export async function sendSubscriptionEmail(
-  action: 'created' | 'modified' | 'paused' | 'resumed' | 'cancelled',
+  action: 'created' | 'modified' | 'paused' | 'resumed' | 'cancelled' | 'frequency_changed' | 'coffee_changed' | 'address_changed' | 'skipped',
   sub: {
     id: string;
     customerName?: string;
     customerEmail: string;
     productName: string;
+    collection?: string;
     grindOption: string;
     weight: string;
     frequency: string;
     discountPercent?: number;
     shippingCost?: number;
     pricePerDelivery: number;
+    totalRecurring?: number;
     nextBillingDate?: string;
     nextDeliveryDate?: string;
+    effectiveDate?: string;
+    shippingAddress?: any;
+    billingAddress?: any;
+    previous?: {
+      productName?: string;
+      collection?: string;
+      grindOption?: string;
+      weight?: string;
+      frequency?: string;
+      pricePerDelivery?: number;
+      shippingCost?: number;
+      totalRecurring?: number;
+      shippingAddress?: any;
+    };
   }
 ) {
   const managementLink = 'https://www.maison-milau.be/account?tab=subscriptions';
   const discountText = `${sub.discountPercent || 10}% abonnementskorting inbegrepen`;
   const shippingText = (sub.shippingCost || 0) === 0 ? 'Gratis verzending' : `€${(sub.shippingCost || 0).toFixed(2)}`;
-  const cancellationInstructions = 'U heeft volledige flexibiliteit. U kunt uw abonnement op elk moment pauzeren, wijzigen of kosteloos annuleren via uw Maison Milau account dashboard, zonder opzegtermijn.';
+  const totalAmount = sub.totalRecurring ?? (sub.pricePerDelivery + (sub.shippingCost || 0));
+  const effectiveDate = sub.effectiveDate || new Date().toLocaleDateString('nl-BE');
+  const cancellationInstructions = 'Maandelijks opzegbaar zonder opzegkosten of langdurige verplichtingen. U heeft volledige controle om uw levering op elk moment te pauzeren, over te slaan of kosteloos te annuleren via uw Maison Milau klantenportaal.';
 
   let subject = '';
   let title = '';
@@ -832,9 +894,24 @@ export async function sendSubscriptionEmail(
       statusBadge = 'Actief';
       break;
     case 'modified':
-      subject = `Wijziging Koffie-Abonnement · ${sub.productName}`;
-      title = 'Uw Abonnement is Bijgewerkt';
+      subject = `Bevestiging Wijziging Koffie-Abonnement · ${sub.productName}`;
+      title = 'Uw Abonnement is Succesvol Bijgewerkt';
       statusBadge = 'Gewijzigd';
+      break;
+    case 'frequency_changed':
+      subject = `Leverfrequentie Gewijzigd · ${sub.frequency} · ${sub.productName}`;
+      title = 'Nieuwe Leverfrequentie Ingesteld';
+      statusBadge = 'Frequentie Aangepast';
+      break;
+    case 'coffee_changed':
+      subject = `Koffiekeuze Gewijzigd · ${sub.productName}`;
+      title = 'Uw Nieuwe Koffieselectie is Bevestigd';
+      statusBadge = 'Koffie Aangepast';
+      break;
+    case 'address_changed':
+      subject = `Bezorgadres Abonnement Bijgewerkt · ${sub.productName}`;
+      title = 'Nieuw Leveradres Geregistreerd';
+      statusBadge = 'Adres Bijgewerkt';
       break;
     case 'paused':
       subject = `Abonnement Gepauzeerd · ${sub.productName}`;
@@ -846,70 +923,129 @@ export async function sendSubscriptionEmail(
       title = 'Welkom terug! Uw Abonnement is Hervat';
       statusBadge = 'Actief';
       break;
+    case 'skipped':
+      subject = `Volgende Levering Overgeslagen · ${sub.productName}`;
+      title = 'Levering Eenmalig Overgeslagen';
+      statusBadge = 'Levering Overgeslagen';
+      break;
     case 'cancelled':
-      subject = `Bevestiging Opzegging Koffie-Abonnement · ${sub.productName}`;
+      subject = `Bevestiging Kosteloze Opzegging Koffie-Abonnement · ${sub.productName}`;
       title = 'Uw Abonnement is Beëindigd';
       statusBadge = 'Geannuleerd';
       break;
   }
 
+  const prev = sub.previous;
+  const addressFormatted = sub.shippingAddress
+    ? `${sub.shippingAddress.street}, ${sub.shippingAddress.postalCode} ${sub.shippingAddress.city}`
+    : 'Standaard accountadres';
+  const prevAddressFormatted = prev?.shippingAddress
+    ? `${prev.shippingAddress.street}, ${prev.shippingAddress.postalCode} ${prev.shippingAddress.city}`
+    : null;
+
+  const comparisonText = prev
+    ? `
+VERGELIJKING MET VORIGE CONFIGURATIE:
+• Koffie: ${prev.productName || 'Onbekend'} → ${sub.productName}
+• Inhoud & Maalgraad: ${prev.weight || '1kg'} (${prev.grindOption || 'Volle bonen'}) → ${sub.weight} (${sub.grindOption})
+• Leverfrequentie: ${prev.frequency || '-'} → ${sub.frequency}
+• Vorig periodiek bedrag: €${((prev.totalRecurring ?? (prev.pricePerDelivery || sub.pricePerDelivery))).toFixed(2)}
+• Nieuw periodiek bedrag: €${totalAmount.toFixed(2)} (incl. verzending: ${shippingText})
+• Ingangsdatum wijziging: ${effectiveDate}
+`
+    : '';
+
   const text = `Beste ${sub.customerName || 'Koffieliefhebber'},
 
 ${title}
 
-Hieronder vindt u alle details van uw periodieke levering:
+Hieronder vindt u de actuele specificaties van uw periodieke koffielevering:${comparisonText}
 
-ABONNEMENTSDETAILS:
-• Geselecteerde koffie: ${sub.productName}
+ACTUELE ABONNEMENTSDETAILS:
+• Geselecteerde koffie: ${sub.productName} ${sub.collection ? `(${sub.collection} Collectie)` : ''}
 • Maalgraad optie: ${sub.grindOption || 'Volle bonen (vers van de brander)'}
 • Formaat / Inhoud: ${sub.weight || '1kg'}
 • Leverfrequentie: ${sub.frequency || 'Elke 4 weken'}
 • Abonnementskorting: ${discountText}
 • Verzendkosten: ${shippingText}
-• Terugkerend bedrag: €${sub.pricePerDelivery.toFixed(2)} per levering
+• Nieuw periodiek bedrag: €${totalAmount.toFixed(2)} per levering
+• Ingangsdatum wijziging: ${effectiveDate}
 • Volgende facturatiedatum: ${sub.nextBillingDate || 'Vóór volgende levering'}
 • Volgende leverdatum: ${sub.nextDeliveryDate || 'Binnenkort gepland'}
+• Leveradres: ${addressFormatted}
+
+VOORWAARDEN & FLEXIBILITEIT:
+• Maandelijks opzegbaar zonder opzegkosten
+• Geen minimale contractduur
+• Zelfstandig te beheren, pauzeren of aanpassen via uw account
 
 BEHEER & OPZEGGEN:
-Beheer uw abonnement: ${managementLink}
+Beheer uw abonnement direct via: ${managementLink}
 
-OPZEGINSTRUCTIES:
 ${cancellationInstructions}
 
-Heeft u vragen of wilt u een andere maalgraad proberen? Beantwoord gerust deze e-mail of contacteer ons via ${WEBOWNER_EMAIL}.
+Heeft u vragen of wensen? Beantwoord gerust deze e-mail of contacteer ons via ${WEBOWNER_EMAIL}.
 
 Met aromatische groet,
 Laurent Michiels · Maison Milau Ambachtelijke Koffiebranderij`;
+
+  const comparisonHtml = prev
+    ? `<div class="box" style="background:#fefce8;border-color:#fef08a;margin-bottom:16px;">
+        <p style="margin:0 0 8px 0;font-weight:700;color:#854d0e;">Wijzigingsoverzicht (Voorheen vs. Nieuw):</p>
+        <table style="width:100%;font-size:12px;">
+          <tr><th style="color:#713f12;">Onderdeel</th><th style="color:#713f12;">Vorige Configuratie</th><th style="color:#713f12;">Nieuwe Configuratie</th></tr>
+          <tr><td>Koffie:</td><td style="color:#78716c;text-decoration:line-through;">${prev.productName || '-'}</td><td><strong>${sub.productName}</strong></td></tr>
+          <tr><td>Inhoud:</td><td style="color:#78716c;">${prev.weight || '-'}</td><td><strong>${sub.weight}</strong></td></tr>
+          <tr><td>Maalgraad:</td><td style="color:#78716c;">${prev.grindOption || '-'}</td><td><strong>${sub.grindOption}</strong></td></tr>
+          <tr><td>Frequentie:</td><td style="color:#78716c;">${prev.frequency || '-'}</td><td><strong>${sub.frequency}</strong></td></tr>
+          ${prevAddressFormatted ? `<tr><td>Leveradres:</td><td style="color:#78716c;">${prevAddressFormatted}</td><td><strong>${addressFormatted}</strong></td></tr>` : ''}
+          <tr><td>Periodiek bedrag:</td><td style="color:#78716c;">€${(prev.totalRecurring ?? (prev.pricePerDelivery || 0)).toFixed(2)}</td><td><strong style="color:#15803d;font-size:14px;">€${totalAmount.toFixed(2)}</strong></td></tr>
+          <tr><td>Ingangsdatum:</td><td colspan="2"><strong>${effectiveDate}</strong></td></tr>
+        </table>
+      </div>`
+    : '';
 
   const html = buildHtmlWrapper(
     title,
     `Status update abonnement: ${sub.productName}`,
     `<p>Beste ${sub.customerName || 'Koffieliefhebber'},</p>
     <p>${action === 'cancelled' 
-      ? 'Wij bevestigen dat uw periodieke koffielevering is beëindigd. Er zullen geen verdere inhoudingen meer plaatsvinden.' 
-      : 'Geniet zorgeloos van continu vers gebrande specialty koffiebonen direct uit ons atelier in Oudegem.'}</p>
+      ? 'Wij bevestigen dat uw periodieke koffielevering kosteloos is stopgezet. Er zullen geen verdere inhoudingen meer plaatsvinden. U kunt uw abonnement op elk gewenst moment opnieuw activeren.' 
+      : action === 'paused'
+      ? 'Uw koffie-abonnement is tijdelijk gepauzeerd. U ontvangt geen leveringen en er vinden geen inhoudingen plaats totdat u hervat.'
+      : action === 'skipped'
+      ? 'Uw eerstvolgende levering is overgeslagen. De volgende leverdatum is automatisch opgeschoven.'
+      : 'Uw abonnement is conform uw wensen geconfigureerd met vers gebrande specialty koffiebonen direct uit ons atelier in Oudegem.'}</p>
+
+    ${comparisonHtml}
 
     <div class="box">
       <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-        <strong style="color:#78350f;">Abonnementsspecificaties</strong>
+        <strong style="color:#78350f;">Actuele Abonnementsspecificaties</strong>
         <span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700;">${statusBadge}</span>
       </div>
       <table>
-        <tr><th>Geselecteerde koffie:</th><td><strong>${sub.productName}</strong></td></tr>
+        <tr><th>Geselecteerde koffie:</th><td><strong>${sub.productName}</strong> ${sub.collection ? `<span style="color:#78716c;">(${sub.collection})</span>` : ''}</td></tr>
         <tr><th>Maalgraad:</th><td>${sub.grindOption || 'Volle bonen'}</td></tr>
-        <tr><th>Inhoud per pak:</th><td>${sub.weight || '1kg'}</td></tr>
+        <tr><th>Inhoud per levering:</th><td>${sub.weight || '1kg'}</td></tr>
         <tr><th>Leverfrequentie:</th><td>${sub.frequency || 'Elke 4 weken'}</td></tr>
-        <tr><th>Korting:</th><td><span style="color:#15803d;font-weight:600;">${discountText}</span></td></tr>
+        <tr><th>Abonnementskorting:</th><td><span style="color:#15803d;font-weight:600;">${discountText}</span></td></tr>
         <tr><th>Verzendkosten:</th><td>${shippingText}</td></tr>
-        <tr><th>Periodiek bedrag:</th><td><strong style="font-size:16px;color:#78350f;">€${sub.pricePerDelivery.toFixed(2)}</strong></td></tr>
+        <tr><th>Nieuw periodiek bedrag:</th><td><strong style="font-size:17px;color:#78350f;">€${totalAmount.toFixed(2)}</strong> <span style="font-size:11px;color:#78716c;">/ levering</span></td></tr>
+        <tr><th>Ingangsdatum:</th><td><strong>${effectiveDate}</strong></td></tr>
         <tr><th>Volgende facturatiedatum:</th><td>${sub.nextBillingDate || 'Berekend bij brandcyclus'}</td></tr>
         <tr><th>Volgende leverdatum:</th><td><strong>${sub.nextDeliveryDate || 'Zie account'}</strong></td></tr>
+        <tr><th>Leveradres:</th><td>${addressFormatted}</td></tr>
       </table>
     </div>
 
-    <div class="box" style="background:#fffbeb;border-color:#fde68a;">
-      <p style="margin:0 0 6px 0;font-weight:700;color:#92400e;">Flexibiliteit & Opzegging:</p>
-      <p style="margin:0;font-size:13px;color:#78350f;line-height:1.5;">${cancellationInstructions}</p>
+    <div class="box" style="background:#f0fdf4;border-color:#bbf7d0;">
+      <p style="margin:0 0 4px 0;font-weight:700;color:#166534;">✓ Maximale Flexibiliteit & Zekerheid:</p>
+      <ul style="margin:0;padding-left:18px;font-size:12px;color:#14532d;line-height:1.6;">
+        <li><strong>Maandelijks opzegbaar</strong> zonder opzegtermijn of verborgen kosten</li>
+        <li><strong>Geen minimale contractduur</strong></li>
+        <li><strong>Volledig zelfstandig beheerbaar</strong> via uw online klantenportaal</li>
+      </ul>
     </div>
 
     <div style="text-align:center;margin:24px 0;">
@@ -921,7 +1057,7 @@ Laurent Michiels · Maison Milau Ambachtelijke Koffiebranderij`;
     type: `subscription_${action}`,
     recipient: sub.customerEmail,
     subject,
-    preview: `Abonnement update: ${sub.productName} (€${sub.pricePerDelivery.toFixed(2)})`,
+    preview: `Abonnement update: ${sub.productName} (€${totalAmount.toFixed(2)})`,
     text,
     html,
   });

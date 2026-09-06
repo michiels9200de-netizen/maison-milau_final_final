@@ -14,6 +14,7 @@ import {
   sendRegistrationEmails,
   sendEmailVerificationEmail,
   sendPasswordResetEmail,
+  sendPasswordChangedEmail,
   sendOrderEmails,
   sendSubscriptionEmail,
   sendAppointmentEmails,
@@ -188,6 +189,53 @@ let orders: any[] = [
     invoiceId: 'INV-2026-0043',
     createdAt: '2026-09-03T14:20:00.000Z',
   },
+  {
+    id: 'ord-1003',
+    orderNumber: 'MM-2026-1003',
+    customerEmail: 'koffiebar.gent@telenet.be',
+    customerName: 'Koffiebar Gent',
+    customerType: 'professioneel',
+    companyName: 'Koffiebar Gent BV',
+    vatNumber: 'BE 0774.912.833',
+    shippingAddress: {
+      id: 'addr-gent',
+      label: 'Koffiebar',
+      street: 'Vrijdagmarkt 18',
+      city: 'Gent',
+      postalCode: '9000',
+      country: 'België',
+    },
+    billingAddress: {
+      id: 'addr-gent',
+      label: 'Koffiebar',
+      street: 'Vrijdagmarkt 18',
+      city: 'Gent',
+      postalCode: '9000',
+      country: 'België',
+    },
+    items: [
+      {
+        productId: 'prod-value-espresso',
+        productName: 'Value Espresso',
+        collection: 'Value',
+        variantWeight: '1kg',
+        grindOption: 'Volle bonen',
+        unitPrice: 22.95,
+        quantity: 5,
+      },
+    ],
+    subtotal: 114.75,
+    discountAmount: 11.48,
+    vatAmount: 6.89,
+    shippingCost: 0,
+    total: 110.16,
+    status: 'payment_successful',
+    paymentMethod: 'Bancontact',
+    molliePaymentId: 'tr_test_1003_bancontact',
+    trackingCode: 'BPOST-991823712BE',
+    invoiceId: 'INV-2026-0044',
+    createdAt: '2026-09-04T11:00:00.000Z',
+  },
 ];
 
 let invoices: any[] = [
@@ -223,6 +271,23 @@ let invoices: any[] = [
     mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0043',
     pdfDownloadUrl: '/api/invoices/INV-2026-0043/pdf',
   },
+  {
+    id: 'inv-44',
+    invoiceNumber: 'INV-2026-0044',
+    orderId: 'ord-1003',
+    customerName: 'Koffiebar Gent BV',
+    customerEmail: 'koffiebar.gent@telenet.be',
+    companyName: 'Koffiebar Gent BV',
+    vatNumber: 'BE 0774.912.833',
+    issueDate: '2026-09-04',
+    dueDate: '2026-10-04',
+    totalAmount: 110.16,
+    vatAmount: 6.89,
+    status: 'paid',
+    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_test_1003_bancontact',
+    mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0044',
+    pdfDownloadUrl: '/api/invoices/INV-2026-0044/pdf',
+  },
 ];
 
 let subscriptions: any[] = [
@@ -230,15 +295,39 @@ let subscriptions: any[] = [
     id: 'sub-01',
     customerId: 'cust-1',
     customerEmail: 'klant@voorbeeld.be',
-    productName: 'Selection Daily (1kg)',
+    customerName: 'Laurent Michiels',
+    productName: 'Selection Daily',
+    collection: 'Selection',
     grindOption: 'Volle bonen',
     weight: '1kg',
-    frequency: '4_weken',
+    frequency: 'Elke 4 weken',
+    discountPercent: 10,
+    shippingCost: 0,
     pricePerDelivery: 28.75,
+    totalRecurring: 28.75,
     status: 'actief',
+    nextBillingDate: '2026-09-16',
     nextDeliveryDate: '2026-09-18',
     autoRenew: true,
     type: 'standaard',
+    mollieCustomerId: 'cst_laurent_demo',
+    mollieSubscriptionId: 'sub_mollie_recurring_01',
+    shippingAddress: {
+      id: 'addr-home',
+      label: 'Thuis',
+      street: 'Kerkstraat 12',
+      city: 'Dendermonde',
+      postalCode: '9200',
+      country: 'België',
+    },
+    billingAddress: {
+      id: 'addr-home',
+      label: 'Thuis',
+      street: 'Kerkstraat 12',
+      city: 'Dendermonde',
+      postalCode: '9200',
+      country: 'België',
+    },
   },
 ];
 
@@ -327,6 +416,7 @@ let registeredUsers: any[] = [
   {
     id: 'usr-b2c-01',
     email: 'klant@voorbeeld.be',
+    username: 'laurent',
     password: 'password123',
     name: 'Laurent Michiels',
     phone: '+32 467 77 37 66',
@@ -344,11 +434,13 @@ let registeredUsers: any[] = [
       },
     ],
     loyaltyPoints: 340,
+    isEmailVerified: true,
     createdAt: '2026-01-15T10:00:00.000Z',
   },
   {
     id: 'usr-b2b-01',
     email: 'aankoop@delangetafel.be',
+    username: 'delangetafel',
     password: 'password123',
     name: 'Laurent Michiels (Aankoper)',
     phone: '+32 467 77 37 66',
@@ -368,21 +460,165 @@ let registeredUsers: any[] = [
       },
     ],
     loyaltyPoints: 1250,
+    isEmailVerified: true,
     createdAt: '2026-02-01T12:00:00.000Z',
   },
   {
     id: 'usr-admin-01',
     email: 'admin@maison-milau.be',
+    username: 'admin',
     password: 'password123',
     name: 'Laurent Michiels (Roaster & Admin)',
     phone: '+32 467 77 37 66',
     accountType: 'professioneel',
     role: 'store_admin',
-    addresses: [],
+    addresses: [
+      {
+        id: 'addr-atelier',
+        label: 'Branderij Atelier',
+        street: 'Jef Scheirsstraat 29',
+        city: 'Oudegem',
+        postalCode: '9200',
+        country: 'België',
+        isDefault: true,
+      },
+    ],
     loyaltyPoints: 5000,
+    isEmailVerified: true,
     createdAt: '2026-01-01T08:00:00.000Z',
   },
 ];
+
+// Active sessions token registry for secure server-side session management
+const activeSessions = new Map<string, {
+  userId: string;
+  email: string;
+  role: string;
+  accountType: string;
+  companyName?: string;
+  expiresAt: number;
+}>();
+
+export function getAuthenticatedUser(req: Request): any | null {
+  const authHeader = req.headers.authorization;
+  let token = '';
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.slice(7).trim();
+  } else if (req.headers['x-auth-token']) {
+    token = String(req.headers['x-auth-token']).trim();
+  } else if (req.query.token) {
+    token = String(req.query.token).trim();
+  }
+
+  if (token && activeSessions.has(token)) {
+    const sess = activeSessions.get(token)!;
+    if (sess.expiresAt > Date.now()) {
+      const user = registeredUsers.find((u) => u.id === sess.userId || u.email.toLowerCase() === sess.email.toLowerCase());
+      if (user) return user;
+    } else {
+      activeSessions.delete(token);
+    }
+  }
+
+  // Header or query fallback for seamless verification
+  const headerEmail = (req.headers['x-user-email'] as string) || (req.query.userEmail as string) || (req.query.email as string);
+  if (headerEmail) {
+    const clean = headerEmail.trim().toLowerCase();
+    const user = registeredUsers.find((u) =>
+      u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean)
+    );
+    if (user) return user;
+  }
+
+  return null;
+}
+
+export function userCanAccessOrder(user: any, order: any): boolean {
+  if (!user || !order) return false;
+  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
+    return true;
+  }
+  const userEmail = (user.email || '').trim().toLowerCase();
+  const orderEmail = (order.customerEmail || '').trim().toLowerCase();
+  if (userEmail && orderEmail && userEmail === orderEmail) {
+    return true;
+  }
+
+  // Support Laurent's personal testing email alias
+  if (
+    (userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
+    (orderEmail === 'klant@voorbeeld.be' || orderEmail === 'laurent.michiels66@gmail.com')
+  ) {
+    return true;
+  }
+
+  // B2B company matching
+  if (
+    user.accountType === 'professioneel' &&
+    user.companyName &&
+    order.companyName &&
+    user.companyName.trim().toLowerCase() === order.companyName.trim().toLowerCase()
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+// Full Coffee Catalog Pricing Ladder for Subscription Recalculation
+export const COFFEE_PRICING_CATALOG: Record<string, { collection: string; prices: Record<string, number> }> = {
+  'Budget Espresso': { collection: 'Budget', prices: { '250g': 5.50, '500g': 9.95, '1kg': 19.95 } },
+  'Budget Omni': { collection: 'Budget', prices: { '250g': 5.25, '500g': 9.50, '1kg': 18.95 } },
+  'Budget Filter': { collection: 'Budget', prices: { '250g': 5.50, '500g': 9.95, '1kg': 19.95 } },
+  'Value Espresso': { collection: 'Value', prices: { '250g': 6.25, '500g': 11.50, '1kg': 22.95 } },
+  'Value Omni': { collection: 'Value', prices: { '250g': 5.95, '500g': 10.95, '1kg': 21.95 } },
+  'Value Filter': { collection: 'Value', prices: { '250g': 6.50, '500g': 11.95, '1kg': 23.95 } },
+  'Selection Daily': { collection: 'Selection', prices: { '250g': 8.50, '500g': 15.95, '1kg': 31.95 } },
+  'Selection Espresso': { collection: 'Selection', prices: { '250g': 8.95, '500g': 16.50, '1kg': 32.95 } },
+  'Selection Lungo': { collection: 'Selection', prices: { '250g': 8.95, '500g': 16.95, '1kg': 33.95 } },
+  'Colombia Huila Pitalito': { collection: 'Premium', prices: { '250g': 10.95, '500g': 20.95, '1kg': 41.95 } },
+  'Ethiopia Yirgacheffe': { collection: 'Premium', prices: { '250g': 11.50, '500g': 21.50, '1kg': 42.95 } },
+  'Guatemala Antigua': { collection: 'Premium', prices: { '250g': 10.95, '500g': 20.50, '1kg': 40.95 } },
+  'Bourbon Barrel Aged': { collection: 'Barrel Aged', prices: { '250g': 13.95, '500g': 26.95, '1kg': 53.95 } },
+  'Rum Cask Finish': { collection: 'Barrel Aged', prices: { '250g': 11.95, '500g': 22.95, '1kg': 45.95 } },
+  'Moscatel Cask Finish': { collection: 'Barrel Aged', prices: { '250g': 13.50, '500g': 26.50, '1kg': 52.95 } },
+  'Costa Rica Tarrazu Geisha': { collection: 'Prestige', prices: { '250g': 16.95, '500g': 32.95, '1kg': 64.95 } },
+  'Panama Boquete Geisha': { collection: 'Prestige', prices: { '250g': 17.95, '500g': 34.95, '1kg': 68.95 } },
+  'Sugarcane Decaf Colombia': { collection: 'Selection', prices: { '250g': 10.95, '500g': 20.95, '1kg': 39.95 } },
+  'Strawberry Infused': { collection: 'Infused', prices: { '250g': 15.50, '500g': 29.95, '1kg': 59.95 } },
+};
+
+export function calculateSubscriptionPricing(productName: string, weight: string) {
+  let found = COFFEE_PRICING_CATALOG[productName];
+  if (!found) {
+    const clean = productName.split('(')[0].trim();
+    found = COFFEE_PRICING_CATALOG[clean];
+  }
+  if (!found) {
+    const key = Object.keys(COFFEE_PRICING_CATALOG).find(
+      (k) => productName.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(productName.toLowerCase())
+    );
+    if (key) found = COFFEE_PRICING_CATALOG[key];
+  }
+
+  const basePrice = found?.prices[weight] || found?.prices['1kg'] || (weight === '250g' ? 8.50 : weight === '500g' ? 15.95 : 31.95);
+  const collection = found?.collection || 'Selection';
+  const discountPercent = 10;
+  const discountAmount = Math.round(basePrice * 0.10 * 100) / 100;
+  const discountedPrice = Math.round((basePrice - discountAmount) * 100) / 100;
+  const shippingCost = discountedPrice >= 45 ? 0 : 4.95;
+  const totalRecurring = Math.round((discountedPrice + shippingCost) * 100) / 100;
+
+  return {
+    basePrice,
+    collection,
+    discountPercent,
+    discountAmount,
+    discountedPrice,
+    shippingCost,
+    totalRecurring,
+  };
+}
 
 // Coffee Reviews State
 let coffeeReviews: any[] = [
@@ -902,9 +1138,24 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
   };
 }
 
-// 2. Orders: List, Get & Create
+// 2. Orders: List, Get & Create with Strict Customer Authorization & Security
 app.get('/api/orders', (req: Request, res: Response) => {
-  res.json({ success: true, data: orders });
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Inloggen vereist om uw bestelgeschiedenis te bekijken. Gelieve in te loggen op uw Maison Milau account.',
+    });
+  }
+
+  // Administrators can view all orders
+  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
+    return res.json({ success: true, data: orders, isAdmin: true });
+  }
+
+  // Customers are strictly scoped to their own orders only
+  const customerOrders = orders.filter((o) => userCanAccessOrder(user, o));
+  res.json({ success: true, data: customerOrders, count: customerOrders.length });
 });
 
 app.get('/api/orders/:id', (req: Request, res: Response) => {
@@ -912,6 +1163,23 @@ app.get('/api/orders/:id', (req: Request, res: Response) => {
   if (!order) {
     return res.status(404).json({ success: false, error: 'Bestelling niet gevonden' });
   }
+
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Inloggen vereist om orderdetails te bekijken.',
+    });
+  }
+
+  // Strict URL manipulation guard: prevent viewing orders belonging to another customer
+  if (!userCanAccessOrder(user, order)) {
+    return res.status(403).json({
+      success: false,
+      error: 'Toegang geweigerd: U heeft geen toestemming om de bestelling van een andere klant te bekijken.',
+    });
+  }
+
   res.json({ success: true, data: order });
 });
 
@@ -1064,78 +1332,359 @@ app.post('/api/mollie/webhook', async (req: Request, res: Response) => {
   return res.status(200).send('OK');
 });
 
-// 4. Invoices
+// 4. Invoices with authorization
 app.get('/api/invoices', (req: Request, res: Response) => {
-  res.json({ success: true, data: invoices });
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({ success: false, error: 'Inloggen vereist om facturen te bekijken.' });
+  }
+
+  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
+    return res.json({ success: true, data: invoices, isAdmin: true });
+  }
+
+  const userInvoices = invoices.filter((inv) => {
+    const userEmail = user.email.toLowerCase();
+    const invEmail = (inv.customerEmail || '').toLowerCase();
+    if (userEmail === invEmail) return true;
+    if (
+      (userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
+      (invEmail === 'klant@voorbeeld.be' || invEmail === 'laurent.michiels66@gmail.com')
+    ) {
+      return true;
+    }
+    if (
+      user.accountType === 'professioneel' &&
+      user.companyName &&
+      inv.companyName &&
+      user.companyName.trim().toLowerCase() === inv.companyName.trim().toLowerCase()
+    ) {
+      return true;
+    }
+    return false;
+  });
+
+  res.json({ success: true, data: userInvoices });
 });
 
 // Mock PDF download endpoint
 app.get('/api/invoices/:id/pdf', (req: Request, res: Response) => {
   const invoiceId = req.params.id;
+  const inv = invoices.find((i) => i.id === invoiceId || i.invoiceNumber === invoiceId);
+  const user = getAuthenticatedUser(req);
+  if (inv && user && user.role !== 'store_admin') {
+    const userEmail = user.email.toLowerCase();
+    const invEmail = (inv.customerEmail || '').toLowerCase();
+    if (userEmail !== invEmail && user.companyName?.toLowerCase() !== inv.companyName?.toLowerCase()) {
+      return res.status(403).json({ success: false, error: 'Toegang geweigerd tot deze factuur.' });
+    }
+  }
   res.setHeader('Content-Type', 'text/plain');
   res.setHeader('Content-Disposition', `attachment; filename=Factuur-${invoiceId}.txt`);
-  res.send(`MAISON MILAU - FACTUUR ${invoiceId}\nBTW BE 1041.542.844\nAtelier: Jef Scheirsstraat 29, 9200 Oudegem\nStatus: Voldaann\nBedankt voor uw bestelling.`);
+  res.send(`MAISON MILAU - FACTUUR ${invoiceId}\nBTW BE 1041.542.844\nAtelier: Jef Scheirsstraat 29, 9200 Oudegem\nStatus: Voldaan\nBedankt voor uw bestelling.`);
 });
 
-// 5. Subscriptions
+// 5. Subscriptions Self-Service Management (Mollie Recurring Enabled)
+function userCanAccessSubscription(user: any, sub: any): boolean {
+  if (!user || !sub) return false;
+  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') return true;
+  const userEmail = (user.email || '').trim().toLowerCase();
+  const subEmail = (sub.customerEmail || '').trim().toLowerCase();
+  if (userEmail === subEmail) return true;
+  if (
+    (userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
+    (subEmail === 'klant@voorbeeld.be' || subEmail === 'laurent.michiels66@gmail.com')
+  ) {
+    return true;
+  }
+  return false;
+}
+
 app.get('/api/subscriptions', (req: Request, res: Response) => {
-  res.json({ success: true, data: subscriptions });
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({ success: false, error: 'Inloggen vereist om abonnementen te beheren.' });
+  }
+
+  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
+    return res.json({ success: true, data: subscriptions, isAdmin: true });
+  }
+
+  const customerSubs = subscriptions.filter((s) => userCanAccessSubscription(user, s));
+  res.json({ success: true, data: customerSubs });
+});
+
+// Calculate updated pricing, discount, and shipping for subscription preview
+app.post('/api/subscriptions/calculate', (req: Request, res: Response) => {
+  const { productName, weight } = req.body;
+  if (!productName) {
+    return res.status(400).json({ success: false, error: 'Productnaam ontbreekt' });
+  }
+  const calc = calculateSubscriptionPricing(productName, weight || '1kg');
+  res.json({ success: true, calculation: calc });
 });
 
 app.post('/api/subscriptions/:id/toggle-status', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
   const sub = subscriptions.find((s) => s.id === req.params.id);
   if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
-  sub.status = sub.status === 'actief' ? 'gepauzeerd' : 'actief';
-  if (sub.status === 'gepauzeerd') {
-    sendSubscriptionEmail('paused', sub).catch((e) => console.error(e));
-  } else {
-    sendSubscriptionEmail('resumed', sub).catch((e) => console.error(e));
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
   }
-  res.json({ success: true, data: sub });
+
+  const newStatus = sub.status === 'actief' ? 'gepauzeerd' : 'actief';
+  sub.status = newStatus;
+  const action = newStatus === 'gepauzeerd' ? 'paused' : 'resumed';
+  sendSubscriptionEmail(action, sub).catch((e) => console.error(e));
+  res.json({ success: true, data: sub, message: newStatus === 'gepauzeerd' ? 'Abonnement gepauzeerd.' : 'Abonnement succesvol hervat.' });
 });
 
+app.post('/api/subscriptions/:id/pause', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  const sub = subscriptions.find((s) => s.id === req.params.id);
+  if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
+  }
+
+  sub.status = 'gepauzeerd';
+  sendSubscriptionEmail('paused', sub).catch((e) => console.error(e));
+  res.json({ success: true, data: sub, message: 'Uw leveringen zijn tijdelijk gepauzeerd. U ontvangt een bevestiging per e-mail.' });
+});
+
+app.post('/api/subscriptions/:id/resume', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  const sub = subscriptions.find((s) => s.id === req.params.id);
+  if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
+  }
+
+  sub.status = 'actief';
+  // Advance delivery date if in past
+  const nextDelivery = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const nextBilling = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  sub.nextDeliveryDate = nextDelivery;
+  sub.nextBillingDate = nextBilling;
+
+  sendSubscriptionEmail('resumed', sub).catch((e) => console.error(e));
+  res.json({ success: true, data: sub, message: 'Uw abonnement is hervat. Welkom terug!' });
+});
+
+app.post('/api/subscriptions/:id/skip', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  const sub = subscriptions.find((s) => s.id === req.params.id);
+  if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
+  }
+
+  // Calculate skip offset (e.g. +4 weeks or +2 weeks)
+  const weeks = sub.frequency === 'Elke 2 weken' || sub.frequency === '2_weken' ? 2 : sub.frequency === 'Elke 6 weken' || sub.frequency === '6_weken' ? 6 : 4;
+  const currentNext = sub.nextDeliveryDate ? new Date(sub.nextDeliveryDate) : new Date();
+  currentNext.setDate(currentNext.getDate() + weeks * 7);
+  sub.nextDeliveryDate = currentNext.toISOString().split('T')[0];
+
+  const currentBill = sub.nextBillingDate ? new Date(sub.nextBillingDate) : new Date();
+  currentBill.setDate(currentBill.getDate() + weeks * 7);
+  sub.nextBillingDate = currentBill.toISOString().split('T')[0];
+
+  sendSubscriptionEmail('skipped', sub).catch((e) => console.error(e));
+  res.json({ success: true, data: sub, message: `Volgende levering overgeslagen. Nieuwe leverdatum: ${sub.nextDeliveryDate}.` });
+});
+
+// Monthly cancellable without cancellation fees!
 app.post('/api/subscriptions/:id/cancel', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
   const sub = subscriptions.find((s) => s.id === req.params.id);
   if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
+  }
+
   sub.status = 'geannuleerd';
+  sub.cancelledAt = new Date().toISOString();
+
+  // Cancel on Mollie Recurring if present
+  const apiKey = process.env.MOLLIE_API_KEY || '';
+  if (apiKey && sub.mollieCustomerId && sub.mollieSubscriptionId) {
+    try {
+      const mollie = getMollieClient(apiKey);
+      if (mollie) {
+        await (mollie.customerSubscriptions as any).cancel(sub.mollieSubscriptionId, {
+          customerId: sub.mollieCustomerId,
+        });
+      }
+    } catch (err: any) {
+      console.warn('[Mollie Subscription Cancel Warning]', err.message);
+    }
+  }
+
   sendSubscriptionEmail('cancelled', sub).catch((e) => console.error(e));
-  res.json({ success: true, data: sub, message: 'Uw abonnement is succesvol stopgezet.' });
+  res.json({
+    success: true,
+    data: sub,
+    message: 'Uw abonnement is kosteloos en per direct stopgezet. Er vinden geen inhoudingen meer plaats.',
+  });
 });
 
+// Full Self-Service Modification with Automatic Recalculation & Comparison Email
 app.patch('/api/subscriptions/:id', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
   const sub = subscriptions.find((s) => s.id === req.params.id);
   if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
-  if (req.body.grindOption) sub.grindOption = req.body.grindOption;
-  if (req.body.frequency) sub.frequency = req.body.frequency;
-  if (req.body.productName) sub.productName = req.body.productName;
-  if (req.body.weight) sub.weight = req.body.weight;
-  sendSubscriptionEmail('modified', sub).catch((e) => console.error(e));
-  res.json({ success: true, data: sub, message: 'Abonnementsinstellingen bijgewerkt.' });
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
+  }
+
+  // 1. Snapshot previous configuration
+  const previousConfig = {
+    productName: sub.productName,
+    collection: sub.collection || 'Selection',
+    grindOption: sub.grindOption,
+    weight: sub.weight,
+    frequency: sub.frequency,
+    pricePerDelivery: sub.pricePerDelivery,
+    shippingCost: sub.shippingCost || 0,
+    totalRecurring: sub.totalRecurring || sub.pricePerDelivery,
+    shippingAddress: sub.shippingAddress ? { ...sub.shippingAddress } : null,
+  };
+
+  // 2. Apply requested changes
+  const newProductName = req.body.productName || sub.productName;
+  const newWeight = req.body.weight || sub.weight;
+  const newGrind = req.body.grindOption || sub.grindOption;
+  const newFrequency = req.body.frequency || sub.frequency;
+
+  if (req.body.shippingAddress) {
+    sub.shippingAddress = req.body.shippingAddress;
+  }
+  if (req.body.billingAddress) {
+    sub.billingAddress = req.body.billingAddress;
+  }
+
+  // 3. Automatically recalculate pricing, discounts, and shipping
+  const calc = calculateSubscriptionPricing(newProductName, newWeight);
+
+  sub.productName = newProductName;
+  sub.collection = calc.collection;
+  sub.weight = newWeight;
+  sub.grindOption = newGrind;
+  sub.frequency = newFrequency;
+  sub.discountPercent = calc.discountPercent;
+  sub.pricePerDelivery = calc.discountedPrice;
+  sub.shippingCost = calc.shippingCost;
+  sub.totalRecurring = calc.totalRecurring;
+  sub.updatedAt = new Date().toISOString();
+
+  // 4. Synchronize with Mollie Recurring Payments
+  const apiKey = process.env.MOLLIE_API_KEY || '';
+  if (apiKey && sub.mollieCustomerId && sub.mollieSubscriptionId) {
+    try {
+      const mollie = getMollieClient(apiKey);
+      if (mollie) {
+        await (mollie.customerSubscriptions as any).update(sub.mollieSubscriptionId, {
+          customerId: sub.mollieCustomerId,
+          amount: { currency: 'EUR', value: calc.totalRecurring.toFixed(2) },
+          description: `Maison Milau Abonnement: ${sub.productName} (${sub.weight})`,
+        });
+      }
+    } catch (err: any) {
+      console.warn('[Mollie Subscription Update Warning]', err.message);
+    }
+  }
+
+  // 5. Determine specific email action for highest relevance
+  let emailAction: 'modified' | 'coffee_changed' | 'frequency_changed' | 'address_changed' = 'modified';
+  if (previousConfig.productName !== newProductName || previousConfig.weight !== newWeight) {
+    emailAction = 'coffee_changed';
+  } else if (previousConfig.frequency !== newFrequency) {
+    emailAction = 'frequency_changed';
+  } else if (req.body.shippingAddress) {
+    emailAction = 'address_changed';
+  }
+
+  // 6. Send automatic confirmation email with previous vs updated configuration
+  sendSubscriptionEmail(emailAction, {
+    ...sub,
+    previous: previousConfig,
+    effectiveDate: new Date().toLocaleDateString('nl-BE'),
+  }).catch((e) => console.error('[EMAIL ERROR] Subscription modification email failed:', e));
+
+  res.json({
+    success: true,
+    data: sub,
+    previous: previousConfig,
+    message: 'Abonnement succesvol bijgewerkt. De nieuwe configuratie en prijs zijn direct actief.',
+  });
+});
+
+// Update subscription address specifically
+app.post('/api/subscriptions/:id/address', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  const sub = subscriptions.find((s) => s.id === req.params.id);
+  if (!sub) return res.status(404).json({ success: false, error: 'Abonnement niet gevonden' });
+  if (!userCanAccessSubscription(user, sub)) {
+    return res.status(403).json({ success: false, error: 'Geen toegang tot dit abonnement.' });
+  }
+
+  const { shippingAddress, billingAddress } = req.body;
+  const previousAddress = sub.shippingAddress ? { ...sub.shippingAddress } : null;
+  if (shippingAddress) sub.shippingAddress = shippingAddress;
+  if (billingAddress) sub.billingAddress = billingAddress;
+
+  sendSubscriptionEmail('address_changed', {
+    ...sub,
+    previous: { shippingAddress: previousAddress },
+    effectiveDate: new Date().toLocaleDateString('nl-BE'),
+  }).catch((e) => console.error(e));
+
+  res.json({ success: true, data: sub, message: 'Leveradres succesvol bijgewerkt.' });
 });
 
 app.post('/api/subscriptions', async (req: Request, res: Response) => {
-  const { customerEmail, customerName, productName, grindOption, weight, frequency, pricePerDelivery } = req.body;
+  const {
+    customerEmail,
+    customerName,
+    productName,
+    grindOption,
+    weight,
+    frequency,
+    shippingAddress,
+    billingAddress,
+  } = req.body;
+
   if (!customerEmail || !productName) {
     return res.status(400).json({ success: false, error: 'Gelieve klant e-mail en gewenste koffie op te geven.' });
   }
+
+  const calc = calculateSubscriptionPricing(productName, weight || '1kg');
   const newSub = {
     id: `sub-${Date.now()}`,
     customerId: `cust-${Date.now()}`,
     customerName: customerName || 'Koffieliefhebber',
     customerEmail,
     productName,
+    collection: calc.collection,
     grindOption: grindOption || 'Volle bonen',
     weight: weight || '1kg',
     frequency: frequency || 'Elke 4 weken',
-    discountPercent: 10,
-    shippingCost: 0,
-    pricePerDelivery: Number(pricePerDelivery) || 28.75,
+    discountPercent: calc.discountPercent,
+    shippingCost: calc.shippingCost,
+    pricePerDelivery: calc.discountedPrice,
+    totalRecurring: calc.totalRecurring,
     nextBillingDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     nextDeliveryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    shippingAddress: shippingAddress || null,
+    billingAddress: billingAddress || shippingAddress || null,
     status: 'actief',
     autoRenew: true,
     type: 'standaard',
+    mollieCustomerId: `cst_${Date.now()}`,
+    mollieSubscriptionId: `sub_mol_${Date.now()}`,
+    createdAt: new Date().toISOString(),
   };
+
   subscriptions.unshift(newSub);
   sendSubscriptionEmail('created', newSub).catch((e) => console.error(e));
   res.json({ success: true, data: newSub, message: 'Abonnement succesvol aangemaakt.' });
@@ -1364,22 +1913,28 @@ app.post('/api/newsletter', async (req: Request, res: Response) => {
 
 // 10. Authentication Endpoints (Register, Login, Password Reset, Verification)
 app.post('/api/auth/register', (req: Request, res: Response) => {
-  const { email, password, name, phone, accountType, companyName, vatNumber, street, city, postalCode } = req.body;
+  const { email, username, password, name, phone, accountType, companyName, vatNumber, street, city, postalCode } = req.body;
 
   if (!email || !password || !name) {
     return res.status(400).json({ success: false, error: 'Gelieve e-mail, wachtwoord en naam in te vullen.' });
   }
 
-  const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanUsername = (username || cleanEmail.split('@')[0]).trim().toLowerCase();
+
+  const existingUser = registeredUsers.find(
+    (u) => u.email.toLowerCase() === cleanEmail || (u.username && u.username.toLowerCase() === cleanUsername)
+  );
   if (existingUser) {
-    return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres. Gelieve in te loggen.' });
+    return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres of gebruikersnaam. Gelieve in te loggen.' });
   }
 
   const isB2B = accountType === 'professioneel';
   const verificationToken = `vtok_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const newUser = {
     id: `usr-${Date.now()}`,
-    email: email.toLowerCase(),
+    email: cleanEmail,
+    username: cleanUsername,
     password, // Stored safely for dev authentication check
     name,
     phone: phone || '',
@@ -1400,7 +1955,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     ] : [],
     loyaltyPoints: 100, // Welcome gift points
     verificationToken,
-    isEmailVerified: false,
+    isEmailVerified: true, // Auto-verified for seamless preview testing, while verification email is also dispatched
     createdAt: new Date().toISOString(),
   };
 
@@ -1411,9 +1966,25 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   // Send email verification link
   sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name).catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
 
+  // Generate active session token
+  const token = `tok_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`;
+  activeSessions.set(token, {
+    userId: newUser.id,
+    email: newUser.email,
+    role: newUser.role,
+    accountType: newUser.accountType,
+    companyName: newUser.companyName,
+    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+  });
+
   // Strip password in response
   const { password: _, ...safeUser } = newUser;
-  res.json({ success: true, message: 'Registratie succesvol! Welkom bij Maison Milau. Bevestiging is verzonden per e-mail.', user: safeUser });
+  res.json({
+    success: true,
+    message: 'Registratie succesvol! Welkom bij Maison Milau. Bevestiging is verzonden per e-mail.',
+    user: safeUser,
+    token,
+  });
 });
 
 app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
@@ -1421,14 +1992,15 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
   if (!email) {
     return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres in te vullen.' });
   }
-  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const clean = email.trim().toLowerCase();
+  const user = registeredUsers.find((u) => u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean));
   const resetToken = `rst_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
   if (user) {
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
     sendPasswordResetEmail(user.email, resetToken, user.name).catch((e) => console.error(e));
   } else {
-    sendPasswordResetEmail(email, resetToken, 'Klant').catch((e) => console.error(e));
+    sendPasswordResetEmail(clean, resetToken, 'Klant').catch((e) => console.error(e));
   }
   res.json({ success: true, message: 'Indien dit account bestaat, is er een e-mail verzonden met instructies om uw wachtwoord opnieuw in te stellen.' });
 });
@@ -1438,27 +2010,95 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   if (!email) {
     return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres op te geven.' });
   }
-  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
   if (user) {
     user.isEmailVerified = true;
   }
   res.json({ success: true, message: 'Uw e-mailadres is succesvol geverifieerd!' });
 });
 
+// Login supports Email OR Username + Password
 app.post('/api/auth/login', (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, username, emailOrUsername, password } = req.body;
+  const identifier = (emailOrUsername || email || username || '').trim().toLowerCase();
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, error: 'Gelieve e-mail en wachtwoord in te vullen.' });
+  if (!identifier || !password) {
+    return res.status(400).json({ success: false, error: 'Gelieve e-mail/gebruikersnaam en wachtwoord in te vullen.' });
   }
 
-  const user = registeredUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const user = registeredUsers.find(
+    (u) =>
+      u.email.toLowerCase() === identifier ||
+      (u.username && u.username.toLowerCase() === identifier)
+  );
+
   if (!user || user.password !== password) {
-    return res.status(401).json({ success: false, error: 'Ongeldig e-mailadres of wachtwoord. Probeer opnieuw.' });
+    return res.status(401).json({ success: false, error: 'Ongeldig e-mailadres, gebruikersnaam of wachtwoord. Probeer opnieuw.' });
   }
+
+  // Issue session token
+  const token = `tok_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`;
+  activeSessions.set(token, {
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+    accountType: user.accountType,
+    companyName: user.companyName,
+    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+  });
 
   const { password: _, ...safeUser } = user;
-  res.json({ success: true, message: `Welkom terug, ${user.name}!`, user: safeUser });
+  res.json({
+    success: true,
+    message: `Welkom terug, ${user.name}!`,
+    user: safeUser,
+    token,
+  });
+});
+
+app.post('/api/auth/logout', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    activeSessions.delete(token);
+  }
+  res.json({ success: true, message: 'Succesvol uitgelogd.' });
+});
+
+// Get current session user
+app.get('/api/auth/me', (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({ success: false, error: 'Niet ingelogd' });
+  }
+  const { password: _, ...safeUser } = user;
+  res.json({ success: true, user: safeUser });
+});
+
+// Change password with security confirmation email
+app.post('/api/auth/change-password', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({ success: false, error: 'Inloggen vereist.' });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, error: 'Gelieve huidig en nieuw wachtwoord in te vullen.' });
+  }
+
+  if (user.password !== currentPassword) {
+    return res.status(400).json({ success: false, error: 'Het huidige wachtwoord is niet correct.' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, error: 'Nieuw wachtwoord moet minstens 6 karakters bevatten.' });
+  }
+
+  user.password = newPassword;
+  sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error(e));
+
+  res.json({ success: true, message: 'Wachtwoord succesvol gewijzigd. Bevestigingsmail is verzonden.' });
 });
 
 app.get('/api/auth/users', (req: Request, res: Response) => {

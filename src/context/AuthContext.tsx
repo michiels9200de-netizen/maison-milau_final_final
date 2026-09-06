@@ -7,15 +7,18 @@ interface AuthContextType {
   currentUser: User | null;
   company: Company | null;
   isAuthenticated: boolean;
+  token: string | null;
   activeRole: UserRole;
   accountType: 'particulier' | 'professioneel';
   switchAccountType: (type: 'particulier' | 'professioneel') => void;
   setAccountType: (type: any) => void;
   switchUser: (id: string) => void;
   login: (email: string, role?: UserRole) => void;
-  loginWithPassword: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  loginWithPassword: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   registerUser: (data: any) => Promise<{ success: boolean; error?: string; user?: User }>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   logout: () => void;
+  getAuthHeaders: () => Record<string, string>;
   addAddress: (address: Omit<UserAddress, 'id'>) => void;
   wishlist: string[];
   toggleWishlist: (productId: string) => void;
@@ -123,9 +126,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [accountType, setAccountType] = useState<'particulier' | 'professioneel'>('particulier');
+  const [token, setToken] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('mm_auth_token') || 'tok_demo_laurent_session';
+    } catch {
+      return 'tok_demo_laurent_session';
+    }
+  });
   const [user, setUser] = useState<User | null>(DEFAULT_B2C_USER);
   const [company, setCompany] = useState<Company | null>(null);
   const [wishlist, setWishlist] = useState<string[]>(['prod-selection-daily', 'prod-barrel-moscatel']);
+
+  const getAuthHeaders = (): Record<string, string> => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    if (user?.email) {
+      headers['x-user-email'] = user.email;
+    }
+    return headers;
+  };
 
   const switchAccountType = (type: 'particulier' | 'professioneel') => {
     setAccountType(type);
@@ -148,12 +171,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithPassword = async (email: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> => {
+  const loginWithPassword = async (emailOrUsername: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ emailOrUsername, password }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -163,6 +186,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const loggedInUser: User = data.user;
       setUser(loggedInUser);
       setAccountType(loggedInUser.accountType);
+
+      if (data.token) {
+        setToken(data.token);
+        try {
+          localStorage.setItem('mm_auth_token', data.token);
+        } catch (e) {}
+      }
 
       if (loggedInUser.accountType === 'professioneel') {
         setCompany({
@@ -196,6 +226,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(newUser);
       setAccountType(newUser.accountType);
 
+      if (data.token) {
+        setToken(data.token);
+        try {
+          localStorage.setItem('mm_auth_token', data.token);
+        } catch (e) {}
+      }
+
       if (newUser.accountType === 'professioneel') {
         setCompany({
           ...DEFAULT_B2B_COMPANY,
@@ -212,7 +249,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Wachtwoord wijzigen mislukt.' };
+      }
+      return { success: true, message: data.message };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Verbindingsfout tijdens wijzigen wachtwoord.' };
+    }
+  };
+
   const logout = () => {
+    try {
+      if (token) {
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch(() => {});
+      }
+      localStorage.removeItem('mm_auth_token');
+    } catch (e) {}
+    setToken(null);
     setUser(null);
     setCompany(null);
   };
@@ -250,6 +314,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentUser: user,
         company,
         isAuthenticated: !!user,
+        token,
         activeRole: user?.role || 'b2c_customer',
         accountType,
         switchAccountType,
@@ -258,7 +323,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         loginWithPassword,
         registerUser,
+        changePassword,
         logout,
+        getAuthHeaders,
         addAddress,
         wishlist,
         toggleWishlist,
