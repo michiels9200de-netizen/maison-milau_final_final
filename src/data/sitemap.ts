@@ -150,6 +150,7 @@ export interface SubCategory {
 
 export const WEBSHOP_SUBCATEGORIES: SubCategory[] = [
   { id: 'all', name: 'Alle Collecties & Producten', categoryFilter: 'all' },
+  { id: 'new_products', name: 'Nieuw · Te Ontdekken', categoryFilter: 'new_products' },
   { id: 'single_origins', name: 'Single Origins', categoryFilter: 'single_origins' },
   { id: 'blends', name: 'Maison Milau Speciality Blends', categoryFilter: 'blends' },
   { id: 'barrel-aged', name: 'Barrel Aged Coffees', categoryFilter: 'barrel_aged' },

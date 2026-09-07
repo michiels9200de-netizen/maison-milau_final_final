@@ -762,9 +762,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             }}
                           />
                         )}
-                        <div className="min-w-0">
-                          <div className="font-semibold text-stone-900 truncate">{it.productName}</div>
-                          <div className="text-stone-500 text-[11px]">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-stone-900 leading-snug break-words">{it.productName}</div>
+                          <div className="text-stone-500 text-[11px] leading-relaxed">
                             {it.selectedColor ? (
                               <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
                             ) : (
@@ -772,7 +772,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             )}
                           </div>
                           {it.selectedBeans && it.selectedBeans.length > 0 && (
-                            <div className="text-[10px] text-amber-900 line-clamp-2 mt-0.5">
+                            <div className="text-[10px] text-amber-900 leading-snug mt-0.5 break-words">
                               Bonen: {it.selectedBeans.join(', ')}
                             </div>
                           )}

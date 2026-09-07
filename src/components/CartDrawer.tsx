@@ -127,7 +127,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xs font-semibold text-stone-900 truncate">
+                    <h3 className="text-xs font-semibold text-stone-900 leading-snug break-words">
                       {item.productName}
                     </h3>
                     {item.selectedColor && (
@@ -137,7 +137,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                       </div>
                     )}
                     {item.selectedBeans && item.selectedBeans.length > 0 && (
-                      <div className="text-[11px] text-stone-600 mt-0.5 line-clamp-2">
+                      <div className="text-[11px] text-stone-600 mt-0.5 leading-snug break-words">
                         Bonen: <span className="font-medium text-stone-800">{item.selectedBeans.join(', ')}</span>
                       </div>
                     )}

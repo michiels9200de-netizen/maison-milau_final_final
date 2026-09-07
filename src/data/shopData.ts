@@ -587,12 +587,12 @@ const RAW_SHOP_PRODUCTS: Product[] = [
   {
     id: 'prod-acc-recycled',
     sku: 'MM-ACC-REC',
-    name: 'Maison Milau Recycled koffiebekers',
+    name: 'Maison Milau Recycled Coffee Cups · Pack of 100 (100 pcs)',
     collection: 'Toebehoren',
     category: 'merchandise',
-    shortDescription: 'Milieuvriendelijke eco papieren koffiebekers voor warme en koude koffiedranken. Ideaal voor takeaway koffie, evenementen en dagelijks gebruik.',
+    shortDescription: 'Milieuvriendelijke eco papieren koffiebekers verpakt per 100 stuks (Pack of 100 / 100 pcs). Geschikt voor warme en koude koffiedranken, takeaway, kantoor en events.',
     variants: [
-      { weight: 'Stuk', price: 8.50, inStock: true },
+      { weight: 'Pack of 100 (100 pcs)', price: 8.50, inStock: true },
     ],
     grindOptions: ['Volle bonen'],
     defaultGrind: 'Volle bonen',

@@ -255,9 +255,10 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <li>
                 <button
                   onClick={() => navigate('/admin')}
-                  className="hover:text-amber-300 transition-colors text-stone-500 text-[11px]"
+                  className="hover:text-amber-300 transition-colors text-amber-400/90 text-xs font-medium inline-flex items-center gap-1"
+                  title="Roastery Beheer Admin Dashboard"
                 >
-                  {t('footer.management')}
+                  <span>Roastery Beheer (Admin)</span>
                 </button>
               </li>
             </ul>

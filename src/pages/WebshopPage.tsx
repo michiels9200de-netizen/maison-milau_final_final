@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   BookOpen,
+  Sparkles,
 } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
@@ -154,6 +155,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
   const categories = [
     { id: 'all', name: 'Alles' },
+    { id: 'new_products', name: 'Nieuw', isNew: true },
     { id: 'blends', name: 'Maison Milau Speciality Blends' },
     { id: 'single_origins', name: 'Single Origins' },
     { id: 'barrel_aged', name: 'Barrel Aged Coffees' },
@@ -175,7 +177,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
   const filteredProducts = SHOP_PRODUCTS.filter((prod) => {
     if (selectedCategory === 'all') return true;
-    if (selectedCategory === 'promotions') return false; // Handled exclusively by the Coming Soon announcement
+    if (selectedCategory === 'new_products') return false; // Handled exclusively by New Products showcase
+    if (selectedCategory === 'promotions') return false; // Handled by seasonal promotions view
     if (selectedCategory === 'blends') {
       if (prod.category !== 'blends') return false;
       if (blendSubcategory === 'all') return true;
@@ -351,13 +354,25 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     setSelectedCategory(cat.id);
                     if (cat.id !== 'blends') setBlendSubcategory('all');
                   }}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
                     selectedCategory === cat.id
                       ? 'bg-amber-900 text-white shadow-xs'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                   }`}
                 >
-                  {cat.name}
+                  {cat.id === 'new_products' && (
+                    <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === cat.id ? 'text-amber-300' : 'text-amber-800'}`} />
+                  )}
+                  <span>{cat.name}</span>
+                  {cat.isNew && (
+                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full leading-none ${
+                      selectedCategory === cat.id
+                        ? 'bg-amber-800 text-amber-200 border border-amber-500/40'
+                        : 'bg-amber-100 text-amber-950 border border-amber-200'
+                    }`}>
+                      Nieuw
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -390,8 +405,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         </div>
       </section>
 
-      {/* Promotions Section: Dedicated Single Official Announcement (COMING SOON: Maison Milau Compatible Coffee Capsules) */}
-      {selectedCategory === 'promotions' ? (
+      {/* NEW PRODUCTS Category: Dedicated Innovations & Upcoming Releases (Maison Milau Compatible Coffee Capsules) */}
+      {selectedCategory === 'new_products' ? (
         <section className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <div className="bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950 text-white rounded-2xl p-6 sm:p-10 border border-amber-500/30 shadow-xl relative overflow-hidden">
             {/* Ambient gold glow */}
@@ -399,9 +414,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-700/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-3xl mx-auto text-center">
-              {/* Badge */}
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-4">
-                Aankondiging · Binnenkort Beschikbaar
+              {/* Badge with subtle Sparkles icon */}
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-amber-300 bg-amber-950/80 px-3.5 py-1 rounded-full border border-amber-400/40 mb-4 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Nieuw Product · Binnenkort Beschikbaar</span>
               </div>
 
               {/* Capsule Graphic Visual */}
@@ -561,6 +577,27 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
         </section>
+      ) : selectedCategory === 'promotions' ? (
+        /* Promotions Category - Available for future promotional campaigns & discounts */
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14 text-center">
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-8 sm:p-10 shadow-2xs">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-amber-50 text-amber-900 flex items-center justify-center border border-amber-200/60">
+              <Sparkles className="w-5 h-5 text-amber-800" />
+            </div>
+            <h2 className="text-lg sm:text-xl font-bold text-stone-900 mb-1.5">
+              Tijdelijke Promoties & Seizoensacties
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto leading-relaxed mb-5 font-normal">
+              Momenteel zijn er geen tijdelijke promoties actief. Toekomstige seizoensacties en exclusieve introductiekortingen worden hier getoond. Bekijk in de tussentijd onze flexibele koffie-abonnementen met 10% vaste korting.
+            </p>
+            <button
+              onClick={() => setSelectedCategory('subscriptions')}
+              className="px-4 py-2 bg-amber-900 text-white rounded-lg text-xs font-semibold hover:bg-amber-950 transition-colors inline-flex items-center gap-1.5 shadow-2xs"
+            >
+              <span>Bekijk Koffie-Abonnementen (-10%)</span>
+            </button>
+          </div>
+        </section>
       ) : (
         /* Product Grid - High Density & Rapid Product Discovery */
         <section className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
@@ -701,7 +738,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     {/* Product Name & Coffee Guide Link */}
                     <div className="mb-1">
                       <div className="flex items-start justify-between gap-1">
-                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug line-clamp-1 group-hover:text-amber-900 transition-colors" title={product.name}>
+                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors" title={product.name}>
                           {product.name}
                         </h3>
                         {matchingCatalogCoffee && (
@@ -720,7 +757,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                           </button>
                         )}
                       </div>
-                      <p className="text-[11px] text-stone-500 leading-snug line-clamp-2 min-h-[28px] mt-0.5" title={product.shortDescription}>
+                      <p className="text-[11px] text-stone-500 leading-snug mt-0.5" title={product.shortDescription}>
                         {product.shortDescription}
                       </p>
                     </div>
@@ -738,14 +775,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         <span>Formaat:</span>
                         <span className="font-bold text-stone-700">{currentWeight}</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-1">
+                      <div className={`grid ${product.variants.length === 1 ? 'grid-cols-1' : product.variants.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1`}>
                         {product.variants.map((v) => (
                           <button
                             key={v.weight}
                             onClick={() =>
                               setSelectedWeight({ ...selectedWeight, [product.id]: v.weight })
                             }
-                            className={`py-1 px-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold border transition-all text-center leading-tight ${
+                            className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-semibold border transition-all text-center leading-tight ${
                               currentWeight === v.weight
                                 ? 'bg-amber-950 text-white border-amber-950 shadow-2xs'
                                 : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
@@ -763,7 +800,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       <div className="mb-2">
                         <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
                           <span>Maalgraad:</span>
-                          <span className="text-[10px] text-stone-700 font-medium truncate max-w-[100px]">{currentGrind}</span>
+                          <span className="text-[10px] text-stone-700 font-medium">{currentGrind}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-1">
                           {product.grindOptions.map((grind) => (
@@ -772,7 +809,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                               onClick={() =>
                                 setSelectedGrind({ ...selectedGrind, [product.id]: grind })
                               }
-                              className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-medium border transition-colors truncate text-center ${
+                              className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-medium border transition-colors text-center ${
                                 currentGrind === grind
                                   ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
                                   : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
@@ -1021,7 +1058,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       title={`In winkelwagen: ${product.name}`}
                     >
                       <ShoppingBag className="w-3 h-3 shrink-0" />
-                      <span className="truncate">In winkelwagen</span>
+                      <span className="whitespace-nowrap">In winkelwagen</span>
                     </button>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, ShoppingBag, User, ChevronDown, Coffee, ChevronRight, Phone } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, ChevronDown, Coffee, ChevronRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -41,65 +41,8 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
 
   return (
     <header className="sticky top-0 z-40 bg-[#F8F6F2]/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs">
-      {/* Top Utility Bar with Real Contact & Account Switching */}
-      <div className="bg-[#EFE7DB]/60 border-b border-stone-200/70 text-xs text-stone-700 px-4 py-1.5 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-4">
-            <span className="font-medium text-stone-800">
-              Atelier: {CONFIG.atelierAddress.street}, {CONFIG.atelierAddress.city}
-            </span>
-            <span className="hidden md:inline-block text-stone-300">|</span>
-            <a
-              href={`tel:${CONFIG.whatsappNumber}`}
-              className="hidden md:inline-flex items-center gap-1 hover:text-stone-900 transition-colors"
-            >
-              <Phone className="w-3 h-3 text-emerald-600" />
-              <span>+32 (0)467 77 37 66</span>
-            </a>
-            <span className="hidden lg:inline text-stone-500">
-              Maandag Dendermonde · Donderdag Wetteren · Zaterdag Aalst
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 ml-auto">
-            {/* Account Switcher for Particulier / Professioneel */}
-            <div className="flex items-center bg-stone-200/80 rounded-full p-0.5 text-[11px]">
-              <button
-                id="btn-switch-b2c"
-                onClick={() => switchAccountType('particulier')}
-                className={`px-2.5 py-0.5 rounded-full font-medium transition-all ${
-                  accountType === 'particulier'
-                    ? 'bg-white text-stone-900 shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                Particulier (B2C)
-              </button>
-              <button
-                id="btn-switch-b2b"
-                onClick={() => switchAccountType('professioneel')}
-                className={`px-2.5 py-0.5 rounded-full font-medium transition-all ${
-                  accountType === 'professioneel'
-                    ? 'bg-amber-900 text-white shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                Professioneel (B2B)
-              </button>
-            </div>
-
-            <button
-              onClick={() => handleNavClick('/admin')}
-              className="text-[11px] text-stone-500 hover:text-stone-900 underline hidden sm:inline"
-            >
-              Roastery Beheer
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-6">
+      {/* Main Navigation Bar - First visible header element */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-4 lg:gap-6">
         {/* Brand Identity with Logo and Desktop Navigation */}
         <div className="flex items-center gap-6 xl:gap-8 min-w-0">
           <div
@@ -109,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             <img
               src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-[46px] sm:h-[54px] lg:h-[62px] xl:h-[68px] w-auto max-w-none object-contain transition-all"
+              className="h-[46px] sm:h-[54px] lg:h-[60px] xl:h-[66px] w-auto max-w-none object-contain transition-all"
             />
           </div>
 
@@ -144,11 +87,27 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               <ChevronDown className="w-3.5 h-3.5 text-stone-400 group-hover:rotate-180 transition-transform" />
             </button>
 
-            <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-stone-200 py-2 hidden group-hover:block transition-all animate-fadeIn">
+            <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-stone-200 py-2 hidden group-hover:block transition-all animate-fadeIn z-50">
               <div className="px-3 py-1.5 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">
                 {t('nav.shop_assortment')}
               </div>
+
+              {/* Dedicated New Category Link in Dropdown */}
+              <button
+                onClick={() => handleNavClick('/webshop?category=new_products')}
+                className="w-full text-left px-3.5 py-2 text-xs font-semibold text-amber-900 bg-amber-50/70 hover:bg-amber-100/90 flex items-center justify-between border-b border-stone-100 transition-colors"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Nieuw · Te Ontdekken</span>
+                </span>
+                <span className="text-[10px] uppercase font-bold text-amber-900 bg-amber-200/80 px-1.5 py-0.5 rounded-full">
+                  Nieuw
+                </span>
+              </button>
+
               {WEBSHOP_SUBCATEGORIES.map((sub) => {
+                if (sub.categoryFilter === 'new_products') return null; // already rendered as highlight above
                 if (sub.id === 'blends') {
                   return (
                     <div key={sub.id} className="border-b border-stone-100 pb-1 mb-1">
@@ -229,25 +188,102 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
         </div>
 
         {/* Header Right Actions */}
-        <div className="flex items-center gap-3">
-          {/* Account Button */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Quick Roastery Beheer Admin Access for Managers */}
           <button
-            id="btn-header-account"
-            onClick={() => handleNavClick('/account')}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200/80 rounded-lg transition-colors"
-            title="Mijn Account"
+            id="btn-nav-roastery-admin"
+            onClick={() => handleNavClick('/admin')}
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+            title="Roastery Beheer (Admin Dashboard)"
           >
-            <User className="w-4 h-4 text-stone-700" />
-            <span className="hidden sm:inline">
-              {accountType === 'professioneel' ? 'Mijn Bedrijf' : 'Mijn Account'}
-            </span>
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+            <span className="hidden xl:inline">Roastery Beheer</span>
           </button>
+
+          {/* Account Dropdown Menu with B2C/B2B Switcher & Roastery Beheer */}
+          <div className="relative group">
+            <button
+              id="btn-header-account"
+              onClick={() => handleNavClick('/account')}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200/80 rounded-lg transition-colors"
+              title="Mijn Account"
+            >
+              <User className="w-4 h-4 text-stone-700" />
+              <span className="hidden sm:inline">
+                {accountType === 'professioneel' ? 'B2B Portaal' : 'Mijn Account'}
+              </span>
+              <ChevronDown className="w-3 h-3 text-stone-400 group-hover:rotate-180 transition-transform hidden sm:inline" />
+            </button>
+
+            {/* Desktop Account Menu Dropdown */}
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-stone-200 py-2 hidden group-hover:block transition-all z-50 animate-fadeIn">
+              <div className="px-3.5 py-2 border-b border-stone-100">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+                  Account Type
+                </div>
+                <div className="flex items-center bg-stone-100 rounded-lg p-0.5 text-xs">
+                  <button
+                    id="dropdown-switch-b2c"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      switchAccountType('particulier');
+                    }}
+                    className={`flex-1 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                      accountType === 'particulier'
+                        ? 'bg-white text-stone-900 shadow-xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    Particulier
+                  </button>
+                  <button
+                    id="dropdown-switch-b2b"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      switchAccountType('professioneel');
+                    }}
+                    className={`flex-1 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                      accountType === 'professioneel'
+                        ? 'bg-amber-900 text-white shadow-xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    Professioneel
+                  </button>
+                </div>
+              </div>
+
+              <div className="py-1">
+                <button
+                  onClick={() => handleNavClick('/account')}
+                  className="w-full text-left px-3.5 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Klantendashboard & Bestellingen</span>
+                  </div>
+                  <ChevronRight className="w-3 h-3 text-stone-400" />
+                </button>
+
+                <button
+                  onClick={() => handleNavClick('/admin')}
+                  className="w-full text-left px-3.5 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-50 flex items-center justify-between border-t border-stone-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Roastery Beheer (Admin)</span>
+                  </div>
+                  <ChevronRight className="w-3 h-3 text-amber-800" />
+                </button>
+              </div>
+            </div>
+          </div>
 
           {/* Cart Toggle */}
           <button
             id="btn-header-cart"
             onClick={() => setIsCartOpen(true)}
-            className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-stone-900 text-amber-50 hover:bg-stone-800 transition-colors shadow-xs"
+            className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-stone-900 text-amber-50 hover:bg-stone-800 transition-colors shadow-xs"
             aria-label="Winkelwagen openen"
           >
             <ShoppingBag className="w-4 h-4" />
@@ -270,15 +306,15 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
         </div>
       </div>
 
-      {/* Hamburger Drawer Menu (Strictly matches the exact requested items) */}
+      {/* Hamburger Drawer Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-[#F8F6F2] border-b border-stone-300 px-6 py-6 shadow-xl animate-fadeIn">
+        <div className="lg:hidden bg-[#F8F6F2] border-b border-stone-300 px-6 py-5 shadow-xl animate-fadeIn max-h-[85vh] overflow-y-auto">
           {/* Mobile Menu Header with Logo */}
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-200">
             <img
               src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-[64px] sm:h-[72px] w-auto max-w-none object-contain"
+              className="h-[54px] sm:h-[64px] w-auto max-w-none object-contain"
             />
             <button
               onClick={() => setIsMenuOpen(false)}
@@ -289,7 +325,32 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             </button>
           </div>
 
-          <div className="space-y-4">
+          {/* Mobile Account Switcher */}
+          <div className="pb-4 mb-3 border-b border-stone-200">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+              Account Type
+            </div>
+            <div className="flex items-center bg-stone-200/80 rounded-lg p-0.5 text-xs">
+              <button
+                onClick={() => switchAccountType('particulier')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  accountType === 'particulier' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
+                }`}
+              >
+                Particulier (B2C)
+              </button>
+              <button
+                onClick={() => switchAccountType('professioneel')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  accountType === 'professioneel' ? 'bg-amber-900 text-white shadow-xs' : 'text-stone-600'
+                }`}
+              >
+                Professioneel (B2B)
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
             {/* My Account */}
             <button
               onClick={() => handleNavClick('/account')}
@@ -297,6 +358,18 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             >
               <span>{t('nav.account')} ({accountType === 'professioneel' ? t('nav.b2b') : t('nav.b2c')})</span>
               <User className="w-5 h-5 text-stone-500" />
+            </button>
+
+            {/* Roastery Beheer in Mobile Drawer */}
+            <button
+              onClick={() => handleNavClick('/admin')}
+              className="w-full text-left py-2 px-3 rounded-lg text-sm font-semibold text-amber-900 bg-amber-100/70 hover:bg-amber-100 flex items-center justify-between border border-amber-200/60"
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-amber-800" />
+                <span>Roastery Beheer (Admin Dashboard)</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-amber-800" />
             </button>
 
             {/* Webshop (subcategories hidden in menu, able to open it when selecting) */}
@@ -314,13 +387,28 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               </button>
 
               {isWebshopSubmenuOpen && (
-                <div className="pl-4 py-2 space-y-2.5 bg-stone-100/70 rounded-xl my-2 border border-stone-200">
+                <div className="pl-4 py-2 space-y-2 bg-stone-100/70 rounded-xl my-2 border border-stone-200">
                   <button
                     onClick={() => handleNavClick('/webshop')}
                     className="w-full text-left text-xs font-semibold uppercase tracking-wider text-amber-900 py-1"
                   >
-                    → {t('nav.webshop')}
+                    → {t('nav.webshop')} (Alles)
                   </button>
+
+                  {/* New Products Link */}
+                  <button
+                    onClick={() => handleNavClick('/webshop?category=new_products')}
+                    className="w-full text-left text-sm font-semibold text-amber-900 py-1 flex items-center justify-between pr-3"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Nieuw · Te Ontdekken</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-amber-900 bg-amber-200/80 px-1.5 py-0.5 rounded-full">
+                      Nieuw
+                    </span>
+                  </button>
+
                   <div>
                     <div className="flex items-center justify-between py-1">
                       <button
@@ -394,6 +482,12 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                     className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
                   >
                     Koffie Toebehoren & Merchandise
+                  </button>
+                  <button
+                    onClick={() => handleNavClick('/webshop?category=promotions')}
+                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
+                  >
+                    Promoties
                   </button>
                 </div>
               )}
