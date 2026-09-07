@@ -15,6 +15,8 @@ import {
   Compass,
   ArrowRight,
   ShieldCheck,
+  BookOpen,
+  Quote,
 } from 'lucide-react';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { MediaPlaceholder } from '../MediaPlaceholder';
@@ -110,6 +112,104 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
     );
   };
 
+  // Section 9: Extra Educatieve Informatie
+  const getEducationalContext = () => {
+    if (dossier?.specialStory) {
+      return {
+        title: dossier.specialStory.title,
+        badge: dossier.specialStory.badge,
+        paragraphs: dossier.specialStory.paragraphs,
+        sections: dossier.specialStory.sections,
+        quote: dossier.specialStory.calloutQuote,
+      };
+    }
+
+    if (coffee.collection === 'Single Origins') {
+      return {
+        title: 'Specialty Terroir & SCA Cupping Protocol',
+        badge: 'Specialty Kennis',
+        paragraphs: [
+          'Single origin koffies zijn afkomstig van één specifieke plantage of coöperatie. Doordat de koffiebessen op grote hoogte (boven 1.500m) trager rijpen, ontwikkelen ze een hogere celdichtheid en complexe suikers.',
+          'Met een SCA-score van 80+ punten behoort deze boon tot de absolute wereldtop. Onze lichte tot medium branding behoudt de delicate florale aroma’s en terroir-eigen fruitzuren die het karakter in het kopje definiëren.',
+        ],
+        sections: [
+          {
+            heading: 'Waarom Herkomst Telt',
+            body: 'Bodemgesteldheid, microklimaat en wassing bepalen de smaak in het kopje zonder dat er blends aan te pas komen.',
+          },
+          {
+            heading: 'Artisanale Brandfilosofie',
+            body: 'Geroosterd met een verlengde droogfase en gematigde eindtemperatuur om de terroir-eigen aroma’s niet te maskeren met brandtonen.',
+          },
+        ],
+      };
+    }
+
+    if (coffee.collection === 'Decaf') {
+      return {
+        title: 'De Wetenschap Achter Natuurlijke Decaf',
+        badge: 'Productie & Zuiverheid',
+        paragraphs: [
+          'Veel traditionele decafs verliezen smaak door chemische extractiemiddelen. Maison Milau selecteert uitsluitend bonen die ontcafeïneerd zijn met 100% natuurlijke methoden (zoals zuiver bergwater of vloeibaar koolstofdioxide).',
+          'Hierdoor blijft de celstructuur van de groene boon intact en blijven aromatische oliën en smaakmoleculen volledig behouden voor de ambachtelijke branding.',
+        ],
+        sections: [
+          {
+            heading: 'Behoud van Karakter',
+            body: 'De koffie behoudt zijn oorspronkelijke aciditeit, zoetheid en romige mondgevoel zonder cafeïne-opwekking.',
+          },
+          {
+            heading: 'Versheid in het Kopje',
+            body: 'Omdat decafbonen poreuzer zijn, worden ze bij Maison Milau in kleinere batches gebrand voor maximale versheid.',
+          },
+        ],
+      };
+    }
+
+    // Blends (Budget, Value, Premium):
+    return {
+      title: 'De Kunst van de Ambachtelijke Melange',
+      badge: 'Meesterbrander Inzicht',
+      paragraphs: [
+        'Het samenstellen van een superieure melange vraagt diepgaand inzicht in hoe verschillende origines elkaar versterken. Waar een hoogland arabica florale complexiteit en zoetheid brengt, zorgt een zorgvuldig geselecteerde premium robusta of zongedroogde arabica voor een romige body en dichte hazelnootcrema.',
+        'In onze trommelbrander te Oudegem sturen we de warmteoverdracht manueel bij. Door geleidelijke geleiding en convectie karamelliseren de suikers tot een harmonieus, fluweelzacht geheel.',
+      ],
+      sections: [
+        {
+          heading: 'Syllabus van Balans',
+          body: 'Geen enkele component overheerst: de verschillende bonen vullen elkaars smaakhiaten aan tot een naadloos smaakprofiel.',
+        },
+        {
+          heading: 'Optimale Rusttijd (Degassing)',
+          body: 'Laat vers gebrande bonen 5 tot 7 dagen rusten na de branddatum zodat opgesloten CO2 kan ontsnappen en aroma’s hun piek bereiken.',
+        },
+      ],
+    };
+  };
+
+  // Section 10: Maison Milau Slotverhaal (2 to 4 sentences, elegant, emotional, artisan, coffee-focused)
+  const getMaisonMilauSlotverhaal = (): string => {
+    if (coffee.collection === 'Barrel Aged') {
+      return 'Deze creatie belichaamt de ontdekkingsgeest van Maison Milau: nobel eikenhout ontmoet de ambachtelijke precisie van onze branderij te Oudegem. Elke boon draagt de rijke herinnering van het vat in zich en brengt een ongekende diepgang in het kopje. Een koffie gecreëerd om niet louter geconsumeerd te worden, maar om langzaam en met volle aandacht beleefd te worden.';
+    }
+    if (coffee.collection === 'Infused') {
+      return 'Met deze botanische selectie viert ons atelier te Oudegem de pure samensmelting van natuurlijke extracten en hoogwaardige arabica bonen. Respectvol gebrand om harmonie, florale frisheid en aromatische verrassing in perfect evenwicht te brengen. Een zintuiglijke ervaring die het alledaagse koffiemoment transformeert in pure inspiratie.';
+    }
+    if (coffee.collection === 'Single Origins') {
+      return 'Deze zeldzame micro-lot eert de toewijding van de koffieboer en het unieke terroir van de hooggelegen bergflanken. Door onze voorzichtige ambachtelijke branding blijft de meest zuivere, florale expressie van de oorsprong onaangeroerd bewaard. Een koffie ontworpen voor het pure genot van het ontdekken van authentiek karakter.';
+    }
+    if (coffee.collection === 'Decaf') {
+      return 'Ware koffiepassie kent geen grenzen in het uur van de dag. Zonder cafeïne, maar met behoud van alle aromatische rijkdom en fluweelzachte body dankzij onze respectvolle trommelbranding te Oudegem. Een geruststellende koffie die bewijst dat karakter en rust volmaakt samengaan.';
+    }
+    if (coffee.collection === 'Budget') {
+      return 'Deze koffie vertegenwoordigt het hart van onze filosofie: betrouwbare herkomst, zorgvuldige branding en ongecompliceerd genieten van een krachtige, volle crema. Toegankelijk voor elke dag, maar bereid met dezelfde toewijding als onze zeldzaamste origines. Een kop koffie die warmte, traditie en puur vakmanschap brengt.';
+    }
+    // Value, Premium, and all others:
+    return 'Elke boon in deze blend werd gekozen om balans, authenticiteit en puur genot in het kopje te verenigen. Gebrand met diep respect voor de herkomst en het ambacht van onze meesterbrander te Oudegem. Een koffie ontworpen om niet zomaar gedronken te worden, maar om te worden herinnerd.';
+  };
+
+  const educationalData = getEducationalContext();
+
   return (
     <div
       id="coffee-dossier-overlay"
@@ -202,9 +302,9 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
           </div>
 
           {/* ==================================================
-              2. COFFEE IMAGE
+              2. COFFEE IMAGE (full image, not cropped)
               ================================================== */}
-          <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 shadow-sm bg-stone-900 max-h-[340px]">
+          <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 shadow-2xs bg-gradient-to-b from-stone-50 via-white to-stone-100/80 p-4 sm:p-6 flex items-center justify-center min-h-[280px] sm:min-h-[360px] max-h-[460px]">
             <CoffeeOriginBadge origins={coffee.origins} />
 
             {coffee.scaScore && (
@@ -219,8 +319,9 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               badgeText={dossier?.discoveryTag || `${coffee.collection} Selectie`}
               title={coffee.name}
               subtitle={`${coffee.collection} · ${specs.roastLevel}`}
-              aspectRatio="video"
-              className="w-full min-h-[220px] sm:min-h-[260px] max-h-[340px] object-cover"
+              aspectRatio="auto"
+              imageFit="contain"
+              className="w-full h-full max-h-[420px] flex items-center justify-center"
               imageUrl={coffee.imageUrl}
             />
           </div>
@@ -286,128 +387,135 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
           </div>
 
           {/* ==================================================
-              5. OORSPRONG & 6. SAMENSTELLING & VARIËTEITEN
-              Clear, non-redundant breakdown
+              5. SAMENSTELLING & VARIËTEITEN
+              Incorporates origin, terroir, and variety details
+              without redundant separate origin sections
               ================================================== */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 5. Oorsprong */}
-            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <MapPin className="w-4 h-4 text-amber-800" />
-                <span>5. Oorsprong</span>
-              </div>
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
+              <Coffee className="w-4 h-4 text-amber-800" />
+              <span>5. Samenstelling & Variëteiten</span>
+            </div>
 
-              <div className="space-y-2.5">
-                <div className="text-sm text-stone-800">
-                  <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider block mb-1">
-                    Herkomstlanden & Regio's
-                  </span>
-                  <strong className="text-stone-900 text-sm sm:text-base font-bold">
-                    {coffee.origins && coffee.origins.length > 0
-                      ? coffee.origins.map((o) => `${o.country}${o.region ? ` (${o.region})` : ''}`).join(', ')
-                      : 'Zorgvuldig samengestelde specialty blend'}
-                  </strong>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              {/* Origin & Terroir summary */}
+              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-amber-800" />
+                  <span>Herkomstlanden & Regio's</span>
+                </div>
+                <div className="text-stone-900 text-sm font-bold">
+                  {coffee.origins && coffee.origins.length > 0
+                    ? coffee.origins.map((o) => `${o.country}${o.region ? ` (${o.region})` : ''}`).join(', ')
+                    : 'Zorgvuldig samengestelde specialty blend'}
                 </div>
 
                 {coffee.origins && coffee.origins.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-1.5 pt-1">
                     {coffee.origins.map((o, idx) => (
-                      <div
+                      <span
                         key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-50 border border-stone-200/70 text-xs font-medium text-stone-700"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200/80 text-xs font-medium text-stone-800"
                       >
-                        <span className="text-sm">{o.flag || '📍'}</span>
-                        <span className="font-semibold text-stone-900">{o.country}</span>
+                        <span>{o.flag || '📍'}</span>
+                        <span className="font-semibold">{o.country}</span>
                         {o.region && <span className="text-stone-500">· {o.region}</span>}
-                      </div>
+                      </span>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* 6. Samenstelling & Variëteiten */}
-            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <Coffee className="w-4 h-4 text-amber-800" />
-                <span>6. Samenstelling & Variëteiten</span>
+              {/* Bean Selection & Variety info */}
+              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
+                <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+                  Samenstelling der Bonen
+                </div>
+                <div className="text-sm font-bold text-stone-900">
+                  {coffee.beanSelection}
+                </div>
+                <p className="text-stone-600 text-xs leading-relaxed pt-1">
+                  {dossier?.varietyInfo ||
+                    'Zorgvuldig gecultiveerde variëteiten geselecteerd op basis van celstructuur, suikergehalte en aromatische stabiliteit tijdens het branden.'}
+                </p>
               </div>
-              <div className="text-xs text-stone-500 font-medium">
-                Samenstelling: <strong className="text-stone-900 font-bold">{coffee.beanSelection}</strong>
-              </div>
-              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
-                {dossier?.varietyInfo ||
-                  'Zorgvuldig gecultiveerde arabica variëteiten, geselecteerd op basis van celstructuur, suikergehalte en aromatische stabiliteit tijdens het branden.'}
-              </p>
             </div>
           </div>
 
           {/* ==================================================
-              7. KOFFIEVERHAAL & 8. WAAROM MAISON MILAU DEZE KOFFIE SELECTEERDE
+              6. KOFFIEVERHAAL
+              Authentic character & origin story
               ================================================== */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 7. Koffieverhaal */}
-            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-amber-800" />
-                <span>7. Koffieverhaal</span>
-              </div>
-              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
-                {dossier?.story || coffee.character}
-              </p>
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
+            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-amber-800" />
+              <span>6. Koffieverhaal</span>
             </div>
-
-            {/* 8. Waarom Maison Milau deze koffie selecteerde */}
-            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <ShieldCheck className="w-4 h-4 text-amber-800" />
-                <span>8. Waarom Maison Milau Deze Koffie Selecteerde</span>
-              </div>
-              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
-                {dossier?.whySelected ||
-                  'Geselecteerd na uitgebreide cupping-sessies door onze brander te Oudegem vanwege zijn uitzonderlijke balans, zuiverheid en memorabele afdronk.'}
-              </p>
-            </div>
+            <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
+              {dossier?.story || coffee.character}
+            </p>
           </div>
 
           {/* ==================================================
-              9. IDEAAL VOOR
-              Positive, educational and inspiring framing only
+              7. WAAROM KIEZEN VOOR DEZE KOFFIE?
+              Merged: Waarom Maison Milau deze koffie selecteerde + Ideaal voor
               ================================================== */}
-          <div className="bg-emerald-50/60 p-5 sm:p-6 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-3">
-            <div className="flex items-center gap-2 text-emerald-950 font-bold text-xs sm:text-sm uppercase tracking-wider">
-              <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-              <span>9. Ideaal Voor</span>
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-5">
+            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4 text-amber-800" />
+              <span>7. Waarom Kiezen Voor Deze Koffie?</span>
             </div>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-emerald-950">
-              {dossier?.idealCustomer && dossier.idealCustomer.length > 0 ? (
-                dossier.idealCustomer.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2 bg-white/75 p-3 rounded-xl border border-emerald-200/50 font-medium"
-                  >
-                    <span className="text-emerald-700 font-bold text-sm leading-none shrink-0 mt-0.5">✓</span>
-                    <span>{item}</span>
-                  </li>
-                ))
-              ) : (
-                <li className="flex items-start gap-2 bg-white/75 p-3 rounded-xl border border-emerald-200/50 font-medium">
-                  <span className="text-emerald-700 font-bold text-sm leading-none shrink-0 mt-0.5">✓</span>
-                  <span>Liefhebbers van verfijnde, ambachtelijk gebrande specialty koffie.</span>
-                </li>
-              )}
-            </ul>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Why Selected by Maison Milau & Collection Distinction */}
+              <div className="space-y-3 p-4 rounded-xl bg-amber-50/60 border border-amber-200/70">
+                <div className="text-xs font-bold text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-amber-800" />
+                  <span>Selectie & Positie in de Collectie</span>
+                </div>
+                <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
+                  {dossier?.whySelected ||
+                    'Geselecteerd na uitgebreide cupping-sessies door onze brander te Oudegem vanwege zijn uitzonderlijke balans, zuiverheid en memorabele afdronk.'}
+                </p>
+                <div className="pt-1 text-[11px] text-amber-900/90 font-medium">
+                  Onderscheidt zich binnen de <strong className="font-bold">{coffee.collection}</strong> collectie door zijn uitgesproken smaakbalans en compromisloze brandkwaliteit.
+                </div>
+              </div>
+
+              {/* Ideal for & Drinker Profiles */}
+              <div className="space-y-3 p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/70">
+                <div className="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Perfect Voor Dit Type Koffiedrinker</span>
+                </div>
+                <ul className="space-y-2 text-xs text-stone-800">
+                  {dossier?.idealCustomer && dossier.idealCustomer.length > 0 ? (
+                    dossier.idealCustomer.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-emerald-700 font-bold text-sm leading-none shrink-0 mt-0.5">✓</span>
+                        <span className="font-medium">{item}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-700 font-bold text-sm leading-none shrink-0 mt-0.5">✓</span>
+                      <span className="font-medium">Liefhebbers van verfijnde, ambachtelijk gebrande specialty koffie.</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
           </div>
 
           {/* ==================================================
-              10. AANBEVOLEN ZETMETHODES
+              8. AANBEVOLEN ZETMETHODES
               Detailed barista parameters & tips
               ================================================== */}
           <div className="bg-white p-5 sm:p-7 rounded-2xl border border-stone-200/90 shadow-2xs space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
                 <Compass className="w-4 h-4 text-amber-800" />
-                <span>10. Aanbevolen Zetmethodes</span>
+                <span>8. Aanbevolen Zetmethodes</span>
               </div>
               <span className="text-xs text-stone-600 font-semibold bg-stone-100 px-3 py-1 rounded-full">
                 Aanbevolen: {dossier?.brewingAdvice?.recommendedMethod || specs.brewingMethods.join(', ') || coffee.brewRecommendations.join(', ')}
@@ -459,7 +567,74 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               </div>
             )}
           </div>
-          {/* DAARNA GEEN Extra educatieve informatie - Dossier content stops cleanly here */}
+
+          {/* ==================================================
+              9. EXTRA EDUCATIEVE INFORMATIE
+              Artisanal craft insights & educational masterclass
+              ================================================== */}
+          <div className="bg-white p-5 sm:p-7 rounded-2xl border border-stone-200/90 shadow-2xs space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
+                <BookOpen className="w-4 h-4 text-amber-800" />
+                <span>9. Extra Educatieve Informatie</span>
+              </div>
+              <span className="text-[11px] font-semibold text-stone-600 bg-stone-100 px-3 py-1 rounded-full border border-stone-200">
+                {educationalData.badge}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm sm:text-base font-bold text-stone-900">
+                {educationalData.title}
+              </h3>
+
+              {educationalData.quote && (
+                <div className="p-3 bg-amber-50/60 rounded-xl border-l-2 border-amber-800 text-xs italic text-amber-950 flex items-start gap-2">
+                  <Quote className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
+                  <span>"{educationalData.quote}"</span>
+                </div>
+              )}
+
+              <div className="space-y-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                {educationalData.paragraphs.map((p, pIdx) => (
+                  <p key={pIdx}>{p}</p>
+                ))}
+              </div>
+
+              {educationalData.sections && educationalData.sections.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  {educationalData.sections.map((sec, sIdx) => (
+                    <div key={sIdx} className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/70 space-y-1">
+                      <h4 className="text-xs font-bold text-stone-900">{sec.heading}</h4>
+                      <p className="text-xs text-stone-600 leading-relaxed">{sec.body}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ==================================================
+              10. MAISON MILAU SLOTVERHAAL
+              Short, elegant, artisan, coffee-focused ending story (2-4 sentences)
+              ================================================== */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-850 to-amber-950 text-amber-50 p-6 sm:p-7 border border-amber-900/40 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold tracking-widest uppercase text-amber-300/80 bg-stone-950/50 px-3 py-1 rounded-full border border-amber-400/20">
+                10. Maison Milau Slotverhaal
+              </span>
+              <span className="text-xs text-amber-200/60 font-mono">Atelier Oudegem</span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-amber-100/90 leading-relaxed font-serif italic max-w-2xl">
+              "{getMaisonMilauSlotverhaal()}"
+            </p>
+
+            <div className="text-[11px] text-amber-300/70 font-medium flex items-center justify-between border-t border-amber-500/20 pt-3">
+              <span>Maison Milau · Ambachtelijke Koffiebranderij</span>
+              <span>Karakter in elk kopje</span>
+            </div>
+          </div>
         </div>
 
         {/* Sticky Footer Bar with Actions */}
@@ -508,3 +683,4 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
     </div>
   );
 };
+

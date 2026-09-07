@@ -12,6 +12,7 @@ interface MediaPlaceholderProps {
   videoUrl?: string;
   badgeText?: string;
   hidePlaceholder?: boolean;
+  imageFit?: 'cover' | 'contain';
 }
 
 export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
@@ -25,17 +26,24 @@ export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
   videoUrl,
   badgeText,
   hidePlaceholder = false,
+  imageFit = 'cover',
 }) => {
   const [imgError, setImgError] = useState(false);
 
   // If a real image is provided and hasn't errored out, render it directly
   if (imageUrl && !imgError) {
     return (
-      <div className={`relative overflow-hidden rounded-2xl bg-stone-100 ${className}`}>
+      <div
+        className={`relative overflow-hidden rounded-2xl ${
+          imageFit === 'contain' ? 'bg-transparent flex items-center justify-center' : 'bg-stone-100'
+        } ${className}`}
+      >
         <img
           src={encodeURI(imageUrl)}
           alt={title}
-          className="w-full h-full object-cover"
+          className={`w-full h-full ${
+            imageFit === 'contain' ? 'object-contain max-h-full max-w-full drop-shadow-md' : 'object-cover'
+          }`}
           loading="lazy"
           decoding="async"
           onError={() => setImgError(true)}
