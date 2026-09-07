@@ -72,31 +72,39 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
 
             <div className="mt-5">
               <div className="text-xs text-stone-400 mb-2 font-medium">{t('footer.follow_us')}:</div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
+                {/* Instagram: Official Brand Gradient */}
                 <a
                   href={CONFIG.social.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-stone-700 flex items-center justify-center text-stone-300 hover:text-white transition-colors"
-                  aria-label="Instagram"
+                  className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shadow-xs hover:opacity-90 hover:scale-105 active:scale-95 transition-all"
+                  aria-label="Volg Maison Milau op Instagram"
+                  title="Volg Maison Milau op Instagram"
                 >
                   <Instagram className="w-4 h-4" />
                 </a>
+
+                {/* Facebook: Official Platform Blue */}
                 <a
                   href={CONFIG.social.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-stone-700 flex items-center justify-center text-stone-300 hover:text-white transition-colors"
-                  aria-label="Facebook"
+                  className="w-8 h-8 rounded-lg bg-[#1877F2] flex items-center justify-center text-white shadow-xs hover:bg-[#166fe5] hover:scale-105 active:scale-95 transition-all"
+                  aria-label="Bezoek Maison Milau op Facebook"
+                  title="Bezoek Maison Milau op Facebook"
                 >
                   <Facebook className="w-4 h-4" />
                 </a>
+
+                {/* WhatsApp: Official Platform Green */}
                 <a
                   href={CONFIG.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-stone-700 flex items-center justify-center text-stone-300 hover:text-white transition-colors"
-                  aria-label="WhatsApp"
+                  className="w-8 h-8 rounded-lg bg-[#25D366] flex items-center justify-center text-white shadow-xs hover:bg-[#20ba59] hover:scale-105 active:scale-95 transition-all"
+                  aria-label="Chat direct via WhatsApp"
+                  title="Chat direct via WhatsApp"
                 >
                   <MessageCircle className="w-4 h-4" />
                 </a>
@@ -133,19 +141,31 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <a
+                  href={`tel:${CONFIG.whatsappNumber}`}
+                  className="text-emerald-500 hover:text-emerald-400 shrink-0 mt-0.5 transition-colors group flex items-center"
+                  title="Bel Maison Milau"
+                >
+                  <Phone className="w-4 h-4 text-emerald-500 group-hover:scale-110 transition-transform" />
+                </a>
                 <span>
                   <strong className="text-stone-300">{t('footer.phone_label')}:</strong><br />
-                  <a href={`tel:${CONFIG.whatsappNumber}`} className="hover:text-stone-200">
+                  <a href={`tel:${CONFIG.whatsappNumber}`} className="hover:text-stone-200 transition-colors">
                     +32 (0)467 77 37 66
                   </a>
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <Mail className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <a
+                  href={`mailto:${CONFIG.supportEmail}`}
+                  className="text-amber-500 hover:text-amber-400 shrink-0 mt-0.5 transition-colors group flex items-center"
+                  title="Stuur een e-mail naar Maison Milau"
+                >
+                  <Mail className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                </a>
                 <span>
                   <strong className="text-stone-300">{t('footer.email_label')}:</strong><br />
-                  <a href={`mailto:${CONFIG.supportEmail}`} className="hover:text-stone-200">
+                  <a href={`mailto:${CONFIG.supportEmail}`} className="hover:text-stone-200 transition-colors">
                     {CONFIG.supportEmail}
                   </a>
                 </span>

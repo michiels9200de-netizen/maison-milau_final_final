@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Clock, ShieldCheck, Truck, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
+import roasteryHeroBg from '../assets/images/roastery_hero_bg_1788818491767.jpg';
 
 interface HomePageProps {
   navigate: (path: string) => void;
@@ -12,32 +13,49 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen text-stone-800">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-8 sm:pt-10 pb-8 sm:pb-12 border-b border-stone-200/80 bg-white/70 backdrop-blur-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Hero Section - Artisanal Roastery Ambience (Espresso, Walnut & Warm Gold Tones) */}
+      <section className="relative overflow-hidden pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-amber-950/80 bg-[#16120e] text-stone-100">
+        {/* Subtle Dark Roasted Coffee Roastery Atmosphere Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          <img
+            src={roasteryHeroBg}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-25 mix-blend-luminosity scale-105"
+          />
+          {/* Multi-layered luxury espresso, walnut, and warm amber roasting glow vignette */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#16120e] via-[#1c1612]/92 to-[#16120e]/85" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(180,105,40,0.18),transparent_65%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(120,60,20,0.22),transparent_70%)]" />
+          {/* Subtle warm roast gold hairline border at bottom */}
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
             {/* Left: Hero Copy */}
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-2">
-                {t('hero.badge')}
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-2.5 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>{t('hero.badge')}</span>
               </div>
 
-              {/* H1: Optimized by ~25% */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 leading-[1.18] mb-3">
+              {/* H1: High-Contrast Premium Display Typography */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-[1.18] mb-3.5 drop-shadow-xs">
                 {t('hero.title')}
               </h1>
 
-              {/* Lopende tekst */}
-              <p className="text-sm sm:text-base text-stone-600 font-normal leading-relaxed mb-5">
+              {/* Lopende tekst: Warm neutral readable body text */}
+              <p className="text-sm sm:text-base text-stone-300 font-normal leading-relaxed mb-6 max-w-xl">
                 {t('hero.subtitle')}
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap gap-2.5 pt-1">
                 <button
                   id="btn-hero-webshop"
                   onClick={() => navigate('/webshop')}
-                  className="inline-flex items-center gap-1.5 bg-amber-900 hover:bg-amber-800 text-white px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors shadow-xs"
+                  className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-md hover:shadow-lg border border-amber-600/50"
                 >
                   <span>{t('hero.to_webshop')}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -46,7 +64,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                 <button
                   id="btn-hero-b2b"
                   onClick={() => navigate('/kantoor-en-horeca')}
-                  className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-900 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors border border-stone-200"
+                  className="inline-flex items-center gap-1.5 bg-stone-900/85 hover:bg-stone-800 text-stone-200 hover:text-white px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors border border-stone-700/80 backdrop-blur-xs"
                 >
                   <span>{t('hero.office_hospitality')}</span>
                 </button>
@@ -54,7 +72,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                 <button
                   id="btn-hero-events"
                   onClick={() => navigate('/events')}
-                  className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-900 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors border border-stone-200"
+                  className="inline-flex items-center gap-1.5 bg-stone-900/85 hover:bg-stone-800 text-stone-200 hover:text-white px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors border border-stone-700/80 backdrop-blur-xs"
                 >
                   <span>{t('hero.events_barista')}</span>
                 </button>
@@ -62,7 +80,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                 <button
                   id="btn-hero-planner"
                   onClick={() => navigate('/afspraakplanner')}
-                  className="inline-flex items-center gap-1.5 bg-stone-50 hover:bg-stone-100 text-stone-800 border border-stone-300 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-amber-950/40 hover:bg-amber-950/70 text-amber-300 hover:text-amber-200 border border-amber-700/50 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors backdrop-blur-xs"
                 >
                   <span>{t('hero.schedule')}</span>
                 </button>
@@ -71,14 +89,15 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
             {/* Right: Hero Image Container (1 FOTO OP HOME PAGE) */}
             <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className="relative rounded-xl overflow-hidden shadow-sm border border-stone-200/90 bg-stone-100 aspect-[3/2] w-full">
+              <div className="relative rounded-xl overflow-hidden shadow-2xl border border-stone-700/70 bg-stone-900 aspect-[3/2] w-full group ring-1 ring-amber-900/30">
                 <img
                   src={encodeURI("/images/first homepage picture website.png")}
                   alt="Maison Milau Micro-Branderij & Cupping Atelier"
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
                   loading="eager"
                   decoding="async"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               </div>
             </div>
           </div>

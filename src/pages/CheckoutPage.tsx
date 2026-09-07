@@ -412,13 +412,21 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   return (
     <div className="min-h-screen text-stone-800 py-6 sm:py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <button
-          onClick={() => navigate('/webshop')}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 mb-3 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Terug naar de webshop</span>
-        </button>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-200/80">
+          <button
+            type="button"
+            onClick={() => navigate('/webshop')}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-stone-700 hover:text-amber-950 bg-stone-100 hover:bg-stone-200/80 px-3.5 py-2 rounded-lg border border-stone-300/80 transition-all shadow-2xs group"
+            title="Keer terug naar de webshop om verder te winkelen"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform text-amber-900" />
+            <span>← Verder winkelen / Terug naar Webshop</span>
+          </button>
+          <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0" />
+            <span>Uw winkelmand blijft veilig bewaard</span>
+          </div>
+        </div>
 
         {/* H1: 48-64px / 32-40px, font-weight 700 */}
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-4 sm:mb-5">
@@ -831,6 +839,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>256-bit SSL beveiligde checkout · Mollie Payments (€{grandTotal.toFixed(2)})</span>
                 </div>
+
+                {/* Secondary Option: Return to Shop while keeping cart */}
+                <button
+                  type="button"
+                  onClick={() => navigate('/webshop')}
+                  className="w-full mt-2 bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 py-2.5 rounded-xl font-medium text-xs border border-stone-300 transition-colors flex items-center justify-center gap-1.5"
+                  title="Keer terug naar de webshop om extra artikelen toe te voegen"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-stone-500" />
+                  <span>Verder winkelen (mandje blijft bewaard)</span>
+                </button>
               </div>
             </div>
           </form>

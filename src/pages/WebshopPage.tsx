@@ -331,16 +331,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 Vers ambachtelijk gebrande specialty koffie, giftboxen en toebehoren uit ons atelier te Oudegem.
               </p>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/koffies')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 bg-stone-50 hover:bg-white text-xs font-semibold transition-colors"
-              >
-                <span>Bekijk PIS Catalogus</span>
-                <ExternalLink className="w-3.5 h-3.5 text-stone-500" />
-              </button>
-            </div>
           </div>
 
           {/* Category Tabs */}
@@ -674,12 +664,12 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     )}
 
                     {/* Collection & Freshness Status Line */}
-                    <div className="flex items-center justify-between text-[10px] uppercase tracking-wider mb-1.5">
-                      <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded">
+                    <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-1.5">
+                      <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[55%]">
                         {product.collection}
                       </span>
-                      <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                        <Check className="w-2.5 h-2.5" />
+                      <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0 text-[9px] sm:text-[10px]">
+                        <Check className="w-2.5 h-2.5 shrink-0" />
                         <span>
                           {product.batchStatus === 'vers_gebrand'
                             ? 'Vers gebrand'
@@ -692,42 +682,42 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
                     <div className="mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden">
-                      {/* Subtle Premium Starting Price Badge - Clear Vertical Hierarchy */}
+                      {/* Refined Maison Milau Starting Price Badge - Elegant Frosted Glass, No Heavy Dark Badges */}
                       <div
-                        className="absolute top-2 left-2 z-20 bg-stone-900/90 backdrop-blur-md px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg border border-stone-700/60 shadow-xs flex flex-col items-start leading-none select-none pointer-events-none transition-transform group-hover:scale-[1.02]"
+                        className="absolute top-2 left-2 z-20 bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-200/90 shadow-2xs flex flex-col items-start leading-none select-none pointer-events-none transition-all group-hover:border-amber-400/60"
                         title={isMultiOption ? `Vanaf € ${formattedStartingPrice}` : `Prijs: € ${formattedStartingPrice}`}
                       >
                         {isMultiOption && (
-                          <span className="text-[9px] sm:text-[10px] font-normal text-stone-400 lowercase tracking-normal leading-none mb-1">
+                          <span className="text-[9px] font-medium text-stone-500 lowercase tracking-tight leading-none mb-0.5">
                             vanaf
                           </span>
                         )}
                         <div className="flex items-baseline gap-0.5 leading-none">
-                          <span className="text-[11px] sm:text-xs font-medium text-amber-200/90">
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-amber-900">
                             €
                           </span>
-                          <span className="text-xs sm:text-sm md:text-[15px] font-bold text-white tracking-tight">
+                          <span className="text-xs sm:text-sm font-bold text-stone-900 font-mono tracking-tight">
                             {formattedStartingPrice}
                           </span>
                         </div>
                       </div>
 
+                      {/* SCA Score in Top-Right Corner (Opposite to Price Badge, preventing any overlap) */}
+                      {product.scaScore && (
+                        <div
+                          className="absolute top-2 right-2 z-10 bg-white/95 backdrop-blur-md text-amber-900 text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg border border-amber-200/90 shadow-2xs flex items-center gap-1 select-none pointer-events-none"
+                          title={`Specialty Coffee Association Score: ${product.scaScore}`}
+                        >
+                          <Award className="w-2.5 h-2.5 text-amber-700 shrink-0" />
+                          <span className="tracking-tight">SCA {product.scaScore}</span>
+                        </div>
+                      )}
+
                       {/* Country Origin Flags in Bottom-Left Corner */}
                       <CoffeeOriginBadge
                         origins={product.origins}
-                        className="!top-auto !bottom-2 !left-2 !px-2 !py-0.5 !text-xs shadow-2xs"
+                        className="!top-auto !bottom-2 !left-2 !px-1.5 !py-0.5 !text-xs shadow-2xs bg-white/95 backdrop-blur-md border-stone-200/80"
                       />
-
-                      {/* SCA Score in Bottom-Right Corner (Opposite to Country Flags, avoiding any overlap) */}
-                      {product.scaScore && (
-                        <div
-                          className="absolute bottom-2 right-2 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full border border-amber-400/30 shadow-2xs flex items-center gap-1 select-none pointer-events-none"
-                          title={`Specialty Coffee Association Score: ${product.scaScore}`}
-                        >
-                          <Award className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                          <span className="tracking-tight font-semibold">SCA {product.scaScore}</span>
-                        </div>
-                      )}
 
                       <MediaPlaceholder
                         type="image"
@@ -770,9 +760,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     </div>
 
                     {/* Product Name & Coffee Guide Link */}
-                    <div className="mb-1">
-                      <div className="flex items-start justify-between gap-1">
-                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors" title={product.name}>
+                    <div className="mb-1.5">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors line-clamp-2" title={product.name}>
                           {product.name}
                         </h3>
                         {matchingCatalogCoffee && (
@@ -783,15 +773,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                                 `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
                               )
                             }
-                            className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-800/20 px-1.5 py-0.5 rounded transition-colors"
+                            className="shrink-0 inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-800/20 px-1.5 py-0.5 rounded transition-colors"
                             title="Bekijk terroir & branddossier in de Koffiegids"
                           >
-                            <BookOpen className="w-2.5 h-2.5 text-amber-800" />
+                            <BookOpen className="w-2.5 h-2.5 text-amber-800 shrink-0" />
                             <span className="hidden sm:inline">Dossier</span>
                           </button>
                         )}
                       </div>
-                      <p className="text-[11px] text-stone-500 leading-snug mt-0.5" title={product.shortDescription}>
+                      <p className="text-[11px] text-stone-500 leading-snug mt-0.5 line-clamp-2" title={product.shortDescription}>
                         {product.shortDescription}
                       </p>
                     </div>
@@ -1088,11 +1078,12 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     <button
                       id={`btn-add-cart-${product.sku}`}
                       onClick={() => handleAddToCart(product)}
-                      className="flex-1 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs"
+                      className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs"
                       title={`In winkelwagen: ${product.name}`}
                     >
                       <ShoppingBag className="w-3 h-3 shrink-0" />
-                      <span className="whitespace-nowrap">In winkelwagen</span>
+                      <span className="truncate hidden min-[380px]:inline">In winkelwagen</span>
+                      <span className="truncate min-[380px]:hidden">Bestel</span>
                     </button>
                   </div>
                 </div>
