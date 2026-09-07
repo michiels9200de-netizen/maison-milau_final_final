@@ -11,42 +11,42 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-stone-900 text-stone-300 pt-16 pb-12 border-t border-stone-800">
+    <footer className="bg-stone-900 text-stone-300 pt-10 pb-8 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Roastery Top Header Highlight with logo1.png */}
-        <div className="border-b border-stone-800 pb-10 mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="border-b border-stone-800 pb-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <img
               src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-16 sm:h-20 w-auto object-contain brightness-110"
+              className="h-12 sm:h-14 w-auto object-contain brightness-110"
             />
             <div>
-              <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-1">
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-0.5">
                 {t('footer.atelier_title')}
               </div>
-              <h3 className="text-2xl sm:text-3xl text-stone-100 font-bold tracking-tight">
+              <h3 className="text-xl sm:text-2xl text-stone-100 font-bold tracking-tight">
                 {t('footer.roastery_name')}
               </h3>
-              <p className="text-sm text-stone-400 mt-1">
+              <p className="text-xs sm:text-sm text-stone-400 mt-0.5">
                 {t('footer.roastery_subtitle')}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <a
               href={CONFIG.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
               <span>{t('footer.whatsapp_us')}</span>
             </a>
             <button
               onClick={() => navigate('/afspraakplanner')}
-              className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors"
             >
               <Calendar className="w-4 h-4" />
               <span>{t('footer.plan_visit')}</span>
@@ -55,7 +55,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
         </div>
 
         {/* Multi-column Information Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 text-sm">
           {/* Column 1: Over Atelier & Bedrijfsgegevens */}
           <div>
             <h4 className="text-stone-100 font-semibold mb-3">

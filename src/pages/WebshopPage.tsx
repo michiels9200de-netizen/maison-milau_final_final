@@ -312,27 +312,27 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   };
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-16">
       {/* Webshop Header */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 pt-10 pb-8 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 pt-5 pb-4 px-4 sm:px-6">
+        <div className="max-w-[1760px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-2">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1">
                 Webshop · Bestellen
               </div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900">
                 Artisanale Koffies & Accessoires
               </h1>
-              <p className="text-base text-stone-600 mt-2 max-w-2xl font-normal leading-relaxed">
+              <p className="text-xs sm:text-sm text-stone-600 mt-0.5 max-w-2xl font-normal leading-relaxed">
                 Vers ambachtelijk gebrande specialty koffie, giftboxen en toebehoren uit ons atelier te Oudegem.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={() => navigate('/koffies')}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-300 text-stone-700 bg-stone-50 hover:bg-white text-xs font-semibold transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-stone-300 text-stone-700 bg-stone-50 hover:bg-white text-xs font-semibold transition-colors"
               >
                 <span>Bekijk PIS Catalogus</span>
                 <ExternalLink className="w-3.5 h-3.5 text-stone-500" />
@@ -341,8 +341,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-8 pt-6 border-t border-stone-100">
-            <div className="flex flex-wrap gap-2">
+          <div className="mt-4 pt-3.5 border-t border-stone-200/70">
+            <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => (
                 <button
                   key={cat.id}
@@ -351,7 +351,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     setSelectedCategory(cat.id);
                     if (cat.id !== 'blends') setBlendSubcategory('all');
                   }}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                     selectedCategory === cat.id
                       ? 'bg-amber-900 text-white shadow-xs'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -562,9 +562,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           </div>
         </section>
       ) : (
-        /* Product Grid */
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        /* Product Grid - High Density & Rapid Product Discovery */
+        <section className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">
             {filteredProducts.map((product) => {
               const currentWeight = selectedWeight[product.id] || product.variants[0].weight;
               const currentVariant = product.variants.find((v) => v.weight === currentWeight) || product.variants[0];
@@ -609,10 +609,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   key={product.id}
                   id={`product-card-${product.id}`}
                   data-product-id={product.id}
-                  className={`relative scroll-mt-28 bg-white rounded-2xl border transition-all p-6 flex flex-col justify-between ${
+                  className={`group relative scroll-mt-24 bg-white rounded-xl border transition-all p-3 sm:p-3.5 flex flex-col justify-between ${
                     isHighlighted
-                      ? 'border-amber-600 ring-4 ring-amber-500/35 shadow-xl scale-[1.01]'
-                      : 'border-stone-200 shadow-2xs hover:shadow-md'
+                      ? 'border-amber-600 ring-3 ring-amber-500/30 shadow-lg scale-[1.01]'
+                      : 'border-stone-200/90 shadow-2xs hover:shadow-md hover:border-amber-900/30'
                   }`}
                 >
                   {/* Native anchor targets for direct deep-linking */}
@@ -621,40 +621,40 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   <div>
                     {/* Deep-link notification badge when selected from Coffee Guide */}
                     {isHighlighted && (
-                      <div className="mb-3 px-3 py-1.5 rounded-xl bg-stone-900 text-stone-100 text-xs font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
-                        <span>Geselecteerd vanuit Koffiegids</span>
-                        <span className="text-[10px] uppercase tracking-wider bg-stone-800 text-amber-300 px-2 py-0.5 rounded-md font-bold">
+                      <div className="mb-2 px-2.5 py-1 rounded-lg bg-stone-900 text-stone-100 text-[11px] font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
+                        <span>Geselecteerd vanuit Gids</span>
+                        <span className="text-[9px] uppercase tracking-wider bg-stone-800 text-amber-300 px-1.5 py-0.5 rounded font-bold">
                           Direct Bestelbaar
                         </span>
                       </div>
                     )}
 
-                    {/* Top Badges */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-md">
+                    {/* Collection & Freshness Status Line */}
+                    <div className="flex items-center justify-between text-[10px] uppercase tracking-wider mb-1.5">
+                      <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded">
                         {product.collection}
                       </span>
-                      <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <Check className="w-3 h-3" />
+                      <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                        <Check className="w-2.5 h-2.5" />
                         <span>
                           {product.batchStatus === 'vers_gebrand'
                             ? 'Vers gebrand'
                             : product.batchStatus === 'op_voorraad'
                             ? 'Op voorraad'
-                            : 'In batchplanning'}
+                            : 'Batchplanning'}
                         </span>
                       </span>
                     </div>
 
-                    {/* Product Visual with Country Flags top-left and SCA score top-right - scaled down 18-20% for refined whitespace & faster browsing */}
-                    <div className="mb-4 relative w-full max-w-[82%] sm:max-w-[80%] md:max-w-[82%] mx-auto">
-                      <CoffeeOriginBadge origins={product.origins} />
+                    {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
+                    <div className="mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden">
+                      <CoffeeOriginBadge origins={product.origins} className="!top-1.5 !left-1.5 !px-1.5 !py-0.5 !text-xs shadow-2xs" />
 
                       {/* SCA Score subtly top-right on the photo */}
                       {product.scaScore && (
-                        <div className="absolute top-2 right-2 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
-                          <Award className="w-3 h-3 text-amber-400" />
-                          <span>SCA: {product.scaScore}</span>
+                        <div className="absolute top-1.5 right-1.5 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border border-amber-400/40 shadow-xs flex items-center gap-0.5">
+                          <Award className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                          <span>SCA {product.scaScore}</span>
                         </div>
                       )}
 
@@ -662,28 +662,31 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         type="image"
                         badgeText="Productfoto"
                         title={product.name}
-                        subtitle={`Artisanale verpakking (${currentWeight}) met aromaventiel`}
-                        recommendedSize="800 × 600 (4:3)"
-                        aspectRatio="video"
-                        className="min-h-[130px] sm:min-h-[140px]"
+                        subtitle={`Artisanale verpakking (${currentWeight})`}
+                        aspectRatio="square"
+                        imageFit="contain"
+                        className="w-full h-full"
                         imageUrl={displayImage}
                         hidePlaceholder={product.category === 'giftboxes'}
                       />
 
                       {/* Image Gallery Switcher if product has multiple photos */}
                       {product.galleryImages && product.galleryImages.length > 1 && (
-                        <div className="mt-2.5 flex items-center justify-center gap-2 overflow-x-auto py-1">
+                        <div className="absolute bottom-1.5 inset-x-2 z-10 flex items-center justify-center gap-1.5 overflow-x-auto py-0.5 bg-white/80 backdrop-blur-xs rounded-lg shadow-2xs">
                           {product.galleryImages.map((imgUrl, gIdx) => {
                             const isCurrent = displayImage === imgUrl;
                             return (
                               <button
                                 key={gIdx}
                                 type="button"
-                                onClick={() => setActiveProductImage({ ...activeProductImage, [product.id]: imgUrl })}
-                                className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveProductImage({ ...activeProductImage, [product.id]: imgUrl });
+                                }}
+                                className={`w-5 h-5 sm:w-6 sm:h-6 rounded overflow-hidden border transition-all shrink-0 ${
                                   isCurrent
                                     ? 'border-amber-900 ring-1 ring-amber-700 shadow-xs scale-105'
-                                    : 'border-stone-200 opacity-60 hover:opacity-100'
+                                    : 'border-stone-300 opacity-60 hover:opacity-100'
                                 }`}
                                 title={`Foto ${gIdx + 1}`}
                               >
@@ -695,10 +698,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       )}
                     </div>
 
-                    {/* Product Visual Title */}
-                    <div className="mb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+                    {/* Product Name & Coffee Guide Link */}
+                    <div className="mb-1">
+                      <div className="flex items-start justify-between gap-1">
+                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug line-clamp-1 group-hover:text-amber-900 transition-colors" title={product.name}>
                           {product.name}
                         </h3>
                         {matchingCatalogCoffee && (
@@ -709,46 +712,47 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                                 `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
                               )
                             }
-                            className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100/90 border border-amber-800/25 px-2 py-0.5 rounded-md transition-colors"
-                            title={`Bekijk terroir & branddossier in de Koffiegids`}
+                            className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-800/20 px-1.5 py-0.5 rounded transition-colors"
+                            title="Bekijk terroir & branddossier in de Koffiegids"
                           >
-                            <BookOpen className="w-3 h-3 text-amber-800" />
-                            <span>Dossier</span>
+                            <BookOpen className="w-2.5 h-2.5 text-amber-800" />
+                            <span className="hidden sm:inline">Dossier</span>
                           </button>
                         )}
                       </div>
-                      <p className="text-sm text-stone-500 mt-1 leading-relaxed">
+                      <p className="text-[11px] text-stone-500 leading-snug line-clamp-2 min-h-[28px] mt-0.5" title={product.shortDescription}>
                         {product.shortDescription}
                       </p>
                     </div>
 
-                    {/* Coffee Character Profile */}
+                    {/* Coffee Character Profile - Compact Sensory Display */}
                     {product.characterProfile && (
-                      <div className="mb-4">
-                        <CoffeeCharacterCard profile={product.characterProfile} />
+                      <div className="mb-2">
+                        <CoffeeCharacterCard profile={product.characterProfile} compact={true} />
                       </div>
                     )}
 
                     {/* Weight Selector */}
-                    <div className="mb-4">
-                      <div className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
-                        Verpakking / Formaat:
+                    <div className="mb-2">
+                      <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>Formaat:</span>
+                        <span className="font-bold text-stone-700">{currentWeight}</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <div className="grid grid-cols-3 gap-1">
                         {product.variants.map((v) => (
                           <button
                             key={v.weight}
                             onClick={() =>
                               setSelectedWeight({ ...selectedWeight, [product.id]: v.weight })
                             }
-                            className={`py-1.5 px-2 rounded-lg text-xs font-semibold border transition-all ${
+                            className={`py-1 px-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold border transition-all text-center leading-tight ${
                               currentWeight === v.weight
-                                ? 'bg-amber-950 text-white border-amber-950 shadow-xs'
+                                ? 'bg-amber-950 text-white border-amber-950 shadow-2xs'
                                 : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
                             }`}
                           >
                             <div>{v.weight}</div>
-                            <div className="text-[10px] font-normal opacity-90">€{v.price.toFixed(2)}</div>
+                            <div className="text-[9px] font-normal opacity-85">€{v.price.toFixed(2)}</div>
                           </button>
                         ))}
                       </div>
@@ -756,20 +760,21 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Grind Selector (If applicable) */}
                     {product.grindOptions.length > 1 && (
-                      <div className="mb-4">
-                        <div className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
-                          Maalgraad:
+                      <div className="mb-2">
+                        <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+                          <span>Maalgraad:</span>
+                          <span className="text-[10px] text-stone-700 font-medium truncate max-w-[100px]">{currentGrind}</span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-1">
                           {product.grindOptions.map((grind) => (
                             <button
                               key={grind}
                               onClick={() =>
                                 setSelectedGrind({ ...selectedGrind, [product.id]: grind })
                               }
-                              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold border transition-colors ${
+                              className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-medium border transition-colors truncate text-center ${
                                 currentGrind === grind
-                                  ? 'bg-stone-900 text-white border-stone-900'
+                                  ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
                                   : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
                               }`}
                             >
@@ -782,13 +787,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* T-shirt Color and Size Selectors */}
                     {product.id === 'prod-acc-tshirt' && (
-                      <div className="mb-4 space-y-3 bg-stone-50 border border-stone-200 rounded-xl p-3">
+                      <div className="mb-2 space-y-2 bg-stone-50 border border-stone-200 rounded-lg p-2 text-xs">
                         <div>
-                          <div className="text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                            <span>Kleur & Fotoweergave:</span>
+                          <div className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Kleur:</span>
                             <span className="font-bold text-stone-800">{selectedTshirtColor[product.id] || 'Zwart'}</span>
                           </div>
-                          <div className="flex flex-wrap gap-1.5">
+                          <div className="flex flex-wrap gap-1">
                             {TSHIRT_COLORS.map((col) => {
                               const isSelected = (selectedTshirtColor[product.id] || 'Zwart') === col.name;
                               return (
@@ -799,14 +804,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                                     setSelectedTshirtColor({ ...selectedTshirtColor, [product.id]: col.name });
                                     setActiveProductImage({ ...activeProductImage, [product.id]: col.image });
                                   }}
-                                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                  className={`flex items-center gap-1 px-1.5 py-1 rounded text-[10px] font-semibold border transition-all ${
                                     isSelected
-                                      ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
+                                      ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
                                       : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
                                   }`}
                                 >
                                   <span
-                                    className="w-3 h-3 rounded-full border border-black/20 shrink-0"
+                                    className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
                                     style={{ backgroundColor: col.hex }}
                                   />
                                   <span>{col.name}</span>
@@ -817,11 +822,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         </div>
 
                         <div>
-                          <div className="text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <div className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1 flex items-center justify-between">
                             <span>Maat:</span>
                             <span className="font-bold text-stone-800">{selectedTshirtSize[product.id] || 'L'}</span>
                           </div>
-                          <div className="grid grid-cols-5 gap-1.5">
+                          <div className="grid grid-cols-5 gap-1">
                             {TSHIRT_SIZES.map((sz) => {
                               const isSelected = (selectedTshirtSize[product.id] || 'L') === sz;
                               return (
@@ -829,9 +834,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                                   key={sz}
                                   type="button"
                                   onClick={() => setSelectedTshirtSize({ ...selectedTshirtSize, [product.id]: sz })}
-                                  className={`py-1.5 rounded-lg text-xs font-bold border text-center transition-all ${
+                                  className={`py-1 rounded text-[10px] font-bold border text-center transition-all ${
                                     isSelected
-                                      ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
+                                      ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
                                       : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
                                   }`}
                                 >
@@ -846,31 +851,26 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Giftbox Dynamic Bean Choice Integration */}
                     {isGiftbox && (
-                      <div className="mb-4 bg-amber-50/90 border border-amber-200/90 rounded-xl p-3.5 text-xs">
-                        <div className="font-semibold text-amber-950 mb-1 flex items-center justify-between">
-                          <div className="flex items-center gap-1.5">
-                            <Gift className="w-3.5 h-3.5 text-amber-800" />
-                            <span>Kies uw {choiceCount} artisanale koffies (250g doypacks):</span>
+                      <div className="mb-2 bg-amber-50/90 border border-amber-200/90 rounded-lg p-2 text-xs">
+                        <div className="font-semibold text-amber-950 mb-1 flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-1">
+                            <Gift className="w-3 h-3 text-amber-800" />
+                            <span>{choiceCount} doypacks kiezen:</span>
                           </div>
-                          <span className="text-[10px] font-bold text-amber-900 bg-amber-200/60 px-2 py-0.5 rounded">
-                            Dynamische retailprijs
+                          <span className="text-[9px] font-bold text-amber-900 bg-amber-200/60 px-1 py-0.5 rounded">
+                            Dynamisch
                           </span>
                         </div>
-                        <p className="text-[11px] text-stone-600 mb-2.5">
-                          De giftboxprijs berekent zich automatisch op basis van de gekozen 250g specialty doypacks.
-                        </p>
-                        <div className="space-y-2.5">
+                        <div className="space-y-1.5">
                           {Array.from({ length: choiceCount }).map((_, idx) => {
                             const currentVal = currentChoices[idx] || defaultChoices[idx % defaultChoices.length];
                             const selectedOpt = GIFTBOX_COFFEE_OPTIONS.find((b) => b.name === currentVal);
                             return (
-                              <div key={idx} className="flex flex-col gap-1 bg-white p-2.5 rounded-lg border border-amber-200/80">
-                                <div className="flex items-center justify-between">
-                                  <label className="text-[11px] font-semibold text-stone-800">
-                                    Doypack #{idx + 1} (250g):
-                                  </label>
+                              <div key={idx} className="flex flex-col gap-0.5 bg-white p-1.5 rounded border border-amber-200/80">
+                                <div className="flex items-center justify-between text-[10px]">
+                                  <span className="font-semibold text-stone-700">Doypack #{idx + 1}:</span>
                                   {selectedOpt && (
-                                    <span className="text-[11px] font-mono font-bold text-amber-900">
+                                    <span className="font-mono font-bold text-amber-900">
                                       €{selectedOpt.price.toFixed(2)}
                                     </span>
                                   )}
@@ -878,7 +878,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                                 <select
                                   value={currentVal}
                                   onChange={(e) => handleGiftBeanSelect(product.id, idx, e.target.value, choiceCount)}
-                                  className="w-full bg-stone-50 border border-stone-300 rounded-md text-xs py-1.5 px-2 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
+                                  className="w-full bg-stone-50 border border-stone-300 rounded text-[10px] py-1 px-1.5 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
                                 >
                                   {GIFTBOX_COFFEE_OPTIONS.map((opt) => (
                                     <option key={opt.name} value={opt.name}>
@@ -890,9 +890,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                             );
                           })}
                         </div>
-                        <div className="mt-2.5 pt-2 border-t border-amber-200/90 flex items-center justify-between text-stone-700">
-                          <span className="text-[11px] font-medium">Berekende totaalprijs ({choiceCount} doypacks):</span>
-                          <span className="font-bold text-amber-950 font-mono text-sm">
+                        <div className="mt-1.5 pt-1.5 border-t border-amber-200 flex items-center justify-between text-[11px] text-stone-700">
+                          <span className="text-[10px] font-medium">Berekende boxprijs:</span>
+                          <span className="font-bold text-amber-950 font-mono">
                             €{effectivePrice.toFixed(2)}
                           </span>
                         </div>
@@ -901,24 +901,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Subscription Option Integrated into Price */}
                     {isCoffeeProduct && (
-                      <div className="mb-4 bg-stone-50 border border-stone-200 rounded-xl p-2.5">
-                        <div className="text-[11px] font-semibold text-stone-600 uppercase tracking-wider mb-2 flex items-center justify-between">
-                          <span>Besteloptie:</span>
-                          {isSubscription && (
-                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <RefreshCw className="w-3 h-3" />
-                              <span>10% Voordeel</span>
-                            </span>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-1.5 text-xs font-semibold">
+                      <div className="mb-2 bg-stone-50/80 border border-stone-200/80 rounded-lg p-1.5">
+                        <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[11px] font-semibold">
                           <button
                             type="button"
                             onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'eenmalig' })}
-                            className={`py-1.5 px-2 rounded-lg border text-center transition-all ${
+                            className={`py-1 px-1 rounded-md border text-center transition-all ${
                               !isSubscription
-                                ? 'bg-white text-stone-900 border-stone-400 shadow-xs'
-                                : 'bg-stone-100 text-stone-500 border-transparent hover:bg-stone-200'
+                                ? 'bg-white text-stone-900 border-stone-300 shadow-2xs font-bold'
+                                : 'bg-transparent text-stone-500 border-transparent hover:text-stone-700'
                             }`}
                           >
                             Eenmalig
@@ -926,19 +917,19 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                           <button
                             type="button"
                             onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'abonnement' })}
-                            className={`py-1.5 px-2 rounded-lg border text-center transition-all ${
+                            className={`py-1 px-1 rounded-md border text-center transition-all ${
                               isSubscription
-                                ? 'bg-amber-900 text-white border-amber-900 shadow-xs'
-                                : 'bg-stone-100 text-stone-600 border-transparent hover:bg-stone-200'
+                                ? 'bg-amber-900 text-white border-amber-900 shadow-2xs font-bold'
+                                : 'bg-transparent text-amber-900 border-transparent hover:bg-amber-50'
                             }`}
                           >
-                            Abonnement (-10%)
+                            Abo (-10%)
                           </button>
                         </div>
 
                         {isSubscription && (
-                          <div className="mt-2.5 pt-2 border-t border-stone-200 flex items-center justify-between text-xs">
-                            <span className="text-stone-500 text-[11px]">Frequentie:</span>
+                          <div className="mt-1.5 pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px]">
+                            <span className="text-stone-500">Frequentie:</span>
                             <select
                               value={frequency}
                               onChange={(e) =>
@@ -947,10 +938,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                                   [product.id]: e.target.value as any,
                                 })
                               }
-                              className="bg-white border border-stone-300 rounded-lg text-xs py-1 px-2 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
+                              className="bg-white border border-stone-300 rounded text-[10px] py-0.5 px-1 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
                             >
-                              <option value="2_weken">Elke 2 weken (vers gebrand)</option>
-                              <option value="4_weken">Elke 4 weken (maandelijks)</option>
+                              <option value="2_weken">Elke 2 wkn (vers)</option>
+                              <option value="4_weken">Elke 4 wkn (maand)</option>
                             </select>
                           </div>
                         )}
@@ -958,7 +949,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     )}
 
                     {/* Bi-directional Link to Catalog Dossier, Terroir, and Taste Review */}
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                    <div className="mb-2 flex items-center justify-between text-[10px] text-stone-500">
                       {matchingCatalogCoffee ? (
                         <button
                           type="button"
@@ -967,12 +958,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                               `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
                             )
                           }
-                          className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-950 font-semibold underline decoration-amber-900/40 hover:decoration-amber-900 underline-offset-2 transition-colors group cursor-pointer"
-                          title={`Bekijk het volledige terroir & zetdossier van ${product.name} in de Koffiegids`}
+                          className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-950 font-medium transition-colors cursor-pointer"
+                          title={`Bekijk terroir & branddossier van ${product.name}`}
                         >
-                          <BookOpen className="w-3.5 h-3.5 text-amber-800 shrink-0" />
-                          <span>Terroir · Dossier · Lees meer</span>
-                          <ExternalLink className="w-3 h-3 text-amber-800/80 group-hover:translate-x-0.5 transition-transform" />
+                          <BookOpen className="w-2.5 h-2.5 text-amber-800" />
+                          <span>Terroir · Dossier</span>
                         </button>
                       ) : product.catalogSlug ? (
                         <button
@@ -982,12 +972,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                               `/koffies?coffee=${product.catalogSlug}&dossier=true#${product.catalogSlug}`
                             )
                           }
-                          className="inline-flex items-center gap-1 text-xs text-amber-900 hover:text-amber-700 font-semibold underline cursor-pointer"
+                          className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-700 font-medium cursor-pointer"
                         >
-                          <span>Terroir & Dossier</span>
-                          <ExternalLink className="w-3 h-3" />
+                          <span>Terroir · Dossier</span>
                         </button>
-                      ) : null}
+                      ) : (
+                        <span />
+                      )}
 
                       {isCoffeeProduct && (
                         <button
@@ -996,27 +987,27 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                             setReviewCoffeeName(product.name);
                             setIsReviewModalOpen(true);
                           }}
-                          className="inline-flex items-center gap-1 text-[11px] text-stone-500 hover:text-amber-900 font-medium transition-colors"
+                          className="inline-flex items-center gap-0.5 text-stone-500 hover:text-amber-900 font-medium transition-colors"
                         >
-                          <Star className="w-3 h-3 text-amber-500 fill-amber-400" />
-                          <span>Smaak Review</span>
+                          <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-400" />
+                          <span>Review</span>
                         </button>
                       )}
                     </div>
                   </div>
 
                   {/* Bottom Action: Price & Add to Cart */}
-                  <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">
-                        {isGiftbox ? 'Dynamische Boxprijs' : isSubscription ? 'Abonnementsprijs' : 'Prijs'}
+                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-1.5 mt-auto">
+                    <div className="shrink-0">
+                      <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
+                        {isGiftbox ? 'Boxprijs' : isSubscription ? 'Abo-prijs' : 'Prijs'}
                       </div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-xl font-bold text-stone-900">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-sm sm:text-base font-bold text-stone-900 font-mono">
                           €{effectivePrice.toFixed(2)}
                         </span>
                         {isSubscription && (
-                          <span className="text-xs text-stone-400 line-through">
+                          <span className="text-[10px] text-stone-400 line-through">
                             €{currentVariant.price.toFixed(2)}
                           </span>
                         )}
@@ -1026,10 +1017,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     <button
                       id={`btn-add-cart-${product.sku}`}
                       onClick={() => handleAddToCart(product)}
-                      className="flex-1 bg-amber-900 hover:bg-amber-800 text-white py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-2 shadow-xs"
+                      className="flex-1 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs"
+                      title={`In winkelwagen: ${product.name}`}
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>In winkelwagen</span>
+                      <ShoppingBag className="w-3 h-3 shrink-0" />
+                      <span className="truncate">In winkelwagen</span>
                     </button>
                   </div>
                 </div>

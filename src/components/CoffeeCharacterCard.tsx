@@ -5,6 +5,7 @@ interface CoffeeCharacterCardProps {
   profile?: CharacterProfile;
   fallbackText?: string;
   className?: string;
+  compact?: boolean;
 }
 
 export const renderStars = (count: number, max: number = 5) => {
@@ -16,6 +17,7 @@ export const CoffeeCharacterCard: React.FC<CoffeeCharacterCardProps> = ({
   profile,
   fallbackText,
   className = '',
+  compact = false,
 }) => {
   if (!profile && !fallbackText) return null;
 
@@ -25,21 +27,42 @@ export const CoffeeCharacterCard: React.FC<CoffeeCharacterCardProps> = ({
   const sweetness = profile?.sweetness ?? 3;
 
   const renderMeter = (label: string, value: number) => (
-    <div className="flex items-center gap-1.5 text-xs text-stone-700 font-medium">
+    <div className="flex items-center gap-1 text-[10px] sm:text-xs text-stone-700 font-medium">
       <span className="text-stone-500">{label}:</span>
       <div className="flex gap-0.5 items-center">
         {[1, 2, 3, 4, 5].map((step) => (
           <span
             key={step}
-            className={`w-2.5 h-1 rounded-xs ${
+            className={`w-1.5 sm:w-2 h-1 rounded-xs ${
               step <= value ? 'bg-amber-900' : 'bg-stone-200'
             }`}
           />
         ))}
       </div>
-      <span className="text-[10px] text-stone-400 tabular-nums">({value}/5)</span>
+      <span className="text-[9px] sm:text-[10px] text-stone-400 tabular-nums">({value}/5)</span>
     </div>
   );
+
+  if (compact) {
+    return (
+      <div className={`p-2 sm:p-2.5 bg-stone-50/90 rounded-xl border border-stone-200/80 text-xs ${className}`}>
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">
+          <span>Karakter</span>
+          <span className="text-stone-400 text-[10px] font-mono">B{body} · A{acidity} · Z{sweetness}</span>
+        </div>
+        <p className="text-stone-700 leading-snug font-normal mb-2 text-[11px] line-clamp-2" title={description}>
+          {description}
+        </p>
+
+        {/* Compact Sensory Meters */}
+        <div className="pt-1.5 border-t border-stone-200/70 flex flex-wrap items-center justify-between gap-1 select-none">
+          {renderMeter('Body', body)}
+          {renderMeter('Aciditeit', acidity)}
+          {renderMeter('Zoetheid', sweetness)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`p-3.5 bg-stone-50/80 rounded-xl border border-stone-200/90 text-xs ${className}`}>

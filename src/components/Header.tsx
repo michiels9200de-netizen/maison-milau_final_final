@@ -99,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 lg:py-3.5 flex items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-6">
         {/* Brand Identity with Logo and Desktop Navigation */}
         <div className="flex items-center gap-6 xl:gap-8 min-w-0">
           <div
@@ -109,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             <img
               src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-[66px] sm:h-[82px] lg:h-[102px] xl:h-[112px] w-auto max-w-none object-contain transition-all"
+              className="h-[46px] sm:h-[54px] lg:h-[62px] xl:h-[68px] w-auto max-w-none object-contain transition-all"
             />
           </div>
 

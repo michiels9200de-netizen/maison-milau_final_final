@@ -55,19 +55,19 @@ export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
   // If placeholders are disabled (e.g. Giftboxes) or an image errored, render a luxury Maison Milau showcase
   if (hidePlaceholder || (imageUrl && imgError)) {
     return (
-      <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-800 to-amber-950 text-amber-50 p-6 flex flex-col justify-between ${className}`}>
+      <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-800 to-amber-950 text-amber-50 p-3.5 sm:p-4 flex flex-col justify-between ${className}`}>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold tracking-widest uppercase text-amber-300/80 bg-stone-950/40 px-2.5 py-1 rounded-full border border-amber-400/20">
+          <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-amber-300/80 bg-stone-950/40 px-2 py-0.5 rounded-full border border-amber-400/20">
             Maison Milau Atelier
           </span>
-          <span className="text-xs text-amber-200/60 font-mono">Artisanaal</span>
+          <span className="text-[10px] text-amber-200/60 font-mono">Artisanaal</span>
         </div>
-        <div className="my-auto py-3 text-center">
-          <p className="text-base sm:text-lg font-semibold tracking-tight text-white">{title}</p>
-          {subtitle && <p className="text-xs text-amber-200/70 mt-1 max-w-xs mx-auto">{subtitle}</p>}
+        <div className="my-auto py-2 text-center">
+          <p className="text-sm sm:text-base font-semibold tracking-tight text-white line-clamp-1">{title}</p>
+          {subtitle && <p className="text-[10px] sm:text-xs text-amber-200/70 mt-0.5 max-w-xs mx-auto line-clamp-1">{subtitle}</p>}
         </div>
-        <div className="text-[11px] text-amber-400/80 font-medium flex items-center justify-between border-t border-amber-500/20 pt-2">
-          <span>Oudegem · Dendermonde</span>
+        <div className="text-[10px] text-amber-400/80 font-medium flex items-center justify-between border-t border-amber-500/20 pt-1.5">
+          <span>Oudegem</span>
           <span>Vers gebrand</span>
         </div>
       </div>

@@ -8,24 +8,24 @@ interface PrivacyPageProps {
 
 export const PrivacyPage: React.FC<PrivacyPageProps> = ({ navigate }) => {
   return (
-    <div className="min-h-screen text-stone-800 pb-20">
-      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12">
+    <div className="min-h-screen text-stone-800 pb-12">
+      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-emerald-200">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-200">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-800" />
             <span>GDPR & AVG Conform</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
             Privacy Policy · Maison Milau
           </h1>
-          <p className="text-sm text-stone-500 mt-2">
+          <p className="text-xs sm:text-sm text-stone-500 mt-1">
             Laatste update: september 2026 · Van toepassing op website, bestellingen, accounts en communicatie
           </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 space-y-8 text-sm leading-relaxed text-stone-700">
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-4">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-5 text-sm leading-relaxed text-stone-700">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
           <h2 className="text-xl font-bold text-stone-900">1. Verantwoordelijke voor de Gegevensverwerking</h2>
           <p>
             Maison Milau, gevestigd te {CONFIG.atelierAddress.street}, {CONFIG.atelierAddress.city}, ingeschreven onder ondernemingsnummer {CONFIG.vatNumber}, is de verantwoordelijke voor de verwerking van persoonsgegevens zoals beschreven in deze privacyverklaring.

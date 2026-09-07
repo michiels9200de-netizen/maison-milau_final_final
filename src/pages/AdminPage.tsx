@@ -302,12 +302,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
         {/* Tab 1: Roastery Orders Management */}
         {activeTab === 'roastery' && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Live Period Filter Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { id: 'today', label: 'Vandaag', desc: 'Vandaag te branden' },
                 { id: 'thisWeek', label: 'Deze Week', desc: 'Wekelijkse batch' },

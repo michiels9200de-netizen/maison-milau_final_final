@@ -654,18 +654,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   // --------------------------------------------------------------------------
   if (!currentUser || authTab === 'reset' || authTab === 'forgot') {
     return (
-      <div className="min-h-screen text-stone-800 pb-24">
+      <div className="min-h-screen text-stone-800 pb-16">
         {/* Header Section */}
-        <section className="bg-[#FAF7F2]/80 backdrop-blur-xs border-b border-stone-200/80 py-12">
+        <section className="bg-[#FAF7F2]/80 backdrop-blur-xs border-b border-stone-200/80 py-6 sm:py-8">
           <div className="max-w-4xl mx-auto px-4 text-center">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-stone-200">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-2.5 border border-stone-200">
               <ShieldCheck className="w-4 h-4 text-amber-800" />
               <span>Maison Milau · Beveiligde Klantenomgeving</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 font-serif">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 font-serif">
               Mijn Maison Milau Account
             </h1>
-            <p className="text-sm text-stone-600 max-w-xl mx-auto mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-600 max-w-xl mx-auto mt-1.5 leading-relaxed">
               Meld u aan om uw persoonlijke bestellingen, live brandplanning, btw-facturen en
               koffie-abonnementen veilig te beheren.
             </p>
@@ -673,7 +673,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         </section>
 
         {/* Login / Register / Forgot Password Card */}
-        <div className="max-w-xl mx-auto px-4 mt-8">
+        <div className="max-w-xl mx-auto px-4 mt-5">
           <div className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
             {/* Tab Selector */}
             {authTab !== 'forgot' && authTab !== 'reset' ? (
@@ -1209,30 +1209,30 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   // RENDER: Authenticated Customer Portal
   // --------------------------------------------------------------------------
   return (
-    <div className="min-h-screen text-stone-800 pb-24">
+    <div className="min-h-screen text-stone-800 pb-16">
       {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/80 backdrop-blur-xs border-b border-stone-200/80 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <section className="bg-[#FAF7F2]/80 backdrop-blur-xs border-b border-stone-200/80 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider border border-stone-200">
+            <div className="flex flex-wrap items-center gap-1.5 mb-2">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-800 text-[11px] font-semibold uppercase tracking-wider border border-stone-200">
                 <UserIcon className="w-3.5 h-3.5 text-amber-900" />
                 <span>Klantenportaal · Maison Milau</span>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-medium border border-stone-200">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-800 text-[11px] font-medium border border-stone-200">
                 <Award className="w-3.5 h-3.5 text-amber-900" />
                 <span>{currentUser.loyaltyPoints || 100} Spaarpunten</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-950 text-xs font-semibold border border-emerald-300/70">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-950 text-[11px] font-semibold border border-emerald-300/70">
                 <Check className="w-3 h-3 text-emerald-700" />
                 <span>Geauthenticeerd</span>
               </div>
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-stone-900 font-serif">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 font-serif">
               Welkom terug, {currentUser.name}
             </h1>
-            <p className="text-xs text-stone-500 mt-1 flex flex-wrap items-center gap-2">
+            <p className="text-xs text-stone-500 mt-0.5 flex flex-wrap items-center gap-2">
               <span>{currentUser.email}</span>
               <span>•</span>
               <span className="capitalize">{currentUser.accountType}</span>
@@ -1249,7 +1249,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setActiveTab('security')}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-stone-50 text-stone-700 transition-colors border border-stone-200 flex items-center gap-1.5 shadow-2xs"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-stone-50 text-stone-700 transition-colors border border-stone-200 flex items-center gap-1.5 shadow-2xs"
             >
               <Lock className="w-3.5 h-3.5 text-stone-600" />
               <span>Wachtwoord Wijzigen</span>
@@ -1258,7 +1258,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
             {currentUser.role === 'store_admin' || currentUser.email.includes('laurent') ? (
               <button
                 onClick={() => navigate('/admin')}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 border border-stone-200"
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 border border-stone-200"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
                 <span>Roastery Admin</span>
@@ -1267,7 +1267,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
 
             <button
               onClick={logout}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors flex items-center gap-1.5 border border-transparent"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors flex items-center gap-1.5 border border-transparent"
               title="Afmelden"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -1278,9 +1278,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
 
         {/* Global Feedback Banner */}
         {feedbackBanner && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-4">
             <div
-              className={`p-4 rounded-2xl flex items-center justify-between gap-3 text-xs font-medium border ${
+              className={`p-3 rounded-xl flex items-center justify-between gap-3 text-xs font-medium border ${
                 feedbackBanner.type === 'success'
                   ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
                   : feedbackBanner.type === 'error'
@@ -1310,7 +1310,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         )}
 
         {/* Tab Navigation */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 flex gap-2 border-t border-stone-100 pt-4 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-4 flex gap-1.5 border-t border-stone-200/60 pt-3 overflow-x-auto">
           <button
             onClick={() => setActiveTab('orders')}
             className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shrink-0 ${

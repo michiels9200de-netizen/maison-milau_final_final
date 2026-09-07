@@ -40,18 +40,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
           {/* Header */}
-          <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+          <div className="p-4 sm:p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-stone-900">
+              <h2 className="text-lg font-bold tracking-tight text-stone-900">
                 Winkelwagen
               </h2>
-              <p className="text-xs text-stone-500">
+              <p className="text-[11px] text-stone-500">
                 Maison Milau · Vers gebrande specialty koffie
               </p>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 text-stone-400 hover:text-stone-700 rounded-lg"
+              className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg"
               aria-label="Sluiten"
             >
               <X className="w-5 h-5" />
@@ -59,8 +59,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
           </div>
 
           {/* Free Shipping Progress Indicator */}
-          <div className="px-6 py-3 bg-amber-50/70 border-b border-amber-100 text-xs">
-            <div className="flex items-center justify-between text-amber-950 font-medium mb-1.5">
+          <div className="px-4 sm:px-5 py-2.5 bg-amber-50/70 border-b border-amber-100 text-xs">
+            <div className="flex items-center justify-between text-amber-950 font-medium mb-1">
               <span className="flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-amber-700" />
                 {remainingForFreeShipping > 0
@@ -78,14 +78,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
           </div>
 
           {/* Cart Item List */}
-          <div className="flex-1 overflow-y-auto p-6 divide-y divide-stone-100">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 divide-y divide-stone-100">
             {items.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-400 mx-auto flex items-center justify-center mb-3">
-                  <Truck className="w-6 h-6" />
+              <div className="text-center py-12">
+                <div className="w-10 h-10 rounded-full bg-stone-100 text-stone-400 mx-auto flex items-center justify-center mb-2.5">
+                  <Truck className="w-5 h-5" />
                 </div>
-                <p className="text-stone-700 font-medium">Uw winkelmand is leeg</p>
-                <p className="text-xs text-stone-400 mt-1 mb-6">
+                <p className="text-stone-700 font-medium text-sm">Uw winkelmand is leeg</p>
+                <p className="text-xs text-stone-400 mt-0.5 mb-4">
                   Ontdek onze vers gebrande blends, single origins of barrel aged batches.
                 </p>
                 <button
@@ -93,7 +93,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                     setIsCartOpen(false);
                     navigate('/webshop');
                   }}
-                  className="px-5 py-2.5 bg-stone-900 text-amber-50 rounded-lg text-xs font-medium hover:bg-stone-800 transition-colors"
+                  className="px-4 py-2 bg-stone-900 text-amber-50 rounded-lg text-xs font-medium hover:bg-stone-800 transition-colors"
                 >
                   Naar Webshop
                 </button>
@@ -102,9 +102,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
               items.map((item, idx) => (
                 <div
                   key={`${item.productId}-${item.variantWeight}-${item.grindOption}-${item.selectedColor || ''}-${item.selectedSize || ''}-${idx}`}
-                  className="py-4 flex gap-4 items-start"
+                  className="py-3 flex gap-3 items-start"
                 >
-                  <div className="w-16 h-16 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                  <div className="w-14 h-14 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
                     {item.imageUrl ? (
                       <img
                         src={item.imageUrl}
@@ -127,11 +127,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-stone-900 truncate">
+                    <h3 className="text-xs font-semibold text-stone-900 truncate">
                       {item.productName}
                     </h3>
                     {item.selectedColor && (
-                      <div className="text-xs text-stone-600 mt-0.5">
+                      <div className="text-[11px] text-stone-600 mt-0.5">
                         Kleur: <span className="font-medium text-stone-800">{item.selectedColor}</span>
                         {item.selectedSize && <span> · Maat: <span className="font-medium text-stone-800">{item.selectedSize}</span></span>}
                       </div>
@@ -142,16 +142,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                       </div>
                     )}
                     {!item.selectedColor && (
-                      <div className="text-xs text-stone-500 mt-0.5">
+                      <div className="text-[11px] text-stone-500 mt-0.5">
                         Maalgraad: <span className="text-stone-700">{item.grindOption}</span>
                       </div>
                     )}
-                    <div className="text-xs font-medium text-amber-900 mt-1">
+                    <div className="text-[11px] font-medium text-amber-900 mt-0.5">
                       €{item.unitPrice.toFixed(2)} per stuk
                     </div>
 
                     {/* Quantity Controls */}
-                    <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center border border-stone-200 rounded-md">
                         <button
                           onClick={() =>
@@ -162,7 +162,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="px-2.5 text-xs font-medium text-stone-800">
+                        <span className="px-2 text-xs font-medium text-stone-800">
                           {item.quantity}
                         </span>
                         <button
@@ -176,18 +176,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-semibold text-stone-900">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xs font-semibold text-stone-900">
                           €{(item.unitPrice * item.quantity).toFixed(2)}
                         </span>
                         <button
                           onClick={() =>
                             removeItem(item.productId, item.variantWeight, item.grindOption, item.selectedColor, item.selectedSize)
                           }
-                          className="text-stone-400 hover:text-red-600 p-1 transition-colors"
+                          className="text-stone-400 hover:text-red-600 p-0.5 transition-colors"
                           aria-label="Verwijderen"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -199,8 +199,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
 
           {/* Footer & Checkout Call to action */}
           {items.length > 0 && (
-            <div className="p-6 border-t border-stone-200 bg-stone-50 space-y-3">
-              <div className="space-y-1.5 text-xs text-stone-600">
+            <div className="p-4 sm:p-5 border-t border-stone-200 bg-stone-50 space-y-2.5">
+              <div className="space-y-1 text-xs text-stone-600">
                 <div className="flex justify-between">
                   <span>Subtotaal</span>
                   <span className="font-medium text-stone-900">€{subtotal.toFixed(2)}</span>
@@ -211,7 +211,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                     {shippingCost === 0 ? 'Gratis' : `€${shippingCost.toFixed(2)}`}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm font-semibold text-stone-950 pt-2 border-t border-stone-200">
+                <div className="flex justify-between text-xs font-semibold text-stone-950 pt-1.5 border-t border-stone-200">
                   <span>Totaal (incl. BTW)</span>
                   <span>€{total.toFixed(2)}</span>
                 </div>
@@ -220,14 +220,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
               <button
                 id="btn-drawer-checkout"
                 onClick={handleCheckout}
-                className="w-full bg-amber-900 hover:bg-amber-800 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
+                className="w-full bg-amber-900 hover:bg-amber-800 text-white py-2.5 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
               >
                 <span>Afrekenen met Mollie</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-stone-500 pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-stone-500 pt-0.5">
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
                 <span>Veilig betalen via Bancontact, iDEAL & Kaart</span>
               </div>
             </div>

@@ -8,25 +8,25 @@ interface TermsPageProps {
 
 export const TermsPage: React.FC<TermsPageProps> = () => {
   return (
-    <div className="min-h-screen text-stone-800 pb-20">
-      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12">
+    <div className="min-h-screen text-stone-800 pb-12">
+      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-stone-200">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-2 border border-stone-200">
             <FileText className="w-3.5 h-3.5 text-amber-800" />
             <span>Juridische Kaders & Voorwaarden</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
             Algemene Verkoopvoorwaarden & Abonnementen
           </h1>
-          <p className="text-sm text-stone-500 mt-2">
+          <p className="text-xs sm:text-sm text-stone-500 mt-1">
             Maison Milau · Ambachtelijke Koffiebranderij Oudegem · BE 1041.542.844
           </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 space-y-8 text-sm leading-relaxed text-stone-700">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-5 text-sm leading-relaxed text-stone-700">
         {/* Dedicated Subscription Policy Box */}
-        <div className="bg-amber-50/70 border-2 border-amber-200/90 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xs">
+        <div className="bg-amber-50/70 border-2 border-amber-200/90 rounded-2xl p-5 sm:p-6 space-y-3 shadow-xs">
           <div className="flex items-center gap-2 text-amber-900 font-bold text-lg">
             <RefreshCw className="w-5 h-5 text-amber-800" />
             <span>Koffie-abonnementen Beleid & Voorwaarden (Subscribe & Save)</span>

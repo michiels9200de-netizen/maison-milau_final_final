@@ -410,23 +410,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   }
 
   return (
-    <div className="min-h-screen text-stone-800 py-12">
+    <div className="min-h-screen text-stone-800 py-6 sm:py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <button
           onClick={() => navigate('/webshop')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-stone-600 hover:text-stone-900 mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 mb-3 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Terug naar de webshop</span>
         </button>
 
         {/* H1: 48-64px / 32-40px, font-weight 700 */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 mb-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-4 sm:mb-5">
           Afrekenen & Betaling
         </h1>
 
         {paymentCancelled && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-900 text-sm">
+          <div className="mb-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-900 text-sm">
             <AlertCircle className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">Betaling geannuleerd via Mollie</p>
@@ -438,7 +438,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
         )}
 
         {errorMessage && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-900 text-sm">
+          <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-900 text-sm">
             <AlertCircle className="w-5 h-5 text-rose-700 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">Fout bij starten van betaling</p>
@@ -448,7 +448,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
         )}
 
         {items.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
+          <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
             <p className="text-base text-stone-600 font-normal mb-4">Uw winkelwagen is momenteel leeg.</p>
             <button
               onClick={() => navigate('/webshop')}
@@ -458,11 +458,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleProcessOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <form onSubmit={handleProcessOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
             {/* Left Column: Form details */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-4">
               {/* Delivery Method Selection */}
-              <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs space-y-4">
+              <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-2xs space-y-3">
                 {/* H2: 32-40px / 20-24px, font-weight 600 */}
                 <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
                   1. Kies uw Levermethode

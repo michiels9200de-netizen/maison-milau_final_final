@@ -7,24 +7,24 @@ interface CookiePolicyPageProps {
 
 export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = () => {
   return (
-    <div className="min-h-screen text-stone-800 pb-20">
-      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12">
+    <div className="min-h-screen text-stone-800 pb-12">
+      <div className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-amber-200">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-2 border border-amber-200">
             <Cookie className="w-3.5 h-3.5 text-amber-800" />
             <span>Transparantie & Cookies</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
             Cookie Policy · Maison Milau
           </h1>
-          <p className="text-sm text-stone-500 mt-2">
+          <p className="text-xs sm:text-sm text-stone-500 mt-1">
             Informatie over het gebruik van cookies en lokale opslag op onze webshop
           </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 space-y-8 text-sm leading-relaxed text-stone-700">
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-4">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-5 text-sm leading-relaxed text-stone-700">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
           <h2 className="text-xl font-bold text-stone-900">Wat zijn cookies?</h2>
           <p>
             Cookies zijn kleine tekstbestandjes die door een website op uw computer of mobiele apparaat worden geplaatst wanneer u de website bezoekt. Maison Milau respecteert uw privacy en gebruikt cookies uitsluitend om uw winkelmand te onthouden, uw bestelling veilig te verwerken en onze dienstverlening te optimaliseren.
