@@ -30,11 +30,38 @@ export default function App() {
   });
 
   const navigate = (pathWithQuery: string) => {
-    const [path, query] = pathWithQuery.split('?');
+    let pathAndQuery = pathWithQuery;
+    let hash = '';
+    const hashIndex = pathAndQuery.indexOf('#');
+    if (hashIndex !== -1) {
+      hash = pathAndQuery.substring(hashIndex);
+      pathAndQuery = pathAndQuery.substring(0, hashIndex);
+    }
+
+    let path = pathAndQuery;
+    let query = '';
+    const queryIndex = pathAndQuery.indexOf('?');
+    if (queryIndex !== -1) {
+      query = pathAndQuery.substring(queryIndex + 1);
+      path = pathAndQuery.substring(0, queryIndex);
+    }
+
     window.history.pushState({}, '', pathWithQuery);
     setCurrentPath(path || '/');
-    setSearchParams(new URLSearchParams(query || ''));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const params = new URLSearchParams(query || '');
+    setSearchParams(params);
+
+    // Only scroll to top if there is NO product anchor/target
+    const hasTarget = Boolean(
+      hash ||
+      params.get('product') ||
+      params.get('highlight') ||
+      params.get('id')
+    );
+
+    if (!hasTarget) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {

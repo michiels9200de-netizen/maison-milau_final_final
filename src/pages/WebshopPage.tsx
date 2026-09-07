@@ -99,13 +99,20 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const [capsuleSubmitted, setCapsuleSubmitted] = useState(false);
 
   useEffect(() => {
-    // Check for target product from query params or URL hash
-    const targetSlug = (
+    // Check for target product from query params, URL search, or URL hash
+    const rawTarget = (
       searchParams?.get('product') ||
       searchParams?.get('highlight') ||
       searchParams?.get('id') ||
-      (typeof window !== 'undefined' ? window.location.hash.replace(/^#/, '') : '')
+      (typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('product') ||
+          new URLSearchParams(window.location.search).get('highlight') ||
+          new URLSearchParams(window.location.search).get('id') ||
+          window.location.hash
+        : '')
     )?.trim();
+
+    const targetSlug = rawTarget ? rawTarget.replace(/^#/, '').split('#')[0].split('?')[0].trim() : '';
 
     if (searchParams) {
       const cat = searchParams.get('category');
@@ -118,16 +125,18 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     }
 
     if (targetSlug) {
-      const normalizedTarget = targetSlug.toLowerCase();
+      const clean = targetSlug.toLowerCase();
+      const cleanNoPrefix = clean.replace(/^prod-/, '');
       const matched = SHOP_PRODUCTS.find((p) => {
         const pid = p.id.toLowerCase();
-        const pidWithoutPrefix = pid.replace(/^prod-/, '');
-        const normWithoutPrefix = normalizedTarget.replace(/^prod-/, '');
+        const pidNoPrefix = pid.replace(/^prod-/, '');
+        const nameSlug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         return (
-          pid === normalizedTarget ||
-          pidWithoutPrefix === normWithoutPrefix ||
-          pid.includes(normalizedTarget) ||
-          p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === normalizedTarget
+          pid === clean ||
+          pidNoPrefix === cleanNoPrefix ||
+          pid.includes(cleanNoPrefix) ||
+          nameSlug.includes(cleanNoPrefix) ||
+          cleanNoPrefix.includes(pidNoPrefix)
         );
       });
 
@@ -185,25 +194,49 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   useEffect(() => {
     if (!highlightId) return;
 
+    let attempts = 0;
+    const maxAttempts = 15;
+
     const scrollToProduct = () => {
-      const el = document.getElementById(`product-card-${highlightId}`) || document.getElementById(highlightId);
+      attempts++;
+      const cleanId = highlightId.replace(/^prod-/, '');
+      const el =
+        document.getElementById(`product-card-${highlightId}`) ||
+        document.getElementById(`product-card-${cleanId}`) ||
+        document.getElementById(highlightId) ||
+        document.getElementById(cleanId) ||
+        document.querySelector(`[data-product-id="${highlightId}"]`) ||
+        document.querySelector(`[data-product-id="${cleanId}"]`);
+
       if (el) {
-        const headerOffset = 110;
-        const elementPosition = el.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-          top: Math.max(0, offsetPosition),
-          behavior: 'smooth',
-        });
+        // Center the element in viewport smoothly
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Ensure header doesn't cover top of card on smaller viewports
+        const headerOffset = 100;
+        const rect = el.getBoundingClientRect();
+        if (rect.top < headerOffset) {
+          window.scrollBy({ top: rect.top - headerOffset, behavior: 'smooth' });
+        }
         return true;
       }
       return false;
     };
 
+    // Immediate attempt
     if (!scrollToProduct()) {
-      const t1 = setTimeout(scrollToProduct, 100);
-      const t2 = setTimeout(scrollToProduct, 300);
-      const t3 = setTimeout(scrollToProduct, 600);
+      const interval = setInterval(() => {
+        if (scrollToProduct() || attempts >= maxAttempts) {
+          clearInterval(interval);
+        }
+      }, 80);
+
+      return () => clearInterval(interval);
+    } else {
+      // Re-verify position after DOM rendering & image layout settles
+      const t1 = setTimeout(scrollToProduct, 150);
+      const t2 = setTimeout(scrollToProduct, 400);
+      const t3 = setTimeout(scrollToProduct, 800);
       return () => {
         clearTimeout(t1);
         clearTimeout(t2);
@@ -537,7 +570,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               const currentWeight = selectedWeight[product.id] || product.variants[0].weight;
               const currentVariant = product.variants.find((v) => v.weight === currentWeight) || product.variants[0];
               const currentGrind = selectedGrind[product.id] || product.defaultGrind;
-              const isHighlighted = highlightId === product.id;
+              const isHighlighted = Boolean(
+                highlightId && (
+                  highlightId === product.id ||
+                  highlightId === product.id.replace(/^prod-/, '') ||
+                  highlightId.toLowerCase() === product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                )
+              );
 
               const isCoffeeProduct = product.category !== 'merchandise' && product.collection !== 'Toebehoren' && !product.id.includes('sub');
               const purchaseType = purchaseTypes[product.id] || 'eenmalig';
@@ -563,12 +602,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   key={product.id}
                   id={`product-card-${product.id}`}
                   data-product-id={product.id}
-                  className={`bg-white rounded-2xl border transition-all p-6 flex flex-col justify-between ${
+                  className={`relative scroll-mt-28 bg-white rounded-2xl border transition-all p-6 flex flex-col justify-between ${
                     isHighlighted
                       ? 'border-amber-600 ring-4 ring-amber-500/35 shadow-xl scale-[1.01]'
                       : 'border-stone-200 shadow-2xs hover:shadow-md'
                   }`}
                 >
+                  {/* Native anchor targets for direct deep-linking */}
+                  <span id={product.id} className="absolute -top-28 pointer-events-none" />
+                  <span id={product.id.replace(/^prod-/, '')} className="absolute -top-28 pointer-events-none" />
                   <div>
                     {/* Deep-link notification badge when selected from Coffee Guide */}
                     {isHighlighted && (
