@@ -72,7 +72,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
       id={`coffee-card-${coffee.id}`}
       data-coffee-id={coffee.id}
       data-webshop-id={coffee.webshopProductId}
-      className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-amber-300 relative scroll-mt-28"
+      className="bg-white border border-stone-200/90 rounded-xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-amber-300 relative scroll-mt-28"
     >
       {/* Native anchor targets for direct deep-linking */}
       <span id={coffee.id} className="absolute -top-28 pointer-events-none" />
@@ -83,13 +83,13 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
       )}
       <div>
         {/* Top Badges: Collection, Discovery Tag & Roast Indicator */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-1.5">
-            <span className="px-2.5 py-0.5 rounded-sm bg-stone-100 text-stone-800 text-[10px] font-semibold tracking-wider uppercase">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
+          <div className="flex items-center gap-1">
+            <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 text-[10px] font-semibold tracking-wider uppercase">
               {coffee.collection}
             </span>
             {specs.discoveryTag && (
-              <span className="px-2 py-0.5 rounded-sm bg-amber-50 text-amber-900 text-[10px] font-semibold tracking-wider uppercase border border-amber-800/15">
+              <span className="px-1.5 py-0.5 rounded-sm bg-amber-50 text-amber-900 text-[10px] font-semibold tracking-wider uppercase border border-amber-800/15">
                 {specs.discoveryTag}
               </span>
             )}
@@ -100,15 +100,15 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
         {/* Product Visual with Country Flags top-left and SCA score top-right */}
         <div
-          className="mb-4 relative cursor-pointer"
+          className="mb-2.5 relative cursor-pointer"
           onClick={() => onOpenDossier(coffee)}
           title="Klik om interactief dossier te bekijken"
         >
           <CoffeeOriginBadge origins={coffee.origins} />
 
           {coffee.scaScore && (
-            <div className="absolute top-2.5 right-2.5 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
-              <Award className="w-3.5 h-3.5 text-amber-400" />
+            <div className="absolute top-2 right-2 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
+              <Award className="w-3 h-3 text-amber-400" />
               <span>SCA: {coffee.scaScore}</span>
             </div>
           )}
@@ -119,18 +119,18 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             title={coffee.name}
             subtitle={`${coffee.collection} · ${specs.roastLevel}`}
             aspectRatio="video"
-            className="min-h-[160px] border-stone-200 group-hover:border-amber-300 transition-colors"
+            className="min-h-[125px] border-stone-200 group-hover:border-amber-300 transition-colors"
             imageUrl={coffee.imageUrl}
           />
         </div>
 
         {/* Coffee Name & Origin Terroir */}
-        <div className="cursor-pointer mb-3" onClick={() => onOpenDossier(coffee)}>
-          <h3 className="text-xl font-bold tracking-tight text-stone-900 group-hover:text-amber-950 transition-colors mb-1">
+        <div className="cursor-pointer mb-2" onClick={() => onOpenDossier(coffee)}>
+          <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-amber-950 transition-colors mb-0.5">
             {coffee.name}
           </h3>
 
-          <div className="text-xs text-stone-500 font-medium">
+          <div className="text-[11px] text-stone-500 font-medium">
             <span>Oorsprong: </span>
             <strong className="text-stone-800">
               {coffee.origins?.map((o) => o.country).join(', ') || 'Specialty micro-lot'}
@@ -139,26 +139,26 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         </div>
 
         {/* Short Introduction / Storytelling */}
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal mb-4">
+        <p className="text-xs text-stone-600 leading-relaxed font-normal mb-2.5">
           {specs.shortIntro}
         </p>
 
         {/* Bean Composition */}
-        <div className="text-[11px] text-stone-600 bg-stone-50/80 p-2.5 rounded-xl border border-stone-200/70 mb-4">
+        <div className="text-[11px] text-stone-600 bg-stone-50/80 p-2 rounded-lg border border-stone-200/70 mb-2.5">
           <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold block mb-0.5">Samenstelling & Variëteit</span>
           <span>{coffee.beanSelection}</span>
         </div>
 
         {/* Flavour Profile (Tags) */}
-        <div className="mb-4">
-          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1.5">
+        <div className="mb-2.5">
+          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1">
             Smaakprofiel
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {coffee.flavors.map((flavor, i) => (
               <span
                 key={i}
-                className="px-2.5 py-0.5 bg-stone-100 text-stone-700 rounded-md text-xs font-normal"
+                className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md text-[11px] font-normal"
               >
                 {flavor}
               </span>
@@ -167,11 +167,11 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         </div>
 
         {/* Cupping Meters (Intensiteit, Aciditeit, Body, Zoetheid) */}
-        <div className="mb-5 p-3 bg-stone-50/60 rounded-xl border border-stone-200/70 space-y-2">
+        <div className="mb-3 p-2.5 bg-stone-50/60 rounded-lg border border-stone-200/70 space-y-1.5">
           <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold">
             Sensorische Cupping-Meters
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
             {renderSensoryBar('Intensiteit', specs.intensity, 'bg-stone-900')}
             {renderSensoryBar('Aciditeit (Fris)', specs.acidity, 'bg-amber-700')}
             {renderSensoryBar('Body', specs.body, 'bg-amber-900')}
@@ -180,15 +180,15 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         </div>
 
         {/* Brewing Recommendations */}
-        <div className="mb-5">
-          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1.5">
+        <div className="mb-3">
+          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1">
             Aanbevolen zetmethodes
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {specs.brewingMethods.map((method, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-xs font-medium"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 text-[11px] font-medium"
               >
                 <span>{method}</span>
               </span>
@@ -198,12 +198,12 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
       </div>
 
       {/* Discovery Actions: Dedicated Dossier Modal & Direct Webshop Link (with optional Compare if enabled) */}
-      <div className="pt-4 border-t border-stone-100 flex flex-col gap-2">
+      <div className="pt-3 border-t border-stone-100 flex flex-col gap-1.5">
         {onToggleCompare && (
           <button
             type="button"
             onClick={() => onToggleCompare(coffee)}
-            className={`w-full py-2.5 px-3 rounded-xl text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 ${
+            className={`w-full py-2 px-2.5 rounded-lg text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 ${
               isCompared
                 ? 'bg-amber-900 text-amber-50 shadow-xs'
                 : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
@@ -213,11 +213,11 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
           </button>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5">
           <button
             type="button"
             onClick={() => onOpenDossier(coffee)}
-            className="py-2.5 px-3 rounded-xl text-xs font-bold border border-amber-800/30 bg-amber-50/60 text-amber-950 hover:bg-amber-100 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+            className="py-2 px-2.5 rounded-lg text-xs font-bold border border-amber-800/30 bg-amber-50/60 text-amber-950 hover:bg-amber-100 transition-colors flex items-center justify-center gap-1 shadow-2xs"
           >
             <BookOpen className="w-3.5 h-3.5 text-amber-800" />
             <span>Dossier</span>
@@ -226,7 +226,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
           <button
             type="button"
             onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
-            className="py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1.5 shadow-xs group"
+            className="py-2 px-2.5 rounded-lg text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-xs group"
             title={`Bestel ${coffee.name} direct in de webshop`}
           >
             <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />

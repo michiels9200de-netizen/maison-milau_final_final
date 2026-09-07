@@ -173,20 +173,20 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen text-stone-800 pb-24">
+    <div className="min-h-screen text-stone-800 pb-16">
       {/* Customer Service Center Header */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-semibold uppercase tracking-wider mb-2">
               <HelpCircle className="w-3.5 h-3.5 text-amber-800" />
               <span>Klantenservice & Veelgestelde Vragen</span>
             </div>
-            {/* H1: 48-64px, font-weight 700 */}
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900 mb-4">
+            {/* H1: ~25% reduced */}
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mb-2">
               Hoe kunnen we je helpen?
             </h1>
-            <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed mb-6">
+            <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-4">
               Vind snel antwoord op al je vragen over onze brandplanning, leveringen, apparatuur-lease en private labeling.
             </p>
 
@@ -197,17 +197,17 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Zoek op onderwerp, bijv. 'levertermijn', 'bonen bewaren', 'bpost'..."
-                className="w-full pl-11 pr-4 py-3.5 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-amber-800 focus:outline-none"
               />
-              <Search className="w-5 h-5 text-stone-400 absolute left-3.5 top-3.5" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
             </div>
           </div>
 
           {/* Quick Hub Navigation */}
-          <div className="mt-8 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             <button
               onClick={() => setActiveTab('faq')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === 'faq' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
@@ -215,7 +215,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
             </button>
             <button
               onClick={() => setActiveTab('track')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === 'track' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
@@ -223,7 +223,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
             </button>
             <button
               onClick={() => setActiveTab('ticket')}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === 'ticket' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
@@ -233,9 +233,9 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {activeTab === 'faq' && (
-          <div className="space-y-12">
+          <div className="space-y-6 sm:space-y-8">
             {faqSections.map((section, sIdx) => {
               const matchesSection =
                 !searchQuery ||
@@ -249,12 +249,12 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
               if (!matchesSection) return null;
 
               return (
-                <div key={section.id} className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 shadow-2xs">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold tracking-tight text-stone-900">
+                <div key={section.id} className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+                  <div className="mb-4">
+                    <h2 className="text-lg sm:text-xl font-bold tracking-tight text-stone-900">
                       {section.category}
                     </h2>
-                    <p className="text-sm text-stone-500 mt-1">{section.intro}</p>
+                    <p className="text-xs sm:text-sm text-stone-500 mt-0.5">{section.intro}</p>
                   </div>
 
                   <div className="space-y-3">

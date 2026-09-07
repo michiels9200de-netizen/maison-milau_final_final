@@ -108,25 +108,25 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen text-stone-800 pb-24">
+    <div className="min-h-screen text-stone-800 pb-16">
       {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12 sm:py-16">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-3">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1.5">
                 B2B · Kantoor & Horeca
               </div>
-              {/* H1: 48-64px, font-weight 700 */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">
+              {/* H1: ~25% reduced */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-2.5">
                 Koffieformules voor Thuis & Onderneming
               </h1>
-              {/* Body: 16-18px, font-weight 400, line-height 1.6 */}
-              <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed mb-6">
+              {/* Body */}
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-4">
                 Flexibele maandabonnementen, aantrekkelijke volumetarieven en unieke custom roasting & white label branding voor horeca en bedrijven.
               </p>
 
-              <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-700 space-y-1.5">
+              <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-700 space-y-1">
                 <div>
                   <strong>Geschikt voor:</strong> Horeca (brasseries, restaurants, koffiebars), Kantoren, Bedrijven, Handelszaken & Residentiële centra.
                 </div>
@@ -145,26 +145,26 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 subtitle="Beeld van een moderne bedrijfsbarista-corner en professionele espressomachine met vers gebrande Maison Milau bonen."
                 recommendedSize="1920 × 1280 (16:9 of 4:3)"
                 aspectRatio="video"
-                className="shadow-sm border-stone-200 min-h-[300px]"
+                className="shadow-sm border-stone-200 min-h-[240px]"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 sm:space-y-10">
         {/* Interactive B2B Calculator Section */}
-        <section className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs">
-          <div className="max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-900 mb-2">
-              <Calculator className="w-4 h-4" />
+        <section className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+          <div className="max-w-3xl mb-6">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 mb-1.5">
+              <Calculator className="w-3.5 h-3.5" />
               <span>Interactieve Calculator (indicatief)</span>
             </div>
-            {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
+            {/* H2: ~25% reduced */}
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
               Bereken uw B2B Prijs (indicatief)
             </h2>
-            <p className="text-base text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
               Bereken uw maandelijkse koffiebehoefte, geschat aantal kopjes en staffelkorting.
             </p>
           </div>
@@ -452,50 +452,50 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         </section>
 
         {/* Gratis Proefpakket & Bonenlevering */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-8 rounded-2xl border border-stone-200 flex flex-col justify-between">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="bg-white p-5 sm:p-6 rounded-xl border border-stone-200 flex flex-col justify-between shadow-2xs">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center mb-4">
-                <Gift className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center mb-3">
+                <Gift className="w-4 h-4" />
               </div>
-              {/* H3: 24-28px, font-weight 600 */}
-              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+              {/* H3 */}
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
                 Gratis Proefpakket & Cupping
               </h3>
-              <p className="text-base text-stone-600 font-normal leading-relaxed">
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
                 We komen vrijblijvend langs in uw zaak of kantoor voor een smaaktest op maat van uw team of gasten. Of vraag een gratis proefpakket aan via onderstaand formulier.
               </p>
             </div>
-            <div className="mt-6">
+            <div className="mt-4">
               <a
                 href="#b2b-form"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 hover:underline"
               >
                 <span>Proefpakket aanvragen</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3 h-3" />
               </a>
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl border border-stone-200 flex flex-col justify-between">
+          <div className="bg-white p-5 sm:p-6 rounded-xl border border-stone-200 flex flex-col justify-between shadow-2xs">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-900 flex items-center justify-center mb-4">
-                <Coffee className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-lg bg-stone-100 text-stone-900 flex items-center justify-center mb-3">
+                <Coffee className="w-4 h-4" />
               </div>
-              {/* H3: 24-28px, font-weight 600 */}
-              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+              {/* H3 */}
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
                 02 Bonenlevering
               </h3>
-              <p className="text-base text-stone-600 font-normal leading-relaxed mb-3">
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-2.5">
                 Stipt geleverd elke 2 weken of maandelijks, naar wens, op factuur met gunstige B2B volumetarieven en persoonlijke opvolging door onze brander.
               </p>
               <ul className="text-xs text-stone-600 space-y-1">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-700" />
+                  <CheckCircle className="w-3 h-3 text-emerald-700" />
                   <span>1kg aromadichte ventielzakken</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-700" />
+                  <CheckCircle className="w-3 h-3 text-emerald-700" />
                   <span>Gratis levering regio Dendermonde/Aalst</span>
                 </li>
               </ul>
@@ -504,32 +504,32 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         </section>
 
         {/* Custom Roasting & White Label Section */}
-        <section className="bg-stone-100 p-8 rounded-2xl border border-stone-200">
+        <section className="bg-stone-100 p-5 sm:p-6 rounded-xl border border-stone-200">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-900 mb-2">
-              <Layers className="w-4 h-4" />
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 mb-1.5">
+              <Layers className="w-3.5 h-3.5" />
               <span>Custom Roasting & White Label</span>
             </div>
-            {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900 mb-3">
+            {/* H2: ~25% reduced */}
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
               Persoonlijke koffie labels op maat
             </h2>
-            <p className="text-base text-stone-700 font-normal leading-relaxed mb-4">
+            <p className="text-xs sm:text-sm text-stone-700 font-normal leading-relaxed mb-3">
               Voor horeca, bedrijven en speciaalzaken ontwikkelen we een eigen exclusief brandprofiel en leveren we zakken bedrukt met jullie eigen logo en branding.
             </p>
-            <ul className="text-xs text-stone-700 space-y-1.5 mb-6">
+            <ul className="text-xs text-stone-700 space-y-1 mb-4">
               <li className="flex items-center gap-2">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-700" />
+                <CheckCircle className="w-3 h-3 text-emerald-700" />
                 <span>Cupping en tasting sessions ter plaatse of in ons Atelier</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-700" />
+                <CheckCircle className="w-3 h-3 text-emerald-700" />
                 <span>Eigen blendverhoudingen met volledige herkomsttransparantie</span>
               </li>
             </ul>
             <a
               href="#b2b-form"
-              className="inline-flex items-center gap-2 bg-stone-900 text-white px-5 py-3 rounded-xl text-xs font-semibold hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-1.5 bg-stone-900 text-white px-4 py-2.5 rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors"
             >
               <span>Neem contact op voor White Label and custom roasting solutions</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -538,13 +538,13 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         </section>
 
         {/* B2B Contact & Quote Request Form */}
-        <section id="b2b-form" className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs">
-          <div className="max-w-3xl mb-8">
-            {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
+        <section id="b2b-form" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+          <div className="max-w-3xl mb-5">
+            {/* H2: ~25% reduced */}
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
               Vraag een B2B Voorstel of Gratis Proefpakket aan
             </h2>
-            <p className="text-base text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
               Vul onderstaand formulier in en we bezorgen u binnen 24u een voorstel op maat van uw onderneming.
             </p>
           </div>

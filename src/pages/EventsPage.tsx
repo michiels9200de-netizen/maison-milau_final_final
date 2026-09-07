@@ -67,34 +67,34 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen text-stone-800 pb-24">
+    <div className="min-h-screen text-stone-800 pb-16">
       {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12 sm:py-16">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-3">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1.5">
                 Events & Verhuur
               </div>
-              {/* H1: 48-64px, font-weight 700 */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">
+              {/* H1: ~25% reduced */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-2.5">
                 Koffiecatering & Apparatuur
               </h1>
-              {/* Body: 16-18px, font-weight 400, line-height 1.6 */}
-              <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed mb-8">
+              {/* Body */}
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-5">
                 Geef uw gasten een onvergetelijke koffie-ervaring. Van compacte espressomachines voor een intiem tuinfeest of trouwfeest tot complete mobiele barista-bars voor grote beurzen en congressen.
               </p>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 <a
                   href="#event-form"
-                  className="bg-amber-900 hover:bg-amber-800 text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
+                  className="bg-amber-900 hover:bg-amber-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
                 >
                   Neem contact op voor all event solutions
                 </a>
                 <button
                   onClick={() => navigate('/webshop')}
-                  className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors"
+                  className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors"
                 >
                   Koffiebonen Direct Kopen
                 </button>
@@ -110,30 +110,30 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                 subtitle="Sfeerbeeld van een professionele artisanale koffiebar op locatie (trouwfeest / bedrijfsevenement) met barista en latte art."
                 recommendedSize="1920 × 1280 (16:9 of 4:3)"
                 aspectRatio="video"
-                className="shadow-sm border-stone-200 min-h-[300px]"
+                className="shadow-sm border-stone-200 min-h-[240px]"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 sm:space-y-10">
         {/* 3 Core Packages */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex flex-col justify-between">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-2xs flex flex-col justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider font-semibold text-amber-900 mb-2">
+              <div className="text-[10px] uppercase tracking-wider font-semibold text-amber-900 mb-1.5">
                 Pakket 1
               </div>
-              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
                 Enkel Verse Bonen
               </h3>
-              <p className="text-base text-stone-600 font-normal leading-relaxed mb-4">
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-3">
                 U heeft al een machine op locatie? Bestel onze Milau Selection of Barrel Aged bonen, speciaal afgestemd op feestvolumes met verse branddatum.
               </p>
             </div>
-            <div className="pt-4 border-t border-stone-100 flex items-baseline justify-between">
-              <span className="text-sm font-bold text-stone-900">Vanaf €21,50 / kg</span>
+            <div className="pt-3 border-t border-stone-100 flex items-baseline justify-between">
+              <span className="text-xs font-bold text-stone-900">Vanaf €21,50 / kg</span>
               <button
                 onClick={() => navigate('/webshop')}
                 className="text-xs text-amber-900 font-semibold hover:underline"
@@ -143,40 +143,40 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-2xs flex flex-col justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider font-semibold text-amber-900 mb-2">
+              <div className="text-[10px] uppercase tracking-wider font-semibold text-amber-900 mb-1.5">
                 Pakket 2
               </div>
-              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
                 Dry-Hire Machine + Bonen
               </h3>
-              <p className="text-base text-stone-600 font-normal leading-relaxed mb-4">
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-3">
                 Huur een gebruiksvriendelijke volautomatische espressomachine of compacte 1-groeps pistonmachine inclusief koffiebonen, suiker en melkkannetjes.
               </p>
             </div>
-            <div className="pt-4 border-t border-stone-100 flex items-baseline justify-between">
-              <span className="text-sm font-bold text-stone-900">Vanaf €95 / weekend</span>
+            <div className="pt-3 border-t border-stone-100 flex items-baseline justify-between">
+              <span className="text-xs font-bold text-stone-900">Vanaf €95 / weekend</span>
               <a href="#event-calculator" className="text-xs text-amber-900 font-semibold hover:underline">
                 Bereken formule →
               </a>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-2xs flex flex-col justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider font-semibold text-amber-900 mb-2">
+              <div className="text-[10px] uppercase tracking-wider font-semibold text-amber-900 mb-1.5">
                 Pakket 3
               </div>
-              <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
                 Full-Service Barista Bar
               </h3>
-              <p className="text-base text-stone-600 font-normal leading-relaxed mb-4">
+              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-3">
                 Complete ontzorging met professionele barista, latte art, specialty bonen, bio melk, havermelk en stijlvol barmeubel voor uw receptie of bedrijfsfeest.
               </p>
             </div>
-            <div className="pt-4 border-t border-stone-100 flex items-baseline justify-between">
-              <span className="text-sm font-bold text-stone-900">Op maat berekend</span>
+            <div className="pt-3 border-t border-stone-100 flex items-baseline justify-between">
+              <span className="text-xs font-bold text-stone-900">Op maat berekend</span>
               <a href="#event-form" className="text-xs text-amber-900 font-semibold hover:underline">
                 Vraag offerte →
               </a>
@@ -185,17 +185,17 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
         </section>
 
         {/* Event Planner Calculator */}
-        <section id="event-calculator" className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs">
-          <div className="max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-900 mb-2">
-              <Calculator className="w-4 h-4" />
+        <section id="event-calculator" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+          <div className="max-w-3xl mb-5">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 mb-1.5">
+              <Calculator className="w-3.5 h-3.5" />
               <span>Event Planner Calculator</span>
             </div>
-            {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
+            {/* H2: ~25% reduced */}
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
               Bereken uw Evenement Benodigdheden
             </h2>
-            <p className="text-base text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
               Bereken exact de benodigde hoeveelheid specialty koffiebonen en apparatuur voor uw bruiloft, bedrijfsreceptie of tuinfeest.
             </p>
           </div>
@@ -277,27 +277,27 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
             </div>
 
             {/* Calculation Results Card */}
-            <div className="lg:col-span-6 bg-stone-900 text-stone-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-md">
-              <div className="text-xs uppercase tracking-widest text-amber-400 font-semibold">
+            <div className="lg:col-span-6 bg-stone-900 text-stone-100 rounded-xl p-5 sm:p-6 space-y-3 shadow-md">
+              <div className="text-[11px] uppercase tracking-widest text-amber-400 font-semibold">
                 Gecumuleerde Behoefte
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pb-4 border-b border-stone-800 text-xs">
+              <div className="grid grid-cols-2 gap-3 pb-3 border-b border-stone-800 text-xs">
                 <div>
                   <div className="text-stone-400">Geschat aantal kopjes koffie:</div>
-                  <div className="text-2xl sm:text-3xl font-bold text-white mt-1">
+                  <div className="text-xl sm:text-2xl font-bold text-white mt-0.5">
                     ~{estimatedCups} kopjes
                   </div>
                 </div>
                 <div>
                   <div className="text-stone-400">Aanbevolen bonenvolume:</div>
-                  <div className="text-2xl sm:text-3xl font-bold text-amber-300 mt-1">
+                  <div className="text-xl sm:text-2xl font-bold text-amber-300 mt-0.5">
                     {recommendedKg} kg bonen
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs text-stone-300 py-1">
+              <div className="space-y-1.5 text-xs text-stone-300 py-0.5">
                 <div className="flex justify-between">
                   <span>Apparatuurformule:</span>
                   <span className="font-semibold text-white">
@@ -316,16 +316,16 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                 <span className="font-bold text-amber-300">✓ Service is ALTIJD 100% GRATIS:</span> Gratis afstelling op uw wensen, reinigingsmiddelen en telefonische stand-by support tijdens het evenement inbegrepen.
               </div>
 
-              <div className="pt-3 border-t border-stone-800 flex justify-between items-baseline">
-                <div className="text-sm font-medium text-stone-300">Indicatieve Totaalprijs:</div>
-                <div className="text-3xl font-bold text-amber-100">
+              <div className="pt-2.5 border-t border-stone-800 flex justify-between items-baseline">
+                <div className="text-xs font-medium text-stone-300">Indicatieve Totaalprijs:</div>
+                <div className="text-2xl font-bold text-amber-100">
                   €{estimatedTotal.toFixed(2)}
                 </div>
               </div>
 
               <a
                 href="#event-form"
-                className="w-full mt-4 bg-amber-700 hover:bg-amber-600 text-white py-3 rounded-xl font-semibold text-xs uppercase tracking-wider text-center block transition-colors shadow-xs"
+                className="w-full mt-2.5 bg-amber-700 hover:bg-amber-600 text-white py-2.5 rounded-lg font-semibold text-xs uppercase tracking-wider text-center block transition-colors shadow-xs"
               >
                 Vraag Event Voorstel aan voor {guestsCount} personen
               </a>
@@ -334,13 +334,13 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
         </section>
 
         {/* Event Inquiry Form */}
-        <section id="event-form" className="bg-white rounded-2xl border border-stone-200 p-8 shadow-xs">
-          <div className="max-w-3xl mb-8">
-            {/* H2: 32-40px, font-weight 600 */}
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
+        <section id="event-form" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+          <div className="max-w-3xl mb-5">
+            {/* H2: ~25% reduced */}
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
               Vraag een Offerte aan voor uw Evenement
             </h2>
-            <p className="text-base text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
               Koffiecatering & machine-verhuur voor trouwfeesten, verjaardagen, recepties of bedrijfsevenementen.
             </p>
           </div>

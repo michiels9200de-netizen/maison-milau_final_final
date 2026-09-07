@@ -314,25 +314,25 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   return (
     <div className="min-h-screen pb-16">
       {/* Webshop Header */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 pt-5 pb-4 px-4 sm:px-6">
+      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 pt-3.5 pb-2.5 sm:pt-4 sm:pb-3 px-4 sm:px-6">
         <div className="max-w-[1760px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-900 mb-0.5">
                 Webshop · Bestellen
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-stone-900">
                 Artisanale Koffies & Accessoires
               </h1>
-              <p className="text-xs sm:text-sm text-stone-600 mt-0.5 max-w-2xl font-normal leading-relaxed">
+              <p className="text-xs text-stone-600 mt-0.5 max-w-2xl font-normal leading-relaxed">
                 Vers ambachtelijk gebrande specialty koffie, giftboxen en toebehoren uit ons atelier te Oudegem.
               </p>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/koffies')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-stone-300 text-stone-700 bg-stone-50 hover:bg-white text-xs font-semibold transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 bg-stone-50 hover:bg-white text-xs font-semibold transition-colors"
               >
                 <span>Bekijk PIS Catalogus</span>
                 <ExternalLink className="w-3.5 h-3.5 text-stone-500" />
@@ -341,7 +341,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-4 pt-3.5 border-t border-stone-200/70">
+          <div className="mt-2.5 pt-2 border-t border-stone-200/70">
             <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => (
                 <button
@@ -351,7 +351,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     setSelectedCategory(cat.id);
                     if (cat.id !== 'blends') setBlendSubcategory('all');
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                     selectedCategory === cat.id
                       ? 'bg-amber-900 text-white shadow-xs'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -364,17 +364,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
             {/* Submenu for Maison Milau Speciality blends */}
             {selectedCategory === 'blends' && (
-              <div className="mt-4 p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl animate-fadeIn">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-950 mb-2 flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-amber-700" />
+              <div className="mt-2 p-2 sm:p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl animate-fadeIn">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-950 mb-1.5 flex items-center gap-1">
+                  <Award className="w-3 h-3 text-amber-700" />
                   <span>Subcategorieën Speciality Blends (Budget tot Ultimate)</span>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1">
                   {blendSubcategories.map((sub) => (
                     <button
                       key={sub.id}
                       onClick={() => setBlendSubcategory(sub.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                         blendSubcategory === sub.id
                           ? 'bg-amber-900 text-white shadow-xs'
                           : 'bg-white text-stone-700 border border-amber-200 hover:border-amber-300'
@@ -392,20 +392,20 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
       {/* Promotions Section: Dedicated Single Official Announcement (COMING SOON: Maison Milau Compatible Coffee Capsules) */}
       {selectedCategory === 'promotions' ? (
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-          <div className="bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950 text-white rounded-3xl p-8 sm:p-14 border border-amber-500/30 shadow-2xl relative overflow-hidden">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950 text-white rounded-2xl p-6 sm:p-10 border border-amber-500/30 shadow-xl relative overflow-hidden">
             {/* Ambient gold glow */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-700/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-700/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-3xl mx-auto text-center">
               {/* Badge */}
-              <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-6">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-4">
                 Aankondiging · Binnenkort Beschikbaar
               </div>
 
               {/* Capsule Graphic Visual */}
-              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-tr from-amber-950 via-stone-800 to-amber-700/40 p-4 border border-amber-400/30 shadow-lg flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-tr from-amber-950 via-stone-800 to-amber-700/40 p-3 border border-amber-400/30 shadow-lg flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -413,7 +413,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   strokeWidth="1.6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-12 h-12 text-amber-300"
+                  className="w-10 h-10 text-amber-300"
                 >
                   {/* Stylized coffee capsule */}
                   <path d="M6 8h12l-1.5 9.5a2 2 0 0 1-2 1.5h-5a2 2 0 0 1-2-1.5L6 8z" />
@@ -423,16 +423,16 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               </div>
 
               {/* Main Headline */}
-              <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-amber-50 mb-3">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-amber-50 mb-2">
                 Maison Milau Compatible Coffee Capsules
               </h2>
 
-              <p className="text-base sm:text-lg text-amber-200/90 font-medium mb-6">
+              <p className="text-sm sm:text-base text-amber-200/90 font-medium mb-4">
                 Compatible with Nespresso® systems.
               </p>
 
               {/* Suggested User Copy */}
-              <p className="text-sm sm:text-base text-stone-300 leading-relaxed max-w-2xl mx-auto mb-8 font-normal">
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-2xl mx-auto mb-6 font-normal">
                 Maison Milau&apos;s artisan coffees will soon be available in Nespresso® compatible capsules. Stay informed and be among the first to discover this exciting new addition to our collection.
               </p>
 
