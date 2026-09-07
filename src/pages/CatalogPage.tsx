@@ -2,10 +2,18 @@ import React, { useState, useRef } from 'react';
 import { CATALOG_ITEMS } from '../data/catalogData';
 import { COLLECTION_INTROS } from '../data/collectionIntros';
 import { CoffeeCatalogItem } from '../types';
-import { Coffee, ArrowRight, Award, Info, X, Sparkles, BookOpen } from 'lucide-react';
-import { MediaPlaceholder } from '../components/MediaPlaceholder';
-import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
-import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
+import {
+  Compass,
+  Sparkles,
+  BookOpen,
+  X,
+  Search,
+  ArrowRight,
+  ShoppingBag,
+} from 'lucide-react';
+import { CoffeeFinder } from '../components/coffee-guide/CoffeeFinder';
+import { CoffeeDiscoveryCard } from '../components/coffee-guide/CoffeeDiscoveryCard';
+import { CoffeeDossierModal } from '../components/coffee-guide/CoffeeDossierModal';
 
 interface CatalogPageProps {
   navigate: (path: string) => void;
@@ -16,10 +24,15 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>(null);
+
+  // Dedicated Dossier Modal state for individual coffee deep-dives
+  const [selectedDossierCoffee, setSelectedDossierCoffee] = useState<CoffeeCatalogItem | null>(null);
+
   const introSectionRef = useRef<HTMLDivElement>(null);
+  const finderSectionRef = useRef<HTMLDivElement>(null);
 
   const collections = [
-    { id: 'all', label: 'Alle Koffies' },
+    { id: 'all', label: 'Alle Collecties' },
     { id: 'Budget', label: 'Milau Budget' },
     { id: 'Value', label: 'Milau Value' },
     { id: 'Selection', label: 'Milau Selection' },
@@ -33,7 +46,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
   const types = [
     { id: 'all', label: 'Alle Zetmethodes' },
     { id: 'Espresso', label: 'Espresso' },
-    { id: 'Omni', label: 'Omniroast (Volautomaat / Filter)' },
+    { id: 'Omni', label: 'Omniroast (Veelzijdig)' },
     { id: 'Filter', label: 'Filter / Pour-Over' },
     { id: 'Specialty', label: 'Specialty & Barrel' },
   ];
@@ -50,11 +63,12 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
     }
   };
 
-  const handleBlendClick = (coffee: CoffeeCatalogItem) => {
-    setActiveIntroCollection(coffee.collection);
-    setTimeout(() => {
-      introSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+  const handleOpenDossier = (coffee: CoffeeCatalogItem) => {
+    setSelectedDossierCoffee(coffee);
+  };
+
+  const handleCloseDossier = () => {
+    setSelectedDossierCoffee(null);
   };
 
   const filteredItems = CATALOG_ITEMS.filter((item) => {
@@ -72,38 +86,64 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen text-stone-800 pb-24">
-      {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12 sm:py-16">
+      {/* 1. COLLECTION INTRODUCTION & HEADER */}
+      <section className="bg-[#FAF7F2] border-b border-stone-200/80 pt-12 pb-10 sm:pt-16 sm:pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-amber-200/60">
-              <Info className="w-3.5 h-3.5" />
-              <span>Product Informatie Systeem (PIS) · Educatie & Terroir</span>
-            </div>
-            {/* H1: 48-64px, font-weight 700 */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">
-              Onze Koffies
-            </h1>
-            {/* Body: 16-18px, font-weight 400, line-height 1.6 */}
-            <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed">
-              Deze catalogus is ingericht om te ontdekken, leren en proeven. Klik op een blend of collectie om de introductie en het unieke karakter van elke koffielijn te bekijken.
-            </p>
-          </div>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/90 text-amber-950 text-xs font-bold uppercase tracking-wider mb-4 border border-amber-300/60 shadow-2xs">
+                <Compass className="w-3.5 h-3.5 text-amber-800" />
+                <span>Maison Milau · Collectie & Terroir</span>
+              </div>
 
-          {/* Quick Filter Bar */}
-          <div className="mt-8 pt-8 border-t border-stone-200 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-            {/* Search Input */}
-            <div className="w-full md:w-80">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">
+                Koffiegids & Collecties
+              </h1>
+
+              <p className="text-base sm:text-lg text-stone-600 font-normal leading-relaxed">
+                Een zorgvuldig samengesteld overzicht van onze ambachtelijke brandingen, zeldzame origines en uitgebalanceerde melanges. Verken smaakprofielen, cupping-notities en zetadviezen van onze meesterbrander.
+              </p>
+            </div>
+
+            {/* Clear demarcation link to the transactional Shop */}
+            <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs max-w-sm shrink-0">
+              <div className="flex items-center gap-2 text-xs font-bold text-stone-900 uppercase tracking-wider mb-1">
+                <ShoppingBag className="w-4 h-4 text-amber-900" />
+                <span>Direct koffie bestellen?</span>
+              </div>
+              <p className="text-xs text-stone-500 leading-relaxed mb-3">
+                De Koffiegids is bedoeld voor smaakontdekking en educatie. Voor direct bestellen, verpakkingen en abonnementen bezoekt u onze webshop.
+              </p>
+              <button
+                onClick={() => navigate('/webshop')}
+                className="w-full py-2.5 px-4 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-xs"
+              >
+                <span>Naar de Webshop</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        {/* 2. COFFEE COLLECTIONS (Filter Bar & Navigation) */}
+        <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs mb-8">
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+            {/* Search Bar */}
+            <div className="w-full md:w-80 relative">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Zoek op herkomst, smaak of naam..."
-                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-800"
+                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-900"
               />
             </div>
 
-            {/* Type selector */}
+            {/* Method Filter */}
             <div className="flex flex-wrap gap-1.5">
               {types.map((t) => (
                 <button
@@ -122,7 +162,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
           </div>
 
           {/* Collection Pills */}
-          <div className="mt-4 flex flex-wrap gap-2 overflow-x-auto pb-2">
+          <div className="mt-4 pt-4 border-t border-stone-100 flex flex-wrap gap-2">
             {collections.map((col) => (
               <button
                 key={col.id}
@@ -130,7 +170,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   selectedCollection === col.id
                     ? 'bg-amber-900 text-amber-50 shadow-xs'
-                    : 'bg-white border border-stone-300 text-stone-700 hover:border-stone-400'
+                    : 'bg-stone-50 border border-stone-200 text-stone-700 hover:border-stone-400'
                 }`}
               >
                 <span>{col.label}</span>
@@ -138,28 +178,24 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
             ))}
           </div>
         </div>
-      </section>
 
-      {/* Main Catalog Content */}
-      <section ref={introSectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        {/* Collection Intro Banner: Appears when clicking on a specific blend or selecting a collection */}
-        {activeIntro && (
-          <div className="mb-10 bg-white rounded-2xl border border-amber-200/90 shadow-sm p-6 sm:p-8 relative overflow-hidden transition-all animate-fadeIn">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-amber-100/40 via-transparent to-transparent rounded-full pointer-events-none" />
-            <div className="relative z-10">
+        {/* Collection Editorial Dossier Banner (Appears when a collection is selected) */}
+        <div ref={introSectionRef}>
+          {activeIntro && (
+            <div className="mb-10 bg-white rounded-3xl border border-amber-200/90 shadow-sm p-6 sm:p-8 relative overflow-hidden transition-all">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 text-xs font-bold uppercase tracking-wider">
-                  <Coffee className="w-3.5 h-3.5 text-amber-800" />
-                  <span>Collectie Introductie</span>
+                  <BookOpen className="w-3.5 h-3.5 text-amber-800" />
+                  <span>Collectie Terroir Dossier</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/70">
+                  <span className="text-xs font-semibold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/70">
                     {activeIntro.priceFrom}
                   </span>
                   <button
                     onClick={() => setActiveIntroCollection(null)}
                     className="p-1 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
-                    title="Introductie sluiten"
+                    title="Dossier sluiten"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -170,22 +206,25 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                 {activeIntro.title}
               </h2>
 
-              <div className="space-y-3 text-stone-600 text-sm sm:text-base leading-relaxed max-w-4xl">
+              <div className="space-y-3 text-stone-600 text-xs sm:text-sm leading-relaxed max-w-4xl">
                 {activeIntro.description.map((paragraph, idx) => (
                   <p key={idx}>{paragraph}</p>
                 ))}
               </div>
 
-              {/* Target Audience (e.g. Voor wie?) */}
+              {/* Target Audience */}
               {activeIntro.targetAudience && (
                 <div className="mt-6 pt-5 border-t border-stone-100">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 mb-3 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-800" />
                     <span>{activeIntro.targetAudienceTitle || 'Voor wie?'}</span>
                   </h4>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs sm:text-sm text-stone-700">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs text-stone-700">
                     {activeIntro.targetAudience.map((item, idx) => (
-                      <li key={idx} className="flex items-center gap-2 bg-stone-50 px-3 py-2 rounded-lg border border-stone-200/60 font-medium">
+                      <li
+                        key={idx}
+                        className="flex items-center gap-2 bg-stone-50 px-3 py-2 rounded-lg border border-stone-200/60 font-medium"
+                      >
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-800 shrink-0" />
                         <span>{item}</span>
                       </li>
@@ -194,18 +233,16 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                 </div>
               )}
 
-              {/* Barrel Profiles if applicable */}
+              {/* Barrel Profiles (if barrel aged collection) */}
               {activeIntro.barrelProfiles && (
                 <div className="mt-6 pt-5 border-t border-stone-100">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 mb-3">
-                    Afhankelijk van het gebruikte vat ontstaan unieke smaakprofielen:
+                    Vatlagering & Aroma's:
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {activeIntro.barrelProfiles.map((barrel, idx) => (
                       <div key={idx} className="bg-stone-50 rounded-xl p-4 border border-stone-200/80 text-xs">
-                        <div className="font-bold text-stone-900 mb-2 text-xs sm:text-sm">
-                          {barrel.caskName}
-                        </div>
+                        <div className="font-bold text-stone-900 mb-2">{barrel.caskName}</div>
                         <ul className="space-y-1.5 text-stone-600">
                           {barrel.notes.map((note, nIdx) => (
                             <li key={nIdx} className="flex items-center gap-2">
@@ -219,147 +256,71 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
                   </div>
                 </div>
               )}
-
-              {/* Extra Note (e.g. limited batch) */}
-              {activeIntro.extraNote && (
-                <div className="mt-4 text-xs font-medium text-amber-900 bg-amber-50/90 px-3.5 py-2 rounded-xl border border-amber-200/70 inline-block">
-                  {activeIntro.extraNote}
-                </div>
-              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Count overview */}
+        {/* Results Counter */}
         <div className="mb-6 flex items-center justify-between text-xs text-stone-500">
           <div>
-            Toont <strong className="text-stone-800">{filteredItems.length}</strong> koffieprofielen met herkomst en smaaknotities
+            Toont <strong className="text-stone-900">{filteredItems.length}</strong> koffieprofielen met herkomst, branding en cupping-meters
           </div>
+          <button
+            onClick={() => {
+              finderSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="hidden sm:inline-flex items-center gap-1 text-amber-900 hover:text-amber-800 font-semibold"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Naar Koffie Finder ↓</span>
+          </button>
         </div>
 
-        {/* Catalog Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.map((coffee) => {
-            return (
-              <div
-                key={coffee.id}
-                className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
-              >
-                <div>
-                  {/* Top Badge: Collection */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <button
-                      onClick={() => handleBlendClick(coffee)}
-                      className="px-2.5 py-0.5 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-800 hover:text-amber-950 text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center gap-1"
-                      title="Klik om collectie-introductie te lezen"
-                    >
-                      <BookOpen className="w-3 h-3 text-amber-800" />
-                      <span>{coffee.collection}</span>
-                    </button>
-                    <span className="text-[11px] font-medium text-stone-500">
-                      {coffee.type}
-                    </span>
-                  </div>
-
-                  {/* Product Visual with Country of Origin Badge top-left & SCA Score top-right */}
-                  <div
-                    className="mb-4 relative cursor-pointer"
-                    onClick={() => handleBlendClick(coffee)}
-                    title="Klik om collectie-introductie te lezen"
-                  >
-                    <CoffeeOriginBadge origins={coffee.origins} />
-                    {coffee.scaScore && (
-                      <div className="absolute top-2.5 right-2.5 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
-                        <Award className="w-3.5 h-3.5 text-amber-400" />
-                        <span>SCA: {coffee.scaScore}</span>
-                      </div>
-                    )}
-                    <MediaPlaceholder
-                      type="image"
-                      badgeText="Productverpakking"
-                      title={coffee.name}
-                      subtitle={`${coffee.collection} · ${coffee.type}`}
-                      recommendedSize="800 × 800 (1:1 Vierkant)"
-                      aspectRatio="square"
-                      className="min-h-[160px] border-stone-200 group-hover:border-amber-300 transition-colors"
-                      imageUrl={coffee.imageUrl}
-                    />
-                  </div>
-
-                  {/* Title & Info */}
-                  <div className="cursor-pointer" onClick={() => handleBlendClick(coffee)}>
-                    {/* H3: 24-28px font-weight 600 */}
-                    <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1 group-hover:text-amber-950 transition-colors">
-                      {coffee.name}
-                    </h3>
-
-                    <div className="text-xs text-stone-500 mb-3">
-                      Type: <span className="font-medium text-stone-700">{coffee.type}</span> ·{' '}
-                      <span className="text-amber-800 font-semibold">{coffee.retailPriceGuide}</span>
-                    </div>
-                  </div>
-
-                  {/* Flavors Chips */}
-                  <div className="mb-4">
-                    <div className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold mb-1.5">
-                      Smaakprofiel
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {coffee.flavors.map((flavor, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md text-xs font-normal"
-                        >
-                          {flavor}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Improved Star System & Karakter */}
-                  <div className="mb-4">
-                    <CoffeeCharacterCard
-                      profile={coffee.characterProfile}
-                      fallbackText={coffee.character}
-                    />
-                  </div>
-
-                  {/* Roast & Brewing */}
-                  <div className="text-xs text-stone-500 mb-4 space-y-1">
-                    <div>
-                      <strong className="text-stone-700">Branding:</strong> {coffee.roastProfile}
-                    </div>
-                    <div>
-                      <strong className="text-stone-700">Aanbevolen zettechniek:</strong>{' '}
-                      {coffee.brewRecommendations.join(', ')}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions: Direct Link to Webshop & Intro Toggle */}
-                <div className="pt-4 border-t border-stone-100 flex flex-col gap-2">
-                  <button
-                    id={`btn-order-${coffee.slug}`}
-                    onClick={() => navigate(`/webshop?highlight=${coffee.webshopProductId}`)}
-                    className="w-full bg-amber-900 hover:bg-amber-800 text-white py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-2 shadow-xs"
-                  >
-                    <span>ORDER THIS COFFEE</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleBlendClick(coffee)}
-                    className="w-full py-2 px-3 rounded-lg text-xs font-semibold border border-stone-200 text-stone-600 hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-amber-800" />
-                    <span>Lees collectie-introductie</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+        {/* 3. INDIVIDUAL COFFEE PROFILES (Existing presentation preserved) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+          {filteredItems.map((coffee) => (
+            <CoffeeDiscoveryCard
+              key={coffee.id}
+              coffee={coffee}
+              onOpenDossier={handleOpenDossier}
+              navigate={navigate}
+            />
+          ))}
         </div>
-      </section>
+
+        {/* 4. COFFEE FINDER AT THE END (Optional discovery tool) */}
+        <section
+          ref={finderSectionRef}
+          id="koffie-finder-section"
+          className="pt-12 border-t border-stone-200/90"
+        >
+          <div className="mb-8 text-center max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider mb-3 border border-amber-200">
+              <Sparkles className="w-3.5 h-3.5 text-amber-800" />
+              <span>Persoonlijke Smaakontdekking</span>
+            </div>
+            <h2 className="text-3xl font-bold text-stone-900 tracking-tight mb-2">
+              Koffie Finder · Vind Jouw Ideale Profiel
+            </h2>
+            <p className="text-sm text-stone-600 leading-relaxed">
+              Twijfelt u welke boon het best aansluit bij uw smaakvoorkeuren en zetmethode? Beantwoord 3 korte ontdekkingsvragen voor een persoonlijk advies van onze meesterbrander.
+            </p>
+          </div>
+
+          <CoffeeFinder
+            coffees={CATALOG_ITEMS}
+            navigate={navigate}
+            onOpenDossier={handleOpenDossier}
+          />
+        </section>
+      </main>
+
+      {/* Dedicated Interactive Coffee Dossier Modal */}
+      <CoffeeDossierModal
+        coffee={selectedDossierCoffee}
+        onClose={handleCloseDossier}
+        navigate={navigate}
+      />
     </div>
   );
 };

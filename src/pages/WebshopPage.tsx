@@ -525,14 +525,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       </span>
                     </div>
 
-                    {/* Product Visual with Country Flags top-left and SCA score top-right */}
-                    <div className="mb-4 relative">
+                    {/* Product Visual with Country Flags top-left and SCA score top-right - scaled down 18-20% for refined whitespace & faster browsing */}
+                    <div className="mb-4 relative w-full max-w-[82%] sm:max-w-[80%] md:max-w-[82%] mx-auto">
                       <CoffeeOriginBadge origins={product.origins} />
 
                       {/* SCA Score subtly top-right on the photo */}
                       {product.scaScore && (
-                        <div className="absolute top-2.5 right-2.5 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
-                          <Award className="w-3.5 h-3.5 text-amber-400" />
+                        <div className="absolute top-2 right-2 z-10 bg-stone-900/85 backdrop-blur-xs text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
+                          <Award className="w-3 h-3 text-amber-400" />
                           <span>SCA: {product.scaScore}</span>
                         </div>
                       )}
@@ -544,7 +544,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         subtitle={`Artisanale verpakking (${currentWeight}) met aromaventiel`}
                         recommendedSize="800 × 600 (4:3)"
                         aspectRatio="video"
-                        className="min-h-[160px]"
+                        className="min-h-[130px] sm:min-h-[140px]"
                         imageUrl={displayImage}
                         hidePlaceholder={product.category === 'giftboxes'}
                       />

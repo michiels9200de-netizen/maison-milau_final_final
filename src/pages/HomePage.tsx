@@ -267,7 +267,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               onClick={() => navigate('/koffies')}
               className="bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-5 py-3 rounded-xl text-sm font-semibold transition-colors"
             >
-              Bekijk Koffie Catalogus
+              Ontdek de Koffiegids
             </button>
           </div>
         </div>

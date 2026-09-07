@@ -23,10 +23,17 @@ export const SITEMAP: RouteDefinition[] = [
   },
   {
     path: '/koffies',
-    title: 'Onze Koffies · Product Informatie Systeem & Catalogus',
-    description: 'Educatief koffie-overzicht met SCA scores, blendverhoudingen, origines en terroir.',
+    title: 'Koffiegids · Maison Milau Artisanale Koffies & Terroir',
+    description: 'Premium koffiegids met smaakprofielen, oorsprong, interactieve koffiefinder en smaakvergelijker.',
     inNavigation: true,
-    navLabel: 'Onze Koffies',
+    navLabel: 'Koffiegids',
+  },
+  {
+    path: '/koffiegids',
+    title: 'Koffiegids · Maison Milau Artisanale Koffies & Terroir',
+    description: 'Premium koffiegids met smaakprofielen, oorsprong, interactieve koffiefinder en smaakvergelijker.',
+    inNavigation: false,
+    navLabel: 'Koffiegids',
   },
   {
     path: '/webshop',

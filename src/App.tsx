@@ -51,6 +51,7 @@ export default function App() {
       case '/':
         return <HomePage navigate={navigate} />;
       case '/koffies':
+      case '/koffiegids':
         return <CatalogPage navigate={navigate} />;
       case '/webshop':
         return <WebshopPage navigate={navigate} searchParams={searchParams} />;
