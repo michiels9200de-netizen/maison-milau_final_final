@@ -98,9 +98,9 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
           {renderRoastIndicator(specs.roastLevel)}
         </div>
 
-        {/* Product Visual with Country Flags top-left and SCA score top-right */}
+        {/* Proportional Product Visual (100% visible, uncropped, scaled for optimal density) */}
         <div
-          className="mb-2.5 relative cursor-pointer"
+          className="mb-2.5 relative cursor-pointer bg-gradient-to-b from-stone-50 via-white to-stone-100/60 rounded-xl p-2 border border-stone-200/80 group-hover:border-amber-300/80 transition-all flex items-center justify-center h-[110px] sm:h-[120px] overflow-hidden"
           onClick={() => onOpenDossier(coffee)}
           title="Klik om interactief dossier te bekijken"
         >
@@ -118,8 +118,9 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             badgeText={specs.discoveryTag || 'Artisanale Selectie'}
             title={coffee.name}
             subtitle={`${coffee.collection} · ${specs.roastLevel}`}
-            aspectRatio="video"
-            className="min-h-[125px] border-stone-200 group-hover:border-amber-300 transition-colors"
+            aspectRatio="auto"
+            imageFit="contain"
+            className="h-full w-full max-h-[105px] flex items-center justify-center"
             imageUrl={coffee.imageUrl}
           />
         </div>

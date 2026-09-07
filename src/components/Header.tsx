@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Menu, X, ShoppingBag, User, ChevronDown, Coffee, ChevronRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
@@ -16,8 +16,50 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isWebshopSubmenuOpen, setIsWebshopSubmenuOpen] = useState(false);
   const [isBlendsSubmenuOpen, setIsBlendsSubmenuOpen] = useState(false);
+  const [desktopDropdown, setDesktopDropdown] = useState<'webshop' | 'account' | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { itemCount, setIsCartOpen } = useCart();
   const { user, accountType, switchAccountType } = useAuth();
+
+  const openDropdown = (menu: 'webshop' | 'account') => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setDesktopDropdown(menu);
+  };
+
+  const closeDropdownWithDelay = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = setTimeout(() => {
+      setDesktopDropdown(null);
+    }, 400); // 400ms graceful close delay allows comfortable cursor movement
+  };
+
+  const cancelCloseDropdown = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest('[data-dropdown-container]')) {
+        setDesktopDropdown(null);
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   const blendCategories = [
     { id: 'all', name: 'Alle Blends' },
@@ -37,6 +79,10 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
     setIsMenuOpen(false);
     setIsWebshopSubmenuOpen(false);
     setIsBlendsSubmenuOpen(false);
+    setDesktopDropdown(null);
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+    }
   };
 
   return (
@@ -76,79 +122,104 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             </button>
 
           {/* Webshop with Hover/Click dropdown */}
-          <div className="relative group">
+          <div
+            className="relative"
+            data-dropdown-container="webshop"
+            onMouseEnter={() => openDropdown('webshop')}
+            onMouseLeave={closeDropdownWithDelay}
+          >
             <button
               onClick={() => handleNavClick('/webshop')}
-              className={`flex items-center gap-1 hover:text-stone-900 transition-colors ${
+              className={`flex items-center gap-1 hover:text-stone-900 transition-colors py-2 ${
                 currentPath.startsWith('/webshop') ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
               }`}
+              aria-expanded={desktopDropdown === 'webshop'}
+              aria-haspopup="true"
             >
               <span>{t('nav.webshop')}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-stone-400 group-hover:rotate-180 transition-transform" />
+              <ChevronDown
+                className={`w-3.5 h-3.5 text-stone-400 transition-transform duration-200 ${
+                  desktopDropdown === 'webshop' ? 'rotate-180 text-amber-900' : ''
+                }`}
+              />
             </button>
 
-            <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-stone-200 py-2 hidden group-hover:block transition-all animate-fadeIn z-50">
-              <div className="px-3 py-1.5 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">
-                {t('nav.shop_assortment')}
-              </div>
+            {/* Submenu Container with Invisible Hover Bridge to Eliminate Gaps */}
+            <div
+              className={`absolute top-full left-0 pt-1.5 w-72 z-50 transition-all duration-200 ease-out ${
+                desktopDropdown === 'webshop'
+                  ? 'opacity-100 visible translate-y-0 pointer-events-auto'
+                  : 'opacity-0 invisible -translate-y-1 pointer-events-none'
+              }`}
+              onMouseEnter={cancelCloseDropdown}
+              onMouseLeave={closeDropdownWithDelay}
+            >
+              {/* Invisible Hover Zone Bridge (eliminates any margin/air gap between button & card) */}
+              <div className="absolute -top-3 left-0 right-0 h-3 bg-transparent" aria-hidden="true" />
 
-              {/* Dedicated New Category Link in Dropdown */}
-              <button
-                onClick={() => handleNavClick('/webshop?category=new_products')}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold text-amber-900 bg-amber-50/70 hover:bg-amber-100/90 flex items-center justify-between border-b border-stone-100 transition-colors"
-              >
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-                  <span>Nieuw · Te Ontdekken</span>
-                </span>
-                <span className="text-[10px] uppercase font-bold text-amber-900 bg-amber-200/80 px-1.5 py-0.5 rounded-full">
-                  Nieuw
-                </span>
-              </button>
+              <div className="bg-white rounded-xl shadow-xl border border-stone-200 py-2">
+                <div className="px-3 py-1.5 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">
+                  {t('nav.shop_assortment')}
+                </div>
 
-              {WEBSHOP_SUBCATEGORIES.map((sub) => {
-                if (sub.categoryFilter === 'new_products') return null; // already rendered as highlight above
-                if (sub.id === 'blends') {
-                  return (
-                    <div key={sub.id} className="border-b border-stone-100 pb-1 mb-1">
-                      <button
-                        onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
-                        className="w-full text-left px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
-                      >
-                        <span>{sub.name}</span>
-                        <ChevronRight className="w-3 h-3 text-stone-400" />
-                      </button>
-                      <div className="pl-6 pr-4 py-1 grid grid-cols-2 gap-1 bg-stone-50/60 rounded-lg mx-2 mb-1">
-                        {blendCategories.map((b) => (
-                          <button
-                            key={b.id}
-                            onClick={() =>
-                              handleNavClick(
-                                b.id === 'all'
-                                  ? '/webshop?category=blends'
-                                  : `/webshop?category=blends&sub=${b.id}`
-                              )
-                            }
-                            className="text-left text-[11px] text-stone-600 hover:text-amber-900 py-1 px-1 rounded hover:bg-white"
-                          >
-                            {b.name}
-                          </button>
-                        ))}
+                {/* Dedicated New Category Link in Dropdown */}
+                <button
+                  onClick={() => handleNavClick('/webshop?category=new_products')}
+                  className="w-full text-left px-3.5 py-2 text-xs font-semibold text-amber-900 bg-amber-50/70 hover:bg-amber-100/90 flex items-center justify-between border-b border-stone-100 transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Nieuw · Te Ontdekken</span>
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-amber-900 bg-amber-200/80 px-1.5 py-0.5 rounded-full">
+                    Nieuw
+                  </span>
+                </button>
+
+                {WEBSHOP_SUBCATEGORIES.map((sub) => {
+                  if (sub.categoryFilter === 'new_products') return null; // already rendered as highlight above
+                  if (sub.id === 'blends') {
+                    return (
+                      <div key={sub.id} className="border-b border-stone-100 pb-1 mb-1">
+                        <button
+                          onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
+                          className="w-full text-left px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between transition-colors"
+                        >
+                          <span>{sub.name}</span>
+                          <ChevronRight className="w-3 h-3 text-stone-400" />
+                        </button>
+                        <div className="pl-6 pr-4 py-1 grid grid-cols-2 gap-1 bg-stone-50/60 rounded-lg mx-2 mb-1">
+                          {blendCategories.map((b) => (
+                            <button
+                              key={b.id}
+                              onClick={() =>
+                                handleNavClick(
+                                  b.id === 'all'
+                                    ? '/webshop?category=blends'
+                                    : `/webshop?category=blends&sub=${b.id}`
+                                )
+                              }
+                              className="text-left text-[11px] text-stone-600 hover:text-amber-900 py-1 px-1 rounded hover:bg-white transition-colors"
+                            >
+                              {b.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    );
+                  }
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
+                      className="w-full text-left px-4 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between transition-colors"
+                    >
+                      <span>{sub.name}</span>
+                      <ChevronRight className="w-3 h-3 text-stone-400" />
+                    </button>
                   );
-                }
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => handleNavClick(`/webshop?category=${sub.categoryFilter}`)}
-                    className="w-full text-left px-4 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
-                  >
-                    <span>{sub.name}</span>
-                    <ChevronRight className="w-3 h-3 text-stone-400" />
-                  </button>
-                );
-              })}
+                })}
+              </div>
             </div>
           </div>
 
@@ -201,80 +272,110 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
           </button>
 
           {/* Account Dropdown Menu with B2C/B2B Switcher & Roastery Beheer */}
-          <div className="relative group">
+          <div
+            className="relative"
+            data-dropdown-container="account"
+            onMouseEnter={() => openDropdown('account')}
+            onMouseLeave={closeDropdownWithDelay}
+          >
             <button
               id="btn-header-account"
-              onClick={() => handleNavClick('/account')}
+              onClick={() => {
+                if (desktopDropdown === 'account') {
+                  handleNavClick('/account');
+                } else {
+                  openDropdown('account');
+                }
+              }}
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200/80 rounded-lg transition-colors"
               title="Mijn Account"
+              aria-expanded={desktopDropdown === 'account'}
+              aria-haspopup="true"
             >
               <User className="w-4 h-4 text-stone-700" />
               <span className="hidden sm:inline">
                 {accountType === 'professioneel' ? 'B2B Portaal' : 'Mijn Account'}
               </span>
-              <ChevronDown className="w-3 h-3 text-stone-400 group-hover:rotate-180 transition-transform hidden sm:inline" />
+              <ChevronDown
+                className={`w-3 h-3 text-stone-400 transition-transform duration-200 hidden sm:inline ${
+                  desktopDropdown === 'account' ? 'rotate-180 text-amber-900' : ''
+                }`}
+              />
             </button>
 
-            {/* Desktop Account Menu Dropdown */}
-            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-stone-200 py-2 hidden group-hover:block transition-all z-50 animate-fadeIn">
-              <div className="px-3.5 py-2 border-b border-stone-100">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
-                  Account Type
-                </div>
-                <div className="flex items-center bg-stone-100 rounded-lg p-0.5 text-xs">
-                  <button
-                    id="dropdown-switch-b2c"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      switchAccountType('particulier');
-                    }}
-                    className={`flex-1 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                      accountType === 'particulier'
-                        ? 'bg-white text-stone-900 shadow-xs'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    Particulier
-                  </button>
-                  <button
-                    id="dropdown-switch-b2b"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      switchAccountType('professioneel');
-                    }}
-                    className={`flex-1 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                      accountType === 'professioneel'
-                        ? 'bg-amber-900 text-white shadow-xs'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    Professioneel
-                  </button>
-                </div>
-              </div>
+            {/* Desktop Account Menu Dropdown with Hover Bridge */}
+            <div
+              className={`absolute right-0 top-full pt-1.5 w-64 z-50 transition-all duration-200 ease-out ${
+                desktopDropdown === 'account'
+                  ? 'opacity-100 visible translate-y-0 pointer-events-auto'
+                  : 'opacity-0 invisible -translate-y-1 pointer-events-none'
+              }`}
+              onMouseEnter={cancelCloseDropdown}
+              onMouseLeave={closeDropdownWithDelay}
+            >
+              {/* Invisible Hover Zone Bridge (eliminates any margin/air gap) */}
+              <div className="absolute -top-3 left-0 right-0 h-3 bg-transparent" aria-hidden="true" />
 
-              <div className="py-1">
-                <button
-                  onClick={() => handleNavClick('/account')}
-                  className="w-full text-left px-3.5 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-stone-500" />
-                    <span>Klantendashboard & Bestellingen</span>
+              <div className="bg-white rounded-xl shadow-xl border border-stone-200 py-2">
+                <div className="px-3.5 py-2 border-b border-stone-100">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+                    Account Type
                   </div>
-                  <ChevronRight className="w-3 h-3 text-stone-400" />
-                </button>
+                  <div className="flex items-center bg-stone-100 rounded-lg p-0.5 text-xs">
+                    <button
+                      id="dropdown-switch-b2c"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        switchAccountType('particulier');
+                      }}
+                      className={`flex-1 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                        accountType === 'particulier'
+                          ? 'bg-white text-stone-900 shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Particulier
+                    </button>
+                    <button
+                      id="dropdown-switch-b2b"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        switchAccountType('professioneel');
+                      }}
+                      className={`flex-1 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                        accountType === 'professioneel'
+                          ? 'bg-amber-900 text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Professioneel
+                    </button>
+                  </div>
+                </div>
 
-                <button
-                  onClick={() => handleNavClick('/admin')}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-50 flex items-center justify-between border-t border-stone-100"
-                >
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
-                    <span>Roastery Beheer (Admin)</span>
-                  </div>
-                  <ChevronRight className="w-3 h-3 text-amber-800" />
-                </button>
+                <div className="py-1">
+                  <button
+                    onClick={() => handleNavClick('/account')}
+                    className="w-full text-left px-3.5 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Klantendashboard & Bestellingen</span>
+                    </div>
+                    <ChevronRight className="w-3 h-3 text-stone-400" />
+                  </button>
+
+                  <button
+                    onClick={() => handleNavClick('/admin')}
+                    className="w-full text-left px-3.5 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-50 flex items-center justify-between border-t border-stone-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+                      <span>Roastery Beheer (Admin)</span>
+                    </div>
+                    <ChevronRight className="w-3 h-3 text-amber-800" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

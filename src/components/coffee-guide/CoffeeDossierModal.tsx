@@ -296,13 +296,13 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
           </div>
 
           {/* ==================================================
-              2. COFFEE IMAGE (full image, not cropped)
+              2. COFFEE IMAGE (full image, 100% visible, not cropped, scaled ~40% for optimal density)
               ================================================== */}
-          <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 shadow-2xs bg-gradient-to-b from-stone-50 via-white to-stone-100/80 p-4 sm:p-6 flex items-center justify-center min-h-[280px] sm:min-h-[360px] max-h-[460px]">
+          <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 shadow-2xs bg-gradient-to-b from-stone-50 via-white to-stone-100/80 p-3 sm:p-4 flex items-center justify-center h-[190px] sm:h-[220px] w-full max-w-xl mx-auto">
             <CoffeeOriginBadge origins={coffee.origins} />
 
             {coffee.scaScore && (
-              <div className="absolute top-3 right-3 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-400/40 shadow-sm flex items-center gap-1.5">
+              <div className="absolute top-2.5 right-2.5 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-400/40 shadow-sm flex items-center gap-1.5">
                 <Award className="w-3.5 h-3.5 text-amber-400" />
                 <span>SCA: {coffee.scaScore}</span>
               </div>
@@ -315,7 +315,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               subtitle={`${coffee.collection} · ${specs.roastLevel}`}
               aspectRatio="auto"
               imageFit="contain"
-              className="w-full h-full max-h-[420px] flex items-center justify-center"
+              className="w-full h-full max-h-[180px] sm:max-h-[210px] flex items-center justify-center"
               imageUrl={coffee.imageUrl}
             />
           </div>

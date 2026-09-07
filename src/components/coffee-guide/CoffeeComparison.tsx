@@ -218,15 +218,16 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                     </div>
 
                     <div
-                      className="mt-2.5 mb-2 w-full max-w-[150px] cursor-pointer"
+                      className="mt-2 mb-2 w-full max-w-[120px] mx-auto cursor-pointer p-1 bg-stone-50/80 rounded-lg border border-stone-200/60 flex items-center justify-center h-[75px]"
                       onClick={() => onOpenDossier(coffee)}
                       title="Klik om dossier te bekijken"
                     >
                       <MediaPlaceholder
                         type="image"
                         title={coffee.name}
-                        aspectRatio="video"
-                        className="rounded-lg min-h-[90px]"
+                        aspectRatio="auto"
+                        imageFit="contain"
+                        className="h-full w-full max-h-[70px] flex items-center justify-center"
                         imageUrl={coffee.imageUrl}
                       />
                     </div>

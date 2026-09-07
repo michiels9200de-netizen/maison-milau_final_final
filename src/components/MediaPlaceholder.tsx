@@ -41,8 +41,10 @@ export const MediaPlaceholder: React.FC<MediaPlaceholderProps> = ({
         <img
           src={encodeURI(imageUrl)}
           alt={title}
-          className={`w-full h-full ${
-            imageFit === 'contain' ? 'object-contain max-h-full max-w-full drop-shadow-md' : 'object-cover'
+          className={`${
+            imageFit === 'contain'
+              ? 'w-auto h-auto max-h-full max-w-full object-contain drop-shadow-md mx-auto'
+              : 'w-full h-full object-cover'
           }`}
           loading="lazy"
           decoding="async"
