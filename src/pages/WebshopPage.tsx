@@ -633,6 +633,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
               const displayImage = activeProductImage[product.id] || product.imageUrl;
 
+              // Calculate starting "Vanaf" price for the product card badge
+              const startingPrice = product.variants && product.variants.length > 0
+                ? Math.min(...product.variants.map((v) => v.price))
+                : currentVariant.price;
+              const formattedStartingPrice = startingPrice.toFixed(2).replace('.', ',');
+              const isMultiOption = (product.variants && product.variants.length > 1) || isCoffeeProduct || isGiftbox;
+
               const matchingCatalogCoffee = CATALOG_ITEMS.find(
                 (c) =>
                   c.webshopProductId === product.id ||
@@ -685,11 +692,30 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
                     <div className="mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden">
-                      <CoffeeOriginBadge origins={product.origins} className="!top-1.5 !left-1.5 !px-1.5 !py-0.5 !text-xs shadow-2xs" />
+                      {/* Subtle Premium "Vanaf €..." Starting Price Badge */}
+                      <div
+                        className="absolute top-2 left-2 z-20 bg-stone-950/85 hover:bg-stone-950/95 backdrop-blur-md text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-700/60 shadow-xs flex items-baseline gap-1 select-none pointer-events-none transition-colors"
+                        title={isMultiOption ? `Vanaf €${formattedStartingPrice}` : `Prijs: €${formattedStartingPrice}`}
+                      >
+                        {isMultiOption && (
+                          <span className="text-[10px] sm:text-[11px] font-medium text-stone-300 uppercase tracking-wider">
+                            Vanaf
+                          </span>
+                        )}
+                        <span className="text-xs sm:text-sm font-bold font-mono text-amber-100 tracking-tight">
+                          €{formattedStartingPrice}
+                        </span>
+                      </div>
+
+                      {/* Repositioned Country Origin Flags in Bottom-Left */}
+                      <CoffeeOriginBadge
+                        origins={product.origins}
+                        className="!top-auto !bottom-2 !left-2 !px-2 !py-0.5 !text-xs shadow-2xs"
+                      />
 
                       {/* SCA Score subtly top-right on the photo */}
                       {product.scaScore && (
-                        <div className="absolute top-1.5 right-1.5 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border border-amber-400/40 shadow-xs flex items-center gap-0.5">
+                        <div className="absolute top-2 right-2 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-400/40 shadow-xs flex items-center gap-1 select-none pointer-events-none">
                           <Award className="w-2.5 h-2.5 text-amber-400 shrink-0" />
                           <span>SCA {product.scaScore}</span>
                         </div>
