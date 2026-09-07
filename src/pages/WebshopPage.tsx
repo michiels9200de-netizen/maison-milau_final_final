@@ -692,32 +692,40 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
                     <div className="mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden">
-                      {/* Subtle Premium "Vanaf €..." Starting Price Badge */}
+                      {/* Subtle Premium Starting Price Badge - Clear Vertical Hierarchy */}
                       <div
-                        className="absolute top-2 left-2 z-20 bg-stone-950/85 hover:bg-stone-950/95 backdrop-blur-md text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-700/60 shadow-xs flex items-baseline gap-1 select-none pointer-events-none transition-colors"
-                        title={isMultiOption ? `Vanaf €${formattedStartingPrice}` : `Prijs: €${formattedStartingPrice}`}
+                        className="absolute top-2 left-2 z-20 bg-stone-900/90 backdrop-blur-md px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg border border-stone-700/60 shadow-xs flex flex-col items-start leading-none select-none pointer-events-none transition-transform group-hover:scale-[1.02]"
+                        title={isMultiOption ? `Vanaf € ${formattedStartingPrice}` : `Prijs: € ${formattedStartingPrice}`}
                       >
                         {isMultiOption && (
-                          <span className="text-[10px] sm:text-[11px] font-medium text-stone-300 uppercase tracking-wider">
-                            Vanaf
+                          <span className="text-[9px] sm:text-[10px] font-normal text-stone-400 lowercase tracking-normal leading-none mb-1">
+                            vanaf
                           </span>
                         )}
-                        <span className="text-xs sm:text-sm font-bold font-mono text-amber-100 tracking-tight">
-                          €{formattedStartingPrice}
-                        </span>
+                        <div className="flex items-baseline gap-0.5 leading-none">
+                          <span className="text-[11px] sm:text-xs font-medium text-amber-200/90">
+                            €
+                          </span>
+                          <span className="text-xs sm:text-sm md:text-[15px] font-bold text-white tracking-tight">
+                            {formattedStartingPrice}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Repositioned Country Origin Flags in Bottom-Left */}
+                      {/* Country Origin Flags in Bottom-Left Corner */}
                       <CoffeeOriginBadge
                         origins={product.origins}
                         className="!top-auto !bottom-2 !left-2 !px-2 !py-0.5 !text-xs shadow-2xs"
                       />
 
-                      {/* SCA Score subtly top-right on the photo */}
+                      {/* SCA Score in Bottom-Right Corner (Opposite to Country Flags, avoiding any overlap) */}
                       {product.scaScore && (
-                        <div className="absolute top-2 right-2 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-400/40 shadow-xs flex items-center gap-1 select-none pointer-events-none">
+                        <div
+                          className="absolute bottom-2 right-2 z-10 bg-stone-900/90 backdrop-blur-xs text-amber-300 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full border border-amber-400/30 shadow-2xs flex items-center gap-1 select-none pointer-events-none"
+                          title={`Specialty Coffee Association Score: ${product.scaScore}`}
+                        >
                           <Award className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                          <span>SCA {product.scaScore}</span>
+                          <span className="tracking-tight font-semibold">SCA {product.scaScore}</span>
                         </div>
                       )}
 
