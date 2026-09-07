@@ -15,6 +15,7 @@ import {
   Wine,
   Sparkle,
   Award,
+  ShoppingBag,
 } from 'lucide-react';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { MediaPlaceholder } from '../MediaPlaceholder';
@@ -565,20 +566,21 @@ export const CoffeeFinder: React.FC<CoffeeFinderProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => navigate(`/webshop?highlight=${coffee.webshopProductId}`)}
-                        className="py-2 px-2.5 rounded-xl text-xs font-semibold border border-amber-200 text-amber-900 hover:bg-amber-50 transition-colors flex items-center justify-center gap-1"
+                        onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
+                        className="py-2 px-2.5 rounded-xl text-xs font-semibold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-2xs"
                       >
-                        <span>Webshop</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ShoppingBag className="w-3 h-3" />
+                        <span>Bestellen</span>
                       </button>
                     </div>
                   ) : (
                     <button
                       type="button"
-                      onClick={() => navigate(`/webshop?highlight=${coffee.webshopProductId}`)}
-                      className="w-full py-2 px-2.5 rounded-xl text-xs font-semibold border border-amber-200 text-amber-900 hover:bg-amber-50 transition-colors flex items-center justify-center gap-1"
+                      onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
+                      className="w-full py-2 px-2.5 rounded-xl text-xs font-semibold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
                     >
-                      <span>Bekijk & Bestel in Webshop</span>
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>Bestellen in Webshop</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}

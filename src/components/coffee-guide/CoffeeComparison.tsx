@@ -448,10 +448,10 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => navigate(`/webshop?highlight=${coffee.webshopProductId}`)}
-                        className="w-full py-2 px-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1 shadow-2xs"
+                        onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
+                        className="w-full py-2 px-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
                       >
-                        <span>Bestel in Webshop</span>
+                        <span>Bestellen</span>
                         <ExternalLink className="w-3 h-3" />
                       </button>
                     </div>

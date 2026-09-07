@@ -1,7 +1,7 @@
 import React from 'react';
 import { CoffeeCatalogItem } from '../../types';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
-import { Award, ArrowRight, Coffee, BookOpen, Sparkles } from 'lucide-react';
+import { Award, ArrowRight, Coffee, BookOpen, Sparkles, ShoppingBag } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 
@@ -218,11 +218,12 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
           <button
             type="button"
-            onClick={() => navigate(`/webshop?highlight=${coffee.webshopProductId}`)}
-            className="py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-xs"
+            onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
+            className="py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1.5 shadow-xs group"
+            title={`Bestel ${coffee.name} direct in de webshop`}
           >
-            <span>Webshop</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+            <span>Bestellen</span>
           </button>
         </div>
       </div>

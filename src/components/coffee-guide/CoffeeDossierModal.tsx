@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   BookOpen,
   Quote,
+  ShoppingBag,
 } from 'lucide-react';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { MediaPlaceholder } from '../MediaPlaceholder';
@@ -670,11 +671,12 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               type="button"
               onClick={() => {
                 onClose();
-                navigate(`/webshop?highlight=${coffee.webshopProductId}`);
+                navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`);
               }}
               className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-all shadow-sm flex items-center justify-center gap-2 group"
             >
-              <span>Bestel in Webshop</span>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Bestellen</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>

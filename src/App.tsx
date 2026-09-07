@@ -54,6 +54,7 @@ export default function App() {
       case '/koffiegids':
         return <CatalogPage navigate={navigate} />;
       case '/webshop':
+      case '/shop':
         return <WebshopPage navigate={navigate} searchParams={searchParams} />;
       case '/kantoor-en-horeca':
         return <B2BPage navigate={navigate} />;

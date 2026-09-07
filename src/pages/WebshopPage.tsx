@@ -99,16 +99,46 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const [capsuleSubmitted, setCapsuleSubmitted] = useState(false);
 
   useEffect(() => {
+    // Check for target product from query params or URL hash
+    const targetSlug = (
+      searchParams?.get('product') ||
+      searchParams?.get('highlight') ||
+      searchParams?.get('id') ||
+      (typeof window !== 'undefined' ? window.location.hash.replace(/^#/, '') : '')
+    )?.trim();
+
     if (searchParams) {
       const cat = searchParams.get('category');
-      if (cat) setSelectedCategory(cat);
+      if (cat && !targetSlug) setSelectedCategory(cat);
       const sub = searchParams.get('sub');
-      if (sub) {
+      if (sub && !targetSlug) {
         setSelectedCategory('blends');
         setBlendSubcategory(sub);
       }
-      const hl = searchParams.get('highlight');
-      if (hl) setHighlightId(hl);
+    }
+
+    if (targetSlug) {
+      const normalizedTarget = targetSlug.toLowerCase();
+      const matched = SHOP_PRODUCTS.find((p) => {
+        const pid = p.id.toLowerCase();
+        const pidWithoutPrefix = pid.replace(/^prod-/, '');
+        const normWithoutPrefix = normalizedTarget.replace(/^prod-/, '');
+        return (
+          pid === normalizedTarget ||
+          pidWithoutPrefix === normWithoutPrefix ||
+          pid.includes(normalizedTarget) ||
+          p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === normalizedTarget
+        );
+      });
+
+      if (matched) {
+        // Ensure the product is not filtered out by category
+        setSelectedCategory('all');
+        setBlendSubcategory('all');
+        setHighlightId(matched.id);
+      } else {
+        setHighlightId(targetSlug);
+      }
     }
   }, [searchParams]);
 
@@ -150,6 +180,37 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     }
     return prod.category === selectedCategory;
   });
+
+  // Smoothly scroll to the highlighted product card and ensure it is fully visible
+  useEffect(() => {
+    if (!highlightId) return;
+
+    const scrollToProduct = () => {
+      const el = document.getElementById(`product-card-${highlightId}`) || document.getElementById(highlightId);
+      if (el) {
+        const headerOffset = 110;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: 'smooth',
+        });
+        return true;
+      }
+      return false;
+    };
+
+    if (!scrollToProduct()) {
+      const t1 = setTimeout(scrollToProduct, 100);
+      const t2 = setTimeout(scrollToProduct, 300);
+      const t3 = setTimeout(scrollToProduct, 600);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    }
+  }, [highlightId, filteredProducts.length]);
 
   const getGiftboxChoiceCount = (product: Product): number => {
     if (product.id.includes('duo')) return 2;
@@ -501,13 +562,27 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <div
                   key={product.id}
                   id={`product-card-${product.id}`}
+                  data-product-id={product.id}
                   className={`bg-white rounded-2xl border transition-all p-6 flex flex-col justify-between ${
                     isHighlighted
-                      ? 'border-amber-600 ring-2 ring-amber-500/30 shadow-lg'
+                      ? 'border-amber-600 ring-4 ring-amber-500/35 shadow-xl scale-[1.01]'
                       : 'border-stone-200 shadow-2xs hover:shadow-md'
                   }`}
                 >
                   <div>
+                    {/* Deep-link notification badge when selected from Coffee Guide */}
+                    {isHighlighted && (
+                      <div className="mb-3 px-3 py-1.5 rounded-xl bg-amber-900 text-amber-50 text-xs font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                          <span>Geselecteerd vanuit Koffiegids</span>
+                        </span>
+                        <span className="text-[10px] uppercase tracking-wider bg-amber-800 text-amber-200 px-2 py-0.5 rounded-md font-bold">
+                          Direct Bestelbaar
+                        </span>
+                      </div>
+                    )}
+
                     {/* Top Badges */}
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-md">
