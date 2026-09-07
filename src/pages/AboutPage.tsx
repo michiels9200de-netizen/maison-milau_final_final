@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Heart, Award, MapPin, Phone, Mail, Calendar, MessageCircle, Clock } from 'lucide-react';
+import { Heart, Award, MapPin, Phone, Mail, Calendar, MessageCircle, Clock } from 'lucide-react';
 import { CONFIG } from '../config';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
@@ -14,9 +14,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
       <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-amber-200/80">
-              <Sparkles className="w-3.5 h-3.5 text-amber-800" />
-              <span>Branderij en Ambacht</span>
+            <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-3">
+              Branderij & Ambacht
             </div>
             {/* H1: 48-64px, font-weight 700 */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">

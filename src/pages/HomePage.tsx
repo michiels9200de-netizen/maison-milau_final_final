@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Sparkles, Clock, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Clock, ShieldCheck, Truck, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
@@ -18,9 +18,8 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left: Hero Copy */}
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100/90 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-6 border border-stone-200">
-                <Sparkles className="w-3.5 h-3.5 text-amber-900" />
-                <span>{t('hero.badge')}</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-6">
+                {t('hero.badge')}
               </div>
 
               {/* H1: 48-64px, font-weight 700 */}
@@ -90,9 +89,8 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
       <section className="py-16 sm:py-20 bg-stone-100/40 border-b border-stone-200/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl mb-12">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-stone-700 text-xs font-semibold uppercase tracking-wider mb-3 border border-stone-200">
-              <Sparkles className="w-3.5 h-3.5 text-amber-900" />
-              <span>{t('promises.badge')}</span>
+            <div className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-3">
+              {t('promises.badge')}
             </div>
             {/* H2: 32-40px, font-weight 600 */}
             <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-stone-900">
@@ -126,7 +124,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs flex items-start gap-4">
-              <Sparkles className="w-5 h-5 text-amber-700 shrink-0 mt-1" />
+              <Award className="w-5 h-5 text-amber-700 shrink-0 mt-1" />
               <div className="text-sm font-medium text-stone-800 leading-relaxed">
                 Bezoek ons en ontwikkel je eigen custom koffieblend en huismerk in ons atelier in Oudegem.
               </div>

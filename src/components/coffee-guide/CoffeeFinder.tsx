@@ -5,7 +5,6 @@ import {
   BrewingMethod,
 } from '../../data/coffeeDiscoveryHelpers';
 import {
-  Sparkles,
   Coffee,
   Compass,
   ArrowRight,
@@ -13,7 +12,6 @@ import {
   CheckCircle2,
   RefreshCw,
   Wine,
-  Sparkle,
   Award,
   ShoppingBag,
 } from 'lucide-react';
@@ -192,9 +190,8 @@ export const CoffeeFinder: React.FC<CoffeeFinderProps> = ({
     <div className="bg-[#FAF8F5] rounded-3xl border border-stone-200 p-6 sm:p-10 shadow-xs mb-14">
       {/* Header Banner */}
       <div className="max-w-3xl mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 text-xs font-bold uppercase tracking-wider mb-3 border border-amber-300/50 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-amber-800" />
-          <span>Interactieve Koffie Finder · Ontdekkingsreis</span>
+        <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-2">
+          Koffie Wijzer · Selectie op Maat
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight mb-2">
           Vind Jouw Ideale Koffie-Ervaring
@@ -473,9 +470,8 @@ export const CoffeeFinder: React.FC<CoffeeFinderProps> = ({
                       {coffee.collection}
                     </span>
                     {specs.discoveryTag && (
-                      <span className="text-[11px] font-bold text-amber-950 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300/60 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-amber-800" />
-                        <span>{specs.discoveryTag}</span>
+                      <span className="text-[11px] font-medium text-stone-700 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
+                        {specs.discoveryTag}
                       </span>
                     )}
                   </div>

@@ -9,9 +9,7 @@ interface CoffeeCharacterCardProps {
 
 export const renderStars = (count: number, max: number = 5) => {
   const safeCount = Math.max(1, Math.min(max, count || 1));
-  const filled = '★'.repeat(safeCount);
-  const unfilled = '☆'.repeat(max - safeCount);
-  return { filled, unfilled };
+  return { filled: `${safeCount}/${max}`, unfilled: '' };
 };
 
 export const CoffeeCharacterCard: React.FC<CoffeeCharacterCardProps> = ({
@@ -26,52 +24,41 @@ export const CoffeeCharacterCard: React.FC<CoffeeCharacterCardProps> = ({
   const acidity = profile?.acidity ?? 2;
   const sweetness = profile?.sweetness ?? 3;
 
-  const bodyStars = renderStars(body);
-  const acidityStars = renderStars(acidity);
-  const sweetnessStars = renderStars(sweetness);
+  const renderMeter = (label: string, value: number) => (
+    <div className="flex items-center gap-1.5 text-xs text-stone-700 font-medium">
+      <span className="text-stone-500">{label}:</span>
+      <div className="flex gap-0.5 items-center">
+        {[1, 2, 3, 4, 5].map((step) => (
+          <span
+            key={step}
+            className={`w-2.5 h-1 rounded-xs ${
+              step <= value ? 'bg-amber-900' : 'bg-stone-200'
+            }`}
+          />
+        ))}
+      </div>
+      <span className="text-[10px] text-stone-400 tabular-nums">({value}/5)</span>
+    </div>
+  );
 
   return (
-    <div className={`p-3.5 bg-stone-50 rounded-xl border border-stone-200/90 text-xs ${className}`}>
-      <div className="text-[11px] uppercase tracking-wider text-amber-900 font-bold mb-1 flex items-center justify-between">
-        <span>Karakter</span>
+    <div className={`p-3.5 bg-stone-50/80 rounded-xl border border-stone-200/90 text-xs ${className}`}>
+      <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1">
+        Sensorisch Karakter
       </div>
-      <p className="text-stone-700 leading-relaxed font-normal mb-2 text-xs">
+      <p className="text-stone-700 leading-relaxed font-normal mb-2.5 text-xs">
         {description}
       </p>
 
-      {/* Improved Star System */}
-      <div className="pt-2 border-t border-stone-200/80 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-stone-800 text-xs select-none">
-        {/* Body */}
-        <span className="inline-flex items-center gap-1 font-medium">
-          <span className="text-stone-600">Body:</span>
-          <span className="text-amber-800 font-bold tracking-tight">
-            {bodyStars.filled}
-            <span className="text-stone-300 font-normal">{bodyStars.unfilled}</span>
-          </span>
-        </span>
-
-        <span className="text-stone-300">|</span>
-
-        {/* Acidity */}
-        <span className="inline-flex items-center gap-1 font-medium">
-          <span className="text-stone-600">Acidity:</span>
-          <span className="text-amber-800 font-bold tracking-tight">
-            {acidityStars.filled}
-            <span className="text-stone-300 font-normal">{acidityStars.unfilled}</span>
-          </span>
-        </span>
-
-        <span className="text-stone-300">|</span>
-
-        {/* Sweetness */}
-        <span className="inline-flex items-center gap-1 font-medium">
-          <span className="text-stone-600">Sweetness:</span>
-          <span className="text-amber-800 font-bold tracking-tight">
-            {sweetnessStars.filled}
-            <span className="text-stone-300 font-normal">{sweetnessStars.unfilled}</span>
-          </span>
-        </span>
+      {/* Discrete Sensory Meters */}
+      <div className="pt-2 border-t border-stone-200/80 flex flex-wrap items-center gap-x-3 gap-y-1.5 select-none">
+        {renderMeter('Body', body)}
+        <span className="text-stone-300">·</span>
+        {renderMeter('Aciditeit', acidity)}
+        <span className="text-stone-300">·</span>
+        {renderMeter('Zoetheid', sweetness)}
       </div>
     </div>
   );
 };
+

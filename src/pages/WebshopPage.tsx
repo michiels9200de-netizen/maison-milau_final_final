@@ -12,7 +12,6 @@ import {
   ExternalLink,
   Star,
   Bell,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   BookOpen,
@@ -319,9 +318,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-3 border border-amber-200/80">
-                <ShoppingBag className="w-3.5 h-3.5 text-amber-800" />
-                <span>Webshop · Snel & Eenvoudig Bestellen</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-2">
+                Webshop · Bestellen
               </div>
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900">
                 Artisanale Koffies & Accessoires
@@ -402,9 +400,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
             <div className="relative z-10 max-w-3xl mx-auto text-center">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-widest uppercase mb-6 shadow-inner">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>AANKONDIGING · COMING SOON</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-6">
+                Aankondiging · Binnenkort Beschikbaar
               </div>
 
               {/* Capsule Graphic Visual */}
@@ -624,12 +621,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   <div>
                     {/* Deep-link notification badge when selected from Coffee Guide */}
                     {isHighlighted && (
-                      <div className="mb-3 px-3 py-1.5 rounded-xl bg-amber-900 text-amber-50 text-xs font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
-                        <span className="flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                          <span>Geselecteerd vanuit Koffiegids</span>
-                        </span>
-                        <span className="text-[10px] uppercase tracking-wider bg-amber-800 text-amber-200 px-2 py-0.5 rounded-md font-bold">
+                      <div className="mb-3 px-3 py-1.5 rounded-xl bg-stone-900 text-stone-100 text-xs font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
+                        <span>Geselecteerd vanuit Koffiegids</span>
+                        <span className="text-[10px] uppercase tracking-wider bg-stone-800 text-amber-300 px-2 py-0.5 rounded-md font-bold">
                           Direct Bestelbaar
                         </span>
                       </div>

@@ -21,7 +21,7 @@ import {
   Coffee,
   LogOut,
   Key,
-  Sparkles,
+  Award,
   Lock,
   Calendar,
   Truck,
@@ -1219,8 +1219,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                 <UserIcon className="w-3.5 h-3.5 text-amber-900" />
                 <span>Klantenportaal · Maison Milau</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-bold border border-amber-300/70">
-                <Sparkles className="w-3 h-3 text-amber-700" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-medium border border-stone-200">
+                <Award className="w-3.5 h-3.5 text-amber-900" />
                 <span>{currentUser.loyaltyPoints || 100} Spaarpunten</span>
               </div>
               <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-950 text-xs font-semibold border border-emerald-300/70">

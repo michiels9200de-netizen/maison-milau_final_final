@@ -16,7 +16,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     beanSelection: '85% Robusta Bariguna (Uganda), 15% Castillo Jardin de Linares (Colombia)',
     roastProfile: 'Medium-dark espresso roast (Development: 18-20%)',
     flavors: ['Dark chocolate', 'Roasted nuts', 'Toast', 'Heavy crema'],
-    character: 'Sterk, chocoladeachtig met een lage aciditeit. Body: ★★★★★ | Acidity: ★☆☆☆☆ | Sweetness: ★★☆☆☆',
+    character: 'Sterk, chocoladeachtig met een lage aciditeit (Body 5/5, aciditeit 1/5, zoetheid 2/5).',
     brewRecommendations: ['Espresso', 'Volautomaat', 'Moka pot'],
     retailPriceGuide: 'Vanaf €5,25 per 250g (€19,95 / kg)',
     webshopProductId: 'prod-budget-espresso',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { CoffeeCatalogItem } from '../../types';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
-import { Award, ArrowRight, Coffee, BookOpen, Sparkles, ShoppingBag } from 'lucide-react';
+import { Award, BookOpen, ShoppingBag } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 
@@ -85,13 +85,12 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         {/* Top Badges: Collection, Discovery Tag & Roast Indicator */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-1.5">
-            <span className="px-2.5 py-0.5 rounded-md bg-stone-100 text-stone-800 text-[11px] font-bold tracking-wide uppercase">
+            <span className="px-2.5 py-0.5 rounded-sm bg-stone-100 text-stone-800 text-[10px] font-semibold tracking-wider uppercase">
               {coffee.collection}
             </span>
             {specs.discoveryTag && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100/90 text-amber-950 text-[11px] font-bold border border-amber-300/50">
-                <Sparkles className="w-3 h-3 text-amber-800" />
-                <span>{specs.discoveryTag}</span>
+              <span className="px-2 py-0.5 rounded-sm bg-amber-50 text-amber-900 text-[10px] font-semibold tracking-wider uppercase border border-amber-800/15">
+                {specs.discoveryTag}
               </span>
             )}
           </div>
@@ -145,14 +144,14 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         </p>
 
         {/* Bean Composition */}
-        <div className="text-[11px] text-stone-500 bg-stone-50/80 p-2.5 rounded-xl border border-stone-200/70 mb-4">
-          <strong className="text-stone-700 block mb-0.5">Samenstelling & Variëteit:</strong>
+        <div className="text-[11px] text-stone-600 bg-stone-50/80 p-2.5 rounded-xl border border-stone-200/70 mb-4">
+          <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold block mb-0.5">Samenstelling & Variëteit</span>
           <span>{coffee.beanSelection}</span>
         </div>
 
         {/* Flavour Profile (Tags) */}
         <div className="mb-4">
-          <div className="text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1.5">
+          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1.5">
             Smaakprofiel
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -169,7 +168,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
         {/* Cupping Meters (Intensiteit, Aciditeit, Body, Zoetheid) */}
         <div className="mb-5 p-3 bg-stone-50/60 rounded-xl border border-stone-200/70 space-y-2">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold">
             Sensorische Cupping-Meters
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -182,9 +181,8 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
         {/* Brewing Recommendations */}
         <div className="mb-5">
-          <div className="text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1.5 flex items-center gap-1">
-            <Coffee className="w-3.5 h-3.5 text-amber-800" />
-            <span>Aanbevolen zetmethodes</span>
+          <div className="text-[10px] uppercase tracking-widest text-stone-500 font-semibold mb-1.5">
+            Aanbevolen zetmethodes
           </div>
           <div className="flex flex-wrap gap-1.5">
             {specs.brewingMethods.map((method, idx) => (
@@ -211,7 +209,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
                 : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
             }`}
           >
-            <span>{isCompared ? '✓ Toegevoegd aan vergelijker' : '+ Vergelijk deze koffie'}</span>
+            <span>{isCompared ? 'In vergelijking' : '+ Vergelijk deze koffie'}</span>
           </button>
         )}
 

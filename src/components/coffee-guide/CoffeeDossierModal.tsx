@@ -6,16 +6,10 @@ import {
   X,
   Award,
   Coffee,
-  Sparkles,
   MapPin,
-  Flame,
-  CheckCircle2,
   Clock,
   Thermometer,
-  Compass,
   ArrowRight,
-  ShieldCheck,
-  BookOpen,
   Quote,
   ShoppingBag,
 } from 'lucide-react';
@@ -228,17 +222,16 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
         {/* Sticky Header Bar */}
         <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-full bg-amber-900 text-amber-50 text-xs font-bold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-amber-900 text-amber-50 text-xs font-semibold uppercase tracking-wider">
               {coffee.collection} Dossier
             </span>
             {dossier?.discoveryTag && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-bold">
-                <Sparkles className="w-3 h-3 text-amber-800" />
-                <span>{dossier.discoveryTag}</span>
+              <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-sm bg-amber-50 text-amber-900 text-[10px] font-semibold tracking-wider uppercase border border-amber-800/15">
+                {dossier.discoveryTag}
               </span>
             )}
             {dossier?.secondaryTag && (
-              <span className="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-xs font-semibold">
+              <span className="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-sm bg-stone-100 text-stone-700 text-[10px] font-semibold uppercase tracking-wider">
                 {dossier.secondaryTag}
               </span>
             )}
@@ -332,9 +325,10 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Directly below the coffee image for immediate scanning
               ================================================== */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
-            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-              <Flame className="w-4 h-4 text-amber-800" />
-              <span>3. Signatuurkenmerken & Sensorisch Profiel</span>
+            <div className="border-b border-stone-200/80 pb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Signatuurkenmerken & Sensorisch Profiel
+              </h3>
             </div>
 
             {dossier?.signatureCharacteristics && dossier.signatureCharacteristics.length > 0 ? (
@@ -344,7 +338,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                     key={cIdx}
                     className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70 text-xs text-stone-800 font-medium"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-800 shrink-0 mt-1.5" />
                     <span>{char}</span>
                   </div>
                 ))}
@@ -356,7 +350,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                     key={idx}
                     className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70 text-xs text-stone-800 font-medium"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-800 shrink-0 mt-1.5" />
                     <span>Dominante smaakexpressie van {flv.toLowerCase()} met harmonieuze afronding.</span>
                   </div>
                 ))}
@@ -369,13 +363,12 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Visually prominent purchasing & comparison tool
               ================================================== */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-stone-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <Coffee className="w-4 h-4 text-amber-800" />
-                <span>4. Sensorische Cupping-Meters</span>
-              </div>
-              <span className="text-[11px] font-semibold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full">
-                Maison Milau Cupping Schaal (1 - 5)
+            <div className="border-b border-stone-200/80 pb-2 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Sensorische Cupping-Meters
+              </h3>
+              <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">
+                Maison Milau Schaal (1 - 5)
               </span>
             </div>
 
@@ -393,19 +386,20 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               without redundant separate origin sections
               ================================================== */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-4">
-            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-              <Coffee className="w-4 h-4 text-amber-800" />
-              <span>5. Samenstelling & Variëteiten</span>
+            <div className="border-b border-stone-200/80 pb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Samenstelling & Variëteiten
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               {/* Origin & Terroir summary */}
               <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-stone-500 uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-500 uppercase tracking-wider">
                   <MapPin className="w-3.5 h-3.5 text-amber-800" />
                   <span>Herkomstlanden & Regio's</span>
                 </div>
-                <div className="text-stone-900 text-sm font-bold">
+                <div className="text-stone-900 text-sm font-semibold">
                   {coffee.origins && coffee.origins.length > 0
                     ? coffee.origins.map((o) => `${o.country}${o.region ? ` (${o.region})` : ''}`).join(', ')
                     : 'Zorgvuldig samengestelde specialty blend'}
@@ -418,7 +412,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                         key={idx}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200/80 text-xs font-medium text-stone-800"
                       >
-                        <span>{o.flag || '📍'}</span>
+                        {o.flag && <span>{o.flag}</span>}
                         <span className="font-semibold">{o.country}</span>
                         {o.region && <span className="text-stone-500">· {o.region}</span>}
                       </span>
@@ -429,10 +423,10 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
 
               {/* Bean Selection & Variety info */}
               <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
-                <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+                <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
                   Samenstelling der Bonen
                 </div>
-                <div className="text-sm font-bold text-stone-900">
+                <div className="text-sm font-semibold text-stone-900">
                   {coffee.beanSelection}
                 </div>
                 <p className="text-stone-600 text-xs leading-relaxed pt-1">
@@ -448,9 +442,10 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Authentic character & origin story
               ================================================== */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-3">
-            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-amber-800" />
-              <span>6. Koffieverhaal</span>
+            <div className="border-b border-stone-200/80 pb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Koffieverhaal & Herkomst
+              </h3>
             </div>
             <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
               {dossier?.story || coffee.character}
@@ -462,15 +457,16 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Merged: Waarom Maison Milau deze koffie selecteerde + Ideaal voor
               ================================================== */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/90 shadow-2xs space-y-5">
-            <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4 text-amber-800" />
-              <span>7. Waarom Kiezen Voor Deze Koffie?</span>
+            <div className="border-b border-stone-200/80 pb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Waarom Kiezen Voor Deze Koffie
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Why Selected by Maison Milau & Collection Distinction */}
               <div className="space-y-3 p-4 rounded-xl bg-amber-50/60 border border-amber-200/70">
-                <div className="text-xs font-bold text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="text-xs font-semibold text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
                   <Award className="w-3.5 h-3.5 text-amber-800" />
                   <span>Selectie & Positie in de Collectie</span>
                 </div>
@@ -479,27 +475,26 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                     'Geselecteerd na uitgebreide cupping-sessies door onze brander te Oudegem vanwege zijn uitzonderlijke balans, zuiverheid en memorabele afdronk.'}
                 </p>
                 <div className="pt-1 text-[11px] text-amber-900/90 font-medium">
-                  Onderscheidt zich binnen de <strong className="font-bold">{coffee.collection}</strong> collectie door zijn uitgesproken smaakbalans en compromisloze brandkwaliteit.
+                  Onderscheidt zich binnen de <span className="font-semibold">{coffee.collection}</span> collectie door zijn uitgesproken smaakbalans en compromisloze brandkwaliteit.
                 </div>
               </div>
 
               {/* Ideal for & Drinker Profiles */}
-              <div className="space-y-3 p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/70">
-                <div className="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Perfect Voor Dit Type Koffiedrinker</span>
+              <div className="space-y-3 p-4 rounded-xl bg-stone-50 border border-stone-200/80">
+                <div className="text-xs font-semibold text-stone-900 uppercase tracking-wider">
+                  Geschikt Voor
                 </div>
                 <ul className="space-y-2 text-xs text-stone-800">
                   {dossier?.idealCustomer && dossier.idealCustomer.length > 0 ? (
                     dossier.idealCustomer.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="text-emerald-700 font-bold text-sm leading-none shrink-0 mt-0.5">✓</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-stone-500 shrink-0 mt-1.5" />
                         <span className="font-medium">{item}</span>
                       </li>
                     ))
                   ) : (
                     <li className="flex items-start gap-2">
-                      <span className="text-emerald-700 font-bold text-sm leading-none shrink-0 mt-0.5">✓</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-stone-500 shrink-0 mt-1.5" />
                       <span className="font-medium">Liefhebbers van verfijnde, ambachtelijk gebrande specialty koffie.</span>
                     </li>
                   )}
@@ -513,12 +508,11 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Detailed barista parameters & tips
               ================================================== */}
           <div className="bg-white p-5 sm:p-7 rounded-2xl border border-stone-200/90 shadow-2xs space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <Compass className="w-4 h-4 text-amber-800" />
-                <span>8. Aanbevolen Zetmethodes</span>
-              </div>
-              <span className="text-xs text-stone-600 font-semibold bg-stone-100 px-3 py-1 rounded-full">
+            <div className="border-b border-stone-200/80 pb-2 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Aanbevolen Zetmethodes & Parameters
+              </h3>
+              <span className="text-xs text-stone-600 font-medium">
                 Aanbevolen: {dossier?.brewingAdvice?.recommendedMethod || specs.brewingMethods.join(', ') || coffee.brewRecommendations.join(', ')}
               </span>
             </div>
@@ -526,35 +520,35 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             {dossier?.brewingAdvice && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/70">
-                  <span className="text-stone-400 font-bold uppercase tracking-wider block text-[10px] mb-1">
+                  <span className="text-stone-400 font-semibold uppercase tracking-wider block text-[10px] mb-1">
                     Maalgraad
                   </span>
-                  <strong className="text-stone-900">{dossier.brewingAdvice.grind}</strong>
+                  <span className="text-stone-900 font-semibold">{dossier.brewingAdvice.grind}</span>
                 </div>
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/70">
-                  <span className="text-stone-400 font-bold uppercase tracking-wider block text-[10px] mb-1">
+                  <span className="text-stone-400 font-semibold uppercase tracking-wider block text-[10px] mb-1">
                     Brouw-Ratio
                   </span>
-                  <strong className="text-stone-900">{dossier.brewingAdvice.ratio}</strong>
+                  <span className="text-stone-900 font-semibold">{dossier.brewingAdvice.ratio}</span>
                 </div>
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/70">
-                  <span className="text-stone-400 font-bold uppercase tracking-wider block text-[10px] mb-1">
+                  <span className="text-stone-400 font-semibold uppercase tracking-wider block text-[10px] mb-1">
                     Watertemperatuur
                   </span>
-                  <div className="flex items-center gap-1 font-bold text-stone-900">
-                    <Thermometer className="w-3.5 h-3.5 text-amber-800" />
+                  <div className="flex items-center gap-1 font-semibold text-stone-900">
+                    <Thermometer className="w-3.5 h-3.5 text-stone-600" />
                     <span>{dossier.brewingAdvice.temperature}</span>
                   </div>
                 </div>
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200/70">
-                  <span className="text-stone-400 font-bold uppercase tracking-wider block text-[10px] mb-1">
+                  <span className="text-stone-400 font-semibold uppercase tracking-wider block text-[10px] mb-1">
                     Pre-Infusie / Bloom
                   </span>
-                  <div className="flex items-center gap-1 font-bold text-stone-900">
-                    <Clock className="w-3.5 h-3.5 text-amber-800" />
+                  <div className="flex items-center gap-1 font-semibold text-stone-900">
+                    <Clock className="w-3.5 h-3.5 text-stone-600" />
                     <span>{dossier.brewingAdvice.bloomTime}</span>
                   </div>
                 </div>
@@ -562,8 +556,8 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             )}
 
             {dossier?.brewingAdvice?.tips && (
-              <div className="text-xs sm:text-sm text-stone-600 bg-amber-50/70 p-4 rounded-xl border border-amber-200/70 leading-relaxed">
-                <strong className="text-amber-950 block mb-1 font-bold">Meesterbrander Zet-Tip:</strong>
+              <div className="text-xs sm:text-sm text-stone-600 bg-stone-50 p-4 rounded-xl border border-stone-200/70 leading-relaxed">
+                <span className="text-stone-900 block mb-1 font-semibold uppercase tracking-wider text-[10px]">Branderij Zet-Tip</span>
                 <span>{dossier.brewingAdvice.tips}</span>
               </div>
             )}
@@ -574,24 +568,23 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Artisanal craft insights & educational masterclass
               ================================================== */}
           <div className="bg-white p-5 sm:p-7 rounded-2xl border border-stone-200/90 shadow-2xs space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm uppercase tracking-wider">
-                <BookOpen className="w-4 h-4 text-amber-800" />
-                <span>9. Extra Educatieve Informatie</span>
-              </div>
-              <span className="text-[11px] font-semibold text-stone-600 bg-stone-100 px-3 py-1 rounded-full border border-stone-200">
+            <div className="border-b border-stone-200/80 pb-2 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                Achtergrond & Ambacht
+              </h3>
+              <span className="text-[11px] font-medium text-stone-500">
                 {educationalData.badge}
               </span>
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-sm sm:text-base font-bold text-stone-900">
+              <h4 className="text-sm sm:text-base font-semibold text-stone-900">
                 {educationalData.title}
-              </h3>
+              </h4>
 
               {educationalData.quote && (
-                <div className="p-3 bg-amber-50/60 rounded-xl border-l-2 border-amber-800 text-xs italic text-amber-950 flex items-start gap-2">
-                  <Quote className="w-3.5 h-3.5 text-amber-800 shrink-0 mt-0.5" />
+                <div className="p-3 bg-stone-50 rounded-xl border-l-2 border-stone-700 text-xs italic text-stone-800 flex items-start gap-2">
+                  <Quote className="w-3.5 h-3.5 text-stone-500 shrink-0 mt-0.5" />
                   <span>"{educationalData.quote}"</span>
                 </div>
               )}
@@ -606,7 +599,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   {educationalData.sections.map((sec, sIdx) => (
                     <div key={sIdx} className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/70 space-y-1">
-                      <h4 className="text-xs font-bold text-stone-900">{sec.heading}</h4>
+                      <h5 className="text-xs font-semibold text-stone-900">{sec.heading}</h5>
                       <p className="text-xs text-stone-600 leading-relaxed">{sec.body}</p>
                     </div>
                   ))}
@@ -619,20 +612,20 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               10. MAISON MILAU SLOTVERHAAL
               Short, elegant, artisan, coffee-focused ending story (2-4 sentences)
               ================================================== */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-850 to-amber-950 text-amber-50 p-6 sm:p-7 border border-amber-900/40 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold tracking-widest uppercase text-amber-300/80 bg-stone-950/50 px-3 py-1 rounded-full border border-amber-400/20">
-                10. Maison Milau Slotverhaal
+          <div className="rounded-2xl bg-stone-900 text-stone-100 p-6 sm:p-7 border border-stone-800 space-y-3">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+              <span className="text-[10px] font-semibold tracking-widest uppercase text-stone-400">
+                Maison Milau Brandersnotitie
               </span>
-              <span className="text-xs text-amber-200/60 font-mono">Atelier Oudegem</span>
+              <span className="text-[11px] text-stone-400 font-mono">Atelier Oudegem</span>
             </div>
 
-            <p className="text-xs sm:text-sm text-amber-100/90 leading-relaxed font-serif italic max-w-2xl">
+            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-serif italic max-w-2xl">
               "{getMaisonMilauSlotverhaal()}"
             </p>
 
-            <div className="text-[11px] text-amber-300/70 font-medium flex items-center justify-between border-t border-amber-500/20 pt-3">
-              <span>Maison Milau · Ambachtelijke Koffiebranderij</span>
+            <div className="text-[11px] text-stone-400 font-medium flex items-center justify-between border-t border-stone-800 pt-3">
+              <span>Maison Milau · Ambachtelijke Micro-Branderij</span>
               <span>Karakter in elk kopje</span>
             </div>
           </div>
@@ -644,13 +637,13 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             <button
               type="button"
               onClick={() => onToggleCompare(coffee)}
-              className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
                 isCompared
                   ? 'bg-amber-900 text-amber-50 shadow-xs'
                   : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
               }`}
             >
-              <span>{isCompared ? '✓ Toegevoegd aan Vergelijking' : '+ Vergelijk Deze Koffie'}</span>
+              <span>{isCompared ? 'In Vergelijking' : '+ Vergelijk Deze Koffie'}</span>
             </button>
           ) : (
             <div className="text-xs text-stone-500 font-medium hidden sm:block">

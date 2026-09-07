@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image as ImageIcon, Video as VideoIcon, Film, Sparkles } from 'lucide-react';
+import { Image as ImageIcon, Video as VideoIcon, Film } from 'lucide-react';
 
 interface MediaPlaceholderProps {
   type?: 'image' | 'video';

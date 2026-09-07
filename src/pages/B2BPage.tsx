@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, Calculator, Coffee, CheckCircle, ArrowRight, Sparkles, Send, Gift, Layers } from 'lucide-react';
+import { Building2, Calculator, Coffee, CheckCircle, ArrowRight, Send, Gift, Layers } from 'lucide-react';
 import { CONFIG } from '../config';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 
@@ -114,9 +114,8 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-amber-200/80">
-                <Building2 className="w-3.5 h-3.5 text-amber-800" />
-                <span>Formules & Tarieven op Maat</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-3">
+                B2B · Kantoor & Horeca
               </div>
               {/* H1: 48-64px, font-weight 700 */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">

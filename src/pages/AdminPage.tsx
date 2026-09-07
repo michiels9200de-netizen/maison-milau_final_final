@@ -20,7 +20,7 @@ import {
   ArrowRight,
   ExternalLink,
   ChevronRight,
-  Sparkles,
+  Award,
   FileText,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
@@ -491,7 +491,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
 
             <div className="bg-stone-900 text-stone-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-md">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-400">
-                <Sparkles className="w-4 h-4" />
+                <Award className="w-4 h-4" />
                 <span>SCA Specialty Kwaliteitsgarantie & Roastery Normen</span>
               </div>
               <p className="text-xs text-stone-300 leading-relaxed max-w-3xl">

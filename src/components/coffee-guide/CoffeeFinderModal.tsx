@@ -4,7 +4,6 @@ import { getEnrichedSpecs } from '../../data/coffeeDiscoveryHelpers';
 import {
   Compass,
   X,
-  Sparkles,
   ArrowRight,
   BookOpen,
   ShoppingBag,
@@ -274,9 +273,8 @@ export const CoffeeFinderModal: React.FC<CoffeeFinderModalProps> = ({
           {/* Results Header: Exactly 3 recommendations */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-800">
-                <Sparkles className="w-3.5 h-3.5 text-amber-800" />
-                <span>Aanbevolen Selectie (Top 3):</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-stone-700">
+                Aanbevolen Selectie (Top 3)
               </div>
               <span className="text-[11px] text-stone-500">
                 Klik om direct naar profiel te gaan

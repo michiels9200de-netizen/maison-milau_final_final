@@ -73,9 +73,8 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-amber-200/80">
-                <CalendarCheck className="w-3.5 h-3.5 text-amber-800" />
-                <span>Events & Verhuur</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-3">
+                Events & Verhuur
               </div>
               {/* H1: 48-64px, font-weight 700 */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { CoffeeCatalogItem } from '../../types';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
-import { Scale, X, Plus, ExternalLink, Award, Coffee, Sparkles, BookOpen } from 'lucide-react';
+import { Scale, X, Plus, ExternalLink, Award, Coffee, BookOpen } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 
 interface CoffeeComparisonProps {
@@ -108,9 +108,8 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-stone-200">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 text-stone-800 text-xs font-semibold uppercase tracking-wider mb-2">
-            <Scale className="w-3.5 h-3.5 text-amber-800" />
-            <span>Side-by-Side Smaakvergelijker</span>
+          <div className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">
+            Side-by-Side Smaakvergelijker
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
             Koffies Vergelijken
@@ -160,9 +159,8 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
 
       {/* Preset Comparison Buttons */}
       <div className="mb-8">
-        <div className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-2.5 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-amber-800" />
-          <span>Curated Vergelijkingen (Presets)</span>
+        <div className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2.5">
+          Aanbevolen Vergelijkingen
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {presets.map((preset, pIdx) => (

@@ -3,15 +3,8 @@ import {
   Flame,
   Mountain,
   Droplets,
-  BookOpen,
-  Thermometer,
   Clock,
-  Sparkles,
-  Wine,
-  Sparkle,
-  Award,
   ArrowRight,
-  ShieldCheck,
 } from 'lucide-react';
 import { CoffeeCatalogItem } from '../../types';
 import { CATALOG_ITEMS } from '../../data/catalogData';
@@ -73,11 +66,10 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
   return (
     <div className="space-y-14 mb-16">
       {/* 1. BARREL AGED MASTERCLASS STORYTELLING */}
-      <section className="bg-stone-950 text-amber-50 rounded-3xl p-8 sm:p-12 relative overflow-hidden border border-amber-900/40 shadow-xl">
+      <section className="bg-stone-950 text-amber-50 rounded-3xl p-8 sm:p-12 relative overflow-hidden border border-stone-800 shadow-xl">
         <div className="relative z-10 max-w-4xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-900/70 border border-amber-700/50 text-amber-200 text-xs font-bold uppercase tracking-wider">
-            <Wine className="w-3.5 h-3.5" />
-            <span>Flagship Story · Het Mysterie van Eikenhouten Vatlagering</span>
+          <div className="text-xs font-semibold uppercase tracking-widest text-amber-400">
+            Vatlagering & Eikenhout
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
@@ -89,8 +81,8 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            <div className="bg-stone-900/80 p-5 rounded-2xl border border-amber-900/50">
-              <div className="text-amber-400 font-extrabold text-sm mb-1.5">
+            <div className="bg-stone-900/80 p-5 rounded-2xl border border-stone-800">
+              <div className="text-amber-400 font-semibold text-sm mb-1.5 uppercase tracking-wide">
                 1. Poreuze Absorptie
               </div>
               <p className="text-xs text-stone-300 leading-relaxed">
@@ -98,17 +90,17 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
               </p>
             </div>
 
-            <div className="bg-stone-900/80 p-5 rounded-2xl border border-amber-900/50">
-              <div className="text-amber-400 font-extrabold text-sm mb-1.5">
-                2. 100% Puur & Zonder Alcohol
+            <div className="bg-stone-900/80 p-5 rounded-2xl border border-stone-800">
+              <div className="text-amber-400 font-semibold text-sm mb-1.5 uppercase tracking-wide">
+                2. Zuiver & Zonder Alcohol
               </div>
               <p className="text-xs text-stone-300 leading-relaxed">
                 Tijdens het trommelbranden op temperaturen boven 200°C verdampt elke mogelijke traceerbare alcohol restloos. Wat overblijft zijn de pure, diepe organische aroma-moleculen van vanilline, getoast eikenhout en karamel.
               </p>
             </div>
 
-            <div className="bg-stone-900/80 p-5 rounded-2xl border border-amber-900/50">
-              <div className="text-amber-400 font-extrabold text-sm mb-1.5">
+            <div className="bg-stone-900/80 p-5 rounded-2xl border border-stone-800">
+              <div className="text-amber-400 font-semibold text-sm mb-1.5 uppercase tracking-wide">
                 3. Culinaire Degustatie
               </div>
               <p className="text-xs text-stone-300 leading-relaxed">
@@ -119,8 +111,8 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
 
           {/* Quick Dossier Launchers for the 3 Barrels */}
           <div className="pt-6 border-t border-stone-800/80">
-            <div className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3">
-              Ontdek de 3 Vlaggenschip Vatlageringen van Maison Milau:
+            <div className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-3">
+              De Drie Vatlageringen van Maison Milau:
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
@@ -133,15 +125,15 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
                   <button
                     key={b.id}
                     onClick={() => c && onOpenDossier && onOpenDossier(c)}
-                    className="text-left p-4 rounded-xl bg-stone-900 hover:bg-amber-950/80 border border-amber-900/40 hover:border-amber-500/60 transition-all group"
+                    className="text-left p-4 rounded-xl bg-stone-900 hover:bg-stone-850 border border-stone-800 hover:border-amber-700/60 transition-all group"
                   >
-                    <div className="text-sm font-bold text-white group-hover:text-amber-300 mb-1 flex items-center justify-between">
+                    <div className="text-sm font-semibold text-white group-hover:text-amber-300 mb-1 flex items-center justify-between">
                       <span>{b.title}</span>
                       <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="text-xs text-stone-400 leading-snug">{b.sub}</div>
-                    <span className="mt-2 inline-block text-[11px] font-bold text-amber-400 underline">
-                      Open Dossier →
+                    <span className="mt-2 inline-block text-[11px] font-medium text-amber-400 underline">
+                      Bekijk Dossier →
                     </span>
                   </button>
                 );
@@ -152,11 +144,10 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
       </section>
 
       {/* 2. INFUSED COLLECTION MASTERCLASS */}
-      <section className="bg-[#FAF7F2] rounded-3xl p-8 sm:p-12 border border-amber-200/90 shadow-xs">
+      <section className="bg-[#FAF7F2] rounded-3xl p-8 sm:p-12 border border-stone-200/90 shadow-xs">
         <div className="max-w-4xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs font-bold uppercase tracking-wider border border-amber-300/50">
-            <Sparkle className="w-3.5 h-3.5 text-amber-800" />
-            <span>Kenniscentrum · Wat is Infused Coffee?</span>
+          <div className="text-xs font-semibold uppercase tracking-widest text-amber-900">
+            Kenniscentrum · Wat is Infused Coffee?
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">
@@ -169,7 +160,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-2">
             <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1.5">
+              <div className="text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1.5">
                 Subtiele Harmonie
               </div>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -178,28 +169,28 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             </div>
 
             <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1.5">
-                Ideaal voor Cappuccino & Dessert
+              <div className="text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1.5">
+                Ideaal voor Cappuccino & Melkbereidingen
               </div>
               <p className="text-xs text-stone-600 leading-relaxed">
-                Combineer met gestoomde volle melk of havermelk voor een decadente, cafeïnevrije of cafeïnehoudende cappuccino zonder ook maar één gram suiker of siroop toe te voegen.
+                Combineer met gestoomde volle melk of havermelk voor een evenwichtige cappuccino zonder ook maar één gram suiker of siroop toe te voegen.
               </p>
             </div>
 
             <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1.5">
-                De Perfecte Toegankelijke Stap
+              <div className="text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1.5">
+                Toegankelijk Karakter
               </div>
               <p className="text-xs text-stone-600 leading-relaxed">
-                Voor koffiedrinkers die zwarte specialty filterkoffie soms te bitter of complex vinden, biedt infusion een warme, fluwelige en troostende smaakbeleving.
+                Voor koffiedrinkers die zwarte specialty filterkoffie soms te bitter of complex vinden, biedt infusion een warme, fluwelige en evenwichtige smaakbeleving.
               </p>
             </div>
           </div>
 
           {/* Quick Dossier Launchers for Infused */}
           <div className="pt-6 border-t border-stone-200/80">
-            <div className="text-xs font-bold uppercase tracking-wider text-stone-700 mb-3">
-              Ontdek de 3 Infusion Dossiers:
+            <div className="text-xs font-semibold uppercase tracking-widest text-stone-600 mb-3">
+              De Drie Infusion Selecties:
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
@@ -212,15 +203,15 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
                   <button
                     key={inf.id}
                     onClick={() => c && onOpenDossier && onOpenDossier(c)}
-                    className="text-left p-4 rounded-xl bg-white hover:bg-amber-50/70 border border-stone-200 hover:border-amber-300 transition-all group shadow-2xs"
+                    className="text-left p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-stone-300 transition-all group shadow-2xs"
                   >
-                    <div className="text-sm font-bold text-stone-900 group-hover:text-amber-950 mb-1 flex items-center justify-between">
+                    <div className="text-sm font-semibold text-stone-900 group-hover:text-amber-950 mb-1 flex items-center justify-between">
                       <span>{inf.title}</span>
                       <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="text-xs text-stone-500 leading-snug">{inf.sub}</div>
-                    <span className="mt-2 inline-block text-[11px] font-bold text-amber-900 underline">
-                      Open Dossier →
+                    <span className="mt-2 inline-block text-[11px] font-medium text-amber-900 underline">
+                      Bekijk Dossier →
                     </span>
                   </button>
                 );
@@ -233,15 +224,14 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
       {/* 3. GESHA & PINK BOURBON ICONIC SECTIONS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* GESHA ICON SECTION */}
-        <section className="bg-gradient-to-br from-amber-50 via-white to-stone-50 rounded-3xl p-8 border border-amber-300/80 shadow-xs flex flex-col justify-between">
+        <section className="bg-gradient-to-br from-amber-50/50 via-white to-stone-50 rounded-3xl p-8 border border-stone-200/80 shadow-xs flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900 text-amber-50 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Het Kroonjuweel · Gesha</span>
+            <div className="text-xs font-semibold uppercase tracking-widest text-amber-800">
+              Uitzonderlijke Variëteit · Gesha
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
-              Waarom Koffie-Experts Gesha Aanbidden
+              Waarom Koffie-Experts Gesha Waarderen
             </h3>
 
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
@@ -249,46 +239,45 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">
-              <div className="bg-white p-3.5 rounded-xl border border-amber-200">
-                <strong className="text-amber-950 block font-bold mb-0.5">Wat maakt Gesha anders?</strong>
+              <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                <strong className="text-stone-900 block font-semibold mb-0.5">Wat maakt Gesha anders?</strong>
                 <span className="text-stone-600">
-                  Een theekopperig mondgevoel, een explosie van witte jasmijnbloesem, bergamot en perzik. Het drinkt als een nobele keizerlijke thee.
+                  Een theekopperig mondgevoel, een expressie van witte jasmijnbloesem, bergamot en perzik. Het drinkt als een nobele keizerlijke thee.
                 </span>
               </div>
-              <div className="bg-white p-3.5 rounded-xl border border-amber-200">
-                <strong className="text-amber-950 block font-bold mb-0.5">Waarom legendarisch?</strong>
+              <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                <strong className="text-stone-900 block font-semibold mb-0.5">Zeldzaamheid & Hoogte</strong>
                 <span className="text-stone-600">
-                  Gesha bomen produceren minder bessen per tak en vergen extreme hoogtes (boven 1.800m). De zeldzaamheid en finesse maken het de meest bekroonde boon ter wereld.
+                  Gesha bomen produceren minder bessen per tak en vergen extreme hoogtes (boven 1.800m). De zeldzaamheid en finesse maken het een van de meest gewaardeerde bonen ter wereld.
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-5 border-t border-amber-200/80 mt-6 flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-950">Ethiopia Gesha Bench Maji (SCA 88+)</span>
+          <div className="pt-5 border-t border-stone-200/80 mt-6 flex items-center justify-between">
+            <span className="text-xs font-medium text-stone-700">Ethiopia Gesha Bench Maji (SCA 88+)</span>
             <button
               onClick={() => {
                 const c = getCoffee('so-gesha-bench-maji') || getCoffee('so-gesha');
                 if (c && onOpenDossier) onOpenDossier(c);
               }}
-              className="text-xs font-bold text-amber-900 hover:text-amber-700 underline flex items-center gap-1"
+              className="text-xs font-medium text-amber-900 hover:text-amber-700 underline flex items-center gap-1"
             >
-              <span>Lees Gesha Dossier</span>
+              <span>Bekijk Gesha Dossier</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
         </section>
 
         {/* PINK BOURBON DISCOVERY SECTION */}
-        <section className="bg-gradient-to-br from-rose-50/70 via-white to-amber-50/50 rounded-3xl p-8 border border-rose-200/80 shadow-xs flex flex-col justify-between">
+        <section className="bg-gradient-to-br from-rose-50/40 via-white to-amber-50/30 rounded-3xl p-8 border border-stone-200/80 shadow-xs flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-900 text-rose-50 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Micro-Lot Sensatie · Pink Bourbon</span>
+            <div className="text-xs font-semibold uppercase tracking-widest text-stone-600">
+              Micro-Lot Selectie · Pink Bourbon
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
-              Het Mysterie dat de Specialty Wereld Verraste
+              De Oorsprong van Pink Bourbon
             </h3>
 
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
@@ -296,31 +285,31 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">
-              <div className="bg-white p-3.5 rounded-xl border border-rose-200">
-                <strong className="text-rose-950 block font-bold mb-0.5">Roze Koffiebessen</strong>
+              <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                <strong className="text-stone-900 block font-semibold mb-0.5">Roze Koffiebessen</strong>
                 <span className="text-stone-600">
-                  Rijpe bessen kleuren niet rood, maar zacht zalmroze. Dit vereist ongeëvenaarde visuele precisie van de plukkers in Huila.
+                  Rijpe bessen kleuren niet rood, maar zacht zalmroze. Dit vereist grote visuele precisie van de plukkers in Huila.
                 </span>
               </div>
-              <div className="bg-white p-3.5 rounded-xl border border-rose-200">
-                <strong className="text-rose-950 block font-bold mb-0.5">Exclusief Smaakprofiel</strong>
+              <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                <strong className="text-stone-900 block font-semibold mb-0.5">Smaakprofiel</strong>
                 <span className="text-stone-600">
-                  Beroemd om zijn verkwikkende zoet-zure balans: tonen van roze pompelmoes, rode bessen, papaja en gekristalliseerd suikerriet.
+                  Gekenmerkt door een verkwikkende zoet-zure balans: tonen van roze pompelmoes, rode bessen, papaja en gekristalliseerd suikerriet.
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-5 border-t border-rose-200/80 mt-6 flex items-center justify-between">
-            <span className="text-xs font-bold text-rose-950">Colombia Pink Bourbon Huila (SCA 87.5)</span>
+          <div className="pt-5 border-t border-stone-200/80 mt-6 flex items-center justify-between">
+            <span className="text-xs font-medium text-stone-700">Colombia Pink Bourbon Huila (SCA 87.5)</span>
             <button
               onClick={() => {
                 const c = getCoffee('so-pink-bourbon');
                 if (c && onOpenDossier) onOpenDossier(c);
               }}
-              className="text-xs font-bold text-rose-900 hover:text-rose-700 underline flex items-center gap-1"
+              className="text-xs font-medium text-stone-800 hover:text-stone-900 underline flex items-center gap-1"
             >
-              <span>Lees Pink Bourbon Dossier</span>
+              <span>Bekijk Pink Bourbon Dossier</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
@@ -330,9 +319,8 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
       {/* 4. ROASTERY CRAFT & TERROIR */}
       <section className="bg-gradient-to-br from-stone-900 via-stone-850 to-amber-950 text-amber-50 rounded-3xl p-8 sm:p-12 relative overflow-hidden border border-stone-800 shadow-lg">
         <div className="relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900/60 border border-amber-600/30 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Het Ambacht van Maison Milau</span>
+          <div className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-4">
+            Het Ambacht van Maison Milau
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-6">
@@ -346,7 +334,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-stone-800/80">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-500/20 flex items-center justify-center text-amber-300 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-stone-800 border border-stone-700 flex items-center justify-center text-stone-300 mb-3">
                 <Mountain className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-1.5">Hoogte & Terroir</h3>
@@ -356,7 +344,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             </div>
 
             <div>
-              <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-500/20 flex items-center justify-center text-amber-300 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-stone-800 border border-stone-700 flex items-center justify-center text-stone-300 mb-3">
                 <Flame className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-1.5">Slow Drum Roasting</h3>
@@ -366,7 +354,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             </div>
 
             <div>
-              <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-500/20 flex items-center justify-center text-amber-300 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-stone-800 border border-stone-700 flex items-center justify-center text-stone-300 mb-3">
                 <Droplets className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-1.5">Eerlijke Oorsprong</h3>
@@ -381,9 +369,8 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
       {/* 5. MASTER BREWING GUIDE */}
       <section className="bg-white rounded-3xl border border-stone-200/90 p-8 sm:p-10 shadow-xs">
         <div className="max-w-3xl mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-2">
-            <Thermometer className="w-3.5 h-3.5 text-amber-800" />
-            <span>Barista Tips</span>
+          <div className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">
+            Barista Richtlijnen
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
             Zetadvies van de Brander

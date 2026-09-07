@@ -4,7 +4,6 @@ import { COLLECTION_INTROS } from '../data/collectionIntros';
 import { CoffeeCatalogItem } from '../types';
 import {
   Compass,
-  Sparkles,
   BookOpen,
   X,
   Search,
@@ -151,9 +150,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/90 text-amber-950 text-xs font-bold uppercase tracking-wider mb-4 border border-amber-300/60 shadow-2xs">
-                <Compass className="w-3.5 h-3.5 text-amber-800" />
-                <span>Maison Milau · Collectie & Terroir</span>
+              <div className="text-xs font-semibold uppercase tracking-widest text-amber-900 mb-3">
+                Maison Milau · Collectie & Terroir
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 mb-4">
@@ -266,9 +264,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
           {activeIntro && (
             <div className="mb-10 bg-white rounded-3xl border border-amber-200/90 shadow-sm p-6 sm:p-8 relative overflow-hidden transition-all">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 text-xs font-bold uppercase tracking-wider">
-                  <BookOpen className="w-3.5 h-3.5 text-amber-800" />
-                  <span>Collectie Terroir Dossier</span>
+                <div className="text-xs font-semibold uppercase tracking-widest text-amber-900">
+                  Collectie Terroir Dossier
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-semibold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/70">
@@ -297,9 +294,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
               {/* Target Audience */}
               {activeIntro.targetAudience && (
                 <div className="mt-6 pt-5 border-t border-stone-100">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 mb-3 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-800" />
-                    <span>{activeIntro.targetAudienceTitle || 'Voor wie?'}</span>
+                  <h4 className="text-xs font-semibold uppercase tracking-widest text-stone-700 mb-3">
+                    {activeIntro.targetAudienceTitle || 'Voor wie?'}
                   </h4>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs text-stone-700">
                     {activeIntro.targetAudience.map((item, idx) => (

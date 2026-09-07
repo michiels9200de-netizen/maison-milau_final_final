@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, X, CheckCircle, Coffee, Sparkles } from 'lucide-react';
+import { Star, X, CheckCircle, Coffee } from 'lucide-react';
 import { CATALOG_ITEMS } from '../data/catalogData';
 
 interface CoffeeReviewModalProps {
