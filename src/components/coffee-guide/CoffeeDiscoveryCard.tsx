@@ -69,9 +69,18 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
   return (
     <article
-      id={`coffee-card-${coffee.slug}`}
-      className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-amber-300 relative"
+      id={`coffee-card-${coffee.id}`}
+      data-coffee-id={coffee.id}
+      data-webshop-id={coffee.webshopProductId}
+      className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-amber-300 relative scroll-mt-28"
     >
+      {/* Native anchor targets for direct deep-linking */}
+      <span id={coffee.id} className="absolute -top-28 pointer-events-none" />
+      <span id={`coffee-card-${coffee.slug}`} className="absolute -top-28 pointer-events-none" />
+      {coffee.slug && <span id={coffee.slug} className="absolute -top-28 pointer-events-none" />}
+      {coffee.webshopProductId && (
+        <span id={coffee.webshopProductId} className="absolute -top-28 pointer-events-none" />
+      )}
       <div>
         {/* Top Badges: Collection, Discovery Tag & Roast Indicator */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">

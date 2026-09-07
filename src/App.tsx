@@ -51,15 +51,21 @@ export default function App() {
     const params = new URLSearchParams(query || '');
     setSearchParams(params);
 
-    // Only scroll to top if there is NO product anchor/target
+    // Only scroll to top if there is NO deep-link target (product or coffee guide target)
     const hasTarget = Boolean(
       hash ||
       params.get('product') ||
       params.get('highlight') ||
-      params.get('id')
+      params.get('id') ||
+      params.get('coffee') ||
+      params.get('dossier')
     );
 
-    if (!hasTarget) {
+    if (path === '/afrekenen' || path === '/checkout') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    } else if (!hasTarget) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -79,7 +85,7 @@ export default function App() {
         return <HomePage navigate={navigate} />;
       case '/koffies':
       case '/koffiegids':
-        return <CatalogPage navigate={navigate} />;
+        return <CatalogPage navigate={navigate} searchParams={searchParams} />;
       case '/webshop':
       case '/shop':
         return <WebshopPage navigate={navigate} searchParams={searchParams} />;

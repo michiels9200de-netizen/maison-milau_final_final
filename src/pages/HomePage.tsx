@@ -71,17 +71,14 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             </div>
 
             {/* Right: Hero Image Container (1 FOTO OP HOME PAGE) */}
-            <div className="lg:col-span-5">
-              <div className="relative">
-                <MediaPlaceholder
-                  type="image"
-                  badgeText="Sfeerfoto Home 1"
-                  title="Maison Milau Micro-Branderij & Cupping Atelier"
-                  subtitle="Beeld van het brandatelier in Oudegem met vers gebrande specialty koffiebonen en cuppingsetup."
-                  recommendedSize="1920 × 1280 (16:9 of 4:3)"
-                  aspectRatio="video"
-                  className="shadow-sm border-stone-200 min-h-[320px] sm:min-h-[380px]"
-                  imageUrl="/images/first homepage picture website.png"
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              <div className="relative rounded-2xl overflow-hidden shadow-md border border-stone-200/90 bg-stone-100 aspect-[3/2] w-full">
+                <img
+                  src={encodeURI("/images/first homepage picture website.png")}
+                  alt="Maison Milau Micro-Branderij & Cupping Atelier"
+                  className="w-full h-full object-cover rounded-2xl"
+                  loading="eager"
+                  decoding="async"
                 />
               </div>
             </div>

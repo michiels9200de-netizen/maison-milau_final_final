@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SHOP_PRODUCTS } from '../data/shopData';
+import { CATALOG_ITEMS } from '../data/catalogData';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import {
@@ -14,6 +15,7 @@ import {
   Sparkles,
   ShieldCheck,
   CheckCircle2,
+  BookOpen,
 } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
@@ -597,6 +599,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
               const displayImage = activeProductImage[product.id] || product.imageUrl;
 
+              const matchingCatalogCoffee = CATALOG_ITEMS.find(
+                (c) =>
+                  c.webshopProductId === product.id ||
+                  c.id === product.catalogSlug ||
+                  c.id === product.id ||
+                  c.id.toLowerCase() === product.id.toLowerCase().replace(/^prod-/, '')
+              );
+
               return (
                 <div
                   key={product.id}
@@ -693,9 +703,26 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                     {/* Product Visual Title */}
                     <div className="mb-3">
-                      <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
-                        {product.name}
-                      </h3>
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+                          {product.name}
+                        </h3>
+                        {matchingCatalogCoffee && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              navigate(
+                                `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
+                              )
+                            }
+                            className="shrink-0 inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100/90 border border-amber-800/25 px-2 py-0.5 rounded-md transition-colors"
+                            title={`Bekijk terroir & branddossier in de Koffiegids`}
+                          >
+                            <BookOpen className="w-3 h-3 text-amber-800" />
+                            <span>Dossier</span>
+                          </button>
+                        )}
+                      </div>
                       <p className="text-sm text-stone-500 mt-1 leading-relaxed">
                         {product.shortDescription}
                       </p>
@@ -936,17 +963,37 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       </div>
                     )}
 
-                    {/* Bi-directional Link to Catalog and Taste Review */}
+                    {/* Bi-directional Link to Catalog Dossier, Terroir, and Taste Review */}
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                      {product.catalogSlug && (
+                      {matchingCatalogCoffee ? (
                         <button
-                          onClick={() => navigate('/koffies')}
-                          className="inline-flex items-center gap-1 text-xs text-amber-900 hover:text-amber-700 font-semibold underline"
+                          type="button"
+                          onClick={() =>
+                            navigate(
+                              `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
+                            )
+                          }
+                          className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-950 font-semibold underline decoration-amber-900/40 hover:decoration-amber-900 underline-offset-2 transition-colors group cursor-pointer"
+                          title={`Bekijk het volledige terroir & zetdossier van ${product.name} in de Koffiegids`}
                         >
-                          <span>Terroir & Brandprofiel</span>
+                          <BookOpen className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                          <span>Terroir · Dossier · Lees meer</span>
+                          <ExternalLink className="w-3 h-3 text-amber-800/80 group-hover:translate-x-0.5 transition-transform" />
+                        </button>
+                      ) : product.catalogSlug ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(
+                              `/koffies?coffee=${product.catalogSlug}&dossier=true#${product.catalogSlug}`
+                            )
+                          }
+                          className="inline-flex items-center gap-1 text-xs text-amber-900 hover:text-amber-700 font-semibold underline cursor-pointer"
+                        >
+                          <span>Terroir & Dossier</span>
                           <ExternalLink className="w-3 h-3" />
                         </button>
-                      )}
+                      ) : null}
 
                       {isCoffeeProduct && (
                         <button

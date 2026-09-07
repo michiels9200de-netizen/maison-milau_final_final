@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_ITEMS } from '../data/catalogData';
 import { COLLECTION_INTROS } from '../data/collectionIntros';
 import { CoffeeCatalogItem } from '../types';
@@ -11,15 +11,16 @@ import {
   ArrowRight,
   ShoppingBag,
 } from 'lucide-react';
-import { CoffeeFinder } from '../components/coffee-guide/CoffeeFinder';
+import { CoffeeFinderModal } from '../components/coffee-guide/CoffeeFinderModal';
 import { CoffeeDiscoveryCard } from '../components/coffee-guide/CoffeeDiscoveryCard';
 import { CoffeeDossierModal } from '../components/coffee-guide/CoffeeDossierModal';
 
 interface CatalogPageProps {
   navigate: (path: string) => void;
+  searchParams?: URLSearchParams;
 }
 
-export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
+export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams }) => {
   const [selectedCollection, setSelectedCollection] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,9 +28,68 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
 
   // Dedicated Dossier Modal state for individual coffee deep-dives
   const [selectedDossierCoffee, setSelectedDossierCoffee] = useState<CoffeeCatalogItem | null>(null);
+  const [isFinderOpen, setIsFinderOpen] = useState(false);
 
   const introSectionRef = useRef<HTMLDivElement>(null);
-  const finderSectionRef = useRef<HTMLDivElement>(null);
+
+  // Bi-directional Deep-Linking: Parse incoming targets from Webshop or direct links
+  useEffect(() => {
+    const hash = window.location.hash?.replace(/^#/, '');
+    const coffeeTarget =
+      searchParams?.get('coffee') ||
+      searchParams?.get('dossier') ||
+      searchParams?.get('product') ||
+      searchParams?.get('id') ||
+      hash;
+
+    if (!coffeeTarget) return;
+
+    const targetStr = decodeURIComponent(coffeeTarget).toLowerCase().trim();
+
+    // Match in CATALOG_ITEMS
+    const matched = CATALOG_ITEMS.find((c) => {
+      const cId = c.id.toLowerCase();
+      const cWebshopId = c.webshopProductId?.toLowerCase() || '';
+      const cName = c.name.toLowerCase();
+      const cSlug = c.slug?.toLowerCase() || '';
+
+      return (
+        cId === targetStr ||
+        cWebshopId === targetStr ||
+        cSlug === targetStr ||
+        cId === targetStr.replace(/^prod-/, '') ||
+        cWebshopId.replace(/^prod-/, '') === targetStr ||
+        cName === targetStr ||
+        cName.includes(targetStr) ||
+        targetStr.includes(cId)
+      );
+    });
+
+    if (matched) {
+      // Ensure coffee is visible in current filter
+      setSelectedCollection('all');
+      setSelectedType('all');
+      setSearchQuery('');
+
+      // Open interactive coffee dossier modal directly
+      setSelectedDossierCoffee(matched);
+
+      // Smoothly scroll and center the coffee card in viewport
+      const scrollToCard = () => {
+        const el =
+          document.getElementById(`coffee-card-${matched.id}`) ||
+          document.getElementById(matched.id) ||
+          document.getElementById(`coffee-card-${matched.slug}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      };
+
+      requestAnimationFrame(scrollToCard);
+      setTimeout(scrollToCard, 80);
+      setTimeout(scrollToCard, 350);
+    }
+  }, [searchParams]);
 
   const collections = [
     { id: 'all', label: 'Alle Collecties' },
@@ -105,14 +165,25 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
               </p>
             </div>
 
-            {/* Clear demarcation link to the transactional Shop */}
+            {/* Clear demarcation link to the transactional Shop & Koffievinder */}
             <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs max-w-sm shrink-0">
-              <div className="flex items-center gap-2 text-xs font-bold text-stone-900 uppercase tracking-wider mb-1">
-                <ShoppingBag className="w-4 h-4 text-amber-900" />
-                <span>Direct koffie bestellen?</span>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-stone-900 uppercase tracking-wider">
+                  <ShoppingBag className="w-4 h-4 text-amber-900" />
+                  <span>Direct bestellen?</span>
+                </div>
+                <button
+                  id="btn-open-koffievinder-header"
+                  onClick={() => setIsFinderOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 hover:bg-amber-100 text-amber-950 text-xs font-bold border border-amber-300/60 shadow-2xs transition-all cursor-pointer group"
+                  title="Open Koffievinder voor gericht smaakadvies"
+                >
+                  <Compass className="w-3.5 h-3.5 text-amber-900 group-hover:rotate-45 transition-transform duration-300" />
+                  <span>Koffievinder</span>
+                </button>
               </div>
               <p className="text-xs text-stone-500 leading-relaxed mb-3">
-                De Koffiegids is bedoeld voor smaakontdekking en educatie. Voor direct bestellen, verpakkingen en abonnementen bezoekt u onze webshop.
+                De Koffiegids is bedoeld voor smaakontdekking en terroir. Voor direct bestellen bezoekt u onze webshop.
               </p>
               <button
                 onClick={() => navigate('/webshop')}
@@ -131,16 +202,27 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
         {/* 2. COFFEE COLLECTIONS (Filter Bar & Navigation) */}
         <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-2xs mb-8">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-            {/* Search Bar */}
-            <div className="w-full md:w-80 relative">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Zoek op herkomst, smaak of naam..."
-                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-900"
-              />
+            {/* Search Bar with Quick Koffievinder Button */}
+            <div className="flex items-center gap-2.5 w-full md:w-auto">
+              <div className="w-full md:w-80 relative">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Zoek op herkomst, smaak of naam..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-900"
+                />
+              </div>
+              <button
+                id="btn-open-koffievinder-bar"
+                onClick={() => setIsFinderOpen(true)}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-50 text-xs font-semibold tracking-wide transition-colors shadow-xs"
+                title="Smaakadvies in 3 snelle keuzes"
+              >
+                <Compass className="w-4 h-4 text-amber-300" />
+                <span className="hidden sm:inline">Koffievinder</span>
+              </button>
             </div>
 
             {/* Method Filter */}
@@ -266,13 +348,11 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
             Toont <strong className="text-stone-900">{filteredItems.length}</strong> koffieprofielen met herkomst, branding en cupping-meters
           </div>
           <button
-            onClick={() => {
-              finderSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="hidden sm:inline-flex items-center gap-1 text-amber-900 hover:text-amber-800 font-semibold"
+            onClick={() => setIsFinderOpen(true)}
+            className="inline-flex items-center gap-1.5 text-amber-900 hover:text-amber-800 font-semibold cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Naar Koffie Finder ↓</span>
+            <Compass className="w-3.5 h-3.5" />
+            <span>Koffievinder openen</span>
           </button>
         </div>
 
@@ -287,33 +367,16 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate }) => {
             />
           ))}
         </div>
-
-        {/* 4. COFFEE FINDER AT THE END (Optional discovery tool) */}
-        <section
-          ref={finderSectionRef}
-          id="koffie-finder-section"
-          className="pt-12 border-t border-stone-200/90"
-        >
-          <div className="mb-8 text-center max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider mb-3 border border-amber-200">
-              <Sparkles className="w-3.5 h-3.5 text-amber-800" />
-              <span>Persoonlijke Smaakontdekking</span>
-            </div>
-            <h2 className="text-3xl font-bold text-stone-900 tracking-tight mb-2">
-              Koffie Finder · Vind Jouw Ideale Profiel
-            </h2>
-            <p className="text-sm text-stone-600 leading-relaxed">
-              Twijfelt u welke boon het best aansluit bij uw smaakvoorkeuren en zetmethode? Beantwoord 3 korte ontdekkingsvragen voor een persoonlijk advies van onze meesterbrander.
-            </p>
-          </div>
-
-          <CoffeeFinder
-            coffees={CATALOG_ITEMS}
-            navigate={navigate}
-            onOpenDossier={handleOpenDossier}
-          />
-        </section>
       </main>
+
+      {/* Compact Premium Coffee Finder Modal */}
+      <CoffeeFinderModal
+        isOpen={isFinderOpen}
+        onClose={() => setIsFinderOpen(false)}
+        coffees={CATALOG_ITEMS}
+        navigate={navigate}
+        onSelectCoffee={handleOpenDossier}
+      />
 
       {/* Dedicated Interactive Coffee Dossier Modal */}
       <CoffeeDossierModal

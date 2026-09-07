@@ -19,6 +19,7 @@ i18n
       en: { translation: en },
       de: { translation: de },
     },
+    lng: 'nl',
     supportedLngs: supportedLanguages,
     nonExplicitSupportedLngs: true,
     load: 'languageOnly',

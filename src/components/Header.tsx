@@ -5,7 +5,6 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { WEBSHOP_SUBCATEGORIES, isValidRoute } from '../data/sitemap';
 import { CONFIG } from '../config';
-import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
   currentPath: string;
@@ -63,9 +62,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
           </div>
 
           <div className="flex items-center gap-3 ml-auto">
-            {/* Multilingual Language Switcher */}
-            <LanguageSwitcher />
-
             {/* Account Switcher for Particulier / Professioneel */}
             <div className="flex items-center bg-stone-200/80 rounded-full p-0.5 text-[11px]">
               <button
@@ -103,37 +99,38 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5 lg:py-4 flex items-center justify-between gap-4">
-        {/* Brand Identity with Logo */}
-        <div
-          onClick={() => handleNavClick('/')}
-          className="cursor-pointer flex items-center select-none shrink-0"
-        >
-          <img
-            src="/images/logo1.png"
-            alt="Maison Milau Logo"
-            className="h-[58px] sm:h-[72px] lg:h-[92px] w-auto max-w-none object-contain transition-all"
-          />
-        </div>
-
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-stone-700">
-          <button
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 lg:py-3.5 flex items-center justify-between gap-6">
+        {/* Brand Identity with Logo and Desktop Navigation */}
+        <div className="flex items-center gap-6 xl:gap-8 min-w-0">
+          <div
             onClick={() => handleNavClick('/')}
-            className={`hover:text-stone-900 transition-colors ${
-              currentPath === '/' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
-            }`}
+            className="cursor-pointer flex items-center select-none shrink-0"
           >
-            {t('nav.home')}
-          </button>
-          <button
-            onClick={() => handleNavClick('/koffies')}
-            className={`hover:text-stone-900 transition-colors ${
-              currentPath === '/koffies' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
-            }`}
-          >
-            {t('nav.our_coffees')}
-          </button>
+            <img
+              src="/images/logo1.png"
+              alt="Maison Milau Logo"
+              className="h-[66px] sm:h-[82px] lg:h-[102px] xl:h-[112px] w-auto max-w-none object-contain transition-all"
+            />
+          </div>
+
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-sm font-medium text-stone-700 whitespace-nowrap">
+            <button
+              onClick={() => handleNavClick('/')}
+              className={`hover:text-stone-900 transition-colors ${
+                currentPath === '/' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
+              }`}
+            >
+              {t('nav.home')}
+            </button>
+            <button
+              onClick={() => handleNavClick('/koffies')}
+              className={`hover:text-stone-900 transition-colors ${
+                currentPath === '/koffies' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
+              }`}
+            >
+              {t('nav.our_coffees')}
+            </button>
 
           {/* Webshop with Hover/Click dropdown */}
           <div className="relative group">
@@ -229,6 +226,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             {t('nav.about')}
           </button>
         </nav>
+        </div>
 
         {/* Header Right Actions */}
         <div className="flex items-center gap-3">
@@ -275,14 +273,20 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       {/* Hamburger Drawer Menu (Strictly matches the exact requested items) */}
       {isMenuOpen && (
         <div className="lg:hidden bg-[#F8F6F2] border-b border-stone-300 px-6 py-6 shadow-xl animate-fadeIn">
-          {/* Mobile Menu Header with Logo and LanguageSwitcher */}
+          {/* Mobile Menu Header with Logo */}
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-200">
             <img
               src="/images/logo1.png"
               alt="Maison Milau Logo"
-              className="h-[58px] w-auto max-w-none object-contain"
+              className="h-[64px] sm:h-[72px] w-auto max-w-none object-contain"
             />
-            <LanguageSwitcher />
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="p-2 text-stone-500 hover:text-stone-900 rounded-lg"
+              aria-label="Menu sluiten"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           <div className="space-y-4">

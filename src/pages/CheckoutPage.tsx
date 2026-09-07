@@ -36,6 +36,30 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   });
 
   useEffect(() => {
+    // Always force scroll position to top on mount; never restore old scroll positions
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    const rafId = requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+
+    const timeoutId = setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 60);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
     if (currentUser) {
       setFormData((prev) => ({
         ...prev,
