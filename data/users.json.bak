@@ -118,11 +118,11 @@
     "createdAt": "2026-09-08T11:26:39.215Z"
   },
   {
-    "id": "usr-1788867142191-a2eb7",
-    "email": "test_audit_1788867142084@example.com",
-    "username": "test_audit_1788867142084",
-    "password": "bd8e09d6819aa14681c51cfcd8ebbc89:68ccff14c6056c4f805f29337583dd9e83e33bc9d120ab123c6a1ee197b04c251ded412d024632a0ea62855706589c08112b98e8be6c77f04b9682f9b4fc02ed",
-    "name": "Audit Test User",
+    "id": "usr-1788868485586-d30rd",
+    "email": "test_audit_1788868485480@example.com",
+    "username": "test_audit_1788868485480",
+    "password": "34c35deb207f2f4c26f754e99c68fa27:da6919ef53b38ccd8bcd72d6d370bc332356c53b17879c953b1f3d94f3ce63d29de5f963b4d6f9ec45b632e374e13560ed91dd5ac416001966a8ffe32e9190aa",
+    "name": "Audit Tester",
     "phone": "",
     "accountType": "particulier",
     "role": "b2c_customer",
@@ -130,11 +130,10 @@
     "vatNumber": "",
     "addresses": [],
     "loyaltyPoints": 100,
-    "verificationToken": "3fac37f7cc78d61355b435c68b717e77b496ce564bdcdebfade180e8db0b9fe5",
-    "verificationTokenExpiry": 1788953542191,
-    "isEmailVerified": false,
+    "isEmailVerified": true,
     "isActive": true,
-    "status": "pending_verification",
-    "createdAt": "2026-09-08T11:32:22.198Z"
+    "status": "active",
+    "createdAt": "2026-09-08T11:54:45.594Z",
+    "verifiedAt": "2026-09-08T11:54:45.654Z"
   }
 ]

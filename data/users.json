@@ -98,23 +98,5 @@
     "loyaltyPoints": 100,
     "isEmailVerified": true,
     "createdAt": "2026-09-06T22:33:32.870Z"
-  },
-  {
-    "id": "usr-1788866799209-e6ac1",
-    "email": "test_audit_flow@example.com",
-    "username": "test_audit_flow",
-    "password": "01784ce6a0c5ae2be036959528fd3883:5fe777b694ff46e4672c01050a00c251e672c20b0a8c4643de59933e889f15d7d6701528c4e701317dd7baec1ca30e875aa26b4c8569f0e3aa89b7d7872e2a7b",
-    "name": "Audit User",
-    "phone": "",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [],
-    "loyaltyPoints": 100,
-    "verificationToken": "94706cfa0944b85a47321cf0a9cafb349376fcc149c5b26c8f3854211c8d006a",
-    "verificationTokenExpiry": 1788953199209,
-    "isEmailVerified": false,
-    "createdAt": "2026-09-08T11:26:39.215Z"
   }
 ]

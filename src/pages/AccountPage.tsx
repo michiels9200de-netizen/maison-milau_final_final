@@ -227,8 +227,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
 
     const verifyStatus = params.get('verifyStatus');
     const emailParam = params.get('email');
-    const tokenParam = params.get('token') || params.get('resetToken');
-    const verifyTokenParam = params.get('verifyToken');
+    const resetTokenParamUrl = params.get('resetToken');
+    const verifyTokenParamUrl = params.get('verifyToken');
+    const genericTokenParam = params.get('token');
 
     if (tabParam === 'forgot' || pathname === '/forgot-password' || pathname === '/account/forgot-password') {
       setAuthTab('forgot');
@@ -243,7 +244,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     if (verifyStatus === 'success') {
       setVerificationBanner({
         type: 'success',
-        message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu veilig inloggen met uw wachtwoord.',
+        message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu direct inloggen met uw wachtwoord.',
         email: emailParam || undefined,
       });
       if (emailParam) setAuthEmailOrUsername(emailParam);
@@ -251,19 +252,28 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     } else if (verifyStatus === 'expired') {
       setVerificationBanner({
         type: 'warning',
-        message: 'De verificatielink is helaas verlopen. Vraag hieronder direct een nieuwe verificatiemail aan.',
+        message: 'De verificatielink is helaas verlopen (geldigheidsduur: 24 uur). Vraag hieronder direct een nieuwe verificatiemail aan.',
         email: emailParam || undefined,
       });
       if (emailParam) setAuthEmailOrUsername(emailParam);
     } else if (verifyStatus === 'invalid') {
       setVerificationBanner({
         type: 'error',
-        message: 'De verificatielink is ongeldig of reeds gebruikt.',
+        message: 'De verificatielink is niet geldig of reeds verwerkt. Indien uw account reeds actief is, kunt u direct inloggen.',
+        email: emailParam || undefined,
       });
+      if (emailParam) setAuthEmailOrUsername(emailParam);
     }
 
-    if (verifyTokenParam) {
-      verifyEmail(verifyTokenParam, emailParam || undefined).then((res) => {
+    // Determine token destination with high precision
+    const isExplicitVerify = !!verifyTokenParamUrl || tabParam === 'verify' || !!verifyStatus;
+    const isExplicitReset = !!resetTokenParamUrl || tabParam === 'reset' || pathname.includes('reset-password');
+
+    const effectiveVerifyToken = verifyTokenParamUrl || (isExplicitVerify ? genericTokenParam : null);
+    const effectiveResetToken = resetTokenParamUrl || (isExplicitReset ? genericTokenParam : null);
+
+    if (effectiveVerifyToken) {
+      verifyEmail(effectiveVerifyToken, emailParam || undefined).then((res) => {
         if (res.success) {
           setVerificationBanner({
             type: 'success',
@@ -275,21 +285,46 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         } else {
           setVerificationBanner({
             type: 'error',
-            message: res.error || 'Verificatie mislukt. De link is mogelijk verlopen.',
+            message: res.error || 'Verificatie mislukt. Mogelijk is de link reeds gebruikt of verlopen.',
+            email: emailParam || undefined,
           });
         }
       });
-    }
-
-    if (tokenParam) {
-      validateResetToken(tokenParam).then((res) => {
+    } else if (effectiveResetToken) {
+      validateResetToken(effectiveResetToken).then((res) => {
         if (res.success) {
-          setResetTokenParam(tokenParam);
+          setResetTokenParam(effectiveResetToken);
           setResetTokenValidEmail(res.email || '');
           setAuthTab('reset');
         } else {
           setAuthError(res.error || 'Ongeldige of verlopen herstelcode.');
           setAuthTab('forgot');
+        }
+      });
+    } else if (genericTokenParam) {
+      // Ambiguous generic token: try reset first, then fall back to email verification
+      validateResetToken(genericTokenParam).then((res) => {
+        if (res.success) {
+          setResetTokenParam(genericTokenParam);
+          setResetTokenValidEmail(res.email || '');
+          setAuthTab('reset');
+        } else {
+          verifyEmail(genericTokenParam, emailParam || undefined).then((vRes) => {
+            if (vRes.success) {
+              setVerificationBanner({
+                type: 'success',
+                message: vRes.message || 'Uw e-mailadres is succesvol geverifieerd! U kunt nu veilig inloggen.',
+                email: vRes.email || emailParam || undefined,
+              });
+              if (vRes.email || emailParam) setAuthEmailOrUsername(vRes.email || emailParam || '');
+              setAuthTab('login');
+            } else {
+              setVerificationBanner({
+                type: 'error',
+                message: 'De gebruikte link is ongeldig of verlopen.',
+              });
+            }
+          });
         }
       });
     }

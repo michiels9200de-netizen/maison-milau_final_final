@@ -712,33 +712,29 @@ export function getAuthenticatedUser(req: Request): any | null {
     token = authHeader.slice(7).trim();
   } else if (req.headers['x-auth-token']) {
     token = String(req.headers['x-auth-token']).trim();
-  } else if (req.query.token) {
-    token = String(req.query.token).trim();
   }
 
   if (token && activeSessions.has(token)) {
     const sess = activeSessions.get(token)!;
     if (sess.expiresAt > Date.now()) {
       const user = registeredUsers.find((u) => u.id === sess.userId || u.email.toLowerCase() === sess.email.toLowerCase());
-      if (user) return user;
+      if (user) {
+        // Enforce email verification for customers: unverified users cannot maintain an active session
+        if (!user.isEmailVerified && user.role !== 'store_admin') {
+          console.warn(`[AUTH] Session rejected: User ${user.email} is not email verified`);
+          activeSessions.delete(token);
+          saveSessionsToDisk();
+          return null;
+        }
+        return user;
+      }
     } else {
       activeSessions.delete(token);
       saveSessionsToDisk();
     }
   }
 
-  // Header or query fallback for customer verification (ADMIN ROLE IS STRICTLY PROHIBITED FROM HEADER FALLBACK)
-  const headerEmail = (req.headers['x-user-email'] as string) || (req.query.userEmail as string) || (req.query.email as string);
-  if (headerEmail) {
-    const clean = headerEmail.trim().toLowerCase();
-    const user = registeredUsers.find((u) =>
-      u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean)
-    );
-    if (user && user.role !== 'store_admin' && user.email.toLowerCase() !== 'admin@maison-milau.be') {
-      return user;
-    }
-  }
-
+  // Strictly require a valid session token; never authenticate via query parameters or unauthenticated headers
   return null;
 }
 
@@ -2551,20 +2547,40 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'Gelieve een geldige verificatiecode mee te geven.' });
   }
 
-  // 1. Try finding user by token
-  let user = cleanToken ? registeredUsers.find((u) => u.verificationToken && u.verificationToken === cleanToken) : null;
+  // 1. Try finding user by token or lastVerificationToken (for idempotent retry or duplicate clicks)
+  let user = cleanToken
+    ? registeredUsers.find(
+        (u) =>
+          (u.verificationToken && u.verificationToken === cleanToken) ||
+          (u.lastVerificationToken && u.lastVerificationToken === cleanToken)
+      )
+    : null;
 
-  // 2. If token not found, but email is provided, check if user is already verified
+  // 2. If token matched an already verified user, return success immediately
+  if (user && user.isEmailVerified) {
+    console.log(`[VERIFY] User already verified via token: ${user.email}`);
+    return res.json({
+      success: true,
+      alreadyVerified: true,
+      message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt direct inloggen met uw wachtwoord.',
+      email: user.email,
+    });
+  }
+
+  // 3. Fallback matching by email if token was already consumed
   if (!user && cleanEmail) {
     const userByEmail = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
     if (userByEmail && userByEmail.isEmailVerified) {
-      console.log(`[VERIFY] User already verified: ${userByEmail.email} - returning success`);
+      console.log(`[VERIFY] User already verified by email: ${userByEmail.email} - returning success`);
       return res.json({
         success: true,
         alreadyVerified: true,
         message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt direct inloggen met uw wachtwoord.',
         email: userByEmail.email,
       });
+    }
+    if (userByEmail && cleanToken && (userByEmail.verificationToken === cleanToken || userByEmail.lastVerificationToken === cleanToken)) {
+      user = userByEmail;
     }
   }
 
@@ -2583,6 +2599,7 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   user.isActive = true;
   user.status = 'active';
   user.verifiedAt = new Date().toISOString();
+  user.lastVerificationToken = user.verificationToken || cleanToken;
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
@@ -2608,7 +2625,7 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   loadUsersFromDisk(true);
   const token = ((req.query.token || req.query.verifyToken) as string || '').trim();
   const email = ((req.query.email as string) || '').trim().toLowerCase();
-  const isBrowserNav = req.headers.accept?.includes('text/html') && !req.headers.accept?.includes('application/json');
+  const isBrowserNav = req.headers.accept?.includes('text/html') || !req.headers.accept?.includes('application/json');
 
   console.log(`[VERIFY] GET verification link clicked - Token: ${token ? token.substring(0, 8) + '...' : 'none'}, Email: ${email || 'none'}, Browser: ${isBrowserNav}`);
 
@@ -2620,14 +2637,34 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
     return res.redirect('/account?verifyStatus=invalid');
   }
 
-  // 1. Try finding user by token
-  let user = token ? registeredUsers.find((u) => u.verificationToken && u.verificationToken === token) : null;
+  // 1. Try finding user by token or lastVerificationToken
+  let user = token
+    ? registeredUsers.find(
+        (u) =>
+          (u.verificationToken && u.verificationToken === token) ||
+          (u.lastVerificationToken && u.lastVerificationToken === token)
+      )
+    : null;
 
-  // 2. If token not found, but email is provided, check if user is already verified
+  // 2. If user already verified via token
+  if (user && user.isEmailVerified) {
+    console.log(`[VERIFY] User already verified via GET token: ${user.email} - redirecting to success`);
+    if (!isBrowserNav) {
+      return res.json({
+        success: true,
+        alreadyVerified: true,
+        message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt nu inloggen.',
+        email: user.email,
+      });
+    }
+    return res.redirect(`/account?verifyStatus=success&email=${encodeURIComponent(user.email)}`);
+  }
+
+  // 3. Fallback matching by email if token was consumed
   if (!user && email) {
     const userByEmail = registeredUsers.find((u) => u.email.toLowerCase() === email);
     if (userByEmail && userByEmail.isEmailVerified) {
-      console.log(`[VERIFY] User already verified via GET: ${userByEmail.email} - redirecting to success`);
+      console.log(`[VERIFY] User already verified via GET email: ${userByEmail.email} - redirecting to success`);
       if (!isBrowserNav) {
         return res.json({
           success: true,
@@ -2637,6 +2674,9 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
         });
       }
       return res.redirect(`/account?verifyStatus=success&email=${encodeURIComponent(userByEmail.email)}`);
+    }
+    if (userByEmail && token && (userByEmail.verificationToken === token || userByEmail.lastVerificationToken === token)) {
+      user = userByEmail;
     }
   }
 
@@ -2661,6 +2701,7 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   user.isActive = true;
   user.status = 'active';
   user.verifiedAt = new Date().toISOString();
+  user.lastVerificationToken = user.verificationToken || token;
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
