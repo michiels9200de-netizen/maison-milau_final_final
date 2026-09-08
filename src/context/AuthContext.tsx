@@ -14,8 +14,8 @@ interface AuthContextType {
   setAccountType: (type: any) => void;
   switchUser: (id: string) => void;
   login: (email: string, role?: UserRole) => void;
-  loginWithPassword: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  registerUser: (data: any) => Promise<{ success: boolean; error?: string; user?: User }>;
+  loginWithPassword: (emailOrUsername: string, password: string) => Promise<{ success: boolean; error?: string; user?: User; requiresVerification?: boolean; email?: string }>;
+  registerUser: (data: any) => Promise<{ success: boolean; error?: string; user?: User; requiresVerification?: boolean; message?: string }>;
   changePassword: (currentPassword: string, newPassword: string, confirmPassword?: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   forgotPassword: (email: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   resetPassword: (token: string, newPassword: string, confirmPassword?: string) => Promise<{ success: boolean; error?: string; message?: string }>;
@@ -221,7 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithPassword = async (emailOrUsername: string, password: string): Promise<{ success: boolean; error?: string; user?: User }> => {
+  const loginWithPassword = async (emailOrUsername: string, password: string): Promise<{ success: boolean; error?: string; user?: User; requiresVerification?: boolean; email?: string }> => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -230,7 +230,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        return { success: false, error: data.error || 'Inloggen mislukt.' };
+        return {
+          success: false,
+          error: data.error || 'Inloggen mislukt.',
+          requiresVerification: data.requiresVerification || false,
+          email: data.email,
+        };
       }
 
       const loggedInUser: User = data.user;
@@ -260,7 +265,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const registerUser = async (registrationData: any): Promise<{ success: boolean; error?: string; user?: User }> => {
+  const registerUser = async (registrationData: any): Promise<{ success: boolean; error?: string; user?: User; requiresVerification?: boolean; message?: string }> => {
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -273,6 +278,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const newUser: User = data.user;
+
+      // If user requires email verification before session issuance
+      if (data.requiresVerification || !data.token) {
+        return {
+          success: true,
+          user: newUser,
+          requiresVerification: true,
+          message: data.message,
+        };
+      }
+
       setUser(newUser);
       setAccountType(newUser.accountType);
 

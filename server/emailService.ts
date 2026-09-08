@@ -589,7 +589,44 @@ Tel: +32 467 77 37 66 · E-mail: ${WEBOWNER_EMAIL}`;
 /**
  * 2. Customer Registration & Confirmation
  */
-export async function sendRegistrationEmails(user: {
+
+/**
+ * Sends notification alert to admin/roaster Laurent Michiels when a new customer registers
+ */
+export async function sendAdminRegistrationAlert(user: {
+  name: string;
+  email: string;
+  phone?: string;
+  accountType?: string;
+  companyName?: string;
+  vatNumber?: string;
+}) {
+  const adminSubject = `[Nieuwe Klant] Registratie: ${user.name} (${user.accountType || 'particulier'})`;
+  const adminText = `Beste Laurent,
+
+Er heeft zich zojuist een nieuwe klant geregistreerd op maison-milau.be:
+
+Naam: ${user.name}
+E-mail: ${user.email}
+Telefoon: ${user.phone || 'Niet opgegeven'}
+Type: ${user.accountType || 'particulier'}
+${user.companyName ? `Bedrijf: ${user.companyName}\nBTW: ${user.vatNumber || 'Niet opgegeven'}` : ''}
+Datum: ${new Date().toLocaleString('nl-BE')}`;
+
+  console.log(`[EMAIL] Sending admin registration alert for: ${user.email}`);
+  return sendEmail({
+    type: 'admin_registration',
+    recipient: WEBOWNER_EMAIL,
+    subject: adminSubject,
+    preview: `Nieuwe klant geregistreerd: ${user.name}`,
+    text: adminText,
+  });
+}
+
+/**
+ * Sends customer welcome email ONLY after email verification has succeeded
+ */
+export async function sendAccountReadyWelcomeEmail(user: {
   name: string;
   email: string;
   phone?: string;
@@ -603,7 +640,7 @@ export async function sendRegistrationEmails(user: {
   const customerSubject = 'Welkom bij Maison Milau · Uw account is geactiveerd';
   const customerText = `Beste ${user.name},
 
-Welkom bij Maison Milau! Uw account is succesvol aangemaakt.
+Welkom bij Maison Milau! Uw account is succesvol geactiveerd en gereed voor gebruik.
 
 Vanaf nu kunt u genieten van al onze voordelen:
 • Vers gebrande specialty koffies bestellen met directe herkomsttracering
@@ -625,13 +662,13 @@ Laurent Michiels · Maison Milau Ambachtelijke Branderij`;
     'Welkom bij Maison Milau',
     'Uw account is gereed voor gebruik',
     `<p>Beste ${user.name},</p>
-    <p>Van harte welkom bij de Maison Milau familie! Uw account is succesvol geactiveerd.</p>
+    <p>Van harte welkom bij de Maison Milau familie! Uw e-mailadres is geverifieerd en uw account is succesvol geactiveerd.</p>
     <div class="box">
       <p style="margin-top:0;font-weight:600;">Uw Accountoverzicht:</p>
       <table>
         <tr><th>Naam:</th><td>${user.name}</td></tr>
         <tr><th>E-mail:</th><td>${user.email}</td></tr>
-        <tr><th>Type:</th><td>${user.accountType === 'professioneel' ? `Zakelijk (${user.companyName})` : 'Particulier'}</td></tr>
+        <tr><th>Type:</th><td>${user.accountType === 'professioneel' ? `Zakelijk (${user.companyName || ''})` : 'Particulier'}</td></tr>
         <tr><th>Startbonus:</th><td><strong style="color:#78350f;">+50 Loyalty Punten</strong></td></tr>
       </table>
     </div>
@@ -641,7 +678,8 @@ Laurent Michiels · Maison Milau Ambachtelijke Branderij`;
     <p>Heeft u vragen over onze brandprofielen of zetmethodes? Ons atelier staat voor u klaar via <a href="mailto:${WEBOWNER_EMAIL}">${WEBOWNER_EMAIL}</a>.</p>`
   );
 
-  await sendEmail({
+  console.log(`[EMAIL] Sending customer welcome/account-ready email to: ${user.email}`);
+  return sendEmail({
     type: 'customer_welcome',
     recipient: user.email,
     subject: customerSubject,
@@ -649,27 +687,20 @@ Laurent Michiels · Maison Milau Ambachtelijke Branderij`;
     text: customerText,
     html: customerHtml,
   });
+}
 
-  // Admin Notification
-  const adminSubject = `[Nieuwe Klant] Registratie: ${user.name} (${user.accountType || 'particulier'})`;
-  const adminText = `Beste Laurent,
-
-Er heeft zich zojuist een nieuwe klant geregistreerd op maison-milau.be:
-
-Naam: ${user.name}
-E-mail: ${user.email}
-Telefoon: ${user.phone || 'Niet opgegeven'}
-Type: ${user.accountType || 'particulier'}
-${user.companyName ? `Bedrijf: ${user.companyName}\nBTW: ${user.vatNumber || 'Niet opgegeven'}` : ''}
-Datum: ${new Date().toLocaleString('nl-BE')}`;
-
-  await sendEmail({
-    type: 'admin_registration',
-    recipient: WEBOWNER_EMAIL,
-    subject: adminSubject,
-    preview: `Nieuwe klant geregistreerd: ${user.name}`,
-    text: adminText,
-  });
+/**
+ * Backward compatibility alias for welcome email
+ */
+export async function sendRegistrationEmails(user: {
+  name: string;
+  email: string;
+  phone?: string;
+  accountType?: string;
+  companyName?: string;
+  vatNumber?: string;
+}) {
+  return sendAccountReadyWelcomeEmail(user);
 }
 
 /**
@@ -678,16 +709,18 @@ Datum: ${new Date().toLocaleString('nl-BE')}`;
 export function getAppBaseUrl(req?: any): string {
   if (req) {
     const origin = typeof req.get === 'function' ? req.get('origin') : (req.headers && req.headers.origin);
-    if (origin && typeof origin === 'string' && !origin.includes('localhost:3000')) {
-      return origin.replace(/\/+$/, '');
+    if (origin && typeof origin === 'string' && origin.trim()) {
+      return origin.trim().replace(/\/+$/, '');
     }
     const host = typeof req.get === 'function' ? req.get('host') : (req.headers && req.headers.host);
-    if (host && typeof host === 'string') {
-      const proto = (typeof req.get === 'function' ? req.get('x-forwarded-proto') : (req.headers && req.headers['x-forwarded-proto'])) || 'https';
-      return `${proto}://${host}`.replace(/\/+$/, '');
+    if (host && typeof host === 'string' && host.trim()) {
+      const forwardedProto = typeof req.get === 'function' ? req.get('x-forwarded-proto') : (req.headers && req.headers['x-forwarded-proto']);
+      const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+      const proto = forwardedProto || (isLocal ? 'http' : 'https');
+      return `${proto}://${host.trim()}`.replace(/\/+$/, '');
     }
   }
-  return (process.env.APP_URL || 'https://www.maison-milau.be').replace(/\/+$/, '');
+  return (process.env.APP_URL || process.env.SITE_URL || 'https://www.maison-milau.be').replace(/\/+$/, '');
 }
 
 /**
@@ -696,7 +729,7 @@ export function getAppBaseUrl(req?: any): string {
 export async function sendEmailVerificationEmail(email: string, token: string, name: string, baseUrl?: string) {
   const base = baseUrl || process.env.APP_URL || 'https://www.maison-milau.be';
   const cleanBase = base.replace(/\/+$/, '');
-  const verifyUrl = `${cleanBase}/account?verifyToken=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+  const verifyUrl = `${cleanBase}/api/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
   const subject = 'Verifieer uw e-mailadres voor Maison Milau';
   const text = `Beste ${name},
 
@@ -721,6 +754,7 @@ Maison Milau Klantenservice`;
     <p style="font-size:13px;color:#78716c;">Werkt de knop niet? Kopieer en plak dan deze link in uw browser:<br><a href="${verifyUrl}" style="color:#78350f;word-break:break-all;">${verifyUrl}</a></p>`
   );
 
+  console.log(`[EMAIL] Sending verification email to: ${email} (URL: ${verifyUrl})`);
   return sendEmail({
     type: 'email_verification',
     recipient: email,

@@ -12,6 +12,8 @@ import {
   sendEmail,
   sendContactFormEmails,
   sendRegistrationEmails,
+  sendAdminRegistrationAlert,
+  sendAccountReadyWelcomeEmail,
   sendEmailVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
@@ -559,11 +561,11 @@ export function saveUsersToDisk(): void {
   }
 }
 
-export function loadUsersFromDisk(): void {
+export function loadUsersFromDisk(force = false): void {
   try {
     if (fs.existsSync(USERS_FILE)) {
       const stat = fs.statSync(USERS_FILE);
-      if (stat.mtimeMs > lastUsersLoadedMtime) {
+      if (force || stat.mtimeMs !== lastUsersLoadedMtime) {
         const content = fs.readFileSync(USERS_FILE, 'utf-8');
         if (content.trim()) {
           const parsed = JSON.parse(content);
@@ -2359,10 +2361,14 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   const cleanEmail = email.trim().toLowerCase();
   const cleanUsername = (username || cleanEmail.split('@')[0]).trim().toLowerCase();
 
+  loadUsersFromDisk(true);
+  console.log(`[REGISTER] Inbound registration request for: ${cleanEmail} (Name: ${name.trim()}, Type: ${accountType || 'particulier'})`);
+
   const existingUser = registeredUsers.find(
     (u) => u.email.toLowerCase() === cleanEmail || (u.username && u.username.toLowerCase() === cleanUsername)
   );
   if (existingUser) {
+    console.warn(`[REGISTER] Registration failed: Email ${cleanEmail} or username ${cleanUsername} already in use`);
     return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres of deze gebruikersnaam. Gelieve in te loggen.' });
   }
 
@@ -2396,47 +2402,47 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     verificationToken,
     verificationTokenExpiry,
     isEmailVerified: false,
+    isActive: true,
+    status: 'pending_verification',
     createdAt: new Date().toISOString(),
   };
 
   registeredUsers.push(newUser);
   saveUsersToDisk();
+  console.log(`[REGISTER] User account created: ${newUser.email} (ID: ${newUser.id}) - Status: pending_verification`);
 
   const baseUrl = getAppBaseUrl(req);
-  // Send welcome email & admin alert
-  sendRegistrationEmails(newUser).catch((e) => console.error('[EMAIL ERROR] Registration emails failed:', e));
-  // Send email verification link
-  sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name, baseUrl).catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
+  // STEP 2: Send ONLY verification email to the user (Welcome email is sent ONLY after verification!)
+  console.log(`[EMAIL] Dispatching verification email to new user: ${newUser.email}`);
+  sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name, baseUrl)
+    .then(() => console.log(`[EMAIL] Verification email sent successfully to: ${newUser.email}`))
+    .catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
 
-  // Generate active session token
-  const token = `tok_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
-  activeSessions.set(token, {
-    userId: newUser.id,
-    email: newUser.email,
-    role: newUser.role,
-    accountType: newUser.accountType,
-    companyName: newUser.companyName,
-    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
-  });
-  saveSessionsToDisk();
+  // Send roaster admin notification
+  sendAdminRegistrationAlert(newUser)
+    .then(() => console.log(`[EMAIL] Admin registration alert sent for: ${newUser.email}`))
+    .catch((e) => console.error('[EMAIL ERROR] Admin registration alert failed:', e));
 
   // Return user without credentials or internal security tokens
+  // Note: No active session is issued until the account is verified
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = newUser as any;
   res.json({
     success: true,
-    message: 'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres.',
+    requiresVerification: true,
+    message: 'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres. Gelieve uw e-mailadres te bevestigen om in te loggen.',
     user: safeUser,
-    token,
   });
 });
 
 // Forgot password request
 app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+  loadUsersFromDisk(true);
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ success: false, error: 'Gelieve een geldig e-mailadres in te vullen.' });
   }
   const clean = email.trim().toLowerCase();
+  console.log(`[AUTH] Password reset requested for: ${clean}`);
   const user = registeredUsers.find((u) => u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean));
   const baseUrl = getAppBaseUrl(req);
 
@@ -2445,7 +2451,10 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 60 * 60 * 1000; // 60 minutes
     saveUsersToDisk();
-    sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl).catch((e) => console.error('[EMAIL ERROR] Reset email failed:', e));
+    console.log(`[EMAIL] Sending password reset email to: ${user.email}`);
+    sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl)
+      .then(() => console.log(`[EMAIL] Password reset email sent to: ${user.email}`))
+      .catch((e) => console.error('[EMAIL ERROR] Reset email failed:', e));
   }
 
   // Generic message prevents account enumeration
@@ -2457,7 +2466,8 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
 
 // Validate reset token before rendering password reset form (supports POST and GET)
 const handleValidateResetToken = (req: Request, res: Response) => {
-  const token = (req.body?.token || req.query?.token) as string;
+  loadUsersFromDisk(true);
+  const token = ((req.body?.token || req.query?.token) as string || '').trim();
   if (!token) {
     return res.status(400).json({ success: false, error: 'Geen herstelcode opgegeven.' });
   }
@@ -2475,6 +2485,7 @@ app.get('/api/auth/validate-reset-token', handleValidateResetToken);
 
 // Reset password with token
 app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+  loadUsersFromDisk(true);
   const { token, newPassword, confirmPassword } = req.body;
   if (!token || !newPassword) {
     return res.status(400).json({ success: false, error: 'Gelieve alle verplichte velden in te vullen.' });
@@ -2528,58 +2539,109 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
 
 // Verify email POST endpoint
 app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
+  loadUsersFromDisk(true);
   const { email, token } = req.body;
-  if (!token && !email) {
+  const cleanToken = (token || '').trim();
+  const cleanEmail = (email || '').trim().toLowerCase();
+
+  console.log(`[VERIFY] POST verification attempt - Token: ${cleanToken ? cleanToken.substring(0, 8) + '...' : 'none'}, Email: ${cleanEmail || 'none'}`);
+
+  if (!cleanToken && !cleanEmail) {
+    console.warn('[VERIFY] POST verification rejected: No token or email provided');
     return res.status(400).json({ success: false, error: 'Gelieve een geldige verificatiecode mee te geven.' });
   }
 
-  // Find user by verificationToken (or matching email + token)
-  const user = registeredUsers.find((u) =>
-    (token && u.verificationToken === token) ||
-    (email && u.email.toLowerCase() === email.trim().toLowerCase() && (!token || u.verificationToken === token))
-  );
+  // 1. Try finding user by token
+  let user = cleanToken ? registeredUsers.find((u) => u.verificationToken && u.verificationToken === cleanToken) : null;
+
+  // 2. If token not found, but email is provided, check if user is already verified
+  if (!user && cleanEmail) {
+    const userByEmail = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (userByEmail && userByEmail.isEmailVerified) {
+      console.log(`[VERIFY] User already verified: ${userByEmail.email} - returning success`);
+      return res.json({
+        success: true,
+        alreadyVerified: true,
+        message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt direct inloggen met uw wachtwoord.',
+        email: userByEmail.email,
+      });
+    }
+  }
 
   if (!user) {
+    console.warn(`[VERIFY] Verification failed: Invalid token or user not found`);
     return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
   }
 
   if (user.verificationTokenExpiry && Date.now() > user.verificationTokenExpiry) {
+    console.warn(`[VERIFY] Verification failed: Token expired for ${user.email}`);
     return res.status(400).json({ success: false, error: 'Deze verificatielink is verlopen (geldigheidsduur: 24 uur). Vraag een nieuwe link aan.' });
   }
 
-  // Strictly set verified flag WITHOUT TOUCHING the password
+  // Activate user account
   user.isEmailVerified = true;
+  user.isActive = true;
+  user.status = 'active';
+  user.verifiedAt = new Date().toISOString();
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
   saveUsersToDisk();
 
+  console.log(`[VERIFY] Token validated successfully for: ${user.email} (ID: ${user.id})`);
+  console.log(`[VERIFY] Account activated and verified for: ${user.email}`);
+
+  // STEP 4: Only now send "Your account is ready for use" welcome email!
+  sendAccountReadyWelcomeEmail(user)
+    .then(() => console.log(`[EMAIL] Welcome/account-ready email sent successfully to: ${user.email}`))
+    .catch((e) => console.error('[EMAIL ERROR] Failed to send welcome email upon verification:', e));
+
   res.json({
     success: true,
-    message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu inloggen met uw wachtwoord.',
+    message: 'Uw e-mailadres is succesvol geverifieerd! U kunt nu veilig inloggen met uw wachtwoord.',
     email: user.email,
   });
 });
 
 // Verify email GET endpoint (direct click from email client or API verification)
 app.get('/api/auth/verify-email', (req: Request, res: Response) => {
-  const token = (req.query.token || req.query.verifyToken) as string;
-  const email = req.query.email as string;
+  loadUsersFromDisk(true);
+  const token = ((req.query.token || req.query.verifyToken) as string || '').trim();
+  const email = ((req.query.email as string) || '').trim().toLowerCase();
   const isBrowserNav = req.headers.accept?.includes('text/html') && !req.headers.accept?.includes('application/json');
 
+  console.log(`[VERIFY] GET verification link clicked - Token: ${token ? token.substring(0, 8) + '...' : 'none'}, Email: ${email || 'none'}, Browser: ${isBrowserNav}`);
+
   if (!token && !email) {
+    console.warn('[VERIFY] GET verification failed: Missing token and email');
     if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Ongeldige of ontbrekende verificatiecode.' });
     }
     return res.redirect('/account?verifyStatus=invalid');
   }
 
-  const user = registeredUsers.find((u) =>
-    (token && u.verificationToken === token) ||
-    (email && u.email.toLowerCase() === email.trim().toLowerCase() && (!token || u.verificationToken === token))
-  );
+  // 1. Try finding user by token
+  let user = token ? registeredUsers.find((u) => u.verificationToken && u.verificationToken === token) : null;
+
+  // 2. If token not found, but email is provided, check if user is already verified
+  if (!user && email) {
+    const userByEmail = registeredUsers.find((u) => u.email.toLowerCase() === email);
+    if (userByEmail && userByEmail.isEmailVerified) {
+      console.log(`[VERIFY] User already verified via GET: ${userByEmail.email} - redirecting to success`);
+      if (!isBrowserNav) {
+        return res.json({
+          success: true,
+          alreadyVerified: true,
+          message: 'Uw e-mailadres is reeds succesvol geverifieerd! U kunt nu inloggen.',
+          email: userByEmail.email,
+        });
+      }
+      return res.redirect(`/account?verifyStatus=success&email=${encodeURIComponent(userByEmail.email)}`);
+    }
+  }
 
   if (!user) {
+    console.warn('[VERIFY] GET verification failed: Invalid token or user not found');
     if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Ongeldige of reeds gebruikte verificatielink.' });
     }
@@ -2587,18 +2649,30 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   }
 
   if (user.verificationTokenExpiry && Date.now() > user.verificationTokenExpiry) {
+    console.warn(`[VERIFY] GET verification failed: Token expired for ${user.email}`);
     if (!isBrowserNav) {
       return res.status(400).json({ success: false, error: 'Deze verificatielink is verlopen (geldigheidsduur: 24 uur). Vraag een nieuwe link aan.' });
     }
     return res.redirect(`/account?verifyStatus=expired&email=${encodeURIComponent(user.email)}`);
   }
 
-  // Strictly set verified flag WITHOUT TOUCHING the password
+  // Activate user account
   user.isEmailVerified = true;
+  user.isActive = true;
+  user.status = 'active';
+  user.verifiedAt = new Date().toISOString();
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
   saveUsersToDisk();
+
+  console.log(`[VERIFY] Token validated successfully via GET for: ${user.email} (ID: ${user.id})`);
+  console.log(`[VERIFY] Account activated and verified for: ${user.email}`);
+
+  // STEP 4: Only now send "Your account is ready for use" welcome email!
+  sendAccountReadyWelcomeEmail(user)
+    .then(() => console.log(`[EMAIL] Welcome/account-ready email sent successfully to: ${user.email}`))
+    .catch((e) => console.error('[EMAIL ERROR] Failed to send welcome email upon GET verification:', e));
 
   if (!isBrowserNav) {
     return res.json({
@@ -2614,15 +2688,18 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
 
 // Resend verification email
 app.post('/api/auth/resend-verification', async (req: Request, res: Response) => {
+  loadUsersFromDisk(true);
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ success: false, error: 'Gelieve een e-mailadres op te geven.' });
   }
   const clean = email.trim().toLowerCase();
+  console.log(`[VERIFY] Resend verification requested for: ${clean}`);
   const user = registeredUsers.find((u) => u.email.toLowerCase() === clean);
 
   if (user) {
     if (user.isEmailVerified) {
+      console.log(`[VERIFY] Resend skipped: Account already verified for: ${user.email}`);
       return res.json({ success: true, message: 'Dit e-mailadres is reeds geverifieerd. U kunt direct inloggen.' });
     }
     user.verificationToken = crypto.randomBytes(32).toString('hex');
@@ -2630,21 +2707,28 @@ app.post('/api/auth/resend-verification', async (req: Request, res: Response) =>
     saveUsersToDisk();
 
     const baseUrl = getAppBaseUrl(req);
-    sendEmailVerificationEmail(user.email, user.verificationToken, user.name, baseUrl).catch((e) => console.error(e));
+    console.log(`[EMAIL] Resending verification email to: ${user.email}`);
+    sendEmailVerificationEmail(user.email, user.verificationToken, user.name, baseUrl)
+      .then(() => console.log(`[EMAIL] Resent verification email successfully to: ${user.email}`))
+      .catch((e) => console.error('[EMAIL ERROR] Resend verification failed:', e));
   }
 
   res.json({ success: true, message: 'Indien dit account bestaat en nog niet geverifieerd is, is er een nieuwe verificatiemail verzonden.' });
 });
 
-// Login supports Email OR Username + Password, with rate-limiting and generic errors
+// Login supports Email OR Username + Password, with rate-limiting and verification checks
 app.post('/api/auth/login', (req: Request, res: Response) => {
+  loadUsersFromDisk(true);
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
   const { email, username, emailOrUsername, password } = req.body;
   const identifier = (emailOrUsername || email || username || '').trim().toLowerCase();
 
+  console.log(`[LOGIN] Inbound login attempt for identifier: ${identifier}`);
+
   const rateLimitKey = `${ip}_${identifier}`;
   const rateLimit = checkRateLimit(rateLimitKey);
   if (!rateLimit.allowed) {
+    console.warn(`[LOGIN] Rate limit exceeded for: ${identifier}`);
     return res.status(429).json({
       success: false,
       error: `Te veel mislukte inlogpogingen. Probeer opnieuw over ${rateLimit.waitSeconds || 900} seconden.`,
@@ -2662,6 +2746,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   );
 
   if (!user || !verifyPassword(password, user.password)) {
+    console.warn(`[LOGIN] Authentication failed for: ${identifier} (Invalid credentials)`);
     recordFailedLogin(rateLimitKey);
     return res.status(401).json({
       success: false,
@@ -2669,8 +2754,21 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     });
   }
 
+  // Check email verification status: unverified accounts must verify before logging in
+  if (user.isEmailVerified === false) {
+    console.warn(`[LOGIN] Authentication blocked for unverified user: ${user.email} (Pending verification)`);
+    return res.status(403).json({
+      success: false,
+      requiresVerification: true,
+      email: user.email,
+      error: 'Uw account is nog niet geactiveerd. Gelieve uw e-mailadres eerst te verifiëren via de link in uw mailbox.',
+    });
+  }
+
   // Clear failed login attempts upon successful authentication
   clearRateLimit(rateLimitKey);
+
+  console.log(`[LOGIN] Login successful: ${user.email} (ID: ${user.id}, Role: ${user.role}, Verified: ${user.isEmailVerified})`);
 
   // Issue secure session token
   const token = `tok_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
@@ -2697,6 +2795,10 @@ app.post('/api/auth/logout', (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.slice(7).trim();
+    const session = activeSessions.get(token);
+    if (session) {
+      console.log(`[LOGIN] User logged out: ${session.email} (ID: ${session.userId})`);
+    }
     activeSessions.delete(token);
     saveSessionsToDisk();
   }

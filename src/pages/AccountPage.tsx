@@ -349,6 +349,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         }, 800);
       } else {
         setAuthError(res.error || 'Ongeldige inloggegevens. Controleer uw e-mailadres/gebruikersnaam en wachtwoord.');
+        if (res.requiresVerification && res.email) {
+          setVerificationBanner({
+            type: 'warning',
+            message: res.error || 'Uw account is nog niet geactiveerd. Gelieve uw e-mailadres eerst te verifiëren.',
+            email: res.email,
+          });
+        }
       }
     } else if (authTab === 'register') {
       if (authPassword !== authConfirmPassword) {
@@ -379,13 +386,25 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
       });
 
       if (res.success) {
-        setAuthSuccess(
-          'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres.'
-        );
-        setTimeout(() => {
-          setAuthSuccess('');
-          fetchAccountData();
-        }, 1200);
+        if (res.requiresVerification) {
+          setVerificationBanner({
+            type: 'warning',
+            message: res.message || 'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres. Klik op de link in uw mailbox om uw account te activeren.',
+            email: authEmailOrUsername,
+          });
+          setAuthSuccess('Account aangemaakt! Bevestig uw e-mailadres om in te loggen.');
+          setAuthTab('login');
+          setAuthPassword('');
+          setAuthConfirmPassword('');
+        } else {
+          setAuthSuccess(
+            'Account succesvol aangemaakt! Er is een verificatiemail verstuurd naar uw e-mailadres.'
+          );
+          setTimeout(() => {
+            setAuthSuccess('');
+            fetchAccountData();
+          }, 1200);
+        }
       } else {
         setAuthError(res.error || 'Registratie mislukt. Probeer het opnieuw.');
       }
