@@ -368,6 +368,7 @@ export async function sendEmail(options: {
   const { type, recipient, subject, preview, text, html, replyTo, attachments } = options;
   const logId = `eml-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
+  console.log(`[AUTH] EMAIL_ATTEMPT: Type=${type}, Recipient=${recipient}`);
   console.log(`\n[EMAIL SEND ATTEMPT] =================================================`);
   console.log(`[EMAIL SEND ATTEMPT] Type: ${type}`);
   console.log(`[EMAIL SEND ATTEMPT] Recipient Address: "${recipient}"`);
@@ -417,6 +418,7 @@ export async function sendEmail(options: {
       logEntry.messageId = info.messageId;
       logEntry.provider = activeProvider;
 
+      console.log(`[AUTH] EMAIL_SUCCESS: Type=${type}, Recipient=${recipient}, MessageId=${info.messageId}`);
       console.log(`[EMAIL STEP 6] sendMail success for ${recipient}`);
       console.log(`[EMAIL STEP 7] Message-ID returned: ${info.messageId}`);
       if (info.response) {
@@ -483,12 +485,14 @@ export async function sendEmail(options: {
       logEntry.previewUrl = previewUrl;
       console.log(`[EMAIL FALLBACK PREVIEW URL] 🔗 ${previewUrl}`);
     }
+    console.log(`[AUTH] EMAIL_SUCCESS: Type=${type}, Recipient=${recipient}, MessageId=${fbInfo.messageId} (via fallback)`);
     console.log(`[EMAIL FALLBACK SUCCESS] Email successfully dispatched to ${recipient}`);
     return logEntry;
   } catch (fbErr: any) {
     console.error('[EMAIL FALLBACK ERROR] Fallback dispatch also failed:', fbErr);
   }
 
+  console.log(`[AUTH] EMAIL_FAILURE: Type=${type}, Recipient=${recipient}, Error=${logEntry.error}`);
   return logEntry;
 }
 
@@ -795,7 +799,7 @@ Maison Milau Klantenservice`;
   );
 
   console.log(`[EMAIL] Sending verification email to: ${email} (URL: ${verifyUrl})`);
-  return sendEmail({
+  const result = await sendEmail({
     type: 'email_verification',
     recipient: email,
     subject,
@@ -803,6 +807,10 @@ Maison Milau Klantenservice`;
     text,
     html,
   });
+  if (result.status === 'sent') {
+    console.log(`[AUTH] VERIFY_EMAIL_SENT: Recipient=${email}, Token=${token.substring(0, 8)}...`);
+  }
+  return result;
 }
 
 /**
@@ -841,7 +849,7 @@ Maison Milau Beveiligingsteam`;
     </div>`
   );
 
-  return sendEmail({
+  const result = await sendEmail({
     type: 'password_reset',
     recipient: email,
     subject,
@@ -849,6 +857,10 @@ Maison Milau Beveiligingsteam`;
     text,
     html,
   });
+  if (result.status === 'sent') {
+    console.log(`[AUTH] PASSWORD_RESET_EMAIL_SENT: Recipient=${email}`);
+  }
+  return result;
 }
 
 /**

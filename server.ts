@@ -31,6 +31,7 @@ import {
 } from './server/emailService.js';
 import crypto from 'node:crypto';
 import { generateInvoicePdfBuffer, FullInvoiceData } from './server/invoicePdfService.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ const __dirname = path.resolve();
 const app = express();
 const PORT = 3000;
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -703,6 +705,24 @@ export function loadSessionsFromDisk(): void {
 // Load sessions on startup
 loadSessionsFromDisk();
 
+function parseRawCookies(req: Request): Record<string, string> {
+  const list: Record<string, string> = {};
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return list;
+  cookieHeader.split(';').forEach((cookie) => {
+    const parts = cookie.split('=');
+    const name = parts.shift()?.trim();
+    if (!name) return;
+    const value = parts.join('=').trim();
+    try {
+      list[name] = decodeURIComponent(value);
+    } catch {
+      list[name] = value;
+    }
+  });
+  return list;
+}
+
 export function getAuthenticatedUser(req: Request): any | null {
   loadUsersFromDisk();
   loadSessionsFromDisk();
@@ -712,6 +732,20 @@ export function getAuthenticatedUser(req: Request): any | null {
     token = authHeader.slice(7).trim();
   } else if (req.headers['x-auth-token']) {
     token = String(req.headers['x-auth-token']).trim();
+  }
+
+  // Check cookies via cookie-parser and fallback header parse
+  if (!token && (req as any).cookies) {
+    token = (req as any).cookies['mm_auth_token'] || (req as any).cookies['sessionToken'] || (req as any).cookies['token'] || '';
+  }
+  if (!token && req.headers.cookie) {
+    const parsed = parseRawCookies(req);
+    token = parsed['mm_auth_token'] || parsed['sessionToken'] || parsed['token'] || '';
+  }
+
+  // Check query parameter (especially for direct browser download links e.g. /api/invoices/:id/pdf?token=...)
+  if (!token && req.query?.token) {
+    token = String(req.query.token).trim();
   }
 
   if (token && activeSessions.has(token)) {
@@ -734,7 +768,6 @@ export function getAuthenticatedUser(req: Request): any | null {
     }
   }
 
-  // Strictly require a valid session token; never authenticate via query parameters or unauthenticated headers
   return null;
 }
 
@@ -1356,11 +1389,14 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
 app.get('/api/orders', (req: Request, res: Response) => {
   const user = getAuthenticatedUser(req);
   if (!user) {
+    console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated request`);
     return res.status(401).json({
       success: false,
       error: 'Inloggen vereist om uw bestelgeschiedenis te bekijken. Gelieve in te loggen op uw Maison Milau account.',
     });
   }
+
+  console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
   // Administrators can view all orders
   if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
@@ -1380,6 +1416,7 @@ app.get('/api/orders/:id', (req: Request, res: Response) => {
 
   const user = getAuthenticatedUser(req);
   if (!user) {
+    console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated request`);
     return res.status(401).json({
       success: false,
       error: 'Inloggen vereist om orderdetails te bekijken.',
@@ -1388,11 +1425,14 @@ app.get('/api/orders/:id', (req: Request, res: Response) => {
 
   // Strict URL manipulation guard: prevent viewing orders belonging to another customer
   if (!userCanAccessOrder(user, order)) {
+    console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Forbidden ownership mismatch for user ${user.email}`);
     return res.status(403).json({
       success: false,
-      error: 'Toegang geweigerd: U heeft geen toestemming om de bestelling van een andere klant te bekijken.',
+      error: 'Toegang geweigerd: deze bestelling behoort niet toe aan uw account.',
     });
   }
+
+  console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
   res.json({ success: true, data: order });
 });
@@ -1548,10 +1588,14 @@ app.post('/api/mollie/webhook', async (req: Request, res: Response) => {
 
 // 4. Invoices with authorization
 app.get('/api/invoices', (req: Request, res: Response) => {
+  console.log(`[AUTH] INVOICE_REQUEST: Url=${req.originalUrl}, IP=${req.ip || 'unknown'}`);
   const user = getAuthenticatedUser(req);
   if (!user) {
+    console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated invoice list request`);
     return res.status(401).json({ success: false, error: 'Inloggen vereist om facturen te bekijken.' });
   }
+
+  console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
   if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
     return res.json({ success: true, data: invoices, isAdmin: true });
@@ -1722,6 +1766,7 @@ export function buildFullInvoiceData(inv: any, order?: any): FullInvoiceData {
 
 // Professional PDF invoice generation and retrieval endpoint
 app.get('/api/invoices/:id/pdf', async (req: Request, res: Response) => {
+  console.log(`[AUTH] INVOICE_REQUEST: Url=${req.originalUrl}, IP=${req.ip || 'unknown'}`);
   try {
     const invoiceId = req.params.id;
     const inv = invoices.find((i) => i.id === invoiceId || i.invoiceNumber === invoiceId);
@@ -1736,11 +1781,17 @@ app.get('/api/invoices/:id/pdf', async (req: Request, res: Response) => {
     const invoiceRecord = inv || (order ? invoices.find((i) => i.orderId === order.id || i.invoiceNumber === order.invoiceNumber) : null);
 
     if (!invoiceRecord && !order) {
+      console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Invoice not found`);
       return res.status(404).json({ success: false, error: 'Factuur niet gevonden.' });
     }
 
     const user = getAuthenticatedUser(req);
-    if (user && user.role !== 'store_admin') {
+    if (!user) {
+      console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated PDF request`);
+      return res.status(401).json({ success: false, error: 'Inloggen vereist om facturen te downloaden.' });
+    }
+
+    if (user.role !== 'store_admin') {
       const userEmail = user.email.toLowerCase();
       const invEmail = ((invoiceRecord?.customerEmail || order?.customerEmail) || '').toLowerCase();
       const userComp = (user.companyName || '').toLowerCase().trim();
@@ -1753,9 +1804,12 @@ app.get('/api/invoices/:id/pdf', async (req: Request, res: Response) => {
          (invEmail === 'klant@voorbeeld.be' || invEmail === 'laurent.michiels66@gmail.com'));
 
       if (!isOwner) {
+        console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Forbidden ownership mismatch for user ${user.email}`);
         return res.status(403).json({ success: false, error: 'Toegang geweigerd tot deze factuur.' });
       }
     }
+
+    console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
     const fullInvoiceData = buildFullInvoiceData(invoiceRecord, order);
     const pdfBuffer = await generateInvoicePdfBuffer(fullInvoiceData);
@@ -1796,8 +1850,11 @@ function userCanAccessSubscription(user: any, sub: any): boolean {
 app.get('/api/subscriptions', (req: Request, res: Response) => {
   const user = getAuthenticatedUser(req);
   if (!user) {
+    console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated subscription request`);
     return res.status(401).json({ success: false, error: 'Inloggen vereist om abonnementen te beheren.' });
   }
+
+  console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
   if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
     return res.json({ success: true, data: subscriptions, isAdmin: true });
@@ -2357,6 +2414,8 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   const cleanEmail = email.trim().toLowerCase();
   const cleanUsername = (username || cleanEmail.split('@')[0]).trim().toLowerCase();
 
+  console.log(`[AUTH] REGISTER_START: Email=${cleanEmail}, AccountType=${accountType || 'particulier'}`);
+
   loadUsersFromDisk(true);
   console.log(`[REGISTER] Inbound registration request for: ${cleanEmail} (Name: ${name.trim()}, Type: ${accountType || 'particulier'})`);
 
@@ -2371,6 +2430,8 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   const isB2B = accountType === 'professioneel';
   const verificationToken = crypto.randomBytes(32).toString('hex');
   const verificationTokenExpiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
+
+  console.log(`[AUTH] VERIFY_TOKEN_GENERATED: Email=${cleanEmail}, Token=${verificationToken.substring(0, 8)}...`);
 
   const newUser = {
     id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -2397,6 +2458,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     loyaltyPoints: 100, // Welcome loyalty points
     verificationToken,
     verificationTokenExpiry,
+    previousVerificationTokens: [verificationToken],
     isEmailVerified: false,
     isActive: true,
     status: 'pending_verification',
@@ -2405,6 +2467,8 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
 
   registeredUsers.push(newUser);
   saveUsersToDisk();
+  console.log(`[AUTH] USER_CREATED: Id=${newUser.id}, Email=${newUser.email}, Role=${newUser.role}`);
+  console.log(`[AUTH] VERIFY_TOKEN_STORED: UserId=${newUser.id}, Email=${newUser.email}`);
   console.log(`[REGISTER] User account created: ${newUser.email} (ID: ${newUser.id}) - Status: pending_verification`);
 
   const baseUrl = getAppBaseUrl(req);
@@ -2447,9 +2511,13 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 60 * 60 * 1000; // 60 minutes
     saveUsersToDisk();
+    console.log(`[AUTH] PASSWORD_RESET_TOKEN_CREATED: Email=${user.email}, Token=${resetToken.substring(0, 8)}...`);
     console.log(`[EMAIL] Sending password reset email to: ${user.email}`);
     sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl)
-      .then(() => console.log(`[EMAIL] Password reset email sent to: ${user.email}`))
+      .then(() => {
+        console.log(`[EMAIL] Password reset email sent to: ${user.email}`);
+        console.log(`[AUTH] PASSWORD_RESET_EMAIL_SENT: Email=${user.email}`);
+      })
       .catch((e) => console.error('[EMAIL ERROR] Reset email failed:', e));
   }
 
@@ -2523,6 +2591,7 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
   saveSessionsToDisk();
 
   saveUsersToDisk();
+  console.log(`[AUTH] PASSWORD_RESET_COMPLETED: UserId=${user.id}, Email=${user.email}`);
 
   // Send confirmation email that password was changed
   sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error('[EMAIL ERROR] Password reset confirmation email failed:', e));
@@ -2547,17 +2616,19 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'Gelieve een geldige verificatiecode mee te geven.' });
   }
 
-  // 1. Try finding user by token or lastVerificationToken (for idempotent retry or duplicate clicks)
+  // 1. Try finding user by token, lastVerificationToken, or previousVerificationTokens
   let user = cleanToken
     ? registeredUsers.find(
         (u) =>
           (u.verificationToken && u.verificationToken === cleanToken) ||
-          (u.lastVerificationToken && u.lastVerificationToken === cleanToken)
+          (u.lastVerificationToken && u.lastVerificationToken === cleanToken) ||
+          (Array.isArray(u.previousVerificationTokens) && u.previousVerificationTokens.includes(cleanToken))
       )
     : null;
 
   // 2. If token matched an already verified user, return success immediately
   if (user && user.isEmailVerified) {
+    console.log(`[AUTH] VERIFY_TOKEN_VALIDATED: Email=${user.email} (Already verified)`);
     console.log(`[VERIFY] User already verified via token: ${user.email}`);
     return res.json({
       success: true,
@@ -2571,6 +2642,7 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   if (!user && cleanEmail) {
     const userByEmail = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
     if (userByEmail && userByEmail.isEmailVerified) {
+      console.log(`[AUTH] VERIFY_TOKEN_VALIDATED: Email=${userByEmail.email} (Already verified)`);
       console.log(`[VERIFY] User already verified by email: ${userByEmail.email} - returning success`);
       return res.json({
         success: true,
@@ -2579,7 +2651,13 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
         email: userByEmail.email,
       });
     }
-    if (userByEmail && cleanToken && (userByEmail.verificationToken === cleanToken || userByEmail.lastVerificationToken === cleanToken)) {
+    if (
+      userByEmail &&
+      cleanToken &&
+      (userByEmail.verificationToken === cleanToken ||
+        userByEmail.lastVerificationToken === cleanToken ||
+        (Array.isArray(userByEmail.previousVerificationTokens) && userByEmail.previousVerificationTokens.includes(cleanToken)))
+    ) {
       user = userByEmail;
     }
   }
@@ -2594,17 +2672,29 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'Deze verificatielink is verlopen (geldigheidsduur: 24 uur). Vraag een nieuwe link aan.' });
   }
 
+  console.log(`[AUTH] VERIFY_TOKEN_VALIDATED: Email=${user.email}`);
+
   // Activate user account
   user.isEmailVerified = true;
   user.isActive = true;
   user.status = 'active';
   user.verifiedAt = new Date().toISOString();
+  if (!Array.isArray(user.previousVerificationTokens)) {
+    user.previousVerificationTokens = [];
+  }
+  if (user.verificationToken && !user.previousVerificationTokens.includes(user.verificationToken)) {
+    user.previousVerificationTokens.push(user.verificationToken);
+  }
+  if (cleanToken && !user.previousVerificationTokens.includes(cleanToken)) {
+    user.previousVerificationTokens.push(cleanToken);
+  }
   user.lastVerificationToken = user.verificationToken || cleanToken;
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
   saveUsersToDisk();
 
+  console.log(`[AUTH] ACCOUNT_VERIFIED: UserId=${user.id}, Email=${user.email}`);
   console.log(`[VERIFY] Token validated successfully for: ${user.email} (ID: ${user.id})`);
   console.log(`[VERIFY] Account activated and verified for: ${user.email}`);
 
@@ -2637,17 +2727,19 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
     return res.redirect('/account?verifyStatus=invalid');
   }
 
-  // 1. Try finding user by token or lastVerificationToken
+  // 1. Try finding user by token, lastVerificationToken, or previousVerificationTokens
   let user = token
     ? registeredUsers.find(
         (u) =>
           (u.verificationToken && u.verificationToken === token) ||
-          (u.lastVerificationToken && u.lastVerificationToken === token)
+          (u.lastVerificationToken && u.lastVerificationToken === token) ||
+          (Array.isArray(u.previousVerificationTokens) && u.previousVerificationTokens.includes(token))
       )
     : null;
 
   // 2. If user already verified via token
   if (user && user.isEmailVerified) {
+    console.log(`[AUTH] VERIFY_TOKEN_VALIDATED: Email=${user.email} (Already verified)`);
     console.log(`[VERIFY] User already verified via GET token: ${user.email} - redirecting to success`);
     if (!isBrowserNav) {
       return res.json({
@@ -2664,6 +2756,7 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   if (!user && email) {
     const userByEmail = registeredUsers.find((u) => u.email.toLowerCase() === email);
     if (userByEmail && userByEmail.isEmailVerified) {
+      console.log(`[AUTH] VERIFY_TOKEN_VALIDATED: Email=${userByEmail.email} (Already verified)`);
       console.log(`[VERIFY] User already verified via GET email: ${userByEmail.email} - redirecting to success`);
       if (!isBrowserNav) {
         return res.json({
@@ -2675,7 +2768,13 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
       }
       return res.redirect(`/account?verifyStatus=success&email=${encodeURIComponent(userByEmail.email)}`);
     }
-    if (userByEmail && token && (userByEmail.verificationToken === token || userByEmail.lastVerificationToken === token)) {
+    if (
+      userByEmail &&
+      token &&
+      (userByEmail.verificationToken === token ||
+        userByEmail.lastVerificationToken === token ||
+        (Array.isArray(userByEmail.previousVerificationTokens) && userByEmail.previousVerificationTokens.includes(token)))
+    ) {
       user = userByEmail;
     }
   }
@@ -2696,17 +2795,29 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
     return res.redirect(`/account?verifyStatus=expired&email=${encodeURIComponent(user.email)}`);
   }
 
+  console.log(`[AUTH] VERIFY_TOKEN_VALIDATED: Email=${user.email}`);
+
   // Activate user account
   user.isEmailVerified = true;
   user.isActive = true;
   user.status = 'active';
   user.verifiedAt = new Date().toISOString();
+  if (!Array.isArray(user.previousVerificationTokens)) {
+    user.previousVerificationTokens = [];
+  }
+  if (user.verificationToken && !user.previousVerificationTokens.includes(user.verificationToken)) {
+    user.previousVerificationTokens.push(user.verificationToken);
+  }
+  if (token && !user.previousVerificationTokens.includes(token)) {
+    user.previousVerificationTokens.push(token);
+  }
   user.lastVerificationToken = user.verificationToken || token;
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
   saveUsersToDisk();
 
+  console.log(`[AUTH] ACCOUNT_VERIFIED: UserId=${user.id}, Email=${user.email}`);
   console.log(`[VERIFY] Token validated successfully via GET for: ${user.email} (ID: ${user.id})`);
   console.log(`[VERIFY] Account activated and verified for: ${user.email}`);
 
@@ -2743,9 +2854,17 @@ app.post('/api/auth/resend-verification', async (req: Request, res: Response) =>
       console.log(`[VERIFY] Resend skipped: Account already verified for: ${user.email}`);
       return res.json({ success: true, message: 'Dit e-mailadres is reeds geverifieerd. U kunt direct inloggen.' });
     }
-    user.verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.verificationToken = verificationToken;
     user.verificationTokenExpiry = Date.now() + 24 * 60 * 60 * 1000;
+    if (!Array.isArray(user.previousVerificationTokens)) {
+      user.previousVerificationTokens = [];
+    }
+    user.previousVerificationTokens.push(verificationToken);
     saveUsersToDisk();
+
+    console.log(`[AUTH] VERIFY_TOKEN_GENERATED: Email=${user.email}, Token=${verificationToken.substring(0, 8)}...`);
+    console.log(`[AUTH] VERIFY_TOKEN_STORED: UserId=${user.id}, Email=${user.email}`);
 
     const baseUrl = getAppBaseUrl(req);
     console.log(`[EMAIL] Resending verification email to: ${user.email}`);
@@ -2788,6 +2907,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
 
   if (!user || !verifyPassword(password, user.password)) {
     console.warn(`[LOGIN] Authentication failed for: ${identifier} (Invalid credentials)`);
+    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=Invalid credentials`);
     recordFailedLogin(rateLimitKey);
     return res.status(401).json({
       success: false,
@@ -2798,6 +2918,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   // Check email verification status: unverified accounts must verify before logging in
   if (user.isEmailVerified === false) {
     console.warn(`[LOGIN] Authentication blocked for unverified user: ${user.email} (Pending verification)`);
+    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=Email not verified`);
     return res.status(403).json({
       success: false,
       requiresVerification: true,
@@ -2809,6 +2930,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   // Clear failed login attempts upon successful authentication
   clearRateLimit(rateLimitKey);
 
+  console.log(`[AUTH] LOGIN_SUCCESS: UserId=${user.id}, Email=${user.email}`);
   console.log(`[LOGIN] Login successful: ${user.email} (ID: ${user.id}, Role: ${user.role}, Verified: ${user.isEmailVerified})`);
 
   // Issue secure session token
@@ -2823,6 +2945,19 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   });
   saveSessionsToDisk();
 
+  console.log(`[AUTH] SESSION_CREATED: UserId=${user.id}, Email=${user.email}, Token=${token.substring(0, 12)}...`);
+
+  // Set HTTP cookie for seamless browser/PDF navigation
+  const cookieOptions = {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/',
+  };
+  res.cookie('mm_auth_token', token, cookieOptions);
+  res.cookie('sessionToken', token, cookieOptions);
+
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
   res.json({
     success: true,
@@ -2833,28 +2968,42 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
 });
 
 app.post('/api/auth/logout', (req: Request, res: Response) => {
+  let token = '';
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7).trim();
+    token = authHeader.slice(7).trim();
+  } else if ((req as any).cookies?.mm_auth_token || (req as any).cookies?.sessionToken) {
+    token = (req as any).cookies.mm_auth_token || (req as any).cookies.sessionToken;
+  }
+  if (token && activeSessions.has(token)) {
     const session = activeSessions.get(token);
     if (session) {
+      console.log(`[AUTH] SESSION_DESTROYED: User logged out: ${session.email} (ID: ${session.userId}), Token=${token.substring(0, 12)}...`);
       console.log(`[LOGIN] User logged out: ${session.email} (ID: ${session.userId})`);
     }
     activeSessions.delete(token);
     saveSessionsToDisk();
+  } else {
+    console.log(`[AUTH] SESSION_DESTROYED: Logout called (no active token or token already revoked)`);
   }
+  res.clearCookie('mm_auth_token', { path: '/' });
+  res.clearCookie('sessionToken', { path: '/' });
   res.json({ success: true, message: 'Succesvol uitgelogd.' });
 });
 
-// Get current session user
-app.get('/api/auth/me', (req: Request, res: Response) => {
+// Get current session user (supports /api/auth/me and /api/me)
+const handleMeRequest = (req: Request, res: Response) => {
   const user = getAuthenticatedUser(req);
   if (!user) {
+    console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated`);
     return res.status(401).json({ success: false, error: 'Niet ingelogd' });
   }
+  console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
   res.json({ success: true, user: safeUser });
-});
+};
+app.get('/api/auth/me', handleMeRequest);
+app.get('/api/me', handleMeRequest);
 
 // Change password with security confirmation email
 app.post('/api/auth/change-password', async (req: Request, res: Response) => {

@@ -100,11 +100,11 @@
     "createdAt": "2026-09-06T22:33:32.870Z"
   },
   {
-    "id": "usr-1788866799209-e6ac1",
-    "email": "test_audit_flow@example.com",
-    "username": "test_audit_flow",
-    "password": "01784ce6a0c5ae2be036959528fd3883:5fe777b694ff46e4672c01050a00c251e672c20b0a8c4643de59933e889f15d7d6701528c4e701317dd7baec1ca30e875aa26b4c8569f0e3aa89b7d7872e2a7b",
-    "name": "Audit User",
+    "id": "usr-1788870324145-qaotk",
+    "email": "audit_test_user@example.com",
+    "username": "audit_test_user",
+    "password": "b9ca8d40494ea881fc8a0674eeba19e7:bf1e07bbe64a317d30451c0ece01bc9f6a3386c85e094fa47cbc853c31de6ee294df704186f7bb86c078a9c06d256a44b487cb75be5952361ec4cbb7f806dfc2",
+    "name": "Audit Test User",
     "phone": "",
     "accountType": "particulier",
     "role": "b2c_customer",
@@ -112,28 +112,16 @@
     "vatNumber": "",
     "addresses": [],
     "loyaltyPoints": 100,
-    "verificationToken": "94706cfa0944b85a47321cf0a9cafb349376fcc149c5b26c8f3854211c8d006a",
-    "verificationTokenExpiry": 1788953199209,
-    "isEmailVerified": false,
-    "createdAt": "2026-09-08T11:26:39.215Z"
-  },
-  {
-    "id": "usr-1788868485586-d30rd",
-    "email": "test_audit_1788868485480@example.com",
-    "username": "test_audit_1788868485480",
-    "password": "34c35deb207f2f4c26f754e99c68fa27:da6919ef53b38ccd8bcd72d6d370bc332356c53b17879c953b1f3d94f3ce63d29de5f963b4d6f9ec45b632e374e13560ed91dd5ac416001966a8ffe32e9190aa",
-    "name": "Audit Tester",
-    "phone": "",
-    "accountType": "particulier",
-    "role": "b2c_customer",
-    "companyName": "",
-    "vatNumber": "",
-    "addresses": [],
-    "loyaltyPoints": 100,
+    "previousVerificationTokens": [
+      "c6e709a3e64b77cb9cf06cb48493cf773d7ebeb67e0473b773e1fb8625207e72"
+    ],
     "isEmailVerified": true,
     "isActive": true,
     "status": "active",
-    "createdAt": "2026-09-08T11:54:45.594Z",
-    "verifiedAt": "2026-09-08T11:54:45.654Z"
+    "createdAt": "2026-09-08T12:25:24.151Z",
+    "verifiedAt": "2026-09-08T12:25:29.895Z",
+    "lastVerificationToken": "c6e709a3e64b77cb9cf06cb48493cf773d7ebeb67e0473b773e1fb8625207e72",
+    "resetToken": "1396f7d6e36f53a62676286dcfe177a113c3d6fc3c5928076943c89c9b620756",
+    "resetTokenExpiry": 1788874012122
   }
 ]

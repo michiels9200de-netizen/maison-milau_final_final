@@ -168,6 +168,16 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewCoffeeName, setReviewCoffeeName] = useState<string>('Selection Daily');
 
+  // Helper to build robust invoice PDF download URL with token query parameter
+  const getInvoicePdfUrl = (rawUrl: string, download = false) => {
+    const [base, query] = rawUrl.split('?');
+    const params = new URLSearchParams(query || '');
+    if (token) params.set('token', token);
+    if (download) params.set('download', '1');
+    const qs = params.toString();
+    return qs ? `${base}?${qs}` : base;
+  };
+
   // Load account data with headers
   const fetchAccountData = async () => {
     if (!currentUser) return;
@@ -1859,7 +1869,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-3">
                             <a
-                              href={inv.pdfDownloadUrl || `/api/invoices/${inv.invoiceNumber}/pdf`}
+                              href={getInvoicePdfUrl(inv.pdfDownloadUrl || `/api/invoices/${inv.invoiceNumber}/pdf`, false)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-amber-900 font-semibold hover:underline text-xs"
@@ -1869,7 +1879,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                               <span>Bekijk PDF</span>
                             </a>
                             <a
-                              href={`${inv.pdfDownloadUrl || `/api/invoices/${inv.invoiceNumber}/pdf`}?download=1`}
+                              href={getInvoicePdfUrl(inv.pdfDownloadUrl || `/api/invoices/${inv.invoiceNumber}/pdf`, true)}
                               className="inline-flex items-center gap-1 text-stone-600 font-semibold hover:text-stone-900 hover:underline text-xs"
                               title="Download PDF factuur"
                             >
