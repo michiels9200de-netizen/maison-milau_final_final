@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Clock, ShieldCheck, Truck, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
-import roasteryHeroBg from '../assets/images/roastery_hero_bg_1788818491767.jpg';
+import maisonMilauHeroBg from '../assets/images/maison_milau_hero_bg.jpg';
 
 interface HomePageProps {
   navigate: (path: string) => void;
@@ -13,22 +13,75 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen text-stone-800">
-      {/* Hero Section - Artisanal Roastery Ambience (Espresso, Walnut & Warm Gold Tones) */}
-      <section className="relative overflow-hidden pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-amber-950/80 bg-[#16120e] text-stone-100">
-        {/* Subtle Dark Roasted Coffee Roastery Atmosphere Background */}
+      {/* Hero Section - Artisanal Roastery Ambience (Espresso, Copper, Walnut & Warm Gold Tones) */}
+      <section className="relative overflow-hidden pt-10 sm:pt-14 pb-12 sm:pb-16 border-b border-amber-950/80 bg-[#120d09] text-stone-100">
+        {/* Layered Coffee Heritage Background - Multi-depth Roastery Atmosphere */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          {/* 1. High-Resolution Specialty Coffee Roastery & Roasted Beans Texture */}
           <img
-            src={roasteryHeroBg}
-            alt=""
+            src={encodeURI('/images/hero section background.png')}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = maisonMilauHeroBg;
+            }}
+            alt="Maison Milau Ambachtelijk Koffiebranden"
             aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-25 mix-blend-luminosity scale-105"
+            className="w-full h-full object-cover object-center sm:object-[center_35%] opacity-70 scale-102"
           />
-          {/* Multi-layered luxury espresso, walnut, and warm amber roasting glow vignette */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#16120e] via-[#1c1612]/92 to-[#16120e]/85" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(180,105,40,0.18),transparent_65%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(120,60,20,0.22),transparent_70%)]" />
-          {/* Subtle warm roast gold hairline border at bottom */}
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+
+          {/* 2. Delicate Roastery Texture Pattern (Boutique Artisan & Reserve Grid) */}
+          <div
+            className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
+            style={{
+              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
+              backgroundSize: '28px 28px',
+              backgroundPosition: '0 0, 14px 14px',
+            }}
+          />
+
+          {/* 3. Subtle Artisanal Coffee Bean Contour Watermark Motif */}
+          <svg
+            className="absolute -right-12 -top-12 w-80 sm:w-96 h-80 sm:h-96 text-amber-500/15 pointer-events-none"
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M100 20 C140 20, 180 60, 180 100 C180 140, 140 180, 100 180 C60 180, 20 140, 20 100 C20 60, 60 20, 100 20 Z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeDasharray="4 4"
+            />
+            <path
+              d="M100 32 C116 64, 116 136, 100 168 C84 136, 84 64, 100 32"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <path
+              d="M72 48 C124 70, 124 130, 72 152"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeOpacity="0.7"
+            />
+            <path
+              d="M128 48 C76 70, 76 130, 128 152"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeOpacity="0.7"
+            />
+          </svg>
+
+          {/* 4. Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-0 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/30 via-orange-700/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-24 -left-20 w-[480px] h-[420px] bg-gradient-to-br from-amber-500/25 via-amber-700/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 left-1/3 w-[620px] h-[320px] bg-amber-950/50 rounded-full blur-3xl pointer-events-none" />
+
+          {/* 5. Directional Contrast Gradient - Preserves rich espresso tones & warmth while guaranteeing 100% text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#120d09]/95 via-[#150f0a]/80 to-[#120d09]/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#120d09] via-transparent to-[#120d09]/50" />
+
+          {/* 6. Refined Copper-Gold Roastery Hairline Accent */}
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/70 to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">

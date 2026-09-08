@@ -46,9 +46,8 @@ export const CoffeeCharacterCard: React.FC<CoffeeCharacterCardProps> = ({
   if (compact) {
     return (
       <div className={`p-2 sm:p-2.5 bg-stone-50/90 rounded-xl border border-stone-200/80 text-xs ${className}`}>
-        <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">
+        <div className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">
           <span>Karakter</span>
-          <span className="text-stone-400 text-[10px] font-mono">B{body} · A{acidity} · Z{sweetness}</span>
         </div>
         <p className="text-stone-700 leading-snug font-normal mb-2 text-[11px] line-clamp-2" title={description}>
           {description}

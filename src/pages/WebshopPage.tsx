@@ -16,11 +16,14 @@ import {
   CheckCircle2,
   BookOpen,
   Sparkles,
+  ZoomIn,
 } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
 import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
 import { CoffeeReviewModal } from '../components/CoffeeReviewModal';
+import { TshirtImageLightbox } from '../components/TshirtImageLightbox';
+import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
 
 interface WebshopPageProps {
   navigate: (path: string) => void;
@@ -93,6 +96,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewCoffeeName, setReviewCoffeeName] = useState('Selection Daily');
+  const [isTshirtLightboxOpen, setIsTshirtLightboxOpen] = useState(false);
 
   // Waiting list state for Capsules
   const [capsuleEmail, setCapsuleEmail] = useState('');
@@ -316,25 +320,43 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
   return (
     <div className="min-h-screen pb-16">
-      {/* Webshop Header */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 pt-3.5 pb-2.5 sm:pt-4 sm:pb-3 px-4 sm:px-6">
-        <div className="max-w-[1760px] mx-auto">
+      {/* Webshop Header Hero Banner - Enhanced Coffee Beans Atmosphere */}
+      <section className="relative overflow-hidden bg-[#16120e] border-b border-amber-950/80 pt-5 pb-4 sm:pt-6 sm:pb-5 px-4 sm:px-6 text-stone-100">
+        {/* Coffee Beans Hero Background with luxury espresso grading, deep contrast & subtle dark overlay */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          <img
+            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
+            }}
+            alt="Maison Milau Specialty Koffiebonen"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-45 sm:opacity-55"
+          />
+          {/* Subtle dark gradient overlay & warm vignette for maximum text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#14100c]/95 via-[#16120e]/85 to-[#14100c]/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#14100c] via-transparent to-[#14100c]/40" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-[1760px] mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-900 mb-0.5">
-                Webshop · Bestellen
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-1 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>Webshop · Bestellen</span>
               </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-stone-900">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
                 Artisanale Koffies & Accessoires
               </h1>
-              <p className="text-xs text-stone-600 mt-0.5 max-w-2xl font-normal leading-relaxed">
+              <p className="text-xs sm:text-sm text-stone-300 mt-1 max-w-2xl font-normal leading-relaxed">
                 Vers ambachtelijk gebrande specialty koffie, giftboxen en toebehoren uit ons atelier te Oudegem.
               </p>
             </div>
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-2.5 pt-2 border-t border-stone-200/70">
+          <div className="mt-3.5 pt-2.5 border-t border-stone-800/80">
             <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => (
                 <button
@@ -344,21 +366,21 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     setSelectedCategory(cat.id);
                     if (cat.id !== 'blends') setBlendSubcategory('all');
                   }}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
                     selectedCategory === cat.id
-                      ? 'bg-amber-900 text-white shadow-xs'
-                      : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                      ? 'bg-gradient-to-r from-amber-700 to-amber-800 text-white shadow-md border border-amber-600/50'
+                      : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
                   }`}
                 >
                   {cat.id === 'new_products' && (
-                    <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === cat.id ? 'text-amber-300' : 'text-amber-800'}`} />
+                    <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === cat.id ? 'text-amber-300' : 'text-amber-400'}`} />
                   )}
                   <span>{cat.name}</span>
                   {cat.isNew && (
                     <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full leading-none ${
                       selectedCategory === cat.id
                         ? 'bg-amber-800 text-amber-200 border border-amber-500/40'
-                        : 'bg-amber-100 text-amber-950 border border-amber-200'
+                        : 'bg-amber-950/80 text-amber-300 border border-amber-700/50'
                     }`}>
                       Nieuw
                     </span>
@@ -369,9 +391,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
             {/* Submenu for Maison Milau Speciality blends */}
             {selectedCategory === 'blends' && (
-              <div className="mt-2 p-2 sm:p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl animate-fadeIn">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-950 mb-1.5 flex items-center gap-1">
-                  <Award className="w-3 h-3 text-amber-700" />
+              <div className="mt-2.5 p-2 sm:p-2.5 bg-stone-900/90 border border-amber-900/50 rounded-xl animate-fadeIn backdrop-blur-xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 mb-1.5 flex items-center gap-1">
+                  <Award className="w-3 h-3 text-amber-400" />
                   <span>Subcategorieën Speciality Blends (Budget tot Ultimate)</span>
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -381,8 +403,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       onClick={() => setBlendSubcategory(sub.id)}
                       className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                         blendSubcategory === sub.id
-                          ? 'bg-amber-900 text-white shadow-xs'
-                          : 'bg-white text-stone-700 border border-amber-200 hover:border-amber-300'
+                          ? 'bg-amber-800 text-white shadow-xs border border-amber-600/60 font-semibold'
+                          : 'bg-stone-800/80 text-stone-300 hover:bg-stone-800 hover:text-white border border-stone-700/60'
                       }`}
                     >
                       {sub.name}
@@ -681,7 +703,31 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     </div>
 
                     {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
-                    <div className="mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden">
+                    <div
+                      onClick={product.id === 'prod-acc-tshirt' ? () => setIsTshirtLightboxOpen(true) : undefined}
+                      className={`mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden transition-all ${
+                        product.id === 'prod-acc-tshirt'
+                          ? 'cursor-pointer hover:bg-amber-50/60 ring-1 ring-amber-900/10 hover:ring-amber-900/30'
+                          : ''
+                      }`}
+                      title={product.id === 'prod-acc-tshirt' ? 'Klik om T-shirt te vergroten' : undefined}
+                    >
+                      {/* T-shirt specific quick enlarge badge */}
+                      {product.id === 'prod-acc-tshirt' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsTshirtLightboxOpen(true);
+                          }}
+                          aria-label="Vergroot T-shirt afbeelding"
+                          className="absolute bottom-2 right-2 z-20 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-stone-900/90 hover:bg-stone-950 text-amber-200 text-[10px] font-semibold shadow-md border border-amber-500/50 backdrop-blur-xs transition-all hover:scale-105 cursor-pointer"
+                          title="Klik om T-shirt te vergroten"
+                        >
+                          <ZoomIn className="w-3 h-3 text-amber-400" />
+                          <span>Vergroten</span>
+                        </button>
+                      )}
                       {/* Refined Maison Milau Starting Price Badge - Elegant Frosted Glass, No Heavy Dark Badges */}
                       <div
                         className="absolute top-2 left-2 z-20 bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-200/90 shadow-2xs flex flex-col items-start leading-none select-none pointer-events-none transition-all group-hover:border-amber-400/60"
@@ -1098,6 +1144,23 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         coffeeName={reviewCoffeeName}
+      />
+
+      {/* T-Shirt Image Lightbox Modal - Only applied to the T-Shirt product */}
+      <TshirtImageLightbox
+        isOpen={isTshirtLightboxOpen}
+        onClose={() => setIsTshirtLightboxOpen(false)}
+        currentColor={selectedTshirtColor['prod-acc-tshirt'] || 'Zwart'}
+        onSelectColor={(colorName, imageSrc) => {
+          setSelectedTshirtColor({ ...selectedTshirtColor, ['prod-acc-tshirt']: colorName });
+          setActiveProductImage({ ...activeProductImage, ['prod-acc-tshirt']: imageSrc });
+        }}
+        activeImage={
+          activeProductImage['prod-acc-tshirt'] ||
+          TSHIRT_COLORS.find((c) => c.name === (selectedTshirtColor['prod-acc-tshirt'] || 'Zwart'))?.image ||
+          '/images/T-shirt zwart.png'
+        }
+        colors={TSHIRT_COLORS}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CalendarCheck, Calculator, Coffee, UserCheck, ShieldCheck, Send, ArrowRight } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
+import baristaEventsHero from '../assets/images/barista_events_hero.jpg';
 
 interface EventsPageProps {
   navigate: (path: string) => void;
@@ -103,15 +104,20 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
 
             {/* 1 FOTO BIJ EVENTS VAN EEN BARISTA BAR */}
             <div className="lg:col-span-5">
-              <MediaPlaceholder
-                type="image"
-                badgeText="Barista Bar op Evenement"
-                title="Mobiele Barista Bar & Espressomeubel"
-                subtitle="Sfeerbeeld van een professionele artisanale koffiebar op locatie (trouwfeest / bedrijfsevenement) met barista en latte art."
-                recommendedSize="1920 × 1280 (16:9 of 4:3)"
-                aspectRatio="video"
-                className="shadow-sm border-stone-200 min-h-[240px]"
-              />
+              <div className="relative rounded-xl overflow-hidden shadow-xl border border-stone-200 bg-stone-900 aspect-video w-full group ring-1 ring-amber-900/20">
+                <img
+                  src={encodeURI('/images/hero events en barista.png')}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.src = baristaEventsHero;
+                  }}
+                  alt="Maison Milau Mobiele Barista Bar op Evenement"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="eager"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>

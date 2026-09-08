@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { CoffeeDiscoveryCard } from '../components/coffee-guide/CoffeeDiscoveryCard';
 import { CoffeeDossierModal } from '../components/coffee-guide/CoffeeDossierModal';
+import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
 
 interface CatalogPageProps {
   navigate: (path: string) => void;
@@ -142,36 +143,54 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
 
   return (
     <div className="min-h-screen text-stone-800 pb-16">
-      {/* 1. COLLECTION INTRODUCTION & HEADER */}
-      <section className="bg-[#FAF7F2] border-b border-stone-200/80 pt-6 pb-5 sm:pt-8 sm:pb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* 1. COLLECTION INTRODUCTION & HEADER - Enhanced Coffee Beans Atmosphere */}
+      <section className="relative overflow-hidden bg-[#16120e] border-b border-amber-950/80 pt-7 pb-6 sm:pt-9 sm:pb-8 text-stone-100">
+        {/* Coffee Beans Hero Background with luxury espresso grading, deep contrast & subtle dark overlay */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          <img
+            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
+            }}
+            alt="Maison Milau Koffiegids & Terroir"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-45 sm:opacity-55"
+          />
+          {/* Subtle dark gradient overlay & warm vignette for maximum text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#14100c]/95 via-[#16120e]/85 to-[#14100c]/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#14100c] via-transparent to-[#14100c]/40" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             <div className="max-w-3xl">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1.5">
-                Maison Milau · Collectie & Terroir
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-1.5 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>Maison Milau · Collectie & Terroir</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 drop-shadow-xs">
                 Koffiegids & Collecties
               </h1>
 
-              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+              <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed max-w-2xl">
                 Een zorgvuldig samengesteld overzicht van onze ambachtelijke brandingen, zeldzame origines en uitgebalanceerde melanges. Verken smaakprofielen, cupping-notities en zetadviezen van onze meesterbrander.
               </p>
             </div>
 
             {/* Clear demarcation link to the transactional Shop */}
-            <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-stone-200/90 shadow-2xs max-w-sm shrink-0">
-              <div className="flex items-center gap-2 text-xs font-bold text-stone-900 uppercase tracking-wider mb-1">
-                <ShoppingBag className="w-3.5 h-3.5 text-amber-900" />
+            <div className="bg-stone-900/90 backdrop-blur-md p-3.5 sm:p-4 rounded-xl border border-stone-700/70 shadow-lg max-w-sm shrink-0">
+              <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider mb-1">
+                <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
                 <span>Direct bestellen?</span>
               </div>
-              <p className="text-[11px] text-stone-500 leading-relaxed mb-2.5">
+              <p className="text-[11px] text-stone-300 leading-relaxed mb-2.5">
                 De Koffiegids is bedoeld voor smaakontdekking en terroir. Voor direct bestellen bezoekt u onze webshop.
               </p>
               <button
                 onClick={() => navigate('/webshop')}
-                className="w-full py-2 px-3.5 rounded-lg bg-amber-900 hover:bg-amber-800 text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                className="w-full py-2 px-3.5 rounded-lg bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-md border border-amber-600/50"
               >
                 <span>Naar de Webshop</span>
                 <ArrowRight className="w-3.5 h-3.5" />

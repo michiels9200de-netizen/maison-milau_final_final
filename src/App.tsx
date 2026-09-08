@@ -92,6 +92,7 @@ export default function App() {
       case '/kantoor-en-horeca':
         return <B2BPage navigate={navigate} />;
       case '/events':
+      case '/barista':
         return <EventsPage navigate={navigate} />;
       case '/over-ons':
         return <AboutPage navigate={navigate} />;
