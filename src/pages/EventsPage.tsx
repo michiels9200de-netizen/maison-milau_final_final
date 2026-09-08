@@ -68,34 +68,67 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen text-stone-800 pb-16">
-      {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen text-stone-800 pb-16 bg-[#FAF7F2]">
+      {/* Header Banner - Artisanal Roastery Ambience */}
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 py-8 sm:py-10 text-stone-100">
+        {/* Roastery Atmosphere Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          {/* Subtle micro-texture */}
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style={{
+              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
+              backgroundSize: '24px 24px',
+              backgroundPosition: '0 0, 12px 12px',
+            }}
+          />
+          {/* Subtle bean silhouette */}
+          <svg
+            className="absolute right-10 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
+            <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          {/* Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          {/* Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/96 via-[#22130B]/88 to-[#180E08]/60" />
+          {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
+          <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1.5">
-                Events & Verhuur
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-1.5 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>Events & Verhuur</span>
               </div>
               {/* H1: ~25% reduced */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-2.5">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2.5 drop-shadow-xs">
                 Koffiecatering & Apparatuur
               </h1>
               {/* Body */}
-              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-5">
+              <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed mb-5">
                 Geef uw gasten een onvergetelijke koffie-ervaring. Van compacte espressomachines voor een intiem tuinfeest of trouwfeest tot complete mobiele barista-bars voor grote beurzen en congressen.
               </p>
 
               <div className="flex flex-wrap gap-2.5">
                 <a
                   href="#event-form"
-                  className="bg-amber-900 hover:bg-amber-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
+                  className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-md border border-amber-600/50"
                 >
                   Neem contact op voor all event solutions
                 </a>
                 <button
                   onClick={() => navigate('/webshop')}
-                  className="bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors"
+                  className="bg-stone-900/80 hover:bg-stone-800 text-stone-200 hover:text-white border border-stone-700/80 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors backdrop-blur-xs"
                 >
                   Koffiebonen Direct Kopen
                 </button>
@@ -104,7 +137,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
 
             {/* 1 FOTO BIJ EVENTS VAN EEN BARISTA BAR */}
             <div className="lg:col-span-5">
-              <div className="relative rounded-xl overflow-hidden shadow-xl border border-stone-200 bg-stone-900 aspect-video w-full group ring-1 ring-amber-900/20">
+              <div className="relative rounded-xl overflow-hidden shadow-xl border border-stone-700/70 bg-stone-900 aspect-video w-full group ring-1 ring-amber-900/30">
                 <img
                   src={encodeURI('/images/hero events en barista.png')}
                   onError={(e) => {

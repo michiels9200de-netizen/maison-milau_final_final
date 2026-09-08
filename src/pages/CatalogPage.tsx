@@ -142,9 +142,9 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
   const activeIntro = activeIntroCollection ? COLLECTION_INTROS[activeIntroCollection] : null;
 
   return (
-    <div className="min-h-screen text-stone-800 pb-16">
+    <div className="min-h-screen text-stone-800 pb-16 bg-[#FAF7F2]">
       {/* 1. COLLECTION INTRODUCTION & HEADER - Enhanced Coffee Beans Atmosphere */}
-      <section className="relative overflow-hidden bg-[#16120e] border-b border-amber-950/80 pt-7 pb-6 sm:pt-9 sm:pb-8 text-stone-100">
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 pt-8 pb-8 sm:pt-10 sm:pb-10 text-stone-100">
         {/* Coffee Beans Hero Background with luxury espresso grading, deep contrast & subtle dark overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
           <img
@@ -154,12 +154,44 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
             }}
             alt="Maison Milau Koffiegids & Terroir"
             aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-45 sm:opacity-55"
+            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
           />
-          {/* Subtle dark gradient overlay & warm vignette for maximum text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#14100c]/95 via-[#16120e]/85 to-[#14100c]/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#14100c] via-transparent to-[#14100c]/40" />
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+
+          {/* Delicate Roastery Micro-Texture */}
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style={{
+              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
+              backgroundSize: '24px 24px',
+              backgroundPosition: '0 0, 12px 12px',
+            }}
+          />
+
+          {/* Subtle Coffee Bean Motifs */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <svg
+              className="absolute right-12 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
+              viewBox="0 0 200 200"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
+              <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+
+          {/* Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+          {/* Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
+
+          {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
+          <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
@@ -200,8 +232,8 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
+      {/* Main Content Area - Soft Natural Flow from Hero */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-6">
         {/* 2. COFFEE COLLECTIONS (Filter Bar & Navigation) */}
         <div className="bg-white rounded-xl border border-stone-200/90 p-3.5 sm:p-4 shadow-2xs mb-4 sm:mb-5">
           <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">

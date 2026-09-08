@@ -108,30 +108,63 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen text-stone-800 pb-16">
-      {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen text-stone-800 pb-16 bg-[#FAF7F2]">
+      {/* Header Banner - Artisanal Roastery Ambience */}
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 py-8 sm:py-10 text-stone-100">
+        {/* Roastery Atmosphere Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          {/* Subtle micro-texture */}
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style={{
+              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
+              backgroundSize: '24px 24px',
+              backgroundPosition: '0 0, 12px 12px',
+            }}
+          />
+          {/* Subtle bean silhouette */}
+          <svg
+            className="absolute right-10 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
+            <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          {/* Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          {/* Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/96 via-[#22130B]/88 to-[#180E08]/60" />
+          {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
+          <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 max-w-2xl">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1.5">
-                B2B · Kantoor & Horeca
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-1.5 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>B2B · Kantoor & Horeca</span>
               </div>
               {/* H1: ~25% reduced */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-2.5">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2.5 drop-shadow-xs">
                 Koffieformules voor Thuis & Onderneming
               </h1>
               {/* Body */}
-              <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-4">
+              <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed mb-4">
                 Flexibele maandabonnementen, aantrekkelijke volumetarieven en unieke custom roasting & white label branding voor horeca en bedrijven.
               </p>
 
-              <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-700 space-y-1">
+              <div className="p-3.5 bg-stone-900/80 backdrop-blur-xs rounded-xl border border-stone-700/70 text-xs text-stone-300 space-y-1">
                 <div>
-                  <strong>Geschikt voor:</strong> Horeca (brasseries, restaurants, koffiebars), Kantoren, Bedrijven, Handelszaken & Residentiële centra.
+                  <strong className="text-amber-200">Geschikt voor:</strong> Horeca (brasseries, restaurants, koffiebars), Kantoren, Bedrijven, Handelszaken & Residentiële centra.
                 </div>
                 <div>
-                  <strong>BTW Facturatie:</strong> {CONFIG.vatNumber} (Maandelijkse verzamelfactuur met 6% BTW op koffiebonen en 21% op apparatuur/diensten).
+                  <strong className="text-amber-200">BTW Facturatie:</strong> {CONFIG.vatNumber} (Maandelijkse verzamelfactuur met 6% BTW op koffiebonen en 21% op apparatuur/diensten).
                 </div>
               </div>
             </div>
@@ -152,7 +185,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 sm:space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
         {/* Interactive B2B Calculator Section */}
         <section className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
           <div className="max-w-3xl mb-6">
