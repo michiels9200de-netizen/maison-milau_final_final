@@ -72,7 +72,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
       id={`coffee-card-${coffee.id}`}
       data-coffee-id={coffee.id}
       data-webshop-id={coffee.webshopProductId}
-      className="bg-white border border-stone-200/90 rounded-xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group hover:border-amber-300 relative scroll-mt-28"
+      className="bg-white border border-[#D8CEBE] rounded-xl p-4 sm:p-5 shadow-[0_2px_8px_-1px_rgba(40,24,14,0.08),0_1px_3px_0_rgba(40,24,14,0.05)] hover:shadow-[0_10px_24px_-4px_rgba(40,24,14,0.16),0_2px_6px_0_rgba(40,24,14,0.06)] transition-all flex flex-col justify-between group hover:border-amber-700/50 relative scroll-mt-28"
     >
       {/* Native anchor targets for direct deep-linking */}
       <span id={coffee.id} className="absolute -top-28 pointer-events-none" />

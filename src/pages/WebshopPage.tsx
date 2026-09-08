@@ -319,9 +319,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   };
 
   return (
-    <div className="min-h-screen pb-16 bg-[#FAF7F2]">
+    <div className="min-h-screen pb-16 bg-[#F2ECE1]">
       {/* Webshop Header Hero Banner - Enhanced Coffee Beans Atmosphere */}
-      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 pt-6 pb-5 sm:pt-7 sm:pb-6 px-4 sm:px-6 text-stone-100">
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 pt-3.5 pb-2.5 sm:pt-4 sm:pb-3 px-4 sm:px-6 text-stone-100">
         {/* Coffee Beans Hero Background with luxury espresso grading, deep contrast & subtle dark overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
           <img
@@ -367,28 +367,25 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
 
           {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
-          <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-[1760px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-1 flex items-center gap-1.5">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-0.5 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                 <span>Webshop · Bestellen</span>
               </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white drop-shadow-xs">
                 Artisanale Koffies & Accessoires
               </h1>
-              <p className="text-xs sm:text-sm text-stone-300 mt-1 max-w-2xl font-normal leading-relaxed">
-                Vers ambachtelijk gebrande specialty koffie, giftboxen en toebehoren uit ons atelier te Oudegem.
-              </p>
             </div>
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-3.5 pt-2.5 border-t border-stone-800/80">
+          <div className="mt-2.5 pt-2 border-t border-stone-800/80">
             <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => (
                 <button
@@ -644,7 +641,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         </section>
       ) : (
         /* Product Grid - High Density & Rapid Product Discovery */
-        <section className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
+        <section className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3.5">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">
             {filteredProducts.map((product) => {
               const currentWeight = selectedWeight[product.id] || product.variants[0].weight;
@@ -700,7 +697,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   className={`group relative scroll-mt-24 bg-white rounded-xl border transition-all p-3 sm:p-3.5 flex flex-col justify-between ${
                     isHighlighted
                       ? 'border-amber-600 ring-3 ring-amber-500/30 shadow-lg scale-[1.01]'
-                      : 'border-stone-200/90 shadow-2xs hover:shadow-md hover:border-amber-900/30'
+                      : 'border-[#D8CEBE] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.08),0_1px_3px_0_rgba(40,24,14,0.05)] hover:shadow-[0_10px_24px_-4px_rgba(40,24,14,0.16),0_2px_6px_0_rgba(40,24,14,0.06)] hover:border-amber-700/50'
                   }`}
                 >
                   {/* Native anchor targets for direct deep-linking */}

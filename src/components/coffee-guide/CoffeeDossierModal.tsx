@@ -14,6 +14,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
+import { CountryFlag } from '../CountryFlag';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 
 interface CoffeeDossierModalProps {
@@ -412,7 +413,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                         key={idx}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200/80 text-xs font-medium text-stone-800"
                       >
-                        {o.flag && <span>{o.flag}</span>}
+                        <CountryFlag country={o.country} flagEmoji={o.flag} size="sm" />
                         <span className="font-semibold">{o.country}</span>
                         {o.region && <span className="text-stone-500">· {o.region}</span>}
                       </span>

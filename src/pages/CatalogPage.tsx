@@ -142,9 +142,9 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
   const activeIntro = activeIntroCollection ? COLLECTION_INTROS[activeIntroCollection] : null;
 
   return (
-    <div className="min-h-screen text-stone-800 pb-16 bg-[#FAF7F2]">
+    <div className="min-h-screen text-stone-800 pb-16 bg-[#F2ECE1]">
       {/* 1. COLLECTION INTRODUCTION & HEADER - Enhanced Coffee Beans Atmosphere */}
-      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 pt-8 pb-8 sm:pt-10 sm:pb-10 text-stone-100">
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 pt-3.5 pb-2.5 sm:pt-4 sm:pb-3 text-stone-100">
         {/* Coffee Beans Hero Background with luxury espresso grading, deep contrast & subtle dark overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
           <img
@@ -190,40 +190,30 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
           <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
 
           {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
-          <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
-            <div className="max-w-3xl">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-1.5 flex items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-0.5 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                 <span>Maison Milau · Collectie & Terroir</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 drop-shadow-xs">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
                 Koffiegids & Collecties
               </h1>
-
-              <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed max-w-2xl">
-                Een zorgvuldig samengesteld overzicht van onze ambachtelijke brandingen, zeldzame origines en uitgebalanceerde melanges. Verken smaakprofielen, cupping-notities en zetadviezen van onze meesterbrander.
-              </p>
             </div>
 
-            {/* Clear demarcation link to the transactional Shop */}
-            <div className="bg-stone-900/90 backdrop-blur-md p-3.5 sm:p-4 rounded-xl border border-stone-700/70 shadow-lg max-w-sm shrink-0">
-              <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider mb-1">
-                <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
-                <span>Direct bestellen?</span>
-              </div>
-              <p className="text-[11px] text-stone-300 leading-relaxed mb-2.5">
-                De Koffiegids is bedoeld voor smaakontdekking en terroir. Voor direct bestellen bezoekt u onze webshop.
-              </p>
+            {/* Compact direct link to the transactional Shop */}
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate('/webshop')}
-                className="w-full py-2 px-3.5 rounded-lg bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-md border border-amber-600/50"
+                className="py-2 px-4 rounded-lg bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-md border border-amber-600/50"
               >
+                <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
                 <span>Naar de Webshop</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -233,7 +223,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
       </section>
 
       {/* Main Content Area - Soft Natural Flow from Hero */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-3.5 sm:pt-4">
         {/* 2. COFFEE COLLECTIONS (Filter Bar & Navigation) */}
         <div className="bg-white rounded-xl border border-stone-200/90 p-3.5 sm:p-4 shadow-2xs mb-4 sm:mb-5">
           <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">

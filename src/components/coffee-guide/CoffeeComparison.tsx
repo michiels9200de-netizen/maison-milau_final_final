@@ -3,6 +3,7 @@ import { CoffeeCatalogItem } from '../../types';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
 import { Scale, X, Plus, ExternalLink, Award, Coffee, BookOpen } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
+import { CountryFlag } from '../CountryFlag';
 
 interface CoffeeComparisonProps {
   allCoffees: CoffeeCatalogItem[];
@@ -263,9 +264,10 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                       {coffee.origins?.map((o, idx) => (
                         <span
                           key={idx}
-                          className="font-bold text-stone-900 bg-stone-100 px-2 py-0.5 rounded-md"
+                          className="inline-flex items-center gap-1.5 font-bold text-stone-900 bg-stone-100 px-2 py-0.5 rounded-md text-xs"
                         >
-                          {o.flag} {o.country}
+                          <CountryFlag country={o.country} flagEmoji={o.flag} size="sm" />
+                          <span>{o.country}</span>
                         </span>
                       ))}
                     </div>

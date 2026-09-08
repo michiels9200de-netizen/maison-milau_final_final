@@ -158,44 +158,56 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-2xs flex items-start gap-3">
-              <Clock className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed">
+            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                <Clock className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+              </div>
+              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
                 Altijd vers gebrande koffie, geleverd binnen 2 weken na branding.
               </div>
             </div>
 
-            <div className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-2xs flex items-start gap-3">
-              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed">
+            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+              </div>
+              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
                 Zeer democratische prijzen en gegarandeerd beter dan koffie uit de supermarktrekkerij.
               </div>
             </div>
 
-            <div className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-2xs flex items-start gap-3">
-              <Coffee className="w-4 h-4 text-amber-900 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed">
+            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                <Coffee className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+              </div>
+              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
                 Kortingen, flexibele abonnementen (-10%) en persoonlijke klantenservice direct bereikbaar.
               </div>
             </div>
 
-            <div className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-2xs flex items-start gap-3">
-              <Award className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed">
+            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                <Award className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+              </div>
+              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
                 Bezoek ons en ontwikkel je eigen custom koffieblend en huismerk in ons atelier in Oudegem.
               </div>
             </div>
 
-            <div className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-2xs flex items-start gap-3">
-              <CalendarCheck className="w-4 h-4 text-indigo-700 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed">
+            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                <CalendarCheck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+              </div>
+              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
                 Voorzie je trouwfeest, verjaardag of receptie met een complete barista bar setup.
               </div>
             </div>
 
-            <div className="bg-white p-4 sm:p-5 rounded-xl border border-stone-200 shadow-2xs flex items-start gap-3">
-              <Truck className="w-4 h-4 text-stone-700 shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed">
+            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+                <Truck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+              </div>
+              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
                 Vind ons op de wekelijkse markten in Dendermonde (ma), Wetteren (do) en Aalst (za).
               </div>
             </div>

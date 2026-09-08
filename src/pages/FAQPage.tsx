@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, HelpCircle, Package, RotateCcw, AlertCircle, FileText, Calendar, Send, ChevronDown, ChevronUp, CheckCircle, ArrowRight } from 'lucide-react';
 import { CONFIG } from '../config';
+import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
 
 interface FAQPageProps {
   navigate: (path: string) => void;
@@ -9,7 +10,7 @@ interface FAQPageProps {
 export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
   const [activeTab, setActiveTab] = useState<string>('faq');
   const [searchQuery, setSearchQuery] = useState('');
-  const [openIndex, setOpenIndex] = useState<{ [key: string]: boolean }>({ '0-0': true, '1-0': true });
+  const [openIndex, setOpenIndex] = useState<{ [key: string]: boolean }>({});
 
   // Tracking state
   const [trackingCode, setTrackingCode] = useState('');
@@ -173,58 +174,109 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen text-stone-800 pb-16">
-      {/* Customer Service Center Header */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen text-stone-800 pb-16 bg-[#F2ECE1]">
+      {/* Customer Service Center Header with Coffee Beans Atmosphere */}
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 pt-3.5 pb-2.5 sm:pt-4 sm:pb-3 text-stone-100">
+        {/* Coffee Beans Hero Background with luxury espresso grading, deep contrast & subtle dark overlay */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          <img
+            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
+            }}
+            alt="Maison Milau FAQ & Klantenservice"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
+          />
+
+          {/* Delicate Roastery Micro-Texture */}
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style={{
+              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
+              backgroundSize: '24px 24px',
+              backgroundPosition: '0 0, 12px 12px',
+            }}
+          />
+
+          {/* Subtle Coffee Bean Motifs */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <svg
+              className="absolute right-12 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
+              viewBox="0 0 200 200"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
+              <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+
+          {/* Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+          {/* Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
+
+          {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
+          <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-semibold uppercase tracking-wider mb-2">
-              <HelpCircle className="w-3.5 h-3.5 text-amber-800" />
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-0.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
               <span>Klantenservice & Veelgestelde Vragen</span>
             </div>
-            {/* H1: ~25% reduced */}
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mb-2">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white drop-shadow-xs mb-1.5">
               Hoe kunnen we je helpen?
             </h1>
-            <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-4">
-              Vind snel antwoord op al je vragen over onze brandplanning, leveringen, apparatuur-lease en private labeling.
-            </p>
 
             {/* Live Search Bar */}
-            <div className="relative">
+            <div className="relative max-w-xl">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Zoek op onderwerp, bijv. 'levertermijn', 'bonen bewaren', 'bpost'..."
-                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                className="w-full pl-9 pr-4 py-2 bg-stone-900/90 border border-stone-700/80 rounded-xl text-xs sm:text-sm text-stone-100 placeholder:text-stone-400 focus:ring-2 focus:ring-amber-500 focus:outline-none backdrop-blur-xs"
               />
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
             </div>
           </div>
 
           {/* Quick Hub Navigation */}
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             <button
               onClick={() => setActiveTab('faq')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'faq' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'faq'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-800 text-white shadow-md border border-amber-600/50'
+                  : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
               }`}
             >
               Veelgestelde Vragen
             </button>
             <button
               onClick={() => setActiveTab('track')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'track' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'track'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-800 text-white shadow-md border border-amber-600/50'
+                  : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
               }`}
             >
               Track & Trace Zending
             </button>
             <button
               onClick={() => setActiveTab('ticket')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'ticket' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'ticket'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-800 text-white shadow-md border border-amber-600/50'
+                  : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
               }`}
             >
               Support & Klachten Portaal
@@ -233,9 +285,9 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
         {activeTab === 'faq' && (
-          <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-4 sm:space-y-5">
             {faqSections.map((section, sIdx) => {
               const matchesSection =
                 !searchQuery ||
@@ -249,22 +301,22 @@ export const FAQPage: React.FC<FAQPageProps> = ({ navigate }) => {
               if (!matchesSection) return null;
 
               return (
-                <div key={section.id} className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
-                  <div className="mb-4">
-                    <h2 className="text-lg sm:text-xl font-bold tracking-tight text-stone-900">
+                <div key={section.id} className="bg-white rounded-xl border border-[#D8CEBE] p-4.5 sm:p-5 shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)]">
+                  <div className="mb-3.5">
+                    <h2 className="text-base sm:text-lg font-bold tracking-tight text-stone-900">
                       {section.category}
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500 mt-0.5">{section.intro}</p>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {section.questions.map((item, qIdx) => {
                       const key = `${sIdx}-${qIdx}`;
                       const isOpen = !!openIndex[key];
                       return (
                         <div
                           key={qIdx}
-                          className="border border-stone-200/80 rounded-xl overflow-hidden transition-colors"
+                          className="border border-[#E5DDD0] rounded-xl overflow-hidden transition-colors shadow-2xs"
                         >
                           <button
                             onClick={() => toggleAccordion(key)}
