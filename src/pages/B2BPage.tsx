@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Building2, Calculator, Coffee, CheckCircle, ArrowRight, Send, Gift, Layers } from 'lucide-react';
 import { CONFIG } from '../config';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
+import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
 
 interface B2BPageProps {
   navigate: (path: string) => void;
@@ -111,9 +112,20 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
     <div className="min-h-screen text-stone-800 pb-16 bg-[#FAF7F2]">
       {/* Header Banner - Artisanal Roastery Ambience */}
       <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 py-8 sm:py-10 text-stone-100">
-        {/* Roastery Atmosphere Background */}
+        {/* Coffee Beans Atmosphere Background */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          {/* Subtle micro-texture */}
+          {/* 1. Consistent Coffee Bean Hero Background Image */}
+          <img
+            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
+            }}
+            alt="Maison Milau Specialty Koffiebonen B2B"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
+          />
+
+          {/* 2. Delicate Roastery Micro-Texture */}
           <div
             className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
             style={{
@@ -122,7 +134,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               backgroundPosition: '0 0, 12px 12px',
             }}
           />
-          {/* Subtle bean silhouette */}
+          {/* 3. Subtle bean silhouette */}
           <svg
             className="absolute right-10 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
             viewBox="0 0 200 200"
@@ -133,12 +145,13 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
             <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
             <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          {/* Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          {/* 4. Warm Copper & Amber Roasting Light Ambient Radial Glows */}
           <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-          {/* Rich Multi-Stop Directional Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/96 via-[#22130B]/88 to-[#180E08]/60" />
-          {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
+          {/* 5. Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
+          {/* 6. Section Continuity Gradient & Soft Bottom Transition Bridge */}
           <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
         </div>

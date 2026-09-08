@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Clock, ShieldCheck, Truck, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
-import artisanRoasterHeroBg from '../assets/images/artisan_roaster_hero_bg.jpg';
+import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
 
 interface HomePageProps {
   navigate: (path: string) => void;
@@ -13,19 +13,19 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen text-stone-800">
-      {/* Hero Section - Artisanal Roastery Ambience (Rich Espresso, Warm Dark Chocolate, Copper & Golden Amber Highlights) */}
+      {/* Hero Section - Consistent Maison Milau Coffee Beans Ambience */}
       <section className="relative overflow-hidden pt-10 sm:pt-14 pb-14 sm:pb-18 bg-[#1A0E08] text-stone-100">
-        {/* Layered Coffee Heritage Background - Multi-depth Roastery Atmosphere */}
+        {/* Layered Coffee Heritage Background - Multi-depth Coffee Beans Atmosphere */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          {/* 1. Authentic Artisan Roaster Image - High-resolution craftsmanship at the roasting drum */}
+          {/* 1. Consistent Coffee Bean Hero Background Image */}
           <img
-            src={encodeURI('/images/hero-section-background.jpg')}
+            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = artisanRoasterHeroBg;
+              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
             }}
-            alt="Maison Milau Ambachtelijk Koffiebranden"
+            alt="Maison Milau Specialty Koffiebonen"
             aria-hidden="true"
-            className="w-full h-full object-cover object-center sm:object-[center_28%] opacity-75 sm:opacity-85 scale-102 transition-transform duration-1000 ease-out"
+            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
           />
 
           {/* 2. Delicate Roastery Micro-Texture & Reserve Grid */}
@@ -38,9 +38,8 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             }}
           />
 
-          {/* 3. Subtle Organic Coffee Bean Motifs & Roasting Contour Silhouettes (Refined & Low-Contrast) */}
+          {/* 3. Subtle Organic Coffee Bean Motifs & Roasting Contour Silhouettes */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {/* Elegant large bean contour - top right */}
             <svg
               className="absolute -right-8 -top-8 w-72 sm:w-96 h-72 sm:h-96 text-amber-500/10 pointer-events-none"
               viewBox="0 0 200 200"
@@ -52,32 +51,18 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <path d="M55 50 C85 85, 80 120, 100 150" stroke="currentColor" strokeWidth="1" strokeOpacity="0.6" />
             </svg>
-
-            {/* Subtle floating bean silhouette - bottom left */}
-            <svg
-              className="absolute left-6 -bottom-10 w-44 sm:w-56 h-44 sm:h-56 text-amber-600/10 pointer-events-none hidden sm:block"
-              viewBox="0 0 100 100"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <ellipse cx="50" cy="50" rx="32" ry="42" transform="rotate(35 50 50)" stroke="currentColor" strokeWidth="1.2" strokeDasharray="2 4" />
-              <path d="M40 18 C52 35, 48 68, 60 82" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
           </div>
 
-          {/* 4. Warm Copper & Amber Roasting Light Ambient Radial Glows (Adds Living Warmth & Dimension) */}
-          <div className="absolute top-1/4 right-1/4 w-[550px] h-[400px] bg-gradient-to-br from-amber-600/25 via-orange-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+          {/* 4. Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[550px] h-[400px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -top-16 left-8 w-[460px] h-[380px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-16 left-1/3 w-[600px] h-[260px] bg-orange-800/15 rounded-full blur-3xl pointer-events-none" />
 
-          {/* 5. Rich Multi-Stop Directional Gradient - Preserves deep espresso & dark chocolate warmth while assuring 100% text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/92 via-[#22130B]/80 via-[#2A150D]/55 to-[#180E08]/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/45" />
+          {/* 5. Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
 
           {/* 6. Section Continuity Gradient & Soft Bottom Transition Bridge */}
           <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
-          {/* Refined Copper-Gold Roastery Hairline Accent */}
           <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
         </div>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Heart, Award, MapPin, Phone, Mail, Calendar, MessageCircle, Clock } from 'lucide-react';
 import { CONFIG } from '../config';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
+import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
 
 interface AboutPageProps {
   navigate: (path: string) => void;
@@ -9,20 +10,65 @@ interface AboutPageProps {
 
 export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
   return (
-    <div className="min-h-screen text-stone-800 pb-16">
-      {/* Header Banner */}
-      <section className="bg-[#FAF7F2]/70 backdrop-blur-xs border-b border-stone-200/80 py-8 sm:py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen text-stone-800 pb-16 bg-[#FAF7F2]">
+      {/* Header Banner - Consistent Maison Milau Coffee Beans Ambience */}
+      <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 py-8 sm:py-10 text-stone-100">
+        {/* Coffee Beans Atmosphere Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          {/* 1. Consistent Coffee Bean Hero Background Image */}
+          <img
+            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
+            }}
+            alt="Maison Milau Specialty Koffiebonen & Branderij"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
+          />
+
+          {/* 2. Delicate Roastery Micro-Texture */}
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+            style={{
+              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
+              backgroundSize: '24px 24px',
+              backgroundPosition: '0 0, 12px 12px',
+            }}
+          />
+          {/* 3. Subtle bean silhouette */}
+          <svg
+            className="absolute right-10 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
+            <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          {/* 4. Warm Copper & Amber Roasting Light Ambient Radial Glows */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          {/* 5. Rich Multi-Stop Directional Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
+          {/* 6. Section Continuity Gradient & Soft Bottom Transition Bridge */}
+          <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-900 mb-1.5">
-              Branderij & Ambacht
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-1.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <span>Branderij & Ambacht</span>
             </div>
             {/* H1: ~25% reduced */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-stone-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 drop-shadow-xs">
               Over Maison Milau
             </h1>
             {/* Body */}
-            <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
               Artisanale micro-roastery in Oudegem (Dendermonde). Met zorg en passie gebrande specialty koffies, kantoor- en horeca-oplossingen en machine-verhuur voor evenementen.
             </p>
           </div>
