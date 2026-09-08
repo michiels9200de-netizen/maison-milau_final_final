@@ -182,17 +182,18 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               </div>
             </div>
 
-            {/* 1 FOTO OP B2B PAGE (MediaPlaceholder) */}
-            <div className="lg:col-span-5">
-              <MediaPlaceholder
-                type="image"
-                badgeText="B2B & Kantoorbeleving"
-                title="Professionele Koffiecorner & Horeca Espressomachine"
-                subtitle="Beeld van een moderne bedrijfsbarista-corner en professionele espressomachine met vers gebrande Maison Milau bonen."
-                recommendedSize="1920 × 1280 (16:9 of 4:3)"
-                aspectRatio="video"
-                className="shadow-sm border-stone-200 min-h-[240px]"
-              />
+            {/* HERO IMAGE OP B2B PAGE */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-stone-700/70 bg-stone-900 w-full aspect-[3/2] max-h-[380px] group ring-1 ring-amber-900/30">
+                <img
+                  src={encodeURI('/images/foto hero kantoor en horeca.png')}
+                  alt="Maison Milau Kantoor & Horeca Professionele Koffiebeleving"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                  loading="eager"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>

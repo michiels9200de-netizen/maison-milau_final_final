@@ -149,20 +149,20 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
             </div>
 
             {/* 1 FOTO BIJ EVENTS VAN EEN BARISTA BAR */}
-            <div className="lg:col-span-5">
-              <div className="relative rounded-xl overflow-hidden shadow-xl border border-stone-700/70 bg-stone-900 aspect-video w-full group ring-1 ring-amber-900/30">
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-stone-700/70 bg-stone-900 w-full max-w-[420px] aspect-square group ring-1 ring-amber-900/30">
                 <img
-                  src={encodeURI('/images/hero events en barista.png')}
+                  src={encodeURI('/images/foto hero events en barista.png')}
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
                     target.src = baristaEventsHero;
                   }}
                   alt="Maison Milau Mobiele Barista Bar op Evenement"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
                   loading="eager"
                   decoding="async"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
               </div>
             </div>
           </div>

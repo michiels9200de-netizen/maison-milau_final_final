@@ -17,6 +17,11 @@ import {
   BookOpen,
   Sparkles,
   ZoomIn,
+  Compass,
+  Crown,
+  Flame,
+  Coffee,
+  Layers,
 } from 'lucide-react';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
@@ -80,6 +85,255 @@ const TSHIRT_COLORS = [
 ];
 
 const TSHIRT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+
+export interface CollectionThemeConfig {
+  name: string;
+  badgeLabel: string;
+  badgeIcon: 'sparkles' | 'shield' | 'compass' | 'award' | 'crown' | 'flame' | 'layers' | 'gift' | 'coffee' | 'refresh';
+  subtitle: string;
+  description: string;
+  containerBg: string;
+  glowColor: string;
+  borderColor: string;
+  badgeStyle: string;
+  titleColor: string;
+  subtitleColor: string;
+  descColor: string;
+  dividerColor: string;
+  countBadgeStyle: string;
+  isDarkTheme: boolean;
+}
+
+export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
+  Budget: {
+    name: 'Budget Collection',
+    badgeLabel: 'Maison Milau Budget',
+    badgeIcon: 'sparkles',
+    subtitle: 'Fresh start · Accessibility · Everyday coffee',
+    description: 'Alledaags ambachtelijk brandvakmanschap en zachte, ronde smaakprofielen voor de dagelijkse kwaliteitskoffie.',
+    containerBg: 'bg-gradient-to-b from-[#FAF8F5] via-[#F5EFEB] to-[#EFE7DD]',
+    glowColor: 'from-amber-200/25 via-orange-100/15 to-transparent',
+    borderColor: 'border-[#E2D9CC]',
+    badgeStyle: 'bg-[#E8DFD2] text-[#4A3B32] border border-[#D8CDBD]',
+    titleColor: 'text-[#281A12]',
+    subtitleColor: 'text-[#6A574C]',
+    descColor: 'text-[#554338]',
+    dividerColor: 'border-[#DFD5C6]',
+    countBadgeStyle: 'bg-[#EAE1D4] text-[#4A3B32] border border-[#D8CDBD]',
+    isDarkTheme: false,
+  },
+  Value: {
+    name: 'Value Collection',
+    badgeLabel: 'Maison Milau Value',
+    badgeIcon: 'shield',
+    subtitle: 'Strength · Value · Reliability',
+    description: 'Karaktervolle blends met volle body, chocolade en karameltonen voor maximale smaak en betrouwbare kracht.',
+    containerBg: 'bg-gradient-to-b from-[#18191B] via-[#202225] to-[#151618]',
+    glowColor: 'from-stone-500/15 via-stone-700/10 to-transparent',
+    borderColor: 'border-[#2D3036]',
+    badgeStyle: 'bg-[#282B30] text-[#E3E5E9] border border-[#3E4249]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-stone-400',
+    descColor: 'text-stone-300',
+    dividerColor: 'border-[#2B2E34]',
+    countBadgeStyle: 'bg-[#24262B] text-stone-300 border border-[#383B42]',
+    isDarkTheme: true,
+  },
+  Selection: {
+    name: 'Selection Collection',
+    badgeLabel: 'Maison Milau Selection',
+    badgeIcon: 'compass',
+    subtitle: 'Craft · Discovery · Curated choice',
+    description: 'Onze gecureerde selectie van premium specialty brandingen met verfijnde fruittonen, bergamot en gelaagde zoetheid.',
+    containerBg: 'bg-gradient-to-b from-[#0A1424] via-[#101F37] to-[#091220]',
+    glowColor: 'from-blue-600/20 via-indigo-800/10 to-transparent',
+    borderColor: 'border-[#182946]',
+    badgeStyle: 'bg-[#13233D] text-[#93C5FD] border border-[#223B64]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-blue-300/85',
+    descColor: 'text-blue-100/90',
+    dividerColor: 'border-[#172743]',
+    countBadgeStyle: 'bg-[#101E35] text-blue-200 border border-[#1E345A]',
+    isDarkTheme: true,
+  },
+  Premium: {
+    name: 'Premium Collection',
+    badgeLabel: 'Maison Milau Premium',
+    badgeIcon: 'award',
+    subtitle: 'Refinement · Balance · Elegance',
+    description: 'SCA 86-87 hooggeklasseerde specialty brandingen met uitzonderlijke zuiverheid, steenvruchten en fluweelzachte balans.',
+    containerBg: 'bg-gradient-to-b from-[#E7E9ED] via-[#DFE2E7] to-[#D6DAE1]',
+    glowColor: 'from-slate-400/25 via-zinc-300/15 to-transparent',
+    borderColor: 'border-[#C7CCD5]',
+    badgeStyle: 'bg-[#D4D9E2] text-[#1E293B] border border-[#B9C0CD]',
+    titleColor: 'text-[#0F172A]',
+    subtitleColor: 'text-slate-600',
+    descColor: 'text-slate-700',
+    dividerColor: 'border-[#CCD2DC]',
+    countBadgeStyle: 'bg-[#D1D6E0] text-slate-800 border border-[#B5BDCC]',
+    isDarkTheme: false,
+  },
+  Prestige: {
+    name: 'Prestige Collection',
+    badgeLabel: 'Maison Milau Prestige',
+    badgeIcon: 'crown',
+    subtitle: 'Luxury · Rarity · Grand cru experience',
+    description: 'SCA 88-89+ exclusieve grand cru brandingen met florale jasmijn, bergamot en een aristocratische wijnachtige afdronk.',
+    containerBg: 'bg-gradient-to-b from-[#220711] via-[#2F0B18] to-[#1D060E]',
+    glowColor: 'from-rose-600/25 via-red-950/20 to-transparent',
+    borderColor: 'border-[#441223]',
+    badgeStyle: 'bg-[#390F1F] text-[#FECDD3] border border-[#5A1A33]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-rose-300/85',
+    descColor: 'text-rose-100/90',
+    dividerColor: 'border-[#3C0F20]',
+    countBadgeStyle: 'bg-[#310A1B] text-rose-200 border border-[#4F132B]',
+    isDarkTheme: true,
+  },
+  'Barrel Aged': {
+    name: 'Barrel Aged Collection',
+    badgeLabel: 'Maison Milau Barrel Aged',
+    badgeIcon: 'flame',
+    subtitle: 'Wood · Whisky casks · Maturation',
+    description: 'Gerijpt in authentieke eiken Casknolia® Moscatel, PX Sherry en Buffalo Trace® Bourbon vaten voor een diepe aromatische houtbeleving.',
+    containerBg: 'bg-gradient-to-b from-[#22130A] via-[#2E1B0F] to-[#1C0F08]',
+    glowColor: 'from-amber-600/25 via-orange-950/20 to-transparent',
+    borderColor: 'border-[#422616]',
+    badgeStyle: 'bg-[#361E11] text-[#FDE68A] border border-[#56331E]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-amber-300/85',
+    descColor: 'text-amber-100/90',
+    dividerColor: 'border-[#3B2213]',
+    countBadgeStyle: 'bg-[#2E180E] text-amber-200 border border-[#492917]',
+    isDarkTheme: true,
+  },
+  Infused: {
+    name: 'Infused Collection',
+    badgeLabel: 'Maison Milau Naturally Infused',
+    badgeIcon: 'sparkles',
+    subtitle: 'Creativity · Innovation · Experimental flavours',
+    description: 'Passief geïnfuseerd met natuurlijke Bourbon vanillestokjes, kaneelstokjes en geroosterde amandelen voor een artistiek smaakavontuur.',
+    containerBg: 'bg-gradient-to-b from-[#1B0C26] via-[#271337] to-[#160920]',
+    glowColor: 'from-purple-600/25 via-fuchsia-950/20 to-transparent',
+    borderColor: 'border-[#3B1C52]',
+    badgeStyle: 'bg-[#301545] text-[#E9D5FF] border border-[#4D246C]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-purple-300/85',
+    descColor: 'text-purple-100/90',
+    dividerColor: 'border-[#35164B]',
+    countBadgeStyle: 'bg-[#28103A] text-purple-200 border border-[#421C5F]',
+    isDarkTheme: true,
+  },
+  'Single Origins': {
+    name: 'Single Origin Collection',
+    badgeLabel: 'Maison Milau Terroir Microlots',
+    badgeIcon: 'layers',
+    subtitle: 'Origin · Terroir · Traceability',
+    description: 'SCA 88-90+ zeldzame variëteiten (Pink Bourbon & Gesha Betulia) met 100% traceerbaarheid tot op boerderijniveau.',
+    containerBg: 'bg-gradient-to-b from-[#0C1F14] via-[#132B1C] to-[#0A1A10]',
+    glowColor: 'from-emerald-600/25 via-teal-950/20 to-transparent',
+    borderColor: 'border-[#1D442C]',
+    badgeStyle: 'bg-[#163825] text-[#A7F3D0] border border-[#275B3C]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-emerald-300/85',
+    descColor: 'text-emerald-100/90',
+    dividerColor: 'border-[#193D28]',
+    countBadgeStyle: 'bg-[#122E1E] text-emerald-200 border border-[#225034]',
+    isDarkTheme: true,
+  },
+  Giftboxes: {
+    name: 'Giftboxen & Proefpakketten',
+    badgeLabel: 'Maison Milau Geschenken',
+    badgeIcon: 'gift',
+    subtitle: 'Celebration · Discovery · Artisan presentation',
+    description: 'Exclusieve geschenkdozen (Duo, Trio & Quattro) gevuld met artisanale specialty bonen naar keuze, met de hand ingepakt.',
+    containerBg: 'bg-gradient-to-b from-[#24170E] via-[#311E12] to-[#1E120A]',
+    glowColor: 'from-amber-600/25 via-yellow-950/20 to-transparent',
+    borderColor: 'border-[#462D1C]',
+    badgeStyle: 'bg-[#3A2315] text-[#FED7AA] border border-[#5A3822]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-amber-300/85',
+    descColor: 'text-amber-100/90',
+    dividerColor: 'border-[#3E2617]',
+    countBadgeStyle: 'bg-[#301C11] text-amber-200 border border-[#4E2E1B]',
+    isDarkTheme: true,
+  },
+  Toebehoren: {
+    name: 'Koffie Toebehoren & Merchandise',
+    badgeLabel: 'Maison Milau Accessoires',
+    badgeIcon: 'coffee',
+    subtitle: 'Barista tools · Craftsmanship · Lifestyle',
+    description: 'Ambachtelijke keramische tassen, premium Maison Milau kleding en barista benodigdheden voor de complete koffiebeleving.',
+    containerBg: 'bg-gradient-to-b from-[#1C1E22] via-[#24262C] to-[#18191D]',
+    glowColor: 'from-slate-500/15 via-zinc-800/10 to-transparent',
+    borderColor: 'border-[#353841]',
+    badgeStyle: 'bg-[#2A2D34] text-[#E2E8F0] border border-[#40444F]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-slate-400',
+    descColor: 'text-slate-300',
+    dividerColor: 'border-[#2F323A]',
+    countBadgeStyle: 'bg-[#24262C] text-slate-300 border border-[#3A3D47]',
+    isDarkTheme: true,
+  },
+  Abonnementen: {
+    name: 'Koffie-Abonnementen (-10%)',
+    badgeLabel: 'Maison Milau Abonnementen',
+    badgeIcon: 'refresh',
+    subtitle: 'Freshness · Convenience · 10% Member advantage',
+    description: 'Zorgeloos genieten van vers gebrande specialty koffiebonen aan huis of op kantoor, met vaste 10% ledenkorting.',
+    containerBg: 'bg-gradient-to-b from-[#24190F] via-[#302115] to-[#1D140C]',
+    glowColor: 'from-amber-600/25 via-orange-950/20 to-transparent',
+    borderColor: 'border-[#442E1D]',
+    badgeStyle: 'bg-[#392618] text-[#FDE68A] border border-[#563B26]',
+    titleColor: 'text-white',
+    subtitleColor: 'text-amber-300/85',
+    descColor: 'text-amber-100/90',
+    dividerColor: 'border-[#3D291B]',
+    countBadgeStyle: 'bg-[#2F1E13] text-amber-200 border border-[#4A311F]',
+    isDarkTheme: true,
+  },
+};
+
+export const COLLECTION_KEYS_ORDER = [
+  'Budget',
+  'Value',
+  'Selection',
+  'Premium',
+  'Prestige',
+  'Barrel Aged',
+  'Infused',
+  'Single Origins',
+  'Giftboxes',
+  'Toebehoren',
+  'Abonnementen',
+];
+
+export const renderBadgeIcon = (icon: CollectionThemeConfig['badgeIcon']) => {
+  switch (icon) {
+    case 'sparkles':
+      return <Sparkles className="w-3 h-3 text-current" />;
+    case 'shield':
+      return <ShieldCheck className="w-3 h-3 text-current" />;
+    case 'compass':
+      return <Compass className="w-3 h-3 text-current" />;
+    case 'award':
+      return <Award className="w-3 h-3 text-current" />;
+    case 'crown':
+      return <Crown className="w-3 h-3 text-current" />;
+    case 'flame':
+      return <Flame className="w-3 h-3 text-current" />;
+    case 'layers':
+      return <Layers className="w-3 h-3 text-current" />;
+    case 'gift':
+      return <Gift className="w-3 h-3 text-current" />;
+    case 'coffee':
+      return <Coffee className="w-3 h-3 text-current" />;
+    case 'refresh':
+      return <RefreshCw className="w-3 h-3 text-current" />;
+    default:
+      return <Sparkles className="w-3 h-3 text-current" />;
+  }
+};
 
 export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams }) => {
   const { addItem } = useCart();
@@ -316,6 +570,530 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     e.preventDefault();
     if (!capsuleEmail.trim()) return;
     setCapsuleSubmitted(true);
+  };
+
+  const renderProductCard = (product: Product, theme: CollectionThemeConfig) => {
+    const currentWeight = selectedWeight[product.id] || product.variants[0].weight;
+    const currentVariant = product.variants.find((v) => v.weight === currentWeight) || product.variants[0];
+    const currentGrind = selectedGrind[product.id] || product.defaultGrind;
+    const isHighlighted = Boolean(
+      highlightId && (
+        highlightId === product.id ||
+        highlightId === product.id.replace(/^prod-/, '') ||
+        highlightId.toLowerCase() === product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      )
+    );
+
+    const isCoffeeProduct = product.category !== 'merchandise' && product.collection !== 'Toebehoren' && !product.id.includes('sub');
+    const purchaseType = purchaseTypes[product.id] || 'eenmalig';
+    const frequency = subscriptionFrequencies[product.id] || '4_weken';
+    const isSubscription = purchaseType === 'abonnement';
+
+    const isGiftbox = product.category === 'giftboxes';
+    const choiceCount = isGiftbox ? getGiftboxChoiceCount(product) : 0;
+    const defaultChoices = GIFTBOX_COFFEE_OPTIONS.slice(0, choiceCount).map((o) => o.name);
+    const currentChoices = giftboxSelections[product.id] || defaultChoices;
+
+    // Dynamic price for giftbox or subscription discount or regular variant price
+    const effectivePrice = isGiftbox
+      ? calculateGiftboxPrice(currentChoices)
+      : isSubscription
+      ? Math.round(currentVariant.price * 0.9 * 100) / 100
+      : currentVariant.price;
+
+    const displayImage = activeProductImage[product.id] || product.imageUrl;
+
+    // Calculate starting "Vanaf" price for the product card badge
+    const startingPrice = product.variants && product.variants.length > 0
+      ? Math.min(...product.variants.map((v) => v.price))
+      : currentVariant.price;
+    const formattedStartingPrice = startingPrice.toFixed(2).replace('.', ',');
+    const isMultiOption = (product.variants && product.variants.length > 1) || isCoffeeProduct || isGiftbox;
+
+    const matchingCatalogCoffee = CATALOG_ITEMS.find(
+      (c) =>
+        c.webshopProductId === product.id ||
+        c.id === product.catalogSlug ||
+        c.id === product.id ||
+        c.id.toLowerCase() === product.id.toLowerCase().replace(/^prod-/, '')
+    );
+
+    return (
+      <div
+        key={product.id}
+        id={`product-card-${product.id}`}
+        data-product-id={product.id}
+        className={`group relative scroll-mt-24 bg-white rounded-xl border transition-all p-3 sm:p-3.5 flex flex-col justify-between ${
+          isHighlighted
+            ? 'border-amber-600 ring-3 ring-amber-500/30 shadow-lg scale-[1.01]'
+            : theme.isDarkTheme
+            ? 'border-white/20 shadow-[0_4px_18px_-2px_rgba(0,0,0,0.45),0_2px_6px_0_rgba(0,0,0,0.25)] hover:shadow-[0_12px_28px_-4px_rgba(0,0,0,0.55)] hover:border-white/40'
+            : 'border-[#D8CEBE] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.08),0_1px_3px_0_rgba(40,24,14,0.05)] hover:shadow-[0_10px_24px_-4px_rgba(40,24,14,0.16)] hover:border-amber-700/50'
+        }`}
+      >
+        {/* Native anchor targets for direct deep-linking */}
+        <span id={product.id} className="absolute -top-28 pointer-events-none" />
+        <span id={product.id.replace(/^prod-/, '')} className="absolute -top-28 pointer-events-none" />
+        <div>
+          {/* Deep-link notification badge when selected from Coffee Guide */}
+          {isHighlighted && (
+            <div className="mb-2 px-2.5 py-1 rounded-lg bg-stone-900 text-stone-100 text-[11px] font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
+              <span>Geselecteerd vanuit Gids</span>
+              <span className="text-[9px] uppercase tracking-wider bg-stone-800 text-amber-300 px-1.5 py-0.5 rounded font-bold">
+                Direct Bestelbaar
+              </span>
+            </div>
+          )}
+
+          {/* Collection & Freshness Status Line */}
+          <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-1.5">
+            <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[55%]">
+              {product.collection}
+            </span>
+            <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0 text-[9px] sm:text-[10px]">
+              <Check className="w-2.5 h-2.5 shrink-0" />
+              <span>
+                {product.batchStatus === 'vers_gebrand'
+                  ? 'Vers gebrand'
+                  : product.batchStatus === 'op_voorraad'
+                  ? 'Op voorraad'
+                  : 'Batchplanning'}
+              </span>
+            </span>
+          </div>
+
+          {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
+          <div
+            onClick={product.id === 'prod-acc-tshirt' ? () => setIsTshirtLightboxOpen(true) : undefined}
+            className={`mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden transition-all ${
+              product.id === 'prod-acc-tshirt'
+                ? 'cursor-pointer hover:bg-amber-50/60 ring-1 ring-amber-900/10 hover:ring-amber-900/30'
+                : ''
+            }`}
+            title={product.id === 'prod-acc-tshirt' ? 'Klik om T-shirt te vergroten' : undefined}
+          >
+            {/* T-shirt specific quick enlarge badge */}
+            {product.id === 'prod-acc-tshirt' && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsTshirtLightboxOpen(true);
+                }}
+                aria-label="Vergroot T-shirt afbeelding"
+                className="absolute bottom-2 right-2 z-20 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-stone-900/90 hover:bg-stone-950 text-amber-200 text-[10px] font-semibold shadow-md border border-amber-500/50 backdrop-blur-xs transition-all hover:scale-105 cursor-pointer"
+                title="Klik om T-shirt te vergroten"
+              >
+                <ZoomIn className="w-3 h-3 text-amber-400" />
+                <span>Vergroten</span>
+              </button>
+            )}
+            {/* Refined Maison Milau Starting Price Badge - Elegant Frosted Glass */}
+            <div
+              className="absolute top-2 left-2 z-20 bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-200/90 shadow-2xs flex flex-col items-start leading-none select-none pointer-events-none transition-all group-hover:border-amber-400/60"
+              title={isMultiOption ? `Vanaf € ${formattedStartingPrice}` : `Prijs: € ${formattedStartingPrice}`}
+            >
+              {isMultiOption && (
+                <span className="text-[9px] font-medium text-stone-500 lowercase tracking-tight leading-none mb-0.5">
+                  vanaf
+                </span>
+              )}
+              <div className="flex items-baseline gap-0.5 leading-none">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-amber-900">
+                  €
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-stone-900 font-mono tracking-tight">
+                  {formattedStartingPrice}
+                </span>
+              </div>
+            </div>
+
+            {/* SCA Score in Top-Right Corner */}
+            {product.scaScore && (
+              <div
+                className="absolute top-2 right-2 z-10 bg-white/95 backdrop-blur-md text-amber-900 text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg border border-amber-200/90 shadow-2xs flex items-center gap-1 select-none pointer-events-none"
+                title={`Specialty Coffee Association Score: ${product.scaScore}`}
+              >
+                <Award className="w-2.5 h-2.5 text-amber-700 shrink-0" />
+                <span className="tracking-tight">SCA {product.scaScore}</span>
+              </div>
+            )}
+
+            {/* Country Origin Flags in Bottom-Left Corner */}
+            <CoffeeOriginBadge
+              origins={product.origins}
+              className="!top-auto !bottom-2 !left-2 !px-1.5 !py-0.5 !text-xs shadow-2xs bg-white/95 backdrop-blur-md border-stone-200/80"
+            />
+
+            <MediaPlaceholder
+              type="image"
+              badgeText="Productfoto"
+              title={product.name}
+              subtitle={`Artisanale verpakking (${currentWeight})`}
+              aspectRatio="square"
+              imageFit="contain"
+              className="w-full h-full"
+              imageUrl={displayImage}
+              hidePlaceholder={product.category === 'giftboxes'}
+            />
+
+            {/* Image Gallery Switcher if product has multiple photos */}
+            {product.galleryImages && product.galleryImages.length > 1 && (
+              <div className="absolute bottom-1.5 inset-x-2 z-10 flex items-center justify-center gap-1.5 overflow-x-auto py-0.5 bg-white/80 backdrop-blur-xs rounded-lg shadow-2xs">
+                {product.galleryImages.map((imgUrl, gIdx) => {
+                  const isCurrent = displayImage === imgUrl;
+                  return (
+                    <button
+                      key={gIdx}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveProductImage({ ...activeProductImage, [product.id]: imgUrl });
+                      }}
+                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded overflow-hidden border transition-all shrink-0 ${
+                        isCurrent
+                          ? 'border-amber-900 ring-1 ring-amber-700 shadow-xs scale-105'
+                          : 'border-stone-300 opacity-60 hover:opacity-100'
+                      }`}
+                      title={`Foto ${gIdx + 1}`}
+                    >
+                      <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Product Name & Coffee Guide Link */}
+          <div className="mb-1.5">
+            <div className="flex items-start justify-between gap-1.5">
+              <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors line-clamp-2" title={product.name}>
+                {product.name}
+              </h3>
+              {matchingCatalogCoffee && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
+                    )
+                  }
+                  className="shrink-0 inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-800/20 px-1.5 py-0.5 rounded transition-colors"
+                  title="Bekijk terroir & branddossier in de Koffiegids"
+                >
+                  <BookOpen className="w-2.5 h-2.5 text-amber-800 shrink-0" />
+                  <span className="hidden sm:inline">Dossier</span>
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-stone-500 leading-snug mt-0.5 line-clamp-2" title={product.shortDescription}>
+              {product.shortDescription}
+            </p>
+          </div>
+
+          {/* Coffee Character Profile - Compact Sensory Display */}
+          {product.characterProfile && (
+            <div className="mb-2">
+              <CoffeeCharacterCard profile={product.characterProfile} compact={true} />
+            </div>
+          )}
+
+          {/* Weight Selector */}
+          <div className="mb-2">
+            <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Formaat:</span>
+              <span className="font-bold text-stone-700">{currentWeight}</span>
+            </div>
+            <div className={`grid ${product.variants.length === 1 ? 'grid-cols-1' : product.variants.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1`}>
+              {product.variants.map((v) => (
+                <button
+                  key={v.weight}
+                  onClick={() =>
+                    setSelectedWeight({ ...selectedWeight, [product.id]: v.weight })
+                  }
+                  className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-semibold border transition-all text-center leading-tight ${
+                    currentWeight === v.weight
+                      ? 'bg-amber-950 text-white border-amber-950 shadow-2xs'
+                      : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
+                  }`}
+                >
+                  <div>{v.weight}</div>
+                  <div className="text-[9px] font-normal opacity-85">€{v.price.toFixed(2)}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Grind Selector (If applicable) */}
+          {product.grindOptions.length > 1 && (
+            <div className="mb-2">
+              <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span>Maalgraad:</span>
+                <span className="text-[10px] text-stone-700 font-medium">{currentGrind}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {product.grindOptions.map((grind) => (
+                  <button
+                    key={grind}
+                    onClick={() =>
+                      setSelectedGrind({ ...selectedGrind, [product.id]: grind })
+                    }
+                    className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-medium border transition-colors text-center ${
+                      currentGrind === grind
+                        ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    {grind}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* T-shirt Color and Size Selectors */}
+          {product.id === 'prod-acc-tshirt' && (
+            <div className="mb-2 space-y-2 bg-stone-50 border border-stone-200 rounded-lg p-2 text-xs">
+              <div>
+                <div className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+                  <span>Kleur:</span>
+                  <span className="font-bold text-stone-800">{selectedTshirtColor[product.id] || 'Zwart'}</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {TSHIRT_COLORS.map((col) => {
+                    const isSelected = (selectedTshirtColor[product.id] || 'Zwart') === col.name;
+                    return (
+                      <button
+                        key={col.name}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTshirtColor({ ...selectedTshirtColor, [product.id]: col.name });
+                          setActiveProductImage({ ...activeProductImage, [product.id]: col.image });
+                        }}
+                        className={`flex items-center gap-1 px-1.5 py-1 rounded text-[10px] font-semibold border transition-all ${
+                          isSelected
+                            ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        }`}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
+                          style={{ backgroundColor: col.hex }}
+                        />
+                        <span>{col.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1 flex items-center justify-between">
+                  <span>Maat:</span>
+                  <span className="font-bold text-stone-800">{selectedTshirtSize[product.id] || 'L'}</span>
+                </div>
+                <div className="grid grid-cols-5 gap-1">
+                  {TSHIRT_SIZES.map((sz) => {
+                    const isSelected = (selectedTshirtSize[product.id] || 'L') === sz;
+                    return (
+                      <button
+                        key={sz}
+                        type="button"
+                        onClick={() => setSelectedTshirtSize({ ...selectedTshirtSize, [product.id]: sz })}
+                        className={`py-1 rounded text-[10px] font-bold border text-center transition-all ${
+                          isSelected
+                            ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        }`}
+                      >
+                        {sz}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Giftbox Dynamic Bean Choice Integration */}
+          {isGiftbox && (
+            <div className="mb-2 bg-amber-50/90 border border-amber-200/90 rounded-lg p-2 text-xs">
+              <div className="font-semibold text-amber-950 mb-1 flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-1">
+                  <Gift className="w-3 h-3 text-amber-800" />
+                  <span>{choiceCount} doypacks kiezen:</span>
+                </div>
+                <span className="text-[9px] font-bold text-amber-900 bg-amber-200/60 px-1 py-0.5 rounded">
+                  Dynamisch
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {Array.from({ length: choiceCount }).map((_, idx) => {
+                  const currentVal = currentChoices[idx] || defaultChoices[idx % defaultChoices.length];
+                  const selectedOpt = GIFTBOX_COFFEE_OPTIONS.find((b) => b.name === currentVal);
+                  return (
+                    <div key={idx} className="flex flex-col gap-0.5 bg-white p-1.5 rounded border border-amber-200/80">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="font-semibold text-stone-700">Doypack #{idx + 1}:</span>
+                        {selectedOpt && (
+                          <span className="font-mono font-bold text-amber-900">
+                            €{selectedOpt.price.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                      <select
+                        value={currentVal}
+                        onChange={(e) => handleGiftBeanSelect(product.id, idx, e.target.value, choiceCount)}
+                        className="w-full bg-stone-50 border border-stone-300 rounded text-[10px] py-1 px-1.5 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
+                      >
+                        {GIFTBOX_COFFEE_OPTIONS.map((opt) => (
+                          <option key={opt.name} value={opt.name}>
+                            {opt.name} — €{opt.price.toFixed(2)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-1.5 pt-1.5 border-t border-amber-200 flex items-center justify-between text-[11px] text-stone-700">
+                <span className="text-[10px] font-medium">Berekende boxprijs:</span>
+                <span className="font-bold text-amber-950 font-mono">
+                  €{effectivePrice.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Subscription Option Integrated into Price */}
+          {isCoffeeProduct && (
+            <div className="mb-2 bg-stone-50/80 border border-stone-200/80 rounded-lg p-1.5">
+              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[11px] font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'eenmalig' })}
+                  className={`py-1 px-1 rounded-md border text-center transition-all ${
+                    !isSubscription
+                      ? 'bg-white text-stone-900 border-stone-300 shadow-2xs font-bold'
+                      : 'bg-transparent text-stone-500 border-transparent hover:text-stone-700'
+                  }`}
+                >
+                  Eenmalig
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'abonnement' })}
+                  className={`py-1 px-1 rounded-md border text-center transition-all ${
+                    isSubscription
+                      ? 'bg-amber-900 text-white border-amber-900 shadow-2xs font-bold'
+                      : 'bg-transparent text-amber-900 border-transparent hover:bg-amber-50'
+                  }`}
+                >
+                  Abo (-10%)
+                </button>
+              </div>
+
+              {isSubscription && (
+                <div className="mt-1.5 pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px]">
+                  <span className="text-stone-500">Frequentie:</span>
+                  <select
+                    value={frequency}
+                    onChange={(e) =>
+                      setSubscriptionFrequencies({
+                        ...subscriptionFrequencies,
+                        [product.id]: e.target.value as any,
+                      })
+                    }
+                    className="bg-white border border-stone-300 rounded text-[10px] py-0.5 px-1 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
+                  >
+                    <option value="2_weken">Elke 2 wkn (vers)</option>
+                    <option value="4_weken">Elke 4 wkn (maand)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Bi-directional Link to Catalog Dossier, Terroir, and Taste Review */}
+          <div className="mb-2 flex items-center justify-between text-[10px] text-stone-500">
+            {matchingCatalogCoffee ? (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
+                  )
+                }
+                className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-950 font-medium transition-colors cursor-pointer"
+                title={`Bekijk terroir & branddossier van ${product.name}`}
+              >
+                <BookOpen className="w-2.5 h-2.5 text-amber-800" />
+                <span>Terroir · Dossier</span>
+              </button>
+            ) : product.catalogSlug ? (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    `/koffies?coffee=${product.catalogSlug}&dossier=true#${product.catalogSlug}`
+                  )
+                }
+                className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-700 font-medium cursor-pointer"
+              >
+                <span>Terroir · Dossier</span>
+              </button>
+            ) : (
+              <span />
+            )}
+
+            {isCoffeeProduct && (
+              <button
+                type="button"
+                onClick={() => {
+                  setReviewCoffeeName(product.name);
+                  setIsReviewModalOpen(true);
+                }}
+                className="inline-flex items-center gap-0.5 text-stone-500 hover:text-amber-900 font-medium transition-colors"
+              >
+                <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-400" />
+                <span>Review</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Action: Price & Add to Cart */}
+        <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-1.5 mt-auto">
+          <div className="shrink-0">
+            <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
+              {isGiftbox ? 'Boxprijs' : isSubscription ? 'Abo-prijs' : 'Prijs'}
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm sm:text-base font-bold text-stone-900 font-mono">
+                €{effectivePrice.toFixed(2)}
+              </span>
+              {isSubscription && (
+                <span className="text-[10px] text-stone-400 line-through">
+                  €{currentVariant.price.toFixed(2)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            id={`btn-add-cart-${product.sku}`}
+            onClick={() => handleAddToCart(product)}
+            className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs"
+            title={`In winkelwagen: ${product.name}`}
+          >
+            <ShoppingBag className="w-3 h-3 shrink-0" />
+            <span className="truncate hidden min-[380px]:inline">In winkelwagen</span>
+            <span className="truncate min-[380px]:hidden">Bestel</span>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -639,533 +1417,131 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </button>
           </div>
         </section>
+      ) : filteredProducts.length === 0 ? (
+        /* Empty State */
+        <section className="max-w-md mx-auto py-16 px-4 text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-amber-50 text-amber-900 flex items-center justify-center border border-amber-200/60">
+            <Coffee className="w-6 h-6 text-amber-900/60" />
+          </div>
+          <h3 className="text-base font-bold text-stone-800 mb-1">Geen producten gevonden</h3>
+          <p className="text-xs text-stone-500 max-w-xs mx-auto">
+            Er zijn momenteel geen producten die voldoen aan deze filters. Pas je selectie aan om specialty koffies te ontdekken.
+          </p>
+        </section>
       ) : (
-        /* Product Grid - High Density & Rapid Product Discovery */
-        <section className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3.5">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">
-            {filteredProducts.map((product) => {
-              const currentWeight = selectedWeight[product.id] || product.variants[0].weight;
-              const currentVariant = product.variants.find((v) => v.weight === currentWeight) || product.variants[0];
-              const currentGrind = selectedGrind[product.id] || product.defaultGrind;
-              const isHighlighted = Boolean(
-                highlightId && (
-                  highlightId === product.id ||
-                  highlightId === product.id.replace(/^prod-/, '') ||
-                  highlightId.toLowerCase() === product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-                )
-              );
+        /* Curated Tasting Journey through Distinct Coffee Collections */
+        <div className="space-y-0">
+          {COLLECTION_KEYS_ORDER.map((collectionKey) => {
+            const theme = COLLECTION_THEMES[collectionKey];
+            if (!theme) return null;
 
-              const isCoffeeProduct = product.category !== 'merchandise' && product.collection !== 'Toebehoren' && !product.id.includes('sub');
-              const purchaseType = purchaseTypes[product.id] || 'eenmalig';
-              const frequency = subscriptionFrequencies[product.id] || '4_weken';
-              const isSubscription = purchaseType === 'abonnement';
+            const collectionProducts = filteredProducts.filter((p) => {
+              if (collectionKey === 'Toebehoren') {
+                return p.collection === 'Toebehoren' || p.category === 'merchandise';
+              }
+              if (collectionKey === 'Single Origins') {
+                return p.collection === 'Single Origins' || p.category === 'single_origins';
+              }
+              if (collectionKey === 'Giftboxes') {
+                return p.collection === 'Giftboxes' || p.category === 'giftboxes';
+              }
+              if (collectionKey === 'Barrel Aged') {
+                return p.collection === 'Barrel Aged' || p.category === 'barrel_aged';
+              }
+              if (collectionKey === 'Infused') {
+                return p.collection === 'Infused' || p.category === 'infused';
+              }
+              if (collectionKey === 'Abonnementen') {
+                return p.collection === 'Abonnementen' || p.category === 'subscriptions';
+              }
+              return p.collection === collectionKey;
+            });
 
-              const isGiftbox = product.category === 'giftboxes';
-              const choiceCount = isGiftbox ? getGiftboxChoiceCount(product) : 0;
-              const defaultChoices = GIFTBOX_COFFEE_OPTIONS.slice(0, choiceCount).map((o) => o.name);
-              const currentChoices = giftboxSelections[product.id] || defaultChoices;
+            if (collectionProducts.length === 0) return null;
 
-              // Dynamic price for giftbox or subscription discount or regular variant price
-              const effectivePrice = isGiftbox
-                ? calculateGiftboxPrice(currentChoices)
-                : isSubscription
-                ? Math.round(currentVariant.price * 0.9 * 100) / 100
-                : currentVariant.price;
-
-              const displayImage = activeProductImage[product.id] || product.imageUrl;
-
-              // Calculate starting "Vanaf" price for the product card badge
-              const startingPrice = product.variants && product.variants.length > 0
-                ? Math.min(...product.variants.map((v) => v.price))
-                : currentVariant.price;
-              const formattedStartingPrice = startingPrice.toFixed(2).replace('.', ',');
-              const isMultiOption = (product.variants && product.variants.length > 1) || isCoffeeProduct || isGiftbox;
-
-              const matchingCatalogCoffee = CATALOG_ITEMS.find(
-                (c) =>
-                  c.webshopProductId === product.id ||
-                  c.id === product.catalogSlug ||
-                  c.id === product.id ||
-                  c.id.toLowerCase() === product.id.toLowerCase().replace(/^prod-/, '')
-              );
-
-              return (
+            return (
+              <section
+                key={collectionKey}
+                id={`collection-${collectionKey.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                className={`relative py-6 sm:py-8 lg:py-10 border-t ${theme.borderColor} ${theme.containerBg} transition-colors duration-300`}
+              >
+                {/* Subtle ambient packaging aura matching color palette */}
                 <div
-                  key={product.id}
-                  id={`product-card-${product.id}`}
-                  data-product-id={product.id}
-                  className={`group relative scroll-mt-24 bg-white rounded-xl border transition-all p-3 sm:p-3.5 flex flex-col justify-between ${
-                    isHighlighted
-                      ? 'border-amber-600 ring-3 ring-amber-500/30 shadow-lg scale-[1.01]'
-                      : 'border-[#D8CEBE] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.08),0_1px_3px_0_rgba(40,24,14,0.05)] hover:shadow-[0_10px_24px_-4px_rgba(40,24,14,0.16),0_2px_6px_0_rgba(40,24,14,0.06)] hover:border-amber-700/50'
-                  }`}
-                >
-                  {/* Native anchor targets for direct deep-linking */}
-                  <span id={product.id} className="absolute -top-28 pointer-events-none" />
-                  <span id={product.id.replace(/^prod-/, '')} className="absolute -top-28 pointer-events-none" />
-                  <div>
-                    {/* Deep-link notification badge when selected from Coffee Guide */}
-                    {isHighlighted && (
-                      <div className="mb-2 px-2.5 py-1 rounded-lg bg-stone-900 text-stone-100 text-[11px] font-semibold flex items-center justify-between shadow-xs animate-in fade-in duration-300">
-                        <span>Geselecteerd vanuit Gids</span>
-                        <span className="text-[9px] uppercase tracking-wider bg-stone-800 text-amber-300 px-1.5 py-0.5 rounded font-bold">
-                          Direct Bestelbaar
+                  className={`absolute top-0 right-10 w-96 h-96 rounded-full blur-3xl pointer-events-none bg-gradient-to-br ${theme.glowColor} -z-0`}
+                  aria-hidden="true"
+                />
+
+                {/* Collection Header Bar */}
+                <div className="relative z-10 max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 mb-3.5 sm:mb-5">
+                  <div className={`flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b ${theme.dividerColor}`}>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className={`inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${theme.badgeStyle}`}>
+                          {renderBadgeIcon(theme.badgeIcon)}
+                          <span>{theme.badgeLabel}</span>
+                        </span>
+                        <span className={`text-[11px] sm:text-xs font-medium ${theme.subtitleColor}`}>
+                          {theme.subtitle}
                         </span>
                       </div>
-                    )}
-
-                    {/* Collection & Freshness Status Line */}
-                    <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-1.5">
-                      <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[55%]">
-                        {product.collection}
-                      </span>
-                      <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0 text-[9px] sm:text-[10px]">
-                        <Check className="w-2.5 h-2.5 shrink-0" />
-                        <span>
-                          {product.batchStatus === 'vers_gebrand'
-                            ? 'Vers gebrand'
-                            : product.batchStatus === 'op_voorraad'
-                            ? 'Op voorraad'
-                            : 'Batchplanning'}
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
-                    <div
-                      onClick={product.id === 'prod-acc-tshirt' ? () => setIsTshirtLightboxOpen(true) : undefined}
-                      className={`mb-2 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-stone-50/75 rounded-xl p-2 flex items-center justify-center overflow-hidden transition-all ${
-                        product.id === 'prod-acc-tshirt'
-                          ? 'cursor-pointer hover:bg-amber-50/60 ring-1 ring-amber-900/10 hover:ring-amber-900/30'
-                          : ''
-                      }`}
-                      title={product.id === 'prod-acc-tshirt' ? 'Klik om T-shirt te vergroten' : undefined}
-                    >
-                      {/* T-shirt specific quick enlarge badge */}
-                      {product.id === 'prod-acc-tshirt' && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsTshirtLightboxOpen(true);
-                          }}
-                          aria-label="Vergroot T-shirt afbeelding"
-                          className="absolute bottom-2 right-2 z-20 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-stone-900/90 hover:bg-stone-950 text-amber-200 text-[10px] font-semibold shadow-md border border-amber-500/50 backdrop-blur-xs transition-all hover:scale-105 cursor-pointer"
-                          title="Klik om T-shirt te vergroten"
-                        >
-                          <ZoomIn className="w-3 h-3 text-amber-400" />
-                          <span>Vergroten</span>
-                        </button>
-                      )}
-                      {/* Refined Maison Milau Starting Price Badge - Elegant Frosted Glass, No Heavy Dark Badges */}
-                      <div
-                        className="absolute top-2 left-2 z-20 bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-200/90 shadow-2xs flex flex-col items-start leading-none select-none pointer-events-none transition-all group-hover:border-amber-400/60"
-                        title={isMultiOption ? `Vanaf € ${formattedStartingPrice}` : `Prijs: € ${formattedStartingPrice}`}
-                      >
-                        {isMultiOption && (
-                          <span className="text-[9px] font-medium text-stone-500 lowercase tracking-tight leading-none mb-0.5">
-                            vanaf
-                          </span>
-                        )}
-                        <div className="flex items-baseline gap-0.5 leading-none">
-                          <span className="text-[10px] sm:text-[11px] font-semibold text-amber-900">
-                            €
-                          </span>
-                          <span className="text-xs sm:text-sm font-bold text-stone-900 font-mono tracking-tight">
-                            {formattedStartingPrice}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* SCA Score in Top-Right Corner (Opposite to Price Badge, preventing any overlap) */}
-                      {product.scaScore && (
-                        <div
-                          className="absolute top-2 right-2 z-10 bg-white/95 backdrop-blur-md text-amber-900 text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg border border-amber-200/90 shadow-2xs flex items-center gap-1 select-none pointer-events-none"
-                          title={`Specialty Coffee Association Score: ${product.scaScore}`}
-                        >
-                          <Award className="w-2.5 h-2.5 text-amber-700 shrink-0" />
-                          <span className="tracking-tight">SCA {product.scaScore}</span>
-                        </div>
-                      )}
-
-                      {/* Country Origin Flags in Bottom-Left Corner */}
-                      <CoffeeOriginBadge
-                        origins={product.origins}
-                        className="!top-auto !bottom-2 !left-2 !px-1.5 !py-0.5 !text-xs shadow-2xs bg-white/95 backdrop-blur-md border-stone-200/80"
-                      />
-
-                      <MediaPlaceholder
-                        type="image"
-                        badgeText="Productfoto"
-                        title={product.name}
-                        subtitle={`Artisanale verpakking (${currentWeight})`}
-                        aspectRatio="square"
-                        imageFit="contain"
-                        className="w-full h-full"
-                        imageUrl={displayImage}
-                        hidePlaceholder={product.category === 'giftboxes'}
-                      />
-
-                      {/* Image Gallery Switcher if product has multiple photos */}
-                      {product.galleryImages && product.galleryImages.length > 1 && (
-                        <div className="absolute bottom-1.5 inset-x-2 z-10 flex items-center justify-center gap-1.5 overflow-x-auto py-0.5 bg-white/80 backdrop-blur-xs rounded-lg shadow-2xs">
-                          {product.galleryImages.map((imgUrl, gIdx) => {
-                            const isCurrent = displayImage === imgUrl;
-                            return (
-                              <button
-                                key={gIdx}
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveProductImage({ ...activeProductImage, [product.id]: imgUrl });
-                                }}
-                                className={`w-5 h-5 sm:w-6 sm:h-6 rounded overflow-hidden border transition-all shrink-0 ${
-                                  isCurrent
-                                    ? 'border-amber-900 ring-1 ring-amber-700 shadow-xs scale-105'
-                                    : 'border-stone-300 opacity-60 hover:opacity-100'
-                                }`}
-                                title={`Foto ${gIdx + 1}`}
-                              >
-                                <img src={imgUrl} alt="" className="w-full h-full object-cover" />
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Product Name & Coffee Guide Link */}
-                    <div className="mb-1.5">
-                      <div className="flex items-start justify-between gap-1.5">
-                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors line-clamp-2" title={product.name}>
-                          {product.name}
-                        </h3>
-                        {matchingCatalogCoffee && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              navigate(
-                                `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
-                              )
-                            }
-                            className="shrink-0 inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-800/20 px-1.5 py-0.5 rounded transition-colors"
-                            title="Bekijk terroir & branddossier in de Koffiegids"
-                          >
-                            <BookOpen className="w-2.5 h-2.5 text-amber-800 shrink-0" />
-                            <span className="hidden sm:inline">Dossier</span>
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-stone-500 leading-snug mt-0.5 line-clamp-2" title={product.shortDescription}>
-                        {product.shortDescription}
+                      <h2 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight font-serif ${theme.titleColor}`}>
+                        {theme.name}
+                      </h2>
+                      <p className={`text-xs sm:text-sm mt-0.5 max-w-3xl leading-relaxed ${theme.descColor}`}>
+                        {theme.description}
                       </p>
                     </div>
-
-                    {/* Coffee Character Profile - Compact Sensory Display */}
-                    {product.characterProfile && (
-                      <div className="mb-2">
-                        <CoffeeCharacterCard profile={product.characterProfile} compact={true} />
-                      </div>
-                    )}
-
-                    {/* Weight Selector */}
-                    <div className="mb-2">
-                      <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
-                        <span>Formaat:</span>
-                        <span className="font-bold text-stone-700">{currentWeight}</span>
-                      </div>
-                      <div className={`grid ${product.variants.length === 1 ? 'grid-cols-1' : product.variants.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1`}>
-                        {product.variants.map((v) => (
-                          <button
-                            key={v.weight}
-                            onClick={() =>
-                              setSelectedWeight({ ...selectedWeight, [product.id]: v.weight })
-                            }
-                            className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-semibold border transition-all text-center leading-tight ${
-                              currentWeight === v.weight
-                                ? 'bg-amber-950 text-white border-amber-950 shadow-2xs'
-                                : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
-                            }`}
-                          >
-                            <div>{v.weight}</div>
-                            <div className="text-[9px] font-normal opacity-85">€{v.price.toFixed(2)}</div>
-                          </button>
-                        ))}
-                      </div>
+                    {/* Product count indicator */}
+                    <div className={`self-start sm:self-end flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg ${theme.countBadgeStyle} shrink-0`}>
+                      <span>{collectionProducts.length} {collectionProducts.length === 1 ? 'koffie' : 'producten'}</span>
                     </div>
-
-                    {/* Grind Selector (If applicable) */}
-                    {product.grindOptions.length > 1 && (
-                      <div className="mb-2">
-                        <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
-                          <span>Maalgraad:</span>
-                          <span className="text-[10px] text-stone-700 font-medium">{currentGrind}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-1">
-                          {product.grindOptions.map((grind) => (
-                            <button
-                              key={grind}
-                              onClick={() =>
-                                setSelectedGrind({ ...selectedGrind, [product.id]: grind })
-                              }
-                              className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-medium border transition-colors text-center ${
-                                currentGrind === grind
-                                  ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                                  : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
-                              }`}
-                            >
-                              {grind}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* T-shirt Color and Size Selectors */}
-                    {product.id === 'prod-acc-tshirt' && (
-                      <div className="mb-2 space-y-2 bg-stone-50 border border-stone-200 rounded-lg p-2 text-xs">
-                        <div>
-                          <div className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1 flex items-center justify-between">
-                            <span>Kleur:</span>
-                            <span className="font-bold text-stone-800">{selectedTshirtColor[product.id] || 'Zwart'}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {TSHIRT_COLORS.map((col) => {
-                              const isSelected = (selectedTshirtColor[product.id] || 'Zwart') === col.name;
-                              return (
-                                <button
-                                  key={col.name}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedTshirtColor({ ...selectedTshirtColor, [product.id]: col.name });
-                                    setActiveProductImage({ ...activeProductImage, [product.id]: col.image });
-                                  }}
-                                  className={`flex items-center gap-1 px-1.5 py-1 rounded text-[10px] font-semibold border transition-all ${
-                                    isSelected
-                                      ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                                      : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
-                                  }`}
-                                >
-                                  <span
-                                    className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
-                                    style={{ backgroundColor: col.hex }}
-                                  />
-                                  <span>{col.name}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1 flex items-center justify-between">
-                            <span>Maat:</span>
-                            <span className="font-bold text-stone-800">{selectedTshirtSize[product.id] || 'L'}</span>
-                          </div>
-                          <div className="grid grid-cols-5 gap-1">
-                            {TSHIRT_SIZES.map((sz) => {
-                              const isSelected = (selectedTshirtSize[product.id] || 'L') === sz;
-                              return (
-                                <button
-                                  key={sz}
-                                  type="button"
-                                  onClick={() => setSelectedTshirtSize({ ...selectedTshirtSize, [product.id]: sz })}
-                                  className={`py-1 rounded text-[10px] font-bold border text-center transition-all ${
-                                    isSelected
-                                      ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                                      : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
-                                  }`}
-                                >
-                                  {sz}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Giftbox Dynamic Bean Choice Integration */}
-                    {isGiftbox && (
-                      <div className="mb-2 bg-amber-50/90 border border-amber-200/90 rounded-lg p-2 text-xs">
-                        <div className="font-semibold text-amber-950 mb-1 flex items-center justify-between text-[11px]">
-                          <div className="flex items-center gap-1">
-                            <Gift className="w-3 h-3 text-amber-800" />
-                            <span>{choiceCount} doypacks kiezen:</span>
-                          </div>
-                          <span className="text-[9px] font-bold text-amber-900 bg-amber-200/60 px-1 py-0.5 rounded">
-                            Dynamisch
-                          </span>
-                        </div>
-                        <div className="space-y-1.5">
-                          {Array.from({ length: choiceCount }).map((_, idx) => {
-                            const currentVal = currentChoices[idx] || defaultChoices[idx % defaultChoices.length];
-                            const selectedOpt = GIFTBOX_COFFEE_OPTIONS.find((b) => b.name === currentVal);
-                            return (
-                              <div key={idx} className="flex flex-col gap-0.5 bg-white p-1.5 rounded border border-amber-200/80">
-                                <div className="flex items-center justify-between text-[10px]">
-                                  <span className="font-semibold text-stone-700">Doypack #{idx + 1}:</span>
-                                  {selectedOpt && (
-                                    <span className="font-mono font-bold text-amber-900">
-                                      €{selectedOpt.price.toFixed(2)}
-                                    </span>
-                                  )}
-                                </div>
-                                <select
-                                  value={currentVal}
-                                  onChange={(e) => handleGiftBeanSelect(product.id, idx, e.target.value, choiceCount)}
-                                  className="w-full bg-stone-50 border border-stone-300 rounded text-[10px] py-1 px-1.5 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
-                                >
-                                  {GIFTBOX_COFFEE_OPTIONS.map((opt) => (
-                                    <option key={opt.name} value={opt.name}>
-                                      {opt.name} — €{opt.price.toFixed(2)}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="mt-1.5 pt-1.5 border-t border-amber-200 flex items-center justify-between text-[11px] text-stone-700">
-                          <span className="text-[10px] font-medium">Berekende boxprijs:</span>
-                          <span className="font-bold text-amber-950 font-mono">
-                            €{effectivePrice.toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Subscription Option Integrated into Price */}
-                    {isCoffeeProduct && (
-                      <div className="mb-2 bg-stone-50/80 border border-stone-200/80 rounded-lg p-1.5">
-                        <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[11px] font-semibold">
-                          <button
-                            type="button"
-                            onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'eenmalig' })}
-                            className={`py-1 px-1 rounded-md border text-center transition-all ${
-                              !isSubscription
-                                ? 'bg-white text-stone-900 border-stone-300 shadow-2xs font-bold'
-                                : 'bg-transparent text-stone-500 border-transparent hover:text-stone-700'
-                            }`}
-                          >
-                            Eenmalig
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'abonnement' })}
-                            className={`py-1 px-1 rounded-md border text-center transition-all ${
-                              isSubscription
-                                ? 'bg-amber-900 text-white border-amber-900 shadow-2xs font-bold'
-                                : 'bg-transparent text-amber-900 border-transparent hover:bg-amber-50'
-                            }`}
-                          >
-                            Abo (-10%)
-                          </button>
-                        </div>
-
-                        {isSubscription && (
-                          <div className="mt-1.5 pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px]">
-                            <span className="text-stone-500">Frequentie:</span>
-                            <select
-                              value={frequency}
-                              onChange={(e) =>
-                                setSubscriptionFrequencies({
-                                  ...subscriptionFrequencies,
-                                  [product.id]: e.target.value as any,
-                                })
-                              }
-                              className="bg-white border border-stone-300 rounded text-[10px] py-0.5 px-1 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
-                            >
-                              <option value="2_weken">Elke 2 wkn (vers)</option>
-                              <option value="4_weken">Elke 4 wkn (maand)</option>
-                            </select>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Bi-directional Link to Catalog Dossier, Terroir, and Taste Review */}
-                    <div className="mb-2 flex items-center justify-between text-[10px] text-stone-500">
-                      {matchingCatalogCoffee ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate(
-                              `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
-                            )
-                          }
-                          className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-950 font-medium transition-colors cursor-pointer"
-                          title={`Bekijk terroir & branddossier van ${product.name}`}
-                        >
-                          <BookOpen className="w-2.5 h-2.5 text-amber-800" />
-                          <span>Terroir · Dossier</span>
-                        </button>
-                      ) : product.catalogSlug ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate(
-                              `/koffies?coffee=${product.catalogSlug}&dossier=true#${product.catalogSlug}`
-                            )
-                          }
-                          className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-700 font-medium cursor-pointer"
-                        >
-                          <span>Terroir · Dossier</span>
-                        </button>
-                      ) : (
-                        <span />
-                      )}
-
-                      {isCoffeeProduct && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setReviewCoffeeName(product.name);
-                            setIsReviewModalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-0.5 text-stone-500 hover:text-amber-900 font-medium transition-colors"
-                        >
-                          <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-400" />
-                          <span>Review</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bottom Action: Price & Add to Cart */}
-                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-1.5 mt-auto">
-                    <div className="shrink-0">
-                      <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
-                        {isGiftbox ? 'Boxprijs' : isSubscription ? 'Abo-prijs' : 'Prijs'}
-                      </div>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm sm:text-base font-bold text-stone-900 font-mono">
-                          €{effectivePrice.toFixed(2)}
-                        </span>
-                        {isSubscription && (
-                          <span className="text-[10px] text-stone-400 line-through">
-                            €{currentVariant.price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      id={`btn-add-cart-${product.sku}`}
-                      onClick={() => handleAddToCart(product)}
-                      className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs"
-                      title={`In winkelwagen: ${product.name}`}
-                    >
-                      <ShoppingBag className="w-3 h-3 shrink-0" />
-                      <span className="truncate hidden min-[380px]:inline">In winkelwagen</span>
-                      <span className="truncate min-[380px]:hidden">Bestel</span>
-                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+
+                {/* Product Grid inside Collection Zone */}
+                <div className="relative z-10 max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">
+                    {collectionProducts.map((product) => renderProductCard(product, theme))}
+                  </div>
+                </div>
+              </section>
+            );
+          })}
+
+          {/* Fallback for any other products not in standard collections */}
+          {(() => {
+            const coveredIds = new Set(
+              COLLECTION_KEYS_ORDER.flatMap((k) => {
+                return filteredProducts
+                  .filter((p) => {
+                    if (k === 'Toebehoren') return p.collection === 'Toebehoren' || p.category === 'merchandise';
+                    if (k === 'Single Origins') return p.collection === 'Single Origins' || p.category === 'single_origins';
+                    if (k === 'Giftboxes') return p.collection === 'Giftboxes' || p.category === 'giftboxes';
+                    if (k === 'Barrel Aged') return p.collection === 'Barrel Aged' || p.category === 'barrel_aged';
+                    if (k === 'Infused') return p.collection === 'Infused' || p.category === 'infused';
+                    if (k === 'Abonnementen') return p.collection === 'Abonnementen' || p.category === 'subscriptions';
+                    return p.collection === k;
+                  })
+                  .map((p) => p.id);
+              })
+            );
+            const remaining = filteredProducts.filter((p) => !coveredIds.has(p.id));
+            if (remaining.length === 0) return null;
+            const fallbackTheme = COLLECTION_THEMES['Budget'];
+            return (
+              <section className="relative py-6 sm:py-8 border-t border-[#D8CEBE] bg-[#F4EFE6]">
+                <div className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 mb-4">
+                  <h2 className="text-xl font-bold text-stone-900">Overige Specialiteiten</h2>
+                </div>
+                <div className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">
+                    {remaining.map((product) => renderProductCard(product, fallbackTheme))}
+                  </div>
+                </div>
+              </section>
+            );
+          })()}
+        </div>
       )}
 
       {/* Coffee Taste Review Modal */}
