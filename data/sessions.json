@@ -53,5 +53,20 @@
     "role": "b2c_customer",
     "accountType": "particulier",
     "expiresAt": 1791462384513
+  },
+  "tok_1788882536224_6188a3b21de1c604ef2a789cd6b476d8": {
+    "userId": "usr-b2c-01",
+    "email": "klant@voorbeeld.be",
+    "role": "b2c_customer",
+    "accountType": "particulier",
+    "expiresAt": 1791474536225
+  },
+  "tok_1788883295425_d40d77c6e914111129606f8207ba1fb0": {
+    "userId": "usr-1788883213275-uof8h",
+    "email": "audit.test@example.com",
+    "role": "b2c_customer",
+    "accountType": "particulier",
+    "companyName": "",
+    "expiresAt": 1791475295425
   }
 }

@@ -13,6 +13,7 @@ import {
   sendContactFormEmails,
   sendRegistrationEmails,
   sendAdminRegistrationAlert,
+  sendAdminPasswordResetAlert,
   sendAccountReadyWelcomeEmail,
   sendEmailVerificationEmail,
   sendPasswordResetEmail,
@@ -543,7 +544,7 @@ let registeredUsers: any[] = [
 
 let lastUsersLoadedMtime = 0;
 
-export function saveUsersToDisk(): void {
+export function saveUsersToDisk(): boolean {
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -558,8 +559,10 @@ export function saveUsersToDisk(): void {
     if (fs.existsSync(USERS_FILE)) {
       lastUsersLoadedMtime = fs.statSync(USERS_FILE).mtimeMs;
     }
+    return true;
   } catch (err) {
     console.error('[AUTH ERROR] Failed to persist users to disk:', err);
+    return false;
   }
 }
 
@@ -2465,8 +2468,19 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
 
+  console.log(`[AUTH] USER_OBJECT_CREATED: Id=${newUser.id}, Email=${newUser.email}, Role=${newUser.role}`);
+  console.log(`[AUTH] DATABASE_WRITE_START: Target=${USERS_FILE}, ExistingCount=${registeredUsers.length}`);
+
   registeredUsers.push(newUser);
-  saveUsersToDisk();
+  const writeSuccess = saveUsersToDisk();
+
+  if (writeSuccess) {
+    console.log(`[AUTH] DATABASE_WRITE_SUCCESS: Target=${USERS_FILE}, UserId=${newUser.id}, Email=${newUser.email}`);
+  } else {
+    console.error(`[AUTH] DATABASE_WRITE_FAILURE: Target=${USERS_FILE}, UserId=${newUser.id}, Email=${newUser.email}`);
+    return res.status(500).json({ success: false, error: 'Database schrijffout tijdens registratie.' });
+  }
+
   console.log(`[AUTH] USER_CREATED: Id=${newUser.id}, Email=${newUser.email}, Role=${newUser.role}`);
   console.log(`[AUTH] VERIFY_TOKEN_STORED: UserId=${newUser.id}, Email=${newUser.email}`);
   console.log(`[REGISTER] User account created: ${newUser.email} (ID: ${newUser.id}) - Status: pending_verification`);
@@ -2486,6 +2500,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   // Return user without credentials or internal security tokens
   // Note: No active session is issued until the account is verified
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = newUser as any;
+  console.log(`[AUTH] REGISTER_RESPONSE_SENT: Email=${newUser.email}, Status=200, RequiresVerification=true`);
   res.json({
     success: true,
     requiresVerification: true,
@@ -2519,6 +2534,11 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
         console.log(`[AUTH] PASSWORD_RESET_EMAIL_SENT: Email=${user.email}`);
       })
       .catch((e) => console.error('[EMAIL ERROR] Reset email failed:', e));
+
+    // Send admin notification
+    sendAdminPasswordResetAlert(user, 'requested')
+      .then(() => console.log(`[EMAIL] Admin password reset request alert sent for: ${user.email}`))
+      .catch((e) => console.error('[EMAIL ERROR] Admin password reset alert failed:', e));
   }
 
   // Generic message prevents account enumeration
@@ -2595,6 +2615,7 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
 
   // Send confirmation email that password was changed
   sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error('[EMAIL ERROR] Password reset confirmation email failed:', e));
+  sendAdminPasswordResetAlert(user, 'completed').catch((e) => console.error('[EMAIL ERROR] Admin password reset completed alert failed:', e));
 
   res.json({
     success: true,
@@ -2883,12 +2904,14 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   const { email, username, emailOrUsername, password } = req.body;
   const identifier = (emailOrUsername || email || username || '').trim().toLowerCase();
 
+  console.log(`[AUTH] LOGIN_START: Identifier=${identifier}, IP=${ip}`);
   console.log(`[LOGIN] Inbound login attempt for identifier: ${identifier}`);
 
   const rateLimitKey = `${ip}_${identifier}`;
   const rateLimit = checkRateLimit(rateLimitKey);
   if (!rateLimit.allowed) {
     console.warn(`[LOGIN] Rate limit exceeded for: ${identifier}`);
+    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=Rate limit exceeded`);
     return res.status(429).json({
       success: false,
       error: `Te veel mislukte inlogpogingen. Probeer opnieuw over ${rateLimit.waitSeconds || 900} seconden.`,
@@ -2896,6 +2919,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   }
 
   if (!identifier || !password) {
+    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=Missing credentials`);
     return res.status(400).json({ success: false, error: 'Gelieve uw e-mailadres/gebruikersnaam en wachtwoord in te vullen.' });
   }
 
@@ -2905,14 +2929,46 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
       (u.username && u.username.toLowerCase() === identifier)
   );
 
-  if (!user || !verifyPassword(password, user.password)) {
-    console.warn(`[LOGIN] Authentication failed for: ${identifier} (Invalid credentials)`);
-    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=Invalid credentials`);
+  if (!user) {
+    console.log(`[AUTH] USER_NOT_FOUND: Identifier=${identifier}`);
+    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=User record not found in database`);
+    console.warn(`[LOGIN] Authentication failed for: ${identifier} (User not found)`);
     recordFailedLogin(rateLimitKey);
     return res.status(401).json({
       success: false,
       error: 'Ongeldige inloggegevens. Controleer uw e-mailadres/gebruikersnaam en wachtwoord.',
     });
+  }
+
+  console.log(`[AUTH] USER_FOUND: UserId=${user.id}, Email=${user.email}, Username=${user.username || 'N/A'}`);
+
+  const isPasswordValid = verifyPassword(password, user.password);
+  if (!isPasswordValid) {
+    console.log(`[AUTH] PASSWORD_MISMATCH: Email=${user.email}`);
+    console.log(`[AUTH] LOGIN_FAILURE: Identifier=${identifier}, Reason=Password mismatch`);
+    console.warn(`[LOGIN] Authentication failed for: ${identifier} (Invalid password)`);
+    recordFailedLogin(rateLimitKey);
+    return res.status(401).json({
+      success: false,
+      error: 'Ongeldige inloggegevens. Controleer uw e-mailadres/gebruikersnaam en wachtwoord.',
+    });
+  }
+
+  console.log(`[AUTH] PASSWORD_MATCH: Email=${user.email}`);
+
+  // Check email verification status
+  if (user.isEmailVerified) {
+    console.log(`[AUTH] EMAIL_VERIFIED: Email=${user.email}, VerifiedAt=${user.verifiedAt || 'Pre-verified'}`);
+  } else {
+    console.log(`[AUTH] EMAIL_NOT_VERIFIED: Email=${user.email}, Status=${user.status || 'pending_verification'}`);
+  }
+
+  // Check account active / pending status
+  const isAccountActive = user.isActive !== false && user.status !== 'suspended' && user.status !== 'disabled';
+  if (isAccountActive && user.isEmailVerified) {
+    console.log(`[AUTH] ACCOUNT_ACTIVE: Email=${user.email}, Status=${user.status || 'active'}`);
+  } else {
+    console.log(`[AUTH] ACCOUNT_PENDING: Email=${user.email}, Status=${user.status || (user.isEmailVerified ? 'active' : 'pending_verification')}`);
   }
 
   // Check email verification status: unverified accounts must verify before logging in

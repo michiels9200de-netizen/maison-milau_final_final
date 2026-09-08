@@ -908,6 +908,48 @@ Maison Milau Beveiliging`;
 }
 
 /**
+ * 4c. Admin Alert for Password Reset
+ */
+export async function sendAdminPasswordResetAlert(user: { email: string; name?: string; id?: string }, action: 'requested' | 'completed' = 'requested') {
+  const isReq = action === 'requested';
+  const subject = isReq
+    ? `[Maison Milau Beheer] Wachtwoordreset aangevraagd: ${user.name || user.email}`
+    : `[Maison Milau Beheer] Wachtwoord succesvol gewijzigd: ${user.name || user.email}`;
+  const text = `Beste Laurent (Maison Milau Beheer),
+
+Er is zojuist een ${isReq ? 'wachtwoordreset aangevraagd' : 'wachtwoord succesvol gewijzigd'} voor het volgende account:
+
+Naam: ${user.name || 'N/A'}
+E-mail: ${user.email}
+Gebruiker-ID: ${user.id || 'N/A'}
+Tijdstip: ${new Date().toLocaleString('nl-BE')}
+
+Dit is een automatische beheerdersnotificatie.`;
+
+  const html = buildHtmlWrapper(
+    isReq ? 'Beheerdersnotificatie: Wachtwoordreset Aangevraagd' : 'Beheerdersnotificatie: Wachtwoord Gewijzigd',
+    `Wachtwoordupdate voor ${user.email}`,
+    `<p>Beste Laurent,</p>
+    <p>Er is zojuist een <strong>${isReq ? 'wachtwoordreset aangevraagd' : 'wachtwoord succesvol gewijzigd'}</strong> op Maison Milau:</p>
+    <div class="box">
+      <p style="margin: 0 0 6px 0;"><strong>E-mail:</strong> ${user.email}</p>
+      <p style="margin: 0 0 6px 0;"><strong>Naam:</strong> ${user.name || 'N/A'}</p>
+      <p style="margin: 0 0 6px 0;"><strong>Gebruiker-ID:</strong> ${user.id || 'N/A'}</p>
+      <p style="margin: 0;"><strong>Tijdstip:</strong> ${new Date().toLocaleString('nl-BE')}</p>
+    </div>`
+  );
+
+  return sendEmail({
+    type: isReq ? 'admin_password_reset_request_alert' : 'admin_password_reset_success_alert',
+    recipient: WEBOWNER_EMAIL,
+    subject,
+    preview: `Beheerdersnotificatie voor account ${user.email}`,
+    text,
+    html,
+  });
+}
+
+/**
  * 5. New Order Confirmation (Customer & Admin)
  */
 export async function sendOrderEmails(order: any, pdfBuffer?: Buffer) {

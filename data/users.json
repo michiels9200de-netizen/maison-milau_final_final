@@ -121,5 +121,75 @@
     "createdAt": "2026-09-08T12:25:24.151Z",
     "verifiedAt": "2026-09-08T12:25:29.895Z",
     "lastVerificationToken": "c6e709a3e64b77cb9cf06cb48493cf773d7ebeb67e0473b773e1fb8625207e72"
+  },
+  {
+    "id": "usr-1788882433453-fr1r9",
+    "email": "trace_test_account@example.com",
+    "username": "trace_test_account",
+    "password": "c342e4df884059af13bd14489f062950:10a52eebbdbda61cc38e2f42760ff68a287fd9577f573ae7fb2da9be132abdff024e22f0b56f6bf0af57326d73cee6638941a4edec4ae424db45472519adabfb",
+    "name": "Trace Test",
+    "phone": "",
+    "accountType": "particulier",
+    "role": "b2c_customer",
+    "companyName": "",
+    "vatNumber": "",
+    "addresses": [],
+    "loyaltyPoints": 100,
+    "verificationToken": "cfbc66fab1fb1cfea50a30b11927247e10c6faa015c2a11581eb75fd57bc862e",
+    "verificationTokenExpiry": 1788968833453,
+    "previousVerificationTokens": [
+      "cfbc66fab1fb1cfea50a30b11927247e10c6faa015c2a11581eb75fd57bc862e"
+    ],
+    "isEmailVerified": false,
+    "isActive": true,
+    "status": "pending_verification",
+    "createdAt": "2026-09-08T15:47:13.459Z"
+  },
+  {
+    "id": "usr-1788883213275-uof8h",
+    "email": "audit.test@example.com",
+    "username": "audit.test",
+    "password": "4682ffcc5b54fe50a98b4714b1bb511c:934db2b3f76ef27aa8423a7094c0694cc09aa1e648e841d119b80a0d30a8b3fa4ad0a9d4e432509e065943eed5465a62029ae1ff47f4236eec61240653e3e246",
+    "name": "Audit Test",
+    "phone": "",
+    "accountType": "particulier",
+    "role": "b2c_customer",
+    "companyName": "",
+    "vatNumber": "",
+    "addresses": [],
+    "loyaltyPoints": 100,
+    "previousVerificationTokens": [
+      "6b669a78eedcfc2b6b54737daa1697aa81ce10f97dbc52e3d5344e16282b761c"
+    ],
+    "isEmailVerified": true,
+    "isActive": true,
+    "status": "active",
+    "createdAt": "2026-09-08T16:00:13.281Z",
+    "verifiedAt": "2026-09-08T16:00:30.783Z",
+    "lastVerificationToken": "6b669a78eedcfc2b6b54737daa1697aa81ce10f97dbc52e3d5344e16282b761c"
+  },
+  {
+    "id": "usr-1788883307056-x8j9t",
+    "email": "resend.test@example.com",
+    "username": "resend.test",
+    "password": "378f5af5265589f4bf4586fe5901eaa4:e90ad473fb9bc51503f6d6afe22f2efc84ace2ea7a2d7b05af3ba28ef3b6ed854ae2aa8918fb225290761e6e612ce7b01d2d02d9ca492b88811f8c017d17c9a2",
+    "name": "Resend Test",
+    "phone": "",
+    "accountType": "particulier",
+    "role": "b2c_customer",
+    "companyName": "",
+    "vatNumber": "",
+    "addresses": [],
+    "loyaltyPoints": 100,
+    "verificationToken": "dfe16c8ca02fe945e52a3978390b34d0036e24e197ed0878b5597139bedaaf97",
+    "verificationTokenExpiry": 1788969707078,
+    "previousVerificationTokens": [
+      "6dd299a6507b9c719b780e4661b30c00d516f3c5b0ab2a80d8cacc4a557057e0",
+      "dfe16c8ca02fe945e52a3978390b34d0036e24e197ed0878b5597139bedaaf97"
+    ],
+    "isEmailVerified": false,
+    "isActive": true,
+    "status": "pending_verification",
+    "createdAt": "2026-09-08T16:01:47.062Z"
   }
 ]
