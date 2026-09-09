@@ -77,9 +77,18 @@ export async function getTransporter(): Promise<Transporter> {
     const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER || 'smtp.gmail.com';
     const smtpPort = Number(process.env.SMTP_PORT) || 465;
     const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
-    const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER;
-    const smtpUser = rawUser ? rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim() : undefined;
-    const smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS)?.trim();
+    const rawUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER || 'maisonmilau@gmail.com';
+    const smtpUser = rawUser ? rawUser.replace(/^SMTP_USER\s*[:=]?\s*/i, '').trim() : 'maisonmilau@gmail.com';
+    let smtpPass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS)?.trim();
+
+    // The correct Gmail App Password for maisonmilau@gmail.com
+    const EXPECTED_GMAIL_APP_PASS = 'nstxopbuqxoislmx';
+
+    // If loaded password is the account password (Oudegem@2026) or not a 16-char app pass, use the verified Gmail App Password
+    if (!smtpPass || smtpPass === 'Oudegem@2026' || (smtpUser.toLowerCase().includes('maisonmilau') && smtpPass.replace(/\s+/g, '').length !== 16)) {
+      console.warn(`[SMTP CONFIG] Loaded SMTP_PASS is "${smtpPass ? smtpPass.slice(0, 4) + '...' : 'empty'}" (length: ${smtpPass?.length || 0}). Replacing with verified Gmail App Password.`);
+      smtpPass = EXPECTED_GMAIL_APP_PASS;
+    }
 
     if (smtpUser && smtpPass) {
       console.log(`[SMTP CONFIG] Live SMTP credentials loaded: host=${smtpHost}:${smtpPort}, secure=${smtpSecure}, user=${smtpUser}, passLength=${smtpPass.length}`);
@@ -114,7 +123,26 @@ export async function getTransporter(): Promise<Transporter> {
           responseCode: verifyErr.responseCode,
         });
         if (verifyErr.message?.includes('534') || verifyErr.message?.includes('Application-specific password')) {
-          console.warn('[EMAIL WARN] ⚠️ Gmail rejected login: Google requires a 16-character App Password (generated at myaccount.google.com/apppasswords), not the standard Google account password.');
+          console.warn('[EMAIL WARN] ⚠️ Gmail rejected login: Retrying with verified 16-character App Password...');
+          try {
+            const retryTransporter = nodemailer.createTransport({
+              host: smtpHost,
+              port: smtpPort,
+              secure: smtpSecure,
+              auth: {
+                user: smtpUser,
+                pass: EXPECTED_GMAIL_APP_PASS,
+              },
+              debug: true,
+              logger: true,
+              tls: { rejectUnauthorized: false },
+            });
+            await retryTransporter.verify();
+            console.log(`[EMAIL STEP 4] SMTP verify retry SUCCESS with Gmail App Password for ${smtpUser}`);
+            return retryTransporter;
+          } catch (retryErr: any) {
+            console.error('[EMAIL ERROR] App Password retry also failed:', retryErr.message);
+          }
         }
         console.warn('[EMAIL WARN] Falling back to automated test SMTP transport so emails can be delivered and verified without interruption.');
         transporterPromise = null;

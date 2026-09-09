@@ -2455,11 +2455,14 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
   const baseUrl = getAppBaseUrl(req);
   // STEP 2: Send ONLY verification email to the user (Welcome email is sent ONLY after verification!)
   console.log(`[EMAIL] Dispatching verification email to new user: ${newUser.email}`);
-  sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name, baseUrl)
-    .then(() => console.log(`[EMAIL] Verification email sent successfully to: ${newUser.email}`))
-    .catch((e) => console.error('[EMAIL ERROR] Verification email failed:', e));
+  try {
+    await sendEmailVerificationEmail(newUser.email, verificationToken, newUser.name, baseUrl);
+    console.log(`[EMAIL] Verification email sent successfully to: ${newUser.email}`);
+  } catch (e: any) {
+    console.error('[EMAIL ERROR] Verification email failed:', e?.message || e);
+  }
 
-  // Send roaster admin notification
+  // Send roaster admin notification (can run non-blocking or settled)
   sendAdminRegistrationAlert(newUser)
     .then(() => console.log(`[EMAIL] Admin registration alert sent for: ${newUser.email}`))
     .catch((e) => console.error('[EMAIL ERROR] Admin registration alert failed:', e));
