@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ArrowRight, ArrowLeft, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 interface CartDrawerProps {
@@ -89,13 +89,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                   Ontdek onze vers gebrande blends, single origins of barrel aged batches.
                 </p>
                 <button
+                  id="btn-drawer-empty-continue-shopping"
                   onClick={() => {
                     setIsCartOpen(false);
                     navigate('/webshop');
                   }}
-                  className="px-4 py-2 bg-stone-900 text-amber-50 rounded-lg text-xs font-medium hover:bg-stone-800 transition-colors"
+                  className="px-4 py-2 bg-stone-900 text-amber-50 rounded-lg text-xs font-medium hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5"
                 >
-                  Naar Webshop
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Verder Winkelen</span>
                 </button>
               </div>
             ) : (
@@ -220,10 +222,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
               <button
                 id="btn-drawer-checkout"
                 onClick={handleCheckout}
-                className="w-full bg-amber-900 hover:bg-amber-800 text-white py-2.5 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
+                className="w-full bg-amber-900 hover:bg-amber-800 text-white py-2.5 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
               >
                 <span>Afrekenen met Mollie</span>
                 <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                id="btn-drawer-continue-shopping"
+                type="button"
+                onClick={() => {
+                  setIsCartOpen(false);
+                  navigate('/webshop');
+                }}
+                className="w-full bg-white hover:bg-stone-100 text-stone-700 hover:text-stone-900 border border-stone-300 py-2 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4 text-stone-500" />
+                <span>Verder Winkelen</span>
               </button>
 
               <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-stone-500 pt-0.5">

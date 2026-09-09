@@ -49,35 +49,38 @@ export interface GiftboxBeanOption {
 }
 
 export const GIFTBOX_COFFEE_OPTIONS: GiftboxBeanOption[] = [
-  { name: 'Budget Espresso (SCA 82)', price: 8.50, collection: 'Budget' },
-  { name: 'Budget Omni (SCA 82)', price: 8.50, collection: 'Budget' },
-  { name: 'Budget Filter (SCA 82)', price: 8.50, collection: 'Budget' },
-  { name: 'Value Espresso (SCA 84)', price: 9.95, collection: 'Value' },
-  { name: 'Value Omni (SCA 84)', price: 9.95, collection: 'Value' },
-  { name: 'Value Filter (SCA 84)', price: 9.95, collection: 'Value' },
-  { name: 'Selection Daily (SCA 85)', price: 11.50, collection: 'Selection' },
-  { name: 'Selection Espresso (SCA 85)', price: 11.50, collection: 'Selection' },
-  { name: 'Selection Filter (SCA 85)', price: 11.50, collection: 'Selection' },
-  { name: 'Premium Daily (SCA 87)', price: 13.95, collection: 'Premium' },
-  { name: 'Premium Espresso (SCA 87)', price: 13.95, collection: 'Premium' },
-  { name: 'Premium Filter (SCA 87)', price: 13.95, collection: 'Premium' },
-  { name: 'Prestige Daily (SCA 88)', price: 16.50, collection: 'Prestige' },
-  { name: 'Prestige Espresso (SCA 88)', price: 16.50, collection: 'Prestige' },
-  { name: 'Prestige Filter (SCA 88)', price: 16.50, collection: 'Prestige' },
-  { name: 'Moscatel Barrel Aged (SCA 87+)', price: 16.50, collection: 'Barrel Aged' },
-  { name: 'Pedro Ximénez Barrel Aged (SCA 87+)', price: 16.95, collection: 'Barrel Aged' },
-  { name: 'Buffalo Trace Bourbon Barrel (SCA 88+)', price: 17.50, collection: 'Barrel Aged' },
+  { name: 'Budget Espresso', price: 8.50, collection: 'Budget' },
+  { name: 'Budget Omni', price: 8.50, collection: 'Budget' },
+  { name: 'Budget Filter', price: 8.50, collection: 'Budget' },
+  { name: 'Value Espresso', price: 9.95, collection: 'Value' },
+  { name: 'Value Omni', price: 9.95, collection: 'Value' },
+  { name: 'Value Filter', price: 9.95, collection: 'Value' },
+  { name: 'Selection Daily', price: 11.50, collection: 'Selection' },
+  { name: 'Selection Espresso', price: 11.50, collection: 'Selection' },
+  { name: 'Selection Filter', price: 11.50, collection: 'Selection' },
+  { name: 'Premium Daily', price: 13.95, collection: 'Premium' },
+  { name: 'Premium Espresso', price: 13.95, collection: 'Premium' },
+  { name: 'Premium Filter', price: 13.95, collection: 'Premium' },
+  { name: 'Prestige Daily', price: 16.50, collection: 'Prestige' },
+  { name: 'Prestige Espresso', price: 16.50, collection: 'Prestige' },
+  { name: 'Prestige Filter', price: 16.50, collection: 'Prestige' },
+  { name: 'Moscatel Barrel Aged', price: 16.50, collection: 'Barrel Aged' },
+  { name: 'Pedro Ximénez Barrel Aged', price: 16.95, collection: 'Barrel Aged' },
+  { name: 'Buffalo Trace Bourbon Barrel', price: 17.50, collection: 'Barrel Aged' },
   { name: 'Milau Vanilla Infused', price: 13.95, collection: 'Infused' },
   { name: 'Milau Cinnamon Infused', price: 13.95, collection: 'Infused' },
   { name: 'Milau Almond Infused', price: 13.95, collection: 'Infused' },
-  { name: 'Pink Bourbon Betulia Single Origin (SCA 88+)', price: 15.50, collection: 'Single Origins' },
-  { name: 'Gesha Betulia Single Origin (SCA 90+)', price: 22.95, collection: 'Single Origins' },
+  { name: 'Pink Bourbon Betulia Single Origin', price: 15.50, collection: 'Single Origins' },
+  { name: 'Gesha Betulia Single Origin', price: 22.95, collection: 'Single Origins' },
 ];
 
 export const calculateGiftboxPrice = (selectedBeans: string[]): number => {
   let total = 0;
   for (const bean of selectedBeans) {
-    const found = GIFTBOX_COFFEE_OPTIONS.find((b) => b.name === bean);
+    const cleanBeanName = bean.replace(/\s*\(SCA\s*[\d\+]+\)/gi, '').trim();
+    const found = GIFTBOX_COFFEE_OPTIONS.find(
+      (b) => b.name === bean || b.name === cleanBeanName || b.name.replace(/\s*\(SCA\s*[\d\+]+\)/gi, '').trim() === cleanBeanName
+    );
     total += found ? found.price : 11.50;
   }
   return Math.round(total * 100) / 100;
@@ -116,7 +119,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Budget Collection',
     badgeLabel: 'Maison Milau Budget',
     badgeIcon: 'sparkles',
-    subtitle: 'Fresh start · Accessibility · Everyday coffee',
+    subtitle: 'Frisse start · Toegankelijk · Alledaagse koffie',
     description: 'Alledaags ambachtelijk brandvakmanschap en zachte, ronde smaakprofielen voor de dagelijkse kwaliteitskoffie.',
     containerBg: 'bg-gradient-to-b from-[#FAF8F5] via-[#F5EFEB] to-[#EFE7DD]',
     glowColor: 'from-amber-200/25 via-orange-100/15 to-transparent',
@@ -133,7 +136,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Value Collection',
     badgeLabel: 'Maison Milau Value',
     badgeIcon: 'shield',
-    subtitle: 'Strength · Value · Reliability',
+    subtitle: 'Kracht · Waarde · Betrouwbaarheid',
     description: 'Karaktervolle blends met volle body, chocolade en karameltonen voor maximale smaak en betrouwbare kracht.',
     containerBg: 'bg-gradient-to-b from-[#18191B] via-[#202225] to-[#151618]',
     glowColor: 'from-stone-500/15 via-stone-700/10 to-transparent',
@@ -150,7 +153,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Selection Collection',
     badgeLabel: 'Maison Milau Selection',
     badgeIcon: 'compass',
-    subtitle: 'Craft · Discovery · Curated choice',
+    subtitle: 'Vakmanschap · Ontdekking · Gecureerde selectie',
     description: 'Onze gecureerde selectie van premium specialty brandingen met verfijnde fruittonen, bergamot en gelaagde zoetheid.',
     containerBg: 'bg-gradient-to-b from-[#0A1424] via-[#101F37] to-[#091220]',
     glowColor: 'from-blue-600/20 via-indigo-800/10 to-transparent',
@@ -167,8 +170,8 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Premium Collection',
     badgeLabel: 'Maison Milau Premium',
     badgeIcon: 'award',
-    subtitle: 'Refinement · Balance · Elegance',
-    description: 'SCA 86-87 hooggeklasseerde specialty brandingen met uitzonderlijke zuiverheid, steenvruchten en fluweelzachte balans.',
+    subtitle: 'Verfijning · Balans · Elegantie',
+    description: 'Hooggeklasseerde specialty brandingen met uitzonderlijke zuiverheid, steenvruchten en fluweelzachte balans.',
     containerBg: 'bg-gradient-to-b from-[#E7E9ED] via-[#DFE2E7] to-[#D6DAE1]',
     glowColor: 'from-slate-400/25 via-zinc-300/15 to-transparent',
     borderColor: 'border-[#C7CCD5]',
@@ -184,8 +187,8 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Prestige Collection',
     badgeLabel: 'Maison Milau Prestige',
     badgeIcon: 'crown',
-    subtitle: 'Luxury · Rarity · Grand cru experience',
-    description: 'SCA 88-89+ exclusieve grand cru brandingen met florale jasmijn, bergamot en een aristocratische wijnachtige afdronk.',
+    subtitle: 'Luxe · Zeldzaamheid · Grand cru beleving',
+    description: 'Exclusieve grand cru brandingen met florale jasmijn, bergamot en een aristocratische wijnachtige afdronk.',
     containerBg: 'bg-gradient-to-b from-[#220711] via-[#2F0B18] to-[#1D060E]',
     glowColor: 'from-rose-600/25 via-red-950/20 to-transparent',
     borderColor: 'border-[#441223]',
@@ -201,7 +204,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Barrel Aged Collection',
     badgeLabel: 'Maison Milau Barrel Aged',
     badgeIcon: 'flame',
-    subtitle: 'Wood · Whisky casks · Maturation',
+    subtitle: 'Eikenhout · Whiskyvaten · Rijping',
     description: 'Gerijpt in authentieke eiken Casknolia® Moscatel, PX Sherry en Buffalo Trace® Bourbon vaten voor een diepe aromatische houtbeleving.',
     containerBg: 'bg-gradient-to-b from-[#22130A] via-[#2E1B0F] to-[#1C0F08]',
     glowColor: 'from-amber-600/25 via-orange-950/20 to-transparent',
@@ -218,7 +221,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Infused Collection',
     badgeLabel: 'Maison Milau Naturally Infused',
     badgeIcon: 'sparkles',
-    subtitle: 'Creativity · Innovation · Experimental flavours',
+    subtitle: 'Creativiteit · Innovatie · Experimentele aroma\'s',
     description: 'Passief geïnfuseerd met natuurlijke Bourbon vanillestokjes, kaneelstokjes en geroosterde amandelen voor een artistiek smaakavontuur.',
     containerBg: 'bg-gradient-to-b from-[#1B0C26] via-[#271337] to-[#160920]',
     glowColor: 'from-purple-600/25 via-fuchsia-950/20 to-transparent',
@@ -235,8 +238,8 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Single Origin Collection',
     badgeLabel: 'Maison Milau Terroir Microlots',
     badgeIcon: 'layers',
-    subtitle: 'Origin · Terroir · Traceability',
-    description: 'SCA 88-90+ zeldzame variëteiten (Pink Bourbon & Gesha Betulia) met 100% traceerbaarheid tot op boerderijniveau.',
+    subtitle: 'Herkomst · Terroir · Traceerbaarheid',
+    description: 'Zeldzame terroirvariëteiten (Pink Bourbon & Gesha Betulia) met 100% traceerbaarheid tot op boerderijniveau.',
     containerBg: 'bg-gradient-to-b from-[#0C1F14] via-[#132B1C] to-[#0A1A10]',
     glowColor: 'from-emerald-600/25 via-teal-950/20 to-transparent',
     borderColor: 'border-[#1D442C]',
@@ -252,7 +255,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Giftboxen & Proefpakketten',
     badgeLabel: 'Maison Milau Geschenken',
     badgeIcon: 'gift',
-    subtitle: 'Celebration · Discovery · Artisan presentation',
+    subtitle: 'Feestelijk · Ontdekking · Ambachtelijke presentatie',
     description: 'Exclusieve geschenkdozen (Duo, Trio & Quattro) gevuld met artisanale specialty bonen naar keuze, met de hand ingepakt.',
     containerBg: 'bg-gradient-to-b from-[#24170E] via-[#311E12] to-[#1E120A]',
     glowColor: 'from-amber-600/25 via-yellow-950/20 to-transparent',
@@ -269,7 +272,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Koffie Toebehoren & Merchandise',
     badgeLabel: 'Maison Milau Accessoires',
     badgeIcon: 'coffee',
-    subtitle: 'Barista tools · Craftsmanship · Lifestyle',
+    subtitle: 'Barista tools · Vakmanschap · Levensstijl',
     description: 'Ambachtelijke keramische tassen, premium Maison Milau kleding en barista benodigdheden voor de complete koffiebeleving.',
     containerBg: 'bg-gradient-to-b from-[#1C1E22] via-[#24262C] to-[#18191D]',
     glowColor: 'from-slate-500/15 via-zinc-800/10 to-transparent',
@@ -286,7 +289,7 @@ export const COLLECTION_THEMES: Record<string, CollectionThemeConfig> = {
     name: 'Koffie-Abonnementen (-10%)',
     badgeLabel: 'Maison Milau Abonnementen',
     badgeIcon: 'refresh',
-    subtitle: 'Freshness · Convenience · 10% Member advantage',
+    subtitle: 'Versheid · Gemak · 10% Ledenvoordeel',
     description: 'Zorgeloos genieten van vers gebrande specialty koffiebonen aan huis of op kantoor, met vaste 10% ledenkorting.',
     containerBg: 'bg-gradient-to-b from-[#24190F] via-[#302115] to-[#1D140C]',
     glowColor: 'from-amber-600/25 via-orange-950/20 to-transparent',
@@ -348,6 +351,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const { getAvailabilityInfo, getStockKg } = useStock();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [blendSubcategory, setBlendSubcategory] = useState<string>('all');
+  const [selectedStockFilter, setSelectedStockFilter] = useState<string>('all');
   const [selectedGrind, setSelectedGrind] = useState<{ [productId: string]: 'Volle bonen' | 'Gemalen (Filter)' }>({});
   const [selectedWeight, setSelectedWeight] = useState<{ [productId: string]: string }>({});
   const [purchaseTypes, setPurchaseTypes] = useState<{ [productId: string]: 'eenmalig' | 'abonnement' }>({});
@@ -410,9 +414,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
       });
 
       if (matched) {
-        // Ensure the product is not filtered out by category
+        // Ensure the product is not filtered out by category or stock filter
         setSelectedCategory('all');
         setBlendSubcategory('all');
+        setSelectedStockFilter('all');
         setHighlightId(matched.id);
       } else {
         setHighlightId(targetSlug);
@@ -442,7 +447,21 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     { id: 'prestige', name: t('nav.prestige', 'Prestige'), icon: Crown },
   ];
 
+  const stockFilterOptions = [
+    { id: 'all', label: 'Alle Voorraad' },
+    { id: 'in_stock', label: 'Beschikbaar', dot: 'bg-emerald-400' },
+    { id: 'low_stock', label: 'Lage Voorraad', dot: 'bg-amber-400' },
+    { id: 'out_of_stock', label: 'Niet Beschikbaar', dot: 'bg-rose-400' },
+    { id: 'binnenkort', label: 'Binnenkort Beschikbaar (Nieuw)', dot: 'bg-amber-300' },
+  ];
+
   const filteredProducts = SHOP_PRODUCTS.filter((prod) => {
+    // 1. Stock availability filter
+    if (selectedStockFilter !== 'all') {
+      const avail = getAvailabilityInfo(prod);
+      if (avail.status !== selectedStockFilter) return false;
+    }
+
     if (selectedCategory === 'all') return true;
     if (selectedCategory === 'new_products') return false; // Handled exclusively by New Products showcase
     if (selectedCategory === 'promotions') return false; // Handled by seasonal promotions view
@@ -737,17 +756,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               </div>
             </div>
 
-            {/* SCA Score in Top-Right Corner */}
-            {product.scaScore && (
-              <div
-                className="absolute top-2 right-2 z-10 bg-white/95 backdrop-blur-md text-amber-900 text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg border border-amber-200/90 shadow-2xs flex items-center gap-1 select-none pointer-events-none"
-                title={`Specialty Coffee Association Score: ${product.scaScore}`}
-              >
-                <Award className="w-2.5 h-2.5 text-amber-700 shrink-0" />
-                <span className="tracking-tight">SCA {product.scaScore}</span>
-              </div>
-            )}
-
             {/* Country Origin Flags in Bottom-Left Corner */}
             <CoffeeOriginBadge
               origins={product.origins}
@@ -808,28 +816,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             )}
           </div>
 
-          {/* Product Name & Coffee Guide Link */}
+          {/* Product Name */}
           <div className="mb-1.5">
-            <div className="flex items-start justify-between gap-1.5">
-              <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors line-clamp-2" title={product.name}>
-                {product.name}
-              </h3>
-              {matchingCatalogCoffee && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(
-                      `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
-                    )
-                  }
-                  className="shrink-0 inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-800/20 px-1.5 py-0.5 rounded transition-colors"
-                  title="Bekijk terroir & branddossier in de Koffiegids"
-                >
-                  <BookOpen className="w-2.5 h-2.5 text-amber-800 shrink-0" />
-                  <span className="hidden sm:inline">Meer Info</span>
-                </button>
-              )}
-            </div>
+            <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors line-clamp-2" title={product.name}>
+              {product.name}
+            </h3>
           </div>
 
           {/* Format & Grind Expandable Selectors - Compact & Clean */}
@@ -1036,18 +1027,16 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               </span>
             </div>
 
-            {/* Roastery Quality & Traceability Snapshot */}
+            {/* Roastery Quality & Roasting Degree */}
             <div className="pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px] text-stone-500">
               <div className="flex items-center gap-1">
                 <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
                 <span className="font-medium text-stone-700 truncate max-w-[170px]">
                   {isCapsule
                     ? 'Nespresso® Original compatibel'
-                    : product.scaScore
-                    ? `SCA ${product.scaScore}+ · ${matchingCatalogCoffee?.roastProfile || 'Specialty Roast'}`
                     : isGiftbox
                     ? 'Luxe Proeverijgeschenk'
-                    : 'Specialty Grade · 100% Arabica'}
+                    : `Brandgraad: ${matchingCatalogCoffee?.roastProfile || 'Medium Roast'}`}
                 </span>
               </div>
               <span className="text-stone-400 font-normal shrink-0">
@@ -1056,7 +1045,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
 
-          {/* Action Buttons: Meer Info & Reviews - Larger Size, Padding & Click Area, Premium Bean Icon */}
+          {/* Action Buttons: Meer Info & Reviews - Larger Size, Padding & Click Area, Premium Star Icon */}
           <div className="mb-2.5 grid grid-cols-2 gap-2">
             {matchingCatalogCoffee ? (
               <button
@@ -1109,7 +1098,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-amber-950 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                 title={`Beoordelingen voor ${product.name}`}
               >
-                <CoffeeBeanIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" filled />
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400 shrink-0" />
                 <span>Reviews</span>
               </button>
             ) : isCapsule ? (
@@ -1310,6 +1299,29 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 </div>
               </div>
             )}
+
+            {/* Stock Availability Filter Bar */}
+            <div className="mt-2.5 pt-2 border-t border-stone-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 mr-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span>Voorraadfilter:</span>
+              </span>
+              {stockFilterOptions.map((opt) => (
+                <button
+                  key={opt.id}
+                  id={`stock-filter-${opt.id}`}
+                  onClick={() => setSelectedStockFilter(opt.id)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                    selectedStockFilter === opt.id
+                      ? 'bg-amber-800 text-white font-semibold border border-amber-500/60 shadow-xs'
+                      : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60'
+                  }`}
+                >
+                  {opt.dot && <span className={`w-1.5 h-1.5 rounded-full ${opt.dot}`} />}
+                  <span>{opt.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>

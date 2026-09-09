@@ -586,130 +586,16 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
               <ChevronRight className="w-4 h-4 text-amber-800" />
             </button>
 
-            {/* Webshop (subcategories hidden in menu, able to open it when selecting) */}
-            <div>
-              <button
-                onClick={() => setIsWebshopSubmenuOpen(!isWebshopSubmenuOpen)}
-                className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
-              >
-                <span>{t('nav.webshop')}</span>
-                <ChevronDown
-                  className={`w-5 h-5 text-stone-500 transition-transform ${
-                    isWebshopSubmenuOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {isWebshopSubmenuOpen && (
-                <div className="pl-4 py-2 space-y-2 bg-stone-100/70 rounded-xl my-2 border border-stone-200">
-                  <button
-                    onClick={() => handleNavClick('/webshop')}
-                    className="w-full text-left text-xs font-semibold uppercase tracking-wider text-amber-900 py-1"
-                  >
-                    → {t('nav.webshop')} (Alles)
-                  </button>
-
-                  {/* New Products Link */}
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=new_products')}
-                    className="w-full text-left text-sm font-semibold text-amber-900 py-1 flex items-center justify-between pr-3"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-                      <span>Nieuw · Te Ontdekken</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-amber-900 bg-amber-200/80 px-1.5 py-0.5 rounded-full">
-                      Nieuw
-                    </span>
-                  </button>
-
-                  <div>
-                    <div className="flex items-center justify-between py-1">
-                      <button
-                        onClick={() => handleNavClick('/webshop?category=blends')}
-                        className="text-left text-sm font-semibold text-stone-800 hover:text-stone-950"
-                      >
-                        Maison Milau Specialty Blends
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsBlendsSubmenuOpen(!isBlendsSubmenuOpen);
-                        }}
-                        className="p-1 text-stone-500 hover:text-stone-800"
-                        title="Subcategorieën openen"
-                      >
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform ${
-                            isBlendsSubmenuOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {isBlendsSubmenuOpen && (
-                      <div className="pl-2 py-1 space-y-1 border-l-2 border-amber-800/40 my-1">
-                        {blendCategories.map((sub) => {
-                          const IconComp = sub.icon;
-                          return (
-                            <button
-                              key={sub.id}
-                              onClick={() =>
-                                handleNavClick(
-                                  sub.id === 'all'
-                                    ? '/webshop?category=blends'
-                                    : `/webshop?category=blends&sub=${sub.id}`
-                                )
-                              }
-                              className="w-full text-left text-xs text-stone-700 hover:text-amber-900 py-1.5 px-2 rounded hover:bg-stone-200/60 flex items-center gap-2 transition-colors"
-                            >
-                              <IconComp className="w-3.5 h-3.5 text-amber-800 shrink-0" />
-                              <span>{sub.name}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=single_origins')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Single Origins
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=barrel_aged')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Barrel Aged Coffees
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=infused')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Infused Coffees
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=giftboxes')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Giftboxen & Proefpakketten
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=merchandise')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Koffie Toebehoren & Merchandise
-                  </button>
-                  <button
-                    onClick={() => handleNavClick('/webshop?category=promotions')}
-                    className="w-full text-left text-sm text-stone-700 py-1 hover:text-stone-950"
-                  >
-                    Promoties
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Direct Webshop Access on Mobile */}
+            <button
+              onClick={() => handleNavClick('/webshop')}
+              className={`w-full text-left py-2 text-base font-semibold flex items-center justify-between border-b border-stone-200 transition-colors ${
+                currentPath.startsWith('/webshop') ? 'text-amber-900' : 'text-stone-900 hover:text-amber-900'
+              }`}
+            >
+              <span>{t('nav.webshop')}</span>
+              <ChevronRight className="w-5 h-5 text-amber-800" />
+            </button>
 
             {/* Catalogus (Product Information System) */}
             <button

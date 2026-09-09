@@ -35,7 +35,6 @@ export const CATALOG_COLLECTIONS_ORDER = [
 export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams }) => {
   const { t } = useTranslation();
   const [selectedCollection, setSelectedCollection] = useState<string>('all');
-  const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeIntroCollection, setActiveIntroCollection] = useState<string | null>(null);
 
@@ -80,7 +79,6 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
     if (matched) {
       // Ensure coffee is visible in current filter
       setSelectedCollection('all');
-      setSelectedType('all');
       setSearchQuery('');
 
       // Open interactive coffee dossier modal directly
@@ -104,7 +102,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
   }, [searchParams]);
 
   const collections = [
-    { id: 'all', label: 'Alle Collecties' },
+    { id: 'all', label: 'Alle Koffiesoorten' },
     { id: 'Budget', label: 'Budget' },
     { id: 'Value', label: 'Value' },
     { id: 'Selection', label: 'Selection' },
@@ -113,14 +111,6 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
     { id: 'Barrel Aged', label: 'Barrel Aged' },
     { id: 'Infused', label: 'Infused' },
     { id: 'Single Origin', label: 'Single Origin' },
-  ];
-
-  const types = [
-    { id: 'all', label: 'Alle Zetmethodes' },
-    { id: 'Espresso', label: 'Espresso' },
-    { id: 'Omni', label: 'Omniroast (Veelzijdig)' },
-    { id: 'Filter', label: 'Filter / Pour-Over' },
-    { id: 'Specialty', label: 'Specialty & Barrel' },
   ];
 
   const handleCollectionSelect = (colId: string) => {
@@ -149,13 +139,12 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
       selectedCollection === 'all' ||
       item.collection === selectedCollection ||
       (selectedCollection === 'Single Origin' && (item.collection === 'Single Origins' || item.collection === 'Single Origin'));
-    const matchesType = selectedType === 'all' || item.type === selectedType;
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.flavors.some((f) => f.toLowerCase().includes(searchQuery.toLowerCase())) ||
       item.beanSelection.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.collection.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCollection && matchesType && matchesSearch;
+    return matchesCollection && matchesSearch;
   });
 
   const activeIntro = activeIntroCollection ? COLLECTION_INTROS[activeIntroCollection] : null;
@@ -243,52 +232,31 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
 
       {/* Main Content Area - Soft Natural Flow from Hero */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-3.5 sm:pt-4">
-        {/* 2. COFFEE COLLECTIONS & FILTER BAR (Reorganized for maximum usability & reduced vertical height) */}
+        {/* 2. COFFEE COLLECTIONS & SEARCH BAR */}
         <div className="bg-white rounded-xl border border-stone-200/90 p-3 sm:p-3.5 shadow-2xs mb-4 sm:mb-5">
-          {/* Primary Navigation: Collecties */}
-          <div className="flex flex-wrap items-center gap-1.5 pb-2.5 border-b border-stone-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mr-1 hidden sm:inline">
-              Collectie:
-            </span>
-            {collections.map((col) => (
-              <button
-                key={col.id}
-                onClick={() => handleCollectionSelect(col.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
-                  selectedCollection === col.id
-                    ? 'bg-amber-900 text-white shadow-xs'
-                    : 'bg-stone-50 border border-stone-200 text-stone-700 hover:border-stone-300 hover:bg-stone-100'
-                }`}
-              >
-                <span>{col.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Secondary Filters: Zetmethode & Search in compact flex layout */}
-          <div className="pt-2.5 flex flex-col md:flex-row gap-2.5 justify-between items-stretch md:items-center">
-            {/* Zetmethode Buttons */}
-            <div className="flex flex-wrap items-center gap-1">
+          <div className="flex flex-col md:flex-row gap-2.5 justify-between items-stretch md:items-center">
+            {/* Primary Navigation: Koffiesoort */}
+            <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mr-1 hidden sm:inline">
-                Zetmethode:
+                Koffiesoort:
               </span>
-              {types.map((t) => (
+              {collections.map((col) => (
                 <button
-                  key={t.id}
-                  onClick={() => setSelectedType(t.id)}
-                  className={`px-2 py-1 rounded-md text-[11px] sm:text-xs font-medium transition-colors ${
-                    selectedType === t.id
-                      ? 'bg-stone-900 text-white shadow-xs font-semibold'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  key={col.id}
+                  onClick={() => handleCollectionSelect(col.id)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                    selectedCollection === col.id
+                      ? 'bg-amber-900 text-white shadow-xs'
+                      : 'bg-stone-50 border border-stone-200 text-stone-700 hover:border-stone-300 hover:bg-stone-100'
                   }`}
                 >
-                  {t.label}
+                  <span>{col.label}</span>
                 </button>
               ))}
             </div>
 
             {/* Compact Search Bar */}
-            <div className="w-full md:w-72 relative">
+            <div className="w-full md:w-72 relative shrink-0">
               <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, Coffee } from 'lucide-react';
-import { CoffeeBeanIcon } from './CoffeeBeanIcon';
+import { X, CheckCircle, Coffee, Star } from 'lucide-react';
 import { CATALOG_ITEMS } from '../data/catalogData';
 
 interface CoffeeReviewModalProps {
@@ -215,24 +214,23 @@ export const CoffeeReviewModal: React.FC<CoffeeReviewModalProps> = ({
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
                   Algemene score:
                 </label>
-                <div className="flex items-center flex-wrap gap-2">
-                  {[1, 2, 3, 4, 5].map((bean) => {
-                    const isFilled = (hoverRating !== null ? hoverRating >= bean : rating >= bean);
+                <div className="flex items-center flex-wrap gap-1.5">
+                  {[1, 2, 3, 4, 5].map((starVal) => {
+                    const isFilled = (hoverRating !== null ? hoverRating >= starVal : rating >= starVal);
                     return (
                       <button
-                        key={bean}
+                        key={starVal}
                         type="button"
-                        onClick={() => setRating(bean)}
-                        onMouseEnter={() => setHoverRating(bean)}
+                        onClick={() => setRating(starVal)}
+                        onMouseEnter={() => setHoverRating(starVal)}
                         onMouseLeave={() => setHoverRating(null)}
                         className="p-1 hover:scale-125 active:scale-95 transition-all cursor-pointer"
-                        aria-label={`${bean} koffiebonen`}
+                        aria-label={`${starVal} sterren`}
                       >
-                        <CoffeeBeanIcon
-                          filled={isFilled}
+                        <Star
                           className={`w-6 h-6 transition-colors ${
                             isFilled
-                              ? 'text-amber-700 drop-shadow-xs'
+                              ? 'text-amber-500 fill-amber-400 drop-shadow-xs'
                               : 'text-stone-300'
                           }`}
                         />
@@ -240,7 +238,7 @@ export const CoffeeReviewModal: React.FC<CoffeeReviewModalProps> = ({
                     );
                   })}
                   <span className="text-xs font-bold text-amber-950 ml-2">
-                    {rating === 5 ? 'Uitmuntend (5/5 bonen)' : `${rating} van 5 bonen`}
+                    {rating === 5 ? 'Uitmuntend (5/5 sterren)' : `${rating} van 5 sterren`}
                   </span>
                 </div>
               </div>
