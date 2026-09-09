@@ -34,6 +34,7 @@ import crypto from 'node:crypto';
 import { generateInvoicePdfBuffer, FullInvoiceData } from './server/invoicePdfService.js';
 import cookieParser from 'cookie-parser';
 import { getSupabaseClient } from './server/supabaseClient.js';
+import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.js';
 
 dotenv.config();
 
@@ -450,225 +451,59 @@ export function verifyPassword(password: string, storedHash: string): boolean {
   }
 }
 
-// User accounts system with durable file persistence and Supabase integration
-// On Vercel / serverless functions, the root /var/task filesystem is read-only (EROFS).
-// Use /tmp/data for scratch persistence on Vercel, and sync with Supabase PostgreSQL if configured.
-const isVercelRuntime = Boolean(
-  process.env.VERCEL === '1' ||
-  process.env.NOW_REGION ||
-  process.env.VERCEL_ENV ||
-  process.env.VERCEL_REGION ||
-  process.env.AWS_LAMBDA_FUNCTION_NAME
-);
+// User accounts and authentication datastore powered by unified AuthStore (PostgreSQL / Supabase / SQLite)
+// This eliminates all dependency on local JSON files (users.json, sessions.json) ensuring full Vercel read-only filesystem compatibility.
+let registeredUsers: any[] = [];
 
-const DATA_DIR = isVercelRuntime ? path.join('/tmp', 'data') : path.join(process.cwd(), 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const USERS_BAK_FILE = path.join(DATA_DIR, 'users.json.bak');
-const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
-
-// Helper to write JSON files atomically via unique .tmp file and atomic fs.renameSync
-function writeAtomicJson(filePath: string, data: any): void {
+export function loadUsersFromDisk(force = false): void {
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    const list = authStore.getAllUsersSync();
+    if (list && list.length > 0) {
+      registeredUsers = list;
     }
-    const tmpFile = `${filePath}.${Date.now()}.${Math.random().toString(36).substring(2, 7)}.tmp`;
-    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
-    fs.renameSync(tmpFile, filePath);
-  } catch (err: any) {
-    console.warn(`[STORAGE WARNING] Atomic write failed for ${filePath}:`, err?.message || err);
-    throw err;
+  } catch (err) {
+    console.warn('[AUTH] Error syncing users from authStore cache:', err);
   }
 }
-
-export async function persistUserRecord(user: any): Promise<boolean> {
-  // 1. Try Supabase cloud persistence if configured
-  const supabase = getSupabaseClient();
-  if (supabase) {
-    try {
-      const { error } = await supabase.from('users').upsert({
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        password: user.password,
-        name: user.name,
-        phone: user.phone,
-        account_type: user.accountType,
-        role: user.role,
-        company_name: user.companyName,
-        vat_number: user.vatNumber,
-        addresses: user.addresses,
-        loyalty_points: user.loyaltyPoints,
-        verification_token: user.verificationToken,
-        verification_token_expiry: user.verificationTokenExpiry
-          ? new Date(user.verificationTokenExpiry).toISOString()
-          : null,
-        is_email_verified: user.isEmailVerified,
-        status: user.status,
-        created_at: user.createdAt,
-      });
-      if (error) {
-        console.warn('[SUPABASE] Upsert error (falling back to disk/memory):', error.message);
-      } else {
-        console.log(`[SUPABASE] User successfully persisted to Supabase: ${user.email}`);
-      }
-    } catch (sbErr: any) {
-      console.warn('[SUPABASE] Persistence exception:', sbErr?.message || sbErr);
-    }
-  }
-
-  // 2. Persist to disk (/tmp on Vercel or local data)
-  return saveUsersToDisk();
-}
-
-let registeredUsers: any[] = [
-  {
-    id: 'usr-b2c-01',
-    email: 'klant@voorbeeld.be',
-    username: 'laurent',
-    password: hashPassword('password123'),
-    name: 'Laurent Michiels',
-    phone: '+32 467 77 37 66',
-    accountType: 'particulier',
-    role: 'b2c_customer',
-    addresses: [
-      {
-        id: 'addr-home',
-        label: 'Thuis',
-        street: 'Kerkstraat 12',
-        city: 'Dendermonde',
-        postalCode: '9200',
-        country: 'België',
-        isDefault: true,
-      },
-    ],
-    loyaltyPoints: 340,
-    isEmailVerified: true,
-    createdAt: '2026-01-15T10:00:00.000Z',
-  },
-  {
-    id: 'usr-b2b-01',
-    email: 'aankoop@delangetafel.be',
-    username: 'delangetafel',
-    password: hashPassword('password123'),
-    name: 'Laurent Michiels (Aankoper)',
-    phone: '+32 467 77 37 66',
-    accountType: 'professioneel',
-    role: 'b2b_admin',
-    companyName: 'De Lange Tafel Horeca BV',
-    vatNumber: 'BE 0823.491.204',
-    addresses: [
-      {
-        id: 'addr-hq',
-        label: 'Hoofdkantoor',
-        street: 'Grote Markt 4',
-        city: 'Aalst',
-        postalCode: '9300',
-        country: 'België',
-        isDefault: true,
-      },
-    ],
-    loyaltyPoints: 1250,
-    isEmailVerified: true,
-    createdAt: '2026-02-01T12:00:00.000Z',
-  },
-  {
-    id: 'usr-admin-01',
-    email: 'admin@maison-milau.be',
-    username: 'admin',
-    password: hashPassword(ADMIN_RAW_PASSWORD),
-    name: 'Laurent Michiels (Roaster & Admin)',
-    phone: '+32 467 77 37 66',
-    accountType: 'professioneel',
-    role: 'store_admin',
-    addresses: [
-      {
-        id: 'addr-atelier',
-        label: 'Branderij Atelier',
-        street: 'Jef Scheirsstraat 29',
-        city: 'Oudegem',
-        postalCode: '9200',
-        country: 'België',
-        isDefault: true,
-      },
-    ],
-    loyaltyPoints: 5000,
-    isEmailVerified: true,
-    createdAt: '2026-01-01T08:00:00.000Z',
-  },
-];
-
-let lastUsersLoadedMtime = 0;
 
 export function saveUsersToDisk(): boolean {
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-    // Always preserve previous valid database state to backup
-    if (fs.existsSync(USERS_FILE)) {
-      try {
-        fs.copyFileSync(USERS_FILE, USERS_BAK_FILE);
-      } catch {}
-    }
-    writeAtomicJson(USERS_FILE, registeredUsers);
-    if (fs.existsSync(USERS_FILE)) {
-      lastUsersLoadedMtime = fs.statSync(USERS_FILE).mtimeMs;
+    // Asynchronously synchronize all in-memory users to the production datastore
+    for (const u of registeredUsers) {
+      authStore.updateUser(u.id, u).catch(() => {
+        authStore.createUser(u).catch(() => {});
+      });
     }
     return true;
   } catch (err) {
-    console.error('[AUTH ERROR] Failed to persist users to disk:', err);
+    console.error('[AUTH ERROR] Failed to synchronize users to store:', err);
     return false;
   }
 }
 
-export function loadUsersFromDisk(force = false): void {
+export async function persistUserRecord(user: any): Promise<boolean> {
   try {
-    if (fs.existsSync(USERS_FILE)) {
-      const stat = fs.statSync(USERS_FILE);
-      if (force || stat.mtimeMs !== lastUsersLoadedMtime) {
-        const content = fs.readFileSync(USERS_FILE, 'utf-8');
-        if (content.trim()) {
-          const parsed = JSON.parse(content);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            registeredUsers = parsed;
-            lastUsersLoadedMtime = stat.mtimeMs;
-            return;
-          }
-        }
-      } else {
-        // Up to date
-        return;
-      }
+    const existing = await authStore.getUserById(user.id);
+    if (existing) {
+      await authStore.updateUser(user.id, user);
+    } else {
+      await authStore.createUser(user);
     }
+    loadUsersFromDisk(true);
+    return true;
   } catch (err) {
-    console.error('[AUTH ERROR] Error loading users from disk:', err);
-    // Attempt recovery from backup if primary failed
-    if (fs.existsSync(USERS_BAK_FILE)) {
-      try {
-        const bakContent = fs.readFileSync(USERS_BAK_FILE, 'utf-8');
-        const parsedBak = JSON.parse(bakContent);
-        if (Array.isArray(parsedBak) && parsedBak.length > 0) {
-          registeredUsers = parsedBak;
-          console.log(`[AUTH] Recovered ${registeredUsers.length} user records from backup file.`);
-          return;
-        }
-      } catch (bakErr) {
-        console.error('[AUTH ERROR] Backup recovery also failed:', bakErr);
-      }
-    }
-    // CRITICAL: NEVER overwrite user database with defaults on read error
-    return;
-  }
-
-  // Only create users.json initially if it does not exist at all
-  if (!fs.existsSync(USERS_FILE)) {
-    saveUsersToDisk();
+    console.error('[AUTH ERROR] persistUserRecord failed:', err);
+    return false;
   }
 }
 
-// Initialise user accounts from persistent store on startup
-loadUsersFromDisk();
+// Initialise datastore immediately and populate user accounts
+authStore.init().then(() => {
+  loadUsersFromDisk(true);
+  console.log(`[AUTH] Production datastore initialized with ${registeredUsers.length} active users.`);
+}).catch((err) => {
+  console.error('[AUTH FATAL] Datastore initialization failed:', err);
+});
 
 // Rate limiting for login protection against brute-force attacks
 interface RateLimitRecord {
@@ -726,39 +561,28 @@ const activeSessions = new Map<string, ActiveSession>();
 
 export function saveSessionsToDisk(): void {
   try {
-    const obj: Record<string, ActiveSession> = {};
     const now = Date.now();
     for (const [token, sess] of activeSessions.entries()) {
       if (sess && sess.expiresAt > now) {
-        obj[token] = sess;
+        authStore.saveSessionRecord({
+          token,
+          userId: sess.userId,
+          email: sess.email,
+          role: sess.role,
+          accountType: sess.accountType,
+          companyName: sess.companyName,
+          expiresAt: sess.expiresAt,
+          createdAt: new Date().toISOString(),
+        }).catch((e) => console.warn('[AUTH] Failed to persist session record:', e));
       }
     }
-    writeAtomicJson(SESSIONS_FILE, obj);
   } catch (err) {
-    console.error('[AUTH ERROR] Failed to persist sessions to disk:', err);
+    console.error('[AUTH ERROR] Failed to save sessions:', err);
   }
 }
 
 export function loadSessionsFromDisk(): void {
-  try {
-    if (fs.existsSync(SESSIONS_FILE)) {
-      const content = fs.readFileSync(SESSIONS_FILE, 'utf-8');
-      if (content.trim()) {
-        const parsed = JSON.parse(content);
-        if (parsed && typeof parsed === 'object') {
-          const now = Date.now();
-          activeSessions.clear();
-          for (const [token, sess] of Object.entries(parsed as Record<string, ActiveSession>)) {
-            if (sess && sess.expiresAt > now) {
-              activeSessions.set(token, sess);
-            }
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error('[AUTH ERROR] Error loading sessions from disk:', err);
-  }
+  // Session states are seamlessly verified against signed HMAC tokens and AuthStore cache
 }
 
 // Load sessions on startup
@@ -784,7 +608,6 @@ function parseRawCookies(req: Request): Record<string, string> {
 
 export function getAuthenticatedUser(req: Request): any | null {
   loadUsersFromDisk();
-  loadSessionsFromDisk();
   const authHeader = req.headers.authorization;
   let token = '';
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -807,23 +630,47 @@ export function getAuthenticatedUser(req: Request): any | null {
     token = String(req.query.token).trim();
   }
 
-  if (token && activeSessions.has(token)) {
-    const sess = activeSessions.get(token)!;
-    if (sess.expiresAt > Date.now()) {
-      const user = registeredUsers.find((u) => u.id === sess.userId || u.email.toLowerCase() === sess.email.toLowerCase());
+  if (token) {
+    // 1. Check in-memory activeSessions
+    if (activeSessions.has(token)) {
+      const sess = activeSessions.get(token)!;
+      if (sess.expiresAt > Date.now()) {
+        const user = registeredUsers.find((u) => u.id === sess.userId || u.email.toLowerCase() === sess.email.toLowerCase());
+        if (user) {
+          if (!user.isEmailVerified && user.role !== 'store_admin') {
+            console.warn(`[AUTH] Session rejected: User ${user.email} is not email verified`);
+            activeSessions.delete(token);
+            authStore.deleteSession(token).catch(() => {});
+            return null;
+          }
+          return user;
+        }
+      } else {
+        activeSessions.delete(token);
+        authStore.deleteSession(token).catch(() => {});
+      }
+    }
+
+    // 2. Validate token against AuthStore (verifies signed HMAC tokens or datastore sessions)
+    const verified = authStore.verifySessionToken(token);
+    if (verified.valid && verified.payload) {
+      const p = verified.payload;
+      const user = registeredUsers.find((u) => u.id === p.uid || u.email.toLowerCase() === (p.em || '').toLowerCase());
       if (user) {
-        // Enforce email verification for customers: unverified users cannot maintain an active session
         if (!user.isEmailVerified && user.role !== 'store_admin') {
-          console.warn(`[AUTH] Session rejected: User ${user.email} is not email verified`);
-          activeSessions.delete(token);
-          saveSessionsToDisk();
+          console.warn(`[AUTH] Verified token rejected: User ${user.email} is not email verified`);
           return null;
         }
+        activeSessions.set(token, {
+          userId: user.id,
+          email: user.email,
+          role: user.role,
+          accountType: user.accountType,
+          companyName: user.companyName,
+          expiresAt: p.exp || Date.now() + 30 * 24 * 60 * 60 * 1000,
+        });
         return user;
       }
-    } else {
-      activeSessions.delete(token);
-      saveSessionsToDisk();
     }
   }
 
@@ -2441,7 +2288,7 @@ app.use('/api/auth', (_req: Request, _res: Response, next) => {
   next();
 });
 
-app.post('/api/auth/register', (req: Request, res: Response) => {
+app.post('/api/auth/register', async (req: Request, res: Response) => {
   const {
     email,
     username,
@@ -2480,7 +2327,8 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
 
   const existingUser = registeredUsers.find(
     (u) => u.email.toLowerCase() === cleanEmail || (u.username && u.username.toLowerCase() === cleanUsername)
-  );
+  ) || await authStore.getUserByIdentifier(cleanEmail) || await authStore.getUserByUsername(cleanUsername);
+
   if (existingUser) {
     console.warn(`[REGISTER] Registration failed: Email ${cleanEmail} or username ${cleanUsername} already in use`);
     return res.status(400).json({ success: false, error: 'Er bestaat reeds een account met dit e-mailadres of deze gebruikersnaam. Gelieve in te loggen.' });
@@ -2525,19 +2373,19 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   };
 
   console.log(`[AUTH] USER_OBJECT_CREATED: Id=${newUser.id}, Email=${newUser.email}, Role=${newUser.role}`);
-  console.log(`[AUTH] DATABASE_WRITE_START: Target=${USERS_FILE}, ExistingCount=${registeredUsers.length}`);
+  console.log(`[AUTH] DATABASE_WRITE_START: Target=production_datastore, ExistingCount=${registeredUsers.length}`);
 
-  registeredUsers.push(newUser);
-  // Persist to Supabase cloud and/or disk
-  persistUserRecord(newUser).catch((err) => {
-    console.warn('[AUTH] Background user persistence warning:', err?.message || err);
-  });
-
-  const writeSuccess = saveUsersToDisk();
-  if (writeSuccess) {
-    console.log(`[AUTH] DATABASE_WRITE_SUCCESS: Target=${USERS_FILE}, UserId=${newUser.id}, Email=${newUser.email}`);
-  } else {
-    console.warn(`[AUTH] DATABASE_FILE_WRITE_SKIPPED: Target=${USERS_FILE}, Running in-memory / cloud-synced fallback`);
+  try {
+    // CRITICAL: Must persist to datastore before returning 200 OK
+    await authStore.createUser(newUser as any);
+    loadUsersFromDisk(true);
+    console.log(`[AUTH] DATABASE_WRITE_SUCCESS: Target=production_datastore, UserId=${newUser.id}, Email=${newUser.email}`);
+  } catch (dbErr: any) {
+    console.error(`[AUTH FATAL] Database write failed during registration for ${newUser.email}:`, dbErr?.message || dbErr);
+    return res.status(500).json({
+      success: false,
+      error: 'Registratie kon niet worden opgeslagen in de database. Probeer het opnieuw of contacteer ondersteuning.',
+    });
   }
 
   console.log(`[AUTH] USER_CREATED: Id=${newUser.id}, Email=${newUser.email}, Role=${newUser.role}`);
@@ -2584,7 +2432,11 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 60 * 60 * 1000; // 60 minutes
-    saveUsersToDisk();
+    await authStore.updateUser(user.id, {
+      resetToken,
+      resetTokenExpiry: user.resetTokenExpiry,
+    });
+    loadUsersFromDisk(true);
     console.log(`[AUTH] PASSWORD_RESET_TOKEN_CREATED: Email=${user.email}, Token=${resetToken.substring(0, 8)}...`);
     console.log(`[EMAIL] Sending password reset email to: ${user.email}`);
     sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl)
@@ -2661,15 +2513,20 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
   user.resetToken = undefined;
   user.resetTokenExpiry = undefined;
 
+  await authStore.updateUser(user.id, {
+    password: user.password,
+    resetToken: null,
+    resetTokenExpiry: null,
+  });
+
   // Invalidate any existing active sessions for this user for security
   for (const [sTok, session] of activeSessions.entries()) {
     if (session.userId === user.id) {
       activeSessions.delete(sTok);
     }
   }
-  saveSessionsToDisk();
-
-  saveUsersToDisk();
+  await authStore.deleteUserSessions(user.id);
+  loadUsersFromDisk(true);
   console.log(`[AUTH] PASSWORD_RESET_COMPLETED: UserId=${user.id}, Email=${user.email}`);
 
   // Send confirmation email that password was changed
@@ -2772,7 +2629,17 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
-  saveUsersToDisk();
+  await authStore.updateUser(user.id, {
+    isEmailVerified: true,
+    isActive: true,
+    status: 'active',
+    verifiedAt: user.verifiedAt,
+    previousVerificationTokens: user.previousVerificationTokens,
+    lastVerificationToken: user.lastVerificationToken,
+    verificationToken: null,
+    verificationTokenExpiry: null,
+  });
+  loadUsersFromDisk(true);
 
   console.log(`[AUTH] ACCOUNT_VERIFIED: UserId=${user.id}, Email=${user.email}`);
   console.log(`[VERIFY] Token validated successfully for: ${user.email} (ID: ${user.id})`);
@@ -2791,7 +2658,7 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
 });
 
 // Verify email GET endpoint (direct click from email client or API verification)
-app.get('/api/auth/verify-email', (req: Request, res: Response) => {
+app.get('/api/auth/verify-email', async (req: Request, res: Response) => {
   loadUsersFromDisk(true);
   const token = ((req.query.token || req.query.verifyToken) as string || '').trim();
   const email = ((req.query.email as string) || '').trim().toLowerCase();
@@ -2895,7 +2762,17 @@ app.get('/api/auth/verify-email', (req: Request, res: Response) => {
   user.verificationToken = undefined;
   user.verificationTokenExpiry = undefined;
 
-  saveUsersToDisk();
+  await authStore.updateUser(user.id, {
+    isEmailVerified: true,
+    isActive: true,
+    status: 'active',
+    verifiedAt: user.verifiedAt,
+    previousVerificationTokens: user.previousVerificationTokens,
+    lastVerificationToken: user.lastVerificationToken,
+    verificationToken: null,
+    verificationTokenExpiry: null,
+  });
+  loadUsersFromDisk(true);
 
   console.log(`[AUTH] ACCOUNT_VERIFIED: UserId=${user.id}, Email=${user.email}`);
   console.log(`[VERIFY] Token validated successfully via GET for: ${user.email} (ID: ${user.id})`);

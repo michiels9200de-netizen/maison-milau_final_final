@@ -64,6 +64,23 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     imagePlaceholderText: 'Budget Filter 250g / 500g / 1kg',
     imageUrl: '/images/Budget Filter website.png',
   },
+  {
+    id: 'prod-budget-capsules-placeholder',
+    sku: 'MM-BUD-CAPS-SOON',
+    name: 'Maison Milau Compatible Capsules',
+    collection: 'Budget',
+    category: 'blends',
+    shortDescription: 'Ambachtelijke Budget blend in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
+    variants: [
+      { weight: '10 capsules', price: 0, inStock: false },
+    ],
+    grindOptions: ['Capsule'],
+    defaultGrind: 'Capsule',
+    inStock: false,
+    batchStatus: 'binnenkort_beschikbaar',
+    catalogSlug: 'budget-compatible-capsules',
+    imagePlaceholderText: 'Maison Milau Compatible Capsules - Budget',
+  },
 
   // --- Blends: Value ---
   {
@@ -125,6 +142,23 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     catalogSlug: 'value-filter',
     imagePlaceholderText: 'Value Filter 250g / 500g / 1kg',
     imageUrl: '/images/Value Filter website.png',
+  },
+  {
+    id: 'prod-value-capsules-placeholder',
+    sku: 'MM-VAL-CAPS-SOON',
+    name: 'Maison Milau Compatible Capsules',
+    collection: 'Value',
+    category: 'blends',
+    shortDescription: 'Ambachtelijke Value blend in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
+    variants: [
+      { weight: '10 capsules', price: 0, inStock: false },
+    ],
+    grindOptions: ['Capsule'],
+    defaultGrind: 'Capsule',
+    inStock: false,
+    batchStatus: 'binnenkort_beschikbaar',
+    catalogSlug: 'value-compatible-capsules',
+    imagePlaceholderText: 'Maison Milau Compatible Capsules - Value',
   },
 
   // --- Blends: Selection ---
@@ -189,12 +223,12 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     imageUrl: '/images/Selection Filter website.png',
   },
   {
-    id: 'prod-nespresso-capsules-placeholder',
-    sku: 'MM-CAPS-SOON',
-    name: 'Nespresso Compatible Capsules',
+    id: 'prod-selection-capsules-placeholder',
+    sku: 'MM-SEL-CAPS-SOON',
+    name: 'Maison Milau Compatible Capsules',
     collection: 'Selection',
     category: 'blends',
-    shortDescription: 'Ambachtelijke specialty koffie in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
+    shortDescription: 'Ambachtelijke Selection blend in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
     variants: [
       { weight: '10 capsules', price: 0, inStock: false },
     ],
@@ -202,8 +236,8 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     defaultGrind: 'Capsule',
     inStock: false,
     batchStatus: 'binnenkort_beschikbaar',
-    catalogSlug: 'nespresso-compatible-capsules',
-    imagePlaceholderText: 'Nespresso Compatible Capsules',
+    catalogSlug: 'selection-compatible-capsules',
+    imagePlaceholderText: 'Maison Milau Compatible Capsules - Selection',
   },
 
   // --- Blends: Premium ---
@@ -267,6 +301,23 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     imagePlaceholderText: 'Premium Filter 250g / 500g / 1kg',
     imageUrl: '/images/Premium Filter website.png',
   },
+  {
+    id: 'prod-premium-capsules-placeholder',
+    sku: 'MM-PRM-CAPS-SOON',
+    name: 'Maison Milau Compatible Capsules',
+    collection: 'Premium',
+    category: 'blends',
+    shortDescription: 'Ambachtelijke Premium blend in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
+    variants: [
+      { weight: '10 capsules', price: 0, inStock: false },
+    ],
+    grindOptions: ['Capsule'],
+    defaultGrind: 'Capsule',
+    inStock: false,
+    batchStatus: 'binnenkort_beschikbaar',
+    catalogSlug: 'premium-compatible-capsules',
+    imagePlaceholderText: 'Maison Milau Compatible Capsules - Premium',
+  },
 
   // --- Blends: Prestige ---
   {
@@ -328,6 +379,23 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     catalogSlug: 'prestige-filter',
     imagePlaceholderText: 'Prestige Filter 250g / 500g / 1kg',
     imageUrl: '/images/Prestige Filter website.png',
+  },
+  {
+    id: 'prod-prestige-capsules-placeholder',
+    sku: 'MM-PRS-CAPS-SOON',
+    name: 'Maison Milau Compatible Capsules',
+    collection: 'Prestige',
+    category: 'blends',
+    shortDescription: 'Exclusieve Prestige blend in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
+    variants: [
+      { weight: '10 capsules', price: 0, inStock: false },
+    ],
+    grindOptions: ['Capsule'],
+    defaultGrind: 'Capsule',
+    inStock: false,
+    batchStatus: 'binnenkort_beschikbaar',
+    catalogSlug: 'prestige-compatible-capsules',
+    imagePlaceholderText: 'Maison Milau Compatible Capsules - Prestige',
   },
 
   // --- Barrel Aged Coffees ---

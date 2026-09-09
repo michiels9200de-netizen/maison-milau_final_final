@@ -619,7 +619,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     );
 
     // Dedicated Nespresso Compatible Capsules Coming Soon Card
-    if (product.id === 'prod-nespresso-capsules-placeholder' || product.batchStatus === 'binnenkort_beschikbaar') {
+    if (
+      product.id.includes('capsules-placeholder') ||
+      product.id === 'prod-nespresso-capsules-placeholder' ||
+      product.batchStatus === 'binnenkort_beschikbaar'
+    ) {
       return (
         <div
           key={product.id}
@@ -632,10 +636,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-2">
               <span className="font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                <span>Binnenkort beschikbaar</span>
+                <span>Binnenkort Beschikbaar</span>
               </span>
               <span className="font-semibold text-rose-300 bg-rose-950/70 border border-rose-800/40 px-1.5 py-0.5 rounded text-[9px]">
-                Niet beschikbaar
+                Niet op voorraad
               </span>
             </div>
 
@@ -675,18 +679,21 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
               <div className="absolute bottom-2 inset-x-2 text-center bg-stone-900/90 backdrop-blur-xs border border-amber-600/30 py-1 px-2 rounded-lg">
                 <span className="text-[10px] font-bold text-amber-300 tracking-wide uppercase">
-                  Coming Soon · In Ontwikkeling
+                  Coming Soon · Binnenkort Beschikbaar
                 </span>
               </div>
             </div>
 
             {/* Product Name & Short Description */}
             <div className="mb-2">
+              <div className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-wider mb-0.5">
+                {product.collection ? `${product.collection} Edition` : 'Specialty Blend'} · Nespresso® Compatible
+              </div>
               <h3 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight group-hover:text-amber-300 transition-colors">
-                Nespresso Compatible Capsules
+                Maison Milau Compatible Capsules
               </h3>
               <p className="text-[11px] text-stone-300 leading-snug mt-1">
-                Biologisch afbreekbare specialty capsules met onze ambachtelijke roasts. Exclusief compatibel met Nespresso® systemen.
+                {product.shortDescription || `Ambachtelijke ${product.collection || 'specialty'} koffie in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.`}
               </p>
             </div>
 
@@ -694,14 +701,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             <div className="mb-3 p-2 rounded-lg bg-stone-950/80 border border-stone-800 text-[10px] space-y-1">
               <div className="flex items-center justify-between text-stone-400">
                 <span>Status:</span>
-                <span className="font-bold text-amber-300">Binnenkort beschikbaar</span>
+                <span className="font-bold text-amber-300">Binnenkort Beschikbaar</span>
               </div>
               <div className="flex items-center justify-between text-stone-400">
-                <span>Label:</span>
-                <span className="font-semibold text-rose-300">Niet beschikbaar · Not in stock</span>
+                <span>Availability:</span>
+                <span className="font-semibold text-rose-300">Niet op voorraad</span>
               </div>
-              <div className="text-[9px] text-stone-400 italic pt-0.5 border-t border-stone-800/80">
-                Geen aankoop mogelijk · No purchasing possible.
+              <div className="text-[9px] text-stone-400 italic pt-0.5 border-t border-stone-800/80 flex items-center justify-between">
+                <span>Not available yet</span>
+                <span className="text-stone-500">Geen aankoop mogelijk</span>
               </div>
             </div>
           </div>
@@ -714,7 +722,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               className="w-full bg-stone-800/80 text-stone-400 py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase cursor-not-allowed border border-stone-700/50 flex items-center justify-center gap-1.5"
             >
               <Bell className="w-3.5 h-3.5 text-stone-500" />
-              <span>Niet beschikbaar (No purchase)</span>
+              <span>Niet op voorraad (Not available yet)</span>
             </button>
 
             <button
@@ -726,7 +734,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               className="w-full bg-amber-800/40 hover:bg-amber-800/60 active:scale-[0.98] text-amber-200 py-1.5 px-2 rounded-lg text-[10px] font-semibold tracking-wider uppercase transition-colors border border-amber-600/40 flex items-center justify-center gap-1 cursor-pointer"
             >
               <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>Blijf op de hoogte</span>
+              <span>Blijf op de hoogte (Coming Soon)</span>
             </button>
           </div>
         </div>
@@ -1620,7 +1628,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                 {/* Product Grid inside Collection Zone */}
                 <div className="relative z-10 max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">
+                  <div
+                    className={
+                      collectionProducts.length === 4
+                        ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5'
+                        : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5'
+                    }
+                  >
                     {collectionProducts.map((product) => renderProductCard(product, theme))}
                   </div>
                 </div>
