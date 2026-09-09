@@ -2917,11 +2917,21 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'Gelieve uw e-mailadres/gebruikersnaam en wachtwoord in te vullen.' });
   }
 
-  const user = registeredUsers.find(
+  const cleanIdentifier = (identifier || '').trim().toLowerCase();
+
+  let user = registeredUsers.find(
     (u) =>
-      u.email.toLowerCase() === identifier ||
-      (u.username && u.username.toLowerCase() === identifier)
+      u.email.toLowerCase() === cleanIdentifier ||
+      (u.username && u.username.toLowerCase() === cleanIdentifier)
   );
+
+  // If not found in in-memory cache, query the production authStore datastore
+  if (!user) {
+    user = (await authStore.getUserByEmail(cleanIdentifier)) || (await authStore.getUserByUsername(cleanIdentifier)) || undefined;
+    if (user) {
+      loadUsersFromDisk(true);
+    }
+  }
 
   if (!user) {
     console.log(`[AUTH] USER_NOT_FOUND: Identifier=${identifier}`);
@@ -3017,7 +3027,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   });
 });
 
-app.post('/api/auth/logout', (req: Request, res: Response) => {
+app.post('/api/auth/logout', async (req: Request, res: Response) => {
   let token = '';
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -3025,13 +3035,14 @@ app.post('/api/auth/logout', (req: Request, res: Response) => {
   } else if ((req as any).cookies?.mm_auth_token || (req as any).cookies?.sessionToken) {
     token = (req as any).cookies.mm_auth_token || (req as any).cookies.sessionToken;
   }
-  if (token && activeSessions.has(token)) {
+  if (token) {
     const session = activeSessions.get(token);
     if (session) {
       console.log(`[AUTH] SESSION_DESTROYED: User logged out: ${session.email} (ID: ${session.userId}), Token=${token.substring(0, 12)}...`);
       console.log(`[LOGIN] User logged out: ${session.email} (ID: ${session.userId})`);
     }
     activeSessions.delete(token);
+    await authStore.deleteSession(token).catch((e) => console.warn('[AUTH] deleteSession error:', e));
     saveSessionsToDisk();
   } else {
     console.log(`[AUTH] SESSION_DESTROYED: Logout called (no active token or token already revoked)`);
