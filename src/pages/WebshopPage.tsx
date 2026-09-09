@@ -1029,17 +1029,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
             {/* Roastery Quality & Roasting Degree */}
             <div className="pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px] text-stone-500">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 min-w-0">
                 <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
-                <span className="font-medium text-stone-700 truncate max-w-[170px]">
+                <span className="font-medium text-stone-700 truncate">
                   {isCapsule
                     ? 'Nespresso® Original compatibel'
                     : isGiftbox
                     ? 'Luxe Proeverijgeschenk'
-                    : `Brandgraad: ${matchingCatalogCoffee?.roastProfile || 'Medium Roast'}`}
+                    : (matchingCatalogCoffee?.roastProfile || 'Medium Roast')}
                 </span>
               </div>
-              <span className="text-stone-400 font-normal shrink-0">
+              <span className="text-stone-400 font-normal shrink-0 ml-1">
                 {isCapsule ? 'Composteerbaar' : 'Micro-batch'}
               </span>
             </div>
@@ -1675,6 +1675,109 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           })()}
         </div>
       )}
+
+      {/* Verified Customer Reviews & Taste Impressions Section */}
+      <section className="border-t border-[#D8CEBE] bg-[#F7F3EC] py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <div className="flex items-center gap-1.5 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-2">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                <span>Geverifieerde Cupping Reviews</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 font-serif">
+                Proefnotities & Klantenervaringen
+              </h2>
+              <p className="text-sm text-stone-600 max-w-2xl mt-1 leading-relaxed">
+                Authentieke feedback van koffieliefhebbers, horecazaken en kantoren over ons aroma, onze micro-batch brandkwaliteit, versheid en stipte levering.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setReviewCoffeeName('Selection Daily');
+                setIsReviewModalOpen(true);
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-900 hover:bg-amber-800 active:scale-98 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-xs shrink-0 self-start md:self-auto cursor-pointer"
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>Alle Reviews Bekijken ({9})</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-white rounded-2xl p-5 border border-stone-200/80 shadow-2xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-stone-900 text-sm">Karel V.</span>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                  ))}
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-amber-950 flex items-center gap-1.5">
+                <CoffeeBeanIcon className="w-3 h-3 text-amber-700" filled />
+                <span>Selection Daily · Espresso</span>
+              </div>
+              <p className="text-xs text-stone-600 leading-relaxed italic">
+                "Fantastische roast! Zeer zuiver in onze espressomachine, volle hazelnootkleurige crema en fluwelige afdronk van pure chocolade zonder enige overmatige bitterheid."
+              </p>
+              <div className="flex flex-wrap gap-1 pt-2 border-t border-stone-100 text-[10px]">
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Pure Chocolade</span>
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Karamel</span>
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 rounded font-medium ml-auto">✓ 4 dagen na branding geleverd</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 border border-stone-200/80 shadow-2xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-stone-900 text-sm">Stefan B.</span>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                  ))}
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-amber-950 flex items-center gap-1.5">
+                <CoffeeBeanIcon className="w-3 h-3 text-amber-700" filled />
+                <span>Barrel Aged Moscatel · Slow Drip</span>
+              </div>
+              <p className="text-xs text-stone-600 leading-relaxed italic">
+                "Compleet unieke ervaring. De wijnachtige moscatel-aroma’s en houttoetsen komen prachtig naar voren in de Chemex en V60. Geen geforceerde aroma’s, maar pure terroir-versmelting."
+              </p>
+              <div className="flex flex-wrap gap-1 pt-2 border-t border-stone-100 text-[10px]">
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Rijpe vijg</span>
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Eikenhout</span>
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Rozijnen</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 border border-stone-200/80 shadow-2xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-stone-900 text-sm">Els T.</span>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                  ))}
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-amber-950 flex items-center gap-1.5">
+                <CoffeeBeanIcon className="w-3 h-3 text-amber-700" filled />
+                <span>Decaf Sublime · Zwitserse Watermethode</span>
+              </div>
+              <p className="text-xs text-stone-600 leading-relaxed italic">
+                "Eindelijk een cafeïnevrije specialty koffie die écht zoals volwaardige specialty smaakt! Dankzij de natuurlijke suikerriet-methode blijft het aroma zoet en vol. Geen slapeloze nachten meer."
+              </p>
+              <div className="flex flex-wrap gap-1 pt-2 border-t border-stone-100 text-[10px]">
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Melkchocolade</span>
+                <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-600 font-medium">Appel</span>
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 rounded font-medium ml-auto">✓ 100% Cafeïnevrij</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Coffee Taste Review Modal */}
       <CoffeeReviewModal

@@ -167,6 +167,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   // Taste Review Modal State
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewCoffeeName, setReviewCoffeeName] = useState<string>('Selection Daily');
+  const [reviewModalMode, setReviewModalMode] = useState<'view' | 'write'>('write');
 
   // Helper to build robust invoice PDF download URL with token query parameter
   const getInvoicePdfUrl = (rawUrl: string, download = false) => {
@@ -708,8 +709,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
   };
 
   // Handle open review modal
-  const handleOpenReview = (coffeeName: string) => {
+  const handleOpenReview = (coffeeName: string, mode: 'view' | 'write' = 'write') => {
     setReviewCoffeeName(coffeeName);
+    setReviewModalMode(mode);
     setIsReviewModalOpen(true);
   };
 
@@ -2044,9 +2046,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                         ))}
                       </div>
                     </div>
-                    {rev.selectedNotes && rev.selectedNotes.length > 0 && (
+                    {(rev.flavorNotes || rev.selectedNotes) && (rev.flavorNotes || rev.selectedNotes).length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {rev.selectedNotes.map((note: string, i: number) => (
+                        {(rev.flavorNotes || rev.selectedNotes).map((note: string, i: number) => (
                           <span
                             key={i}
                             className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-medium"
@@ -2382,6 +2384,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         defaultCoffeeName={reviewCoffeeName}
+        initialMode={reviewModalMode}
         onReviewSubmitted={fetchAccountData}
       />
     </div>

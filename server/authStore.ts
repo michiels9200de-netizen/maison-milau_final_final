@@ -337,7 +337,7 @@ class AuthStore {
         id: 'usr-b2c-01',
         email: 'klant@voorbeeld.be',
         username: 'laurent',
-        password: '3920753ea69e59858f412931f14d6cd5:6259e428c2c8a108b3b5863fb2e461f25a114987da1d38ddba0f9300a908045135a5190dd5603ad22c631f5aa8f53f0277fafd9104c52f0ef8ee3eef5982c60a',
+        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
         name: 'Laurent Michiels',
         phone: '+32 467 77 37 66',
         accountType: 'particulier',
@@ -363,7 +363,7 @@ class AuthStore {
         id: 'usr-b2b-01',
         email: 'aankoop@delangetafel.be',
         username: 'delangetafel',
-        password: 'cf7efa097e7586ddb486fbdd9e2d9cff:b0895548a0d35f66bdd32328e6008912b91939adc89ff806c4464b3dae580774b02ec9138eaa264232a512f3950f9ff9977c76c3ac8804636ae920d74f37c824',
+        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
         name: 'Laurent Michiels (Aankoper)',
         phone: '+32 467 77 37 66',
         accountType: 'professioneel',
@@ -897,6 +897,10 @@ class AuthStore {
       }
     }
     return null;
+  }
+
+  public async reloadUsers(): Promise<void> {
+    await this.syncAllUsersToCache();
   }
 
   public getAllUsersSync(): UserRecord[] {
