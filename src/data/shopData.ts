@@ -80,6 +80,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'binnenkort_beschikbaar',
     catalogSlug: 'budget-compatible-capsules',
     imagePlaceholderText: 'Maison Milau Compatible Capsules - Budget',
+    imageUrl: '/images/maison_milau_capsule_placeholder.jpg',
   },
 
   // --- Blends: Value ---
@@ -159,6 +160,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'binnenkort_beschikbaar',
     catalogSlug: 'value-compatible-capsules',
     imagePlaceholderText: 'Maison Milau Compatible Capsules - Value',
+    imageUrl: '/images/maison_milau_capsule_placeholder.jpg',
   },
 
   // --- Blends: Selection ---
@@ -238,6 +240,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'binnenkort_beschikbaar',
     catalogSlug: 'selection-compatible-capsules',
     imagePlaceholderText: 'Maison Milau Compatible Capsules - Selection',
+    imageUrl: '/images/maison_milau_capsule_placeholder.jpg',
   },
 
   // --- Blends: Premium ---
@@ -317,6 +320,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'binnenkort_beschikbaar',
     catalogSlug: 'premium-compatible-capsules',
     imagePlaceholderText: 'Maison Milau Compatible Capsules - Premium',
+    imageUrl: '/images/maison_milau_capsule_placeholder.jpg',
   },
 
   // --- Blends: Prestige ---
@@ -396,6 +400,7 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     batchStatus: 'binnenkort_beschikbaar',
     catalogSlug: 'prestige-compatible-capsules',
     imagePlaceholderText: 'Maison Milau Compatible Capsules - Prestige',
+    imageUrl: '/images/maison_milau_capsule_placeholder.jpg',
   },
 
   // --- Barrel Aged Coffees ---

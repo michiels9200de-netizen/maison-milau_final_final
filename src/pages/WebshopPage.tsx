@@ -23,7 +23,9 @@ import {
   Flame,
   Coffee,
   Layers,
+  ChevronDown,
 } from 'lucide-react';
+import { SubscriptionConfigurator } from '../components/SubscriptionConfigurator';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
 import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
@@ -643,48 +645,25 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               </span>
             </div>
 
-            {/* Visual Representation: Elegant Capsule Placeholder Graphic (NO coffee bag image, NO product photo) */}
-            <div className="mb-3 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/40 rounded-xl p-3 flex flex-col items-center justify-center border border-amber-500/20 overflow-hidden shadow-inner">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(217,119,6,0.18)_0%,transparent_70%)] pointer-events-none" />
+            {/* Visual Representation: Dedicated Capsule Placeholder Asset (Easily replaceable by updating image file) */}
+            <div className="mb-2.5 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/40 rounded-xl p-2 flex items-center justify-center border border-amber-500/20 overflow-hidden shadow-inner">
+              <img
+                src={product.imageUrl || '/images/maison_milau_capsule_placeholder.jpg'}
+                alt="Maison Milau Compatible Capsules"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/images/maison_milau_capsule_placeholder.jpg';
+                }}
+              />
 
-              <div className="relative z-10 flex flex-col items-center justify-center">
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-900/30 to-stone-900 border border-amber-400/40 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                  <svg
-                    viewBox="0 0 64 64"
-                    className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <ellipse cx="32" cy="18" rx="22" ry="5" stroke="currentColor" strokeWidth="2.5" fill="currentColor" fillOpacity="0.25" />
-                    <path
-                      d="M13 19 L19 46 Q20 52 32 52 Q44 52 45 46 L51 19"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinejoin="round"
-                    />
-                    <ellipse cx="32" cy="46" rx="13" ry="3.5" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
-                    <path
-                      d="M32 28 L33.5 32.5 L38 34 L33.5 35.5 L32 40 L30.5 35.5 L26 34 L30.5 32.5 Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </div>
-                <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-amber-200">
-                  Specialty Capsule
-                </div>
-                <div className="text-[9px] text-stone-400">
-                  Nespresso® Compatible
-                </div>
-              </div>
-
-              <div className="absolute bottom-2 inset-x-2 text-center bg-stone-900/90 backdrop-blur-xs border border-amber-600/30 py-1 px-2 rounded-lg">
-                <span className="text-[10px] font-bold text-amber-300 tracking-wide uppercase">
+              <div className="absolute bottom-1.5 inset-x-2 text-center bg-stone-900/90 backdrop-blur-xs border border-amber-600/30 py-0.5 px-1.5 rounded-md">
+                <span className="text-[9px] font-bold text-amber-300 tracking-wide uppercase">
                   Coming Soon · Binnenkort Beschikbaar
                 </span>
               </div>
             </div>
 
-            {/* Product Name & Short Description */}
+            {/* Product Name (Description removed for clean scanning) */}
             <div className="mb-2">
               <div className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-wider mb-0.5">
                 {product.collection ? `${product.collection} Edition` : 'Specialty Blend'} · Nespresso® Compatible
@@ -692,9 +671,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               <h3 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight group-hover:text-amber-300 transition-colors">
                 Maison Milau Compatible Capsules
               </h3>
-              <p className="text-[11px] text-stone-300 leading-snug mt-1">
-                {product.shortDescription || `Ambachtelijke ${product.collection || 'specialty'} koffie in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.`}
-              </p>
             </div>
 
             {/* Status Information Box */}
@@ -910,68 +886,60 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 </button>
               )}
             </div>
-            <p className="text-[11px] text-stone-500 leading-snug mt-0.5 line-clamp-2" title={product.shortDescription}>
-              {product.shortDescription}
-            </p>
           </div>
 
-          {/* Coffee Character Profile - Compact Sensory Display */}
-          {product.characterProfile && (
-            <div className="mb-2">
-              <CoffeeCharacterCard profile={product.characterProfile} compact={true} />
-            </div>
-          )}
-
-          {/* Weight Selector */}
-          <div className="mb-2">
-            <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
-              <span>Formaat:</span>
-              <span className="font-bold text-stone-700">{currentWeight}</span>
-            </div>
-            <div className={`grid ${product.variants.length === 1 ? 'grid-cols-1' : product.variants.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-1`}>
-              {product.variants.map((v) => (
-                <button
-                  key={v.weight}
-                  onClick={() =>
-                    setSelectedWeight({ ...selectedWeight, [product.id]: v.weight })
-                  }
-                  className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-semibold border transition-all text-center leading-tight ${
-                    currentWeight === v.weight
-                      ? 'bg-amber-950 text-white border-amber-950 shadow-2xs'
-                      : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
-                  }`}
-                >
-                  <div>{v.weight}</div>
-                  <div className="text-[9px] font-normal opacity-85">€{v.price.toFixed(2)}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Grind Selector (If applicable) */}
-          {product.grindOptions.length > 1 && (
-            <div className="mb-2">
-              <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
-                <span>Maalgraad:</span>
-                <span className="text-[10px] text-stone-700 font-medium">{currentGrind}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-1">
-                {product.grindOptions.map((grind) => (
-                  <button
-                    key={grind}
-                    onClick={() =>
-                      setSelectedGrind({ ...selectedGrind, [product.id]: grind })
+          {/* Format & Grind Expandable Selectors - Compact & Clean */}
+          {product.variants.length > 0 && product.id !== 'prod-acc-tshirt' && !isGiftbox && (
+            <div className={`mb-2 ${product.grindOptions.length > 1 ? 'grid grid-cols-2 gap-1.5' : ''}`}>
+              {/* Format Dropdown */}
+              <div>
+                <div className="text-[9px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">
+                  Formaat
+                </div>
+                <div className="relative">
+                  <select
+                    id={`format-select-${product.id}`}
+                    value={currentWeight}
+                    onChange={(e) =>
+                      setSelectedWeight({ ...selectedWeight, [product.id]: e.target.value })
                     }
-                    className={`py-1 px-1 rounded-md text-[10px] sm:text-[11px] font-medium border transition-colors text-center ${
-                      currentGrind === grind
-                        ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                        : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
-                    }`}
+                    className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-[11px] font-semibold py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
                   >
-                    {grind}
-                  </button>
-                ))}
+                    {product.variants.map((v) => (
+                      <option key={v.weight} value={v.weight}>
+                        {v.weight} — €{v.price.toFixed(2)}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3 h-3 text-stone-500 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
+
+              {/* Grind Dropdown (if multiple grind options) */}
+              {product.grindOptions.length > 1 && (
+                <div>
+                  <div className="text-[9px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">
+                    Maalgraad
+                  </div>
+                  <div className="relative">
+                    <select
+                      id={`grind-select-${product.id}`}
+                      value={currentGrind}
+                      onChange={(e) =>
+                        setSelectedGrind({ ...selectedGrind, [product.id]: e.target.value as any })
+                      }
+                      className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-[11px] font-medium py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
+                    >
+                      {product.grindOptions.map((g) => (
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-3 h-3 text-stone-500 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1089,55 +1057,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Subscription Option Integrated into Price */}
-          {isCoffeeProduct && (
-            <div className="mb-2 bg-stone-50/80 border border-stone-200/80 rounded-lg p-1.5">
-              <div className="grid grid-cols-2 gap-1 text-[10px] sm:text-[11px] font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'eenmalig' })}
-                  className={`py-1 px-1 rounded-md border text-center transition-all ${
-                    !isSubscription
-                      ? 'bg-white text-stone-900 border-stone-300 shadow-2xs font-bold'
-                      : 'bg-transparent text-stone-500 border-transparent hover:text-stone-700'
-                  }`}
-                >
-                  Eenmalig
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPurchaseTypes({ ...purchaseTypes, [product.id]: 'abonnement' })}
-                  className={`py-1 px-1 rounded-md border text-center transition-all ${
-                    isSubscription
-                      ? 'bg-amber-900 text-white border-amber-900 shadow-2xs font-bold'
-                      : 'bg-transparent text-amber-900 border-transparent hover:bg-amber-50'
-                  }`}
-                >
-                  Abo (-10%)
-                </button>
-              </div>
-
-              {isSubscription && (
-                <div className="mt-1.5 pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px]">
-                  <span className="text-stone-500">Frequentie:</span>
-                  <select
-                    value={frequency}
-                    onChange={(e) =>
-                      setSubscriptionFrequencies({
-                        ...subscriptionFrequencies,
-                        [product.id]: e.target.value as any,
-                      })
-                    }
-                    className="bg-white border border-stone-300 rounded text-[10px] py-0.5 px-1 text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-900"
-                  >
-                    <option value="2_weken">Elke 2 wkn (vers)</option>
-                    <option value="4_weken">Elke 4 wkn (maand)</option>
-                  </select>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Bi-directional Link to Catalog Dossier, Terroir, and Taste Review */}
           <div className="mb-2 flex items-center justify-between text-[10px] text-stone-500">
             {matchingCatalogCoffee ? (
@@ -1190,24 +1109,19 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-1.5 mt-auto">
           <div className="shrink-0">
             <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
-              {isGiftbox ? 'Boxprijs' : isSubscription ? 'Abo-prijs' : 'Prijs'}
+              {isGiftbox ? 'Boxprijs' : 'Prijs'}
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-sm sm:text-base font-bold text-stone-900 font-mono">
                 €{effectivePrice.toFixed(2)}
               </span>
-              {isSubscription && (
-                <span className="text-[10px] text-stone-400 line-through">
-                  €{currentVariant.price.toFixed(2)}
-                </span>
-              )}
             </div>
           </div>
 
           <button
             id={`btn-add-cart-${product.sku}`}
             onClick={() => handleAddToCart(product)}
-            className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs"
+            className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
             title={`In winkelwagen: ${product.name}`}
           >
             <ShoppingBag className="w-3 h-3 shrink-0" />
@@ -1232,7 +1146,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             }}
             alt="Maison Milau Specialty Koffiebonen"
             aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
+            className="w-full h-full object-cover object-center opacity-85 sm:opacity-90 brightness-110 contrast-105 scale-102 transition-transform duration-1000 ease-out"
           />
 
           {/* Delicate Roastery Micro-Texture */}
@@ -1263,9 +1177,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          {/* Rich Multi-Stop Directional Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
+          {/* Rich Multi-Stop Directional Gradient (Lightened by ~15% for enhanced visibility & warmth) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/82 via-[#22130B]/68 via-[#2A150D]/42 to-[#180E08]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06]/78 via-transparent to-[#180E08]/20" />
 
           {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
           <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
@@ -1367,22 +1281,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <span>Nieuw Product · Binnenkort Beschikbaar</span>
               </div>
 
-              {/* Capsule Graphic Visual */}
-              <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-tr from-amber-950 via-stone-800 to-amber-700/40 p-3 border border-amber-400/30 shadow-lg flex items-center justify-center">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-10 h-10 text-amber-300"
-                >
-                  {/* Stylized coffee capsule */}
-                  <path d="M6 8h12l-1.5 9.5a2 2 0 0 1-2 1.5h-5a2 2 0 0 1-2-1.5L6 8z" />
-                  <ellipse cx="12" cy="7.5" rx="7" ry="2.5" />
-                  <path d="M9 13c1.5 1 4.5 1 6 0" />
-                </svg>
+              {/* Capsule Graphic Visual (Dedicated Placeholder Asset) */}
+              <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 rounded-2xl bg-stone-900 border border-amber-400/40 shadow-xl overflow-hidden p-2 flex items-center justify-center">
+                <img
+                  src="/images/maison_milau_capsule_placeholder.jpg"
+                  alt="Maison Milau Compatible Coffee Capsules"
+                  className="w-full h-full object-contain"
+                />
               </div>
 
               {/* Main Headline */}
@@ -1524,6 +1429,31 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
         </section>
+      ) : selectedCategory === 'subscriptions' ? (
+        /* Enhanced Subscription Program: Dynamic 10% Calculator & Pre-configured Packages */
+        <section className="py-4 sm:py-6 animate-fadeIn">
+          <SubscriptionConfigurator
+            allProducts={SHOP_PRODUCTS}
+            onAddToCart={(item) => addItem(item)}
+          />
+
+          {/* Curated Pre-Configured Subscription Packages */}
+          <div className="max-w-5xl mx-auto px-3 sm:px-6 mb-12">
+            <div className="mb-4 text-center">
+              <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif">
+                Of Kies Een Samengesteld Proefpakket Abonnement
+              </h3>
+              <p className="text-xs text-stone-600 mt-0.5">
+                Vaste specialty selecties inclusief 10% abonnementskorting.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {SHOP_PRODUCTS.filter((p) => p.category === 'subscriptions').map((prod) =>
+                renderProductCard(prod, COLLECTION_THEMES['Abonnementen'] || COLLECTION_THEMES['Premium'])
+              )}
+            </div>
+          </div>
+        </section>
       ) : selectedCategory === 'promotions' ? (
         /* Promotions Category - Available for future promotional campaigns & discounts */
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14 text-center">
@@ -1628,6 +1558,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                 {/* Product Grid inside Collection Zone */}
                 <div className="relative z-10 max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+                  {collectionKey === 'Abonnementen' && (
+                    <div className="mb-6">
+                      <SubscriptionConfigurator
+                        allProducts={SHOP_PRODUCTS}
+                        onAddToCart={(item) => addItem(item)}
+                      />
+                    </div>
+                  )}
                   <div
                     className={
                       collectionProducts.length === 4

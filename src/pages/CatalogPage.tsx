@@ -173,7 +173,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
             }}
             alt="Maison Milau Koffiegids & Terroir"
             aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
+            className="w-full h-full object-cover object-center opacity-85 sm:opacity-90 brightness-110 contrast-105 scale-102 transition-transform duration-1000 ease-out"
           />
 
           {/* Delicate Roastery Micro-Texture */}
@@ -204,9 +204,9 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
           <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          {/* Rich Multi-Stop Directional Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
+          {/* Rich Multi-Stop Directional Gradient (Lightened by ~15% for enhanced visibility & warmth) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/82 via-[#22130B]/68 via-[#2A150D]/42 to-[#180E08]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06]/78 via-transparent to-[#180E08]/20" />
 
           {/* Section Continuity Gradient & Soft Bottom Transition Bridge */}
           <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
@@ -243,30 +243,42 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
 
       {/* Main Content Area - Soft Natural Flow from Hero */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-3.5 sm:pt-4">
-        {/* 2. COFFEE COLLECTIONS (Filter Bar & Navigation) */}
-        <div className="bg-white rounded-xl border border-stone-200/90 p-3.5 sm:p-4 shadow-2xs mb-4 sm:mb-5">
-          <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">
-            {/* Search Bar */}
-            <div className="w-full md:w-80 relative">
-              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Zoek op herkomst, smaak of naam..."
-                className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-900"
-              />
-            </div>
+        {/* 2. COFFEE COLLECTIONS & FILTER BAR (Reorganized for maximum usability & reduced vertical height) */}
+        <div className="bg-white rounded-xl border border-stone-200/90 p-3 sm:p-3.5 shadow-2xs mb-4 sm:mb-5">
+          {/* Primary Navigation: Collecties */}
+          <div className="flex flex-wrap items-center gap-1.5 pb-2.5 border-b border-stone-100">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mr-1 hidden sm:inline">
+              Collectie:
+            </span>
+            {collections.map((col) => (
+              <button
+                key={col.id}
+                onClick={() => handleCollectionSelect(col.id)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
+                  selectedCollection === col.id
+                    ? 'bg-amber-900 text-white shadow-xs'
+                    : 'bg-stone-50 border border-stone-200 text-stone-700 hover:border-stone-300 hover:bg-stone-100'
+                }`}
+              >
+                <span>{col.label}</span>
+              </button>
+            ))}
+          </div>
 
-            {/* Method Filter */}
-            <div className="flex flex-wrap gap-1">
+          {/* Secondary Filters: Zetmethode & Search in compact flex layout */}
+          <div className="pt-2.5 flex flex-col md:flex-row gap-2.5 justify-between items-stretch md:items-center">
+            {/* Zetmethode Buttons */}
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mr-1 hidden sm:inline">
+                Zetmethode:
+              </span>
               {types.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setSelectedType(t.id)}
-                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  className={`px-2 py-1 rounded-md text-[11px] sm:text-xs font-medium transition-colors ${
                     selectedType === t.id
-                      ? 'bg-stone-900 text-white shadow-xs'
+                      ? 'bg-stone-900 text-white shadow-xs font-semibold'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >
@@ -274,23 +286,18 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Collection Pills */}
-          <div className="mt-3 pt-3 border-t border-stone-100 flex flex-wrap gap-1.5">
-            {collections.map((col) => (
-              <button
-                key={col.id}
-                onClick={() => handleCollectionSelect(col.id)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1 ${
-                  selectedCollection === col.id
-                    ? 'bg-amber-900 text-amber-50 shadow-xs'
-                    : 'bg-stone-50 border border-stone-200 text-stone-700 hover:border-stone-400'
-                }`}
-              >
-                <span>{col.label}</span>
-              </button>
-            ))}
+            {/* Compact Search Bar */}
+            <div className="w-full md:w-72 relative">
+              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Zoek op terroir, smaak of naam..."
+                className="w-full pl-8 pr-3 py-1.5 bg-stone-50 border border-stone-300 rounded-lg text-xs placeholder:text-stone-400 focus:outline-none focus:ring-1.5 focus:ring-amber-900"
+              />
+            </div>
           </div>
         </div>
 
