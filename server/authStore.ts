@@ -70,26 +70,9 @@ class AuthStore {
     this.detectMode();
   }
 
-  private detectMode(): void {
-    const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
-    const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-    const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://'))) {
-      this.mode = 'postgres';
-      this.pgPool = new Pool({
-        connectionString: dbUrl,
-        ssl: dbUrl.includes('localhost') ? false : { rejectUnauthorized: false },
-        max: 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
-      });
-      console.log('[AUTH_STORE] Datastore configured: PostgreSQL Pool (Production)');
-    } else if (sbUrl && sbKey && sbUrl.startsWith('http')) {
-      this.mode = 'supabase';
-      console.log('[AUTH_STORE] Datastore configured: Supabase Cloud (Production)');
-    } else {
-      this.mode = 'sqlite';
+  private initSqlite(): void {
+    this.mode = 'sqlite';
+    if (!this.sqliteDb) {
       const dbDir = isVercelRuntime ? path.join('/tmp', 'data') : path.join(process.cwd(), 'data');
       if (!fs.existsSync(dbDir)) {
         fs.mkdirSync(dbDir, { recursive: true });
@@ -107,13 +90,57 @@ class AuthStore {
     }
   }
 
+  private detectMode(): void {
+    const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
+    const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://'))) {
+      this.mode = 'postgres';
+      try {
+        // Strip sslmode from the URL query params so pg-connection-string doesn't overwrite rejectUnauthorized: false
+        let cleanDbUrl = dbUrl;
+        try {
+          const parsedUrl = new URL(dbUrl);
+          parsedUrl.searchParams.delete('sslmode');
+          parsedUrl.searchParams.delete('ssl');
+          cleanDbUrl = parsedUrl.toString();
+        } catch {}
+
+        this.pgPool = new Pool({
+          connectionString: cleanDbUrl,
+          ssl: cleanDbUrl.includes('localhost') ? false : { rejectUnauthorized: false },
+          max: 10,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 10000,
+        });
+        console.log('[AUTH_STORE] Datastore configured: PostgreSQL Pool (Production)');
+      } catch (poolErr: any) {
+        console.warn('[AUTH_STORE] Could not initialize PostgreSQL Pool, falling back to SQLite:', poolErr?.message || poolErr);
+        this.initSqlite();
+      }
+    } else if (sbUrl && sbKey && sbUrl.startsWith('http')) {
+      this.mode = 'supabase';
+      console.log('[AUTH_STORE] Datastore configured: Supabase Cloud (Production)');
+    } else {
+      this.initSqlite();
+    }
+  }
+
   public async init(): Promise<void> {
     if (this.initialized) return;
 
     try {
       if (this.mode === 'postgres' && this.pgPool) {
-        await this.initPostgresSchema();
-      } else if (this.mode === 'sqlite' && this.sqliteDb) {
+        try {
+          await this.initPostgresSchema();
+        } catch (pgErr: any) {
+          console.warn('[AUTH_STORE WARNING] PostgreSQL connection failed, falling back to SQLite datastore:', pgErr?.message || pgErr);
+          this.initSqlite();
+          this.initSqliteSchema();
+        }
+      } else if (this.mode === 'sqlite') {
+        this.initSqlite();
         this.initSqliteSchema();
       }
 
@@ -131,8 +158,20 @@ class AuthStore {
       this.initialized = true;
       console.log(`[AUTH_STORE] Initialized successfully. Total active user records: ${this.memoryCache.size}`);
     } catch (err: any) {
-      console.error('[AUTH_STORE ERROR] Failed to initialize datastore:', err?.message || err);
-      throw err;
+      console.error('[AUTH_STORE ERROR] Datastore initialization encountered error, attempting recovery:', err?.message || err);
+      try {
+        this.initSqlite();
+        this.initSqliteSchema();
+        await this.syncAllUsersToCache();
+        if (this.memoryCache.size === 0) {
+          await this.seedInitialAccounts();
+        }
+        this.initialized = true;
+        console.log(`[AUTH_STORE] Recovery successful. Total active user records: ${this.memoryCache.size}`);
+      } catch (recErr: any) {
+        console.error('[AUTH_STORE FATAL] Datastore recovery also failed:', recErr?.message || recErr);
+        throw recErr;
+      }
     }
   }
 
