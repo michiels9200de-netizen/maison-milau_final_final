@@ -24,6 +24,13 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   variant = 'desktop',
   className = '',
 }) => {
+  // Language switcher is hidden from the user interface per requirement until translations are fully completed and tested.
+  // Preserving all i18next configuration, translation files, keys, and logic intact for future activation.
+  const SHOW_LANGUAGE_SWITCHER = false;
+  if (!SHOW_LANGUAGE_SWITCHER) {
+    return null;
+  }
+
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

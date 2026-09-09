@@ -290,8 +290,8 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             <span className="hidden xl:inline">{t('nav.admin', 'Roastery Beheer')}</span>
           </button>
 
-          {/* Desktop Language Switcher */}
-          <LanguageSwitcher variant="desktop" className="hidden sm:inline-block" />
+          {/* Desktop Language Switcher (Temporarily hidden until translations are finalized) */}
+          {/* <LanguageSwitcher variant="desktop" className="hidden sm:inline-block" /> */}
 
           {/* Account Dropdown Menu with B2C/B2B Switcher & Roastery Beheer */}
           <div
@@ -438,8 +438,8 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             </div>
           </div>
 
-          {/* Mobile Topbar Language Switcher */}
-          <LanguageSwitcher variant="mobile" className="sm:hidden" />
+          {/* Mobile Topbar Language Switcher (Temporarily hidden until translations are finalized) */}
+          {/* <LanguageSwitcher variant="mobile" className="sm:hidden" /> */}
 
           {/* Cart Toggle */}
           <button
@@ -487,8 +487,8 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             </button>
           </div>
 
-          {/* Mobile Language Selector (Accessible in Drawer) */}
-          <LanguageSwitcher variant="drawer" className="mb-4" />
+          {/* Mobile Language Selector (Temporarily hidden until translations are finalized) */}
+          {/* <LanguageSwitcher variant="drawer" className="mb-4" /> */}
 
           {/* Mobile User Profile or Login Status */}
           {user ? (

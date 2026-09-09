@@ -9,8 +9,6 @@ import {
   Search,
   ArrowRight,
   ShoppingBag,
-  Sparkles,
-  Bell,
   ShieldCheck,
 } from 'lucide-react';
 import { CoffeeDiscoveryCard } from '../components/coffee-guide/CoffeeDiscoveryCard';
@@ -32,7 +30,6 @@ export const CATALOG_COLLECTIONS_ORDER = [
   'Barrel Aged',
   'Infused',
   'Single Origin',
-  'Future Collections',
 ] as const;
 
 export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams }) => {
@@ -116,7 +113,6 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
     { id: 'Barrel Aged', label: 'Barrel Aged' },
     { id: 'Infused', label: 'Infused' },
     { id: 'Single Origin', label: 'Single Origin' },
-    { id: 'Future Collections', label: 'Future Collections' },
   ];
 
   const types = [
@@ -129,7 +125,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
 
   const handleCollectionSelect = (colId: string) => {
     setSelectedCollection(colId);
-    if (colId !== 'all' && colId !== 'Future Collections') {
+    if (colId !== 'all') {
       const introKey = colId === 'Single Origin' ? 'Single Origins' : colId;
       setActiveIntroCollection(introKey);
       setTimeout(() => {
@@ -385,7 +381,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
         </div>
       </main>
 
-      {/* 3. COLLECTION BACKGROUND SEGMENTATION (Budget -> Future Collections) */}
+      {/* 3. COLLECTION BACKGROUND SEGMENTATION (Budget -> Single Origin) */}
       <div className="space-y-0">
         {CATALOG_COLLECTIONS_ORDER.map((collectionKey) => {
           if (selectedCollection !== 'all' && selectedCollection !== collectionKey) {
@@ -398,14 +394,10 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
             if (collectionKey === 'Single Origin') {
               return item.collection === 'Single Origins' || item.collection === 'Single Origin';
             }
-            if (collectionKey === 'Future Collections') {
-              return false;
-            }
             return item.collection === collectionKey;
           });
 
-          const isFutureCollections = collectionKey === 'Future Collections';
-          if (!isFutureCollections && collectionItems.length === 0) return null;
+          if (collectionItems.length === 0) return null;
 
           return (
             <section
@@ -441,11 +433,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
                   </div>
                   <div className={`self-start sm:self-end flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg ${theme.countBadgeStyle} shrink-0`}>
                     <span>
-                      {isFutureCollections
-                        ? '1 innovatie'
-                        : ['Budget', 'Value', 'Selection', 'Premium', 'Prestige'].includes(collectionKey)
-                        ? `${collectionItems.length} profielen + 1 capsule editie`
-                        : `${collectionItems.length} ${collectionItems.length === 1 ? 'koffieprofiel' : 'koffieprofielen'}`}
+                      {`${collectionItems.length} ${collectionItems.length === 1 ? 'koffieprofiel' : 'koffieprofielen'}`}
                     </span>
                   </div>
                 </div>
@@ -453,187 +441,17 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
 
               {/* Profiles Grid */}
               <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
-                {isFutureCollections ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-                    <div className="bg-gradient-to-b from-stone-900 via-stone-900 to-stone-950 text-white rounded-xl border border-amber-500/40 p-4 sm:p-5 flex flex-col justify-between shadow-md">
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-amber-400" />
-                            <span>Binnenkort Beschikbaar</span>
-                          </span>
-                          <span className="font-semibold text-rose-300 bg-rose-950/70 border border-rose-800/40 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">
-                            Niet op voorraad
-                          </span>
-                        </div>
-
-                        <div className="mb-4 relative w-full aspect-[4/3] bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/40 rounded-xl p-4 flex flex-col items-center justify-center border border-amber-500/20 overflow-hidden shadow-inner">
-                          <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-900/30 to-stone-900 border border-amber-400/40 flex items-center justify-center shadow-lg">
-                            <svg
-                              viewBox="0 0 64 64"
-                              className="w-10 h-10 text-amber-300 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <ellipse cx="32" cy="18" rx="22" ry="5" stroke="currentColor" strokeWidth="2.5" fill="currentColor" fillOpacity="0.25" />
-                              <path
-                                d="M13 19 L19 46 Q20 52 32 52 Q44 52 45 46 L51 19"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinejoin="round"
-                              />
-                              <ellipse cx="32" cy="46" rx="13" ry="3.5" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
-                              <path
-                                d="M32 28 L33.5 32.5 L38 34 L33.5 35.5 L32 40 L30.5 35.5 L26 34 L30.5 32.5 Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </div>
-                          <div className="mt-2 text-xs font-bold uppercase tracking-widest text-amber-200">
-                            Specialty Capsule Formaat
-                          </div>
-                          <div className="text-[10px] text-stone-400">
-                            Nespresso® Compatible
-                          </div>
-                        </div>
-
-                        <div className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-wider mb-0.5">
-                          Maison Milau Compatible Capsules
-                        </div>
-                        <h3 className="text-base font-bold text-white tracking-tight mb-1">
-                          Maison Milau Compatible Capsules
-                        </h3>
-                        <p className="text-xs text-stone-300 leading-relaxed mb-3">
-                          Onze ambachtelijke brandingen worden binnenkort gecapsuleerd in biologisch afbreekbare capsules met zuurstofbarrière voor optimale versheid en crema.
-                        </p>
-
-                        <div className="p-2.5 rounded-lg bg-stone-950/80 border border-stone-800 text-[11px] space-y-1 mb-4">
-                          <div className="flex justify-between text-stone-400">
-                            <span>Status:</span>
-                            <span className="font-bold text-amber-300">Binnenkort Beschikbaar</span>
-                          </div>
-                          <div className="flex justify-between text-stone-400">
-                            <span>Availability:</span>
-                            <span className="font-semibold text-rose-300">Niet op voorraad</span>
-                          </div>
-                          <div className="text-[10px] text-stone-400 italic pt-1 border-t border-stone-800/80 flex items-center justify-between">
-                            <span>Not available yet</span>
-                            <span className="text-stone-500">Geen aankoop mogelijk</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 border-t border-stone-800 flex items-center justify-between gap-2">
-                        <button
-                          type="button"
-                          onClick={() => navigate('/webshop?cat=new_products')}
-                          className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white py-2 px-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          <Bell className="w-3.5 h-3.5" />
-                          <span>Blijf op de hoogte in de Webshop</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-                    {collectionItems.map((coffee) => (
-                      <CoffeeDiscoveryCard
-                        key={coffee.id}
-                        coffee={coffee}
-                        onOpenDossier={handleOpenDossier}
-                        navigate={navigate}
-                        isDarkTheme={theme.isDarkTheme}
-                      />
-                    ))}
-
-                    {/* Dedicated Nespresso Placeholder Card for each of the 5 Specialty Blend Collections */}
-                    {['Budget', 'Value', 'Selection', 'Premium', 'Prestige'].includes(collectionKey) && (
-                      <div
-                        id={`catalog-capsule-${collectionKey.toLowerCase()}`}
-                        className="bg-gradient-to-b from-stone-900 via-stone-900 to-stone-950 text-white rounded-xl border border-amber-500/40 p-4 sm:p-5 flex flex-col justify-between shadow-md hover:border-amber-400/60 transition-all"
-                      >
-                        <div>
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <span className="font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider flex items-center gap-1">
-                              <Sparkles className="w-3 h-3 text-amber-400" />
-                              <span>Binnenkort Beschikbaar</span>
-                            </span>
-                            <span className="font-semibold text-rose-300 bg-rose-950/70 border border-rose-800/40 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider">
-                              Niet op voorraad
-                            </span>
-                          </div>
-
-                          <div className="mb-4 relative w-full aspect-[4/3] bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/40 rounded-xl p-4 flex flex-col items-center justify-center border border-amber-500/20 overflow-hidden shadow-inner">
-                            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-900/30 to-stone-900 border border-amber-400/40 flex items-center justify-center shadow-lg">
-                              <svg
-                                viewBox="0 0 64 64"
-                                className="w-10 h-10 text-amber-300 filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <ellipse cx="32" cy="18" rx="22" ry="5" stroke="currentColor" strokeWidth="2.5" fill="currentColor" fillOpacity="0.25" />
-                                <path
-                                  d="M13 19 L19 46 Q20 52 32 52 Q44 52 45 46 L51 19"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                  strokeLinejoin="round"
-                                />
-                                <ellipse cx="32" cy="46" rx="13" ry="3.5" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
-                                <path
-                                  d="M32 28 L33.5 32.5 L38 34 L33.5 35.5 L32 40 L30.5 35.5 L26 34 L30.5 32.5 Z"
-                                  fill="currentColor"
-                                />
-                              </svg>
-                            </div>
-                            <div className="mt-2 text-xs font-bold uppercase tracking-widest text-amber-200">
-                              {collectionKey} Blend Capsule
-                            </div>
-                            <div className="text-[10px] text-stone-400">
-                              Nespresso® Compatible
-                            </div>
-                          </div>
-
-                          <div className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-wider mb-0.5">
-                            {collectionKey} Edition · Nespresso® Compatible
-                          </div>
-                          <h3 className="text-base font-bold text-white tracking-tight mb-1">
-                            Maison Milau Compatible Capsules
-                          </h3>
-                          <p className="text-xs text-stone-300 leading-relaxed mb-3">
-                            Ambachtelijke {collectionKey} branding gecapsuleerd in 100% biologisch afbreekbare capsules met zuurstofbarrière. Perfect afgestemd op Nespresso® machines.
-                          </p>
-
-                          <div className="p-2.5 rounded-lg bg-stone-950/80 border border-stone-800 text-[11px] space-y-1 mb-4">
-                            <div className="flex justify-between text-stone-400">
-                              <span>Status:</span>
-                              <span className="font-bold text-amber-300">Binnenkort Beschikbaar</span>
-                            </div>
-                            <div className="flex justify-between text-stone-400">
-                              <span>Availability:</span>
-                              <span className="font-semibold text-rose-300">Niet op voorraad</span>
-                            </div>
-                            <div className="text-[10px] text-stone-400 italic pt-1 border-t border-stone-800/80 flex items-center justify-between">
-                              <span>Not available yet</span>
-                              <span className="text-stone-500">Geen aankoop mogelijk</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="pt-2 border-t border-stone-800 flex items-center justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/webshop?category=blends&sub=${collectionKey.toLowerCase()}`)}
-                            className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-white py-2 px-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <Bell className="w-3.5 h-3.5" />
-                            <span>Blijf op de hoogte ({collectionKey})</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+                  {collectionItems.map((coffee) => (
+                    <CoffeeDiscoveryCard
+                      key={coffee.id}
+                      coffee={coffee}
+                      onOpenDossier={handleOpenDossier}
+                      navigate={navigate}
+                      isDarkTheme={theme.isDarkTheme}
+                    />
+                  ))}
+                </div>
               </div>
             </section>
           );
