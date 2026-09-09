@@ -57,7 +57,7 @@ export interface CharacterProfile {
 }
 
 export interface CollectionIntro {
-  id: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origins' | 'Barrel Aged' | 'Infused';
+  id: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origin' | 'Single Origins' | 'Barrel Aged' | 'Infused';
   title: string;
   priceFrom: string;
   description: string[];
@@ -74,7 +74,7 @@ export interface CoffeeCatalogItem {
   id: string;
   slug: string;
   name: string;
-  collection: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origins' | 'Barrel Aged' | 'Infused';
+  collection: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origin' | 'Single Origins' | 'Barrel Aged' | 'Infused';
   type: 'Espresso' | 'Omni' | 'Filter' | 'Specialty';
   scaScore: string; // e.g. "86-87+", "88.5"
   beanSelection: string;
@@ -99,14 +99,14 @@ export interface Product {
   id: string;
   sku: string;
   name: string;
-  collection: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origins' | 'Barrel Aged' | 'Infused' | 'Giftboxes' | 'Toebehoren' | 'Abonnementen';
+  collection: 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Single Origin' | 'Single Origins' | 'Barrel Aged' | 'Infused' | 'Giftboxes' | 'Toebehoren' | 'Abonnementen';
   category: 'blends' | 'single_origins' | 'barrel_aged' | 'infused' | 'giftboxes' | 'merchandise' | 'subscriptions';
   shortDescription: string;
   variants: ProductVariant[];
-  grindOptions: ('Volle bonen' | 'Gemalen (Filter)')[];
-  defaultGrind: 'Volle bonen' | 'Gemalen (Filter)';
+  grindOptions: ('Volle bonen' | 'Gemalen (Filter)' | 'Capsule')[];
+  defaultGrind: 'Volle bonen' | 'Gemalen (Filter)' | 'Capsule';
   inStock: boolean;
-  batchStatus: 'op_voorraad' | 'in_batchplanning' | 'vers_gebrand';
+  batchStatus: 'op_voorraad' | 'in_batchplanning' | 'vers_gebrand' | 'binnenkort_beschikbaar';
   catalogSlug?: string; // Bi-directional link to catalog
   imagePlaceholderText: string;
   imageUrl?: string;
@@ -121,7 +121,7 @@ export interface CartItem {
   productName: string;
   collection: string;
   variantWeight: string;
-  grindOption: 'Volle bonen' | 'Gemalen (Filter)';
+  grindOption: 'Volle bonen' | 'Gemalen (Filter)' | 'Capsule';
   unitPrice: number;
   quantity: number;
   imageUrl?: string;

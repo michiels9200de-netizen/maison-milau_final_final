@@ -1,10 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, X, ShoppingBag, User, ChevronDown, Coffee, ChevronRight, ShieldCheck, Sparkles, LogOut } from 'lucide-react';
+import {
+  Menu,
+  X,
+  ShoppingBag,
+  User,
+  ChevronDown,
+  Coffee,
+  ChevronRight,
+  ShieldCheck,
+  Sparkles,
+  Compass,
+  Award,
+  Crown,
+  LogOut,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { WEBSHOP_SUBCATEGORIES, isValidRoute } from '../data/sitemap';
 import { CONFIG } from '../config';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
   currentPath: string;
@@ -62,12 +77,12 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
   }, []);
 
   const blendCategories = [
-    { id: 'all', name: 'Alle Blends' },
-    { id: 'budget', name: 'Budget' },
-    { id: 'value', name: 'Value' },
-    { id: 'selection', name: 'Selection' },
-    { id: 'prestige', name: 'Prestige' },
-    { id: 'ultimate', name: 'Ultimate' },
+    { id: 'all', name: t('nav.all_blends', 'Alle Blends'), icon: Coffee },
+    { id: 'budget', name: t('nav.budget', 'Budget'), icon: Sparkles },
+    { id: 'value', name: t('nav.value', 'Value'), icon: ShieldCheck },
+    { id: 'selection', name: t('nav.selection', 'Selection'), icon: Compass },
+    { id: 'premium', name: t('nav.premium', 'Premium'), icon: Award },
+    { id: 'prestige', name: t('nav.prestige', 'Prestige'), icon: Crown },
   ];
 
   const handleNavClick = (path: string) => {
@@ -188,22 +203,26 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                           <span>{sub.name}</span>
                           <ChevronRight className="w-3 h-3 text-stone-400" />
                         </button>
-                        <div className="pl-6 pr-4 py-1 grid grid-cols-2 gap-1 bg-stone-50/60 rounded-lg mx-2 mb-1">
-                          {blendCategories.map((b) => (
-                            <button
-                              key={b.id}
-                              onClick={() =>
-                                handleNavClick(
-                                  b.id === 'all'
-                                    ? '/webshop?category=blends'
-                                    : `/webshop?category=blends&sub=${b.id}`
-                                )
-                              }
-                              className="text-left text-[11px] text-stone-600 hover:text-amber-900 py-1 px-1 rounded hover:bg-white transition-colors"
-                            >
-                              {b.name}
-                            </button>
-                          ))}
+                        <div className="pl-4 pr-3 py-1.5 grid grid-cols-2 gap-1.5 bg-stone-50/80 rounded-lg mx-2 mb-1 border border-stone-100">
+                          {blendCategories.map((b) => {
+                            const IconComponent = b.icon;
+                            return (
+                              <button
+                                key={b.id}
+                                onClick={() =>
+                                  handleNavClick(
+                                    b.id === 'all'
+                                      ? '/webshop?category=blends'
+                                      : `/webshop?category=blends&sub=${b.id}`
+                                  )
+                                }
+                                className="text-left text-[11px] text-stone-700 hover:text-amber-950 py-1 px-1.5 rounded-md hover:bg-white transition-colors flex items-center gap-1.5 font-medium hover:shadow-2xs"
+                              >
+                                <IconComponent className="w-3 h-3 text-amber-800/80 shrink-0" />
+                                <span className="truncate">{b.name}</span>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     );
@@ -265,11 +284,14 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             id="btn-nav-roastery-admin"
             onClick={() => handleNavClick('/admin')}
             className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
-            title="Roastery Beheer (Admin Dashboard)"
+            title={t('nav.admin', 'Roastery Beheer')}
           >
             <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
-            <span className="hidden xl:inline">Roastery Beheer</span>
+            <span className="hidden xl:inline">{t('nav.admin', 'Roastery Beheer')}</span>
           </button>
+
+          {/* Desktop Language Switcher */}
+          <LanguageSwitcher variant="desktop" className="hidden sm:inline-block" />
 
           {/* Account Dropdown Menu with B2C/B2B Switcher & Roastery Beheer */}
           <div
@@ -416,12 +438,15 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             </div>
           </div>
 
+          {/* Mobile Topbar Language Switcher */}
+          <LanguageSwitcher variant="mobile" className="sm:hidden" />
+
           {/* Cart Toggle */}
           <button
             id="btn-header-cart"
             onClick={() => setIsCartOpen(true)}
             className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-stone-900 text-amber-50 hover:bg-stone-800 transition-colors shadow-xs"
-            aria-label="Winkelwagen openen"
+            aria-label={t('nav.cart', 'Winkelwagen openen')}
           >
             <ShoppingBag className="w-4 h-4" />
             {itemCount > 0 && (
@@ -447,7 +472,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
       {isMenuOpen && (
         <div className="lg:hidden bg-[#F8F6F2] border-b border-stone-300 px-6 py-5 shadow-xl animate-fadeIn max-h-[85vh] overflow-y-auto">
           {/* Mobile Menu Header with Logo */}
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-200">
+          <div className="flex items-center justify-between pb-4 mb-3 border-b border-stone-200">
             <img
               src="/images/logo1.png"
               alt="Maison Milau Logo"
@@ -456,11 +481,14 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             <button
               onClick={() => setIsMenuOpen(false)}
               className="p-2 text-stone-500 hover:text-stone-900 rounded-lg"
-              aria-label="Menu sluiten"
+              aria-label={t('nav.close_menu', 'Menu sluiten')}
             >
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Mobile Language Selector (Accessible in Drawer) */}
+          <LanguageSwitcher variant="drawer" className="mb-4" />
 
           {/* Mobile User Profile or Login Status */}
           {user ? (
@@ -620,22 +648,26 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                     </div>
 
                     {isBlendsSubmenuOpen && (
-                      <div className="pl-3 py-1 space-y-1.5 border-l-2 border-amber-800/40 my-1">
-                        {blendCategories.map((sub) => (
-                          <button
-                            key={sub.id}
-                            onClick={() =>
-                              handleNavClick(
-                                sub.id === 'all'
-                                  ? '/webshop?category=blends'
-                                  : `/webshop?category=blends&sub=${sub.id}`
-                              )
-                            }
-                            className="w-full text-left text-xs text-stone-600 hover:text-amber-900 py-1 block"
-                          >
-                            • {sub.name}
-                          </button>
-                        ))}
+                      <div className="pl-2 py-1 space-y-1 border-l-2 border-amber-800/40 my-1">
+                        {blendCategories.map((sub) => {
+                          const IconComp = sub.icon;
+                          return (
+                            <button
+                              key={sub.id}
+                              onClick={() =>
+                                handleNavClick(
+                                  sub.id === 'all'
+                                    ? '/webshop?category=blends'
+                                    : `/webshop?category=blends&sub=${sub.id}`
+                                )
+                              }
+                              className="w-full text-left text-xs text-stone-700 hover:text-amber-900 py-1.5 px-2 rounded hover:bg-stone-200/60 flex items-center gap-2 transition-colors"
+                            >
+                              <IconComp className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                              <span>{sub.name}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

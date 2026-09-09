@@ -11,6 +11,7 @@ interface CoffeeDiscoveryCardProps {
   onToggleCompare?: (coffee: CoffeeCatalogItem) => void;
   onOpenDossier: (coffee: CoffeeCatalogItem) => void;
   navigate: (path: string) => void;
+  isDarkTheme?: boolean;
 }
 
 export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
@@ -19,6 +20,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
   onToggleCompare,
   onOpenDossier,
   navigate,
+  isDarkTheme = false,
 }) => {
   const specs = getEnrichedSpecs(coffee);
 
@@ -72,7 +74,11 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
       id={`coffee-card-${coffee.id}`}
       data-coffee-id={coffee.id}
       data-webshop-id={coffee.webshopProductId}
-      className="bg-white border border-[#D8CEBE] rounded-xl p-4 sm:p-5 shadow-[0_2px_8px_-1px_rgba(40,24,14,0.08),0_1px_3px_0_rgba(40,24,14,0.05)] hover:shadow-[0_10px_24px_-4px_rgba(40,24,14,0.16),0_2px_6px_0_rgba(40,24,14,0.06)] transition-all flex flex-col justify-between group hover:border-amber-700/50 relative scroll-mt-28"
+      className={`bg-white rounded-xl p-4 sm:p-5 transition-all flex flex-col justify-between group relative scroll-mt-28 ${
+        isDarkTheme
+          ? 'border border-white/20 shadow-[0_4px_18px_-2px_rgba(0,0,0,0.45),0_2px_6px_0_rgba(0,0,0,0.25)] hover:shadow-[0_12px_28px_-4px_rgba(0,0,0,0.55)] hover:border-white/40'
+          : 'border border-[#D8CEBE] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.08),0_1px_3px_0_rgba(40,24,14,0.05)] hover:shadow-[0_10px_24px_-4px_rgba(40,24,14,0.16),0_2px_6px_0_rgba(40,24,14,0.06)] hover:border-amber-700/50'
+      }`}
     >
       {/* Native anchor targets for direct deep-linking */}
       <span id={coffee.id} className="absolute -top-28 pointer-events-none" />

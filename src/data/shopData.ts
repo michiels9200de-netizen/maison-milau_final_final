@@ -188,6 +188,23 @@ const RAW_SHOP_PRODUCTS: Product[] = [
     imagePlaceholderText: 'Selection Filter 250g / 500g / 1kg',
     imageUrl: '/images/Selection Filter website.png',
   },
+  {
+    id: 'prod-nespresso-capsules-placeholder',
+    sku: 'MM-CAPS-SOON',
+    name: 'Nespresso Compatible Capsules',
+    collection: 'Selection',
+    category: 'blends',
+    shortDescription: 'Ambachtelijke specialty koffie in biologisch afbreekbare capsules voor Nespresso® apparaten. Binnenkort beschikbaar.',
+    variants: [
+      { weight: '10 capsules', price: 0, inStock: false },
+    ],
+    grindOptions: ['Capsule'],
+    defaultGrind: 'Capsule',
+    inStock: false,
+    batchStatus: 'binnenkort_beschikbaar',
+    catalogSlug: 'nespresso-compatible-capsules',
+    imagePlaceholderText: 'Nespresso Compatible Capsules',
+  },
 
   // --- Blends: Premium ---
   {

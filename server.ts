@@ -33,6 +33,7 @@ import {
 import crypto from 'node:crypto';
 import { generateInvoicePdfBuffer, FullInvoiceData } from './server/invoicePdfService.js';
 import cookieParser from 'cookie-parser';
+import { getSupabaseClient } from './server/supabaseClient.js';
 
 dotenv.config();
 
@@ -449,20 +450,75 @@ export function verifyPassword(password: string, storedHash: string): boolean {
   }
 }
 
-// User accounts system with durable file persistence (data/users.json)
-const DATA_DIR = path.join(process.cwd(), 'data');
+// User accounts system with durable file persistence and Supabase integration
+// On Vercel / serverless functions, the root /var/task filesystem is read-only (EROFS).
+// Use /tmp/data for scratch persistence on Vercel, and sync with Supabase PostgreSQL if configured.
+const isVercelRuntime = Boolean(
+  process.env.VERCEL === '1' ||
+  process.env.NOW_REGION ||
+  process.env.VERCEL_ENV ||
+  process.env.VERCEL_REGION ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME
+);
+
+const DATA_DIR = isVercelRuntime ? path.join('/tmp', 'data') : path.join(process.cwd(), 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const USERS_BAK_FILE = path.join(DATA_DIR, 'users.json.bak');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 
 // Helper to write JSON files atomically via unique .tmp file and atomic fs.renameSync
 function writeAtomicJson(filePath: string, data: any): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const tmpFile = `${filePath}.${Date.now()}.${Math.random().toString(36).substring(2, 7)}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tmpFile, filePath);
+  } catch (err: any) {
+    console.warn(`[STORAGE WARNING] Atomic write failed for ${filePath}:`, err?.message || err);
+    throw err;
   }
-  const tmpFile = `${filePath}.${Date.now()}.${Math.random().toString(36).substring(2, 7)}.tmp`;
-  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
-  fs.renameSync(tmpFile, filePath);
+}
+
+export async function persistUserRecord(user: any): Promise<boolean> {
+  // 1. Try Supabase cloud persistence if configured
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('users').upsert({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        password: user.password,
+        name: user.name,
+        phone: user.phone,
+        account_type: user.accountType,
+        role: user.role,
+        company_name: user.companyName,
+        vat_number: user.vatNumber,
+        addresses: user.addresses,
+        loyalty_points: user.loyaltyPoints,
+        verification_token: user.verificationToken,
+        verification_token_expiry: user.verificationTokenExpiry
+          ? new Date(user.verificationTokenExpiry).toISOString()
+          : null,
+        is_email_verified: user.isEmailVerified,
+        status: user.status,
+        created_at: user.createdAt,
+      });
+      if (error) {
+        console.warn('[SUPABASE] Upsert error (falling back to disk/memory):', error.message);
+      } else {
+        console.log(`[SUPABASE] User successfully persisted to Supabase: ${user.email}`);
+      }
+    } catch (sbErr: any) {
+      console.warn('[SUPABASE] Persistence exception:', sbErr?.message || sbErr);
+    }
+  }
+
+  // 2. Persist to disk (/tmp on Vercel or local data)
+  return saveUsersToDisk();
 }
 
 let registeredUsers: any[] = [
@@ -2472,13 +2528,16 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   console.log(`[AUTH] DATABASE_WRITE_START: Target=${USERS_FILE}, ExistingCount=${registeredUsers.length}`);
 
   registeredUsers.push(newUser);
-  const writeSuccess = saveUsersToDisk();
+  // Persist to Supabase cloud and/or disk
+  persistUserRecord(newUser).catch((err) => {
+    console.warn('[AUTH] Background user persistence warning:', err?.message || err);
+  });
 
+  const writeSuccess = saveUsersToDisk();
   if (writeSuccess) {
     console.log(`[AUTH] DATABASE_WRITE_SUCCESS: Target=${USERS_FILE}, UserId=${newUser.id}, Email=${newUser.email}`);
   } else {
-    console.error(`[AUTH] DATABASE_WRITE_FAILURE: Target=${USERS_FILE}, UserId=${newUser.id}, Email=${newUser.email}`);
-    return res.status(500).json({ success: false, error: 'Database schrijffout tijdens registratie.' });
+    console.warn(`[AUTH] DATABASE_FILE_WRITE_SKIPPED: Target=${USERS_FILE}, Running in-memory / cloud-synced fallback`);
   }
 
   console.log(`[AUTH] USER_CREATED: Id=${newUser.id}, Email=${newUser.email}, Role=${newUser.role}`);
