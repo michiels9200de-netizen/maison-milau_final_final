@@ -246,7 +246,7 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                       className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 hover:underline"
                     >
                       <BookOpen className="w-3 h-3 text-amber-800" />
-                      <span>Bekijk Dossier</span>
+                      <span>Meer Info</span>
                     </button>
                   </th>
                 ))}
@@ -444,7 +444,7 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                         className="w-full py-2 px-2.5 rounded-xl border border-amber-900/30 bg-amber-50 text-amber-950 text-xs font-bold hover:bg-amber-100 transition-colors flex items-center justify-center gap-1.5"
                       >
                         <BookOpen className="w-3 h-3 text-amber-800" />
-                        <span>Open Dossier</span>
+                        <span>Meer Info</span>
                       </button>
 
                       <button

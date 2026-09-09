@@ -133,7 +133,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
                     </div>
                     <div className="text-xs text-stone-400 leading-snug">{b.sub}</div>
                     <span className="mt-2 inline-block text-[11px] font-medium text-amber-400 underline">
-                      Bekijk Dossier →
+                      Meer Info →
                     </span>
                   </button>
                 );
@@ -211,7 +211,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
                     </div>
                     <div className="text-xs text-stone-500 leading-snug">{inf.sub}</div>
                     <span className="mt-2 inline-block text-[11px] font-medium text-amber-900 underline">
-                      Bekijk Dossier →
+                      Meer Info →
                     </span>
                   </button>
                 );
@@ -263,7 +263,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
               }}
               className="text-xs font-medium text-amber-900 hover:text-amber-700 underline flex items-center gap-1"
             >
-              <span>Bekijk Gesha Dossier</span>
+              <span>Meer Info over Gesha</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
@@ -309,7 +309,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
               }}
               className="text-xs font-medium text-stone-800 hover:text-stone-900 underline flex items-center gap-1"
             >
-              <span>Bekijk Pink Bourbon Dossier</span>
+              <span>Meer Info over Pink Bourbon</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>

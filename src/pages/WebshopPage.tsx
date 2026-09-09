@@ -4,6 +4,7 @@ import { SHOP_PRODUCTS } from '../data/shopData';
 import { CATALOG_ITEMS } from '../data/catalogData';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import { useStock } from '../context/StockContext';
 import {
   ShoppingBag,
   Check,
@@ -24,7 +25,10 @@ import {
   Coffee,
   Layers,
   ChevronDown,
+  Info,
 } from 'lucide-react';
+import { CoffeeBeanIcon } from '../components/CoffeeBeanIcon';
+import { CapsuleVisual } from '../components/CapsuleVisual';
 import { SubscriptionConfigurator } from '../components/SubscriptionConfigurator';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import { CoffeeOriginBadge } from '../components/CoffeeOriginBadge';
@@ -341,6 +345,7 @@ export const renderBadgeIcon = (icon: CollectionThemeConfig['badgeIcon']) => {
 export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams }) => {
   const { t } = useTranslation();
   const { addItem } = useCart();
+  const { getAvailabilityInfo, getStockKg } = useStock();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [blendSubcategory, setBlendSubcategory] = useState<string>('all');
   const [selectedGrind, setSelectedGrind] = useState<{ [productId: string]: 'Volle bonen' | 'Gemalen (Filter)' }>({});
@@ -620,102 +625,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         c.id.toLowerCase() === product.id.toLowerCase().replace(/^prod-/, '')
     );
 
-    // Dedicated Nespresso Compatible Capsules Coming Soon Card
-    if (
+    const isCapsule =
       product.id.includes('capsules-placeholder') ||
       product.id === 'prod-nespresso-capsules-placeholder' ||
-      product.batchStatus === 'binnenkort_beschikbaar'
-    ) {
-      return (
-        <div
-          key={product.id}
-          id={`product-card-${product.id}`}
-          data-product-id={product.id}
-          className="group relative scroll-mt-24 bg-gradient-to-b from-stone-900 via-stone-900 to-stone-950 text-white rounded-xl border border-amber-500/40 p-3 sm:p-3.5 flex flex-col justify-between shadow-md hover:border-amber-400/70 hover:shadow-xl transition-all"
-        >
-          <div>
-            {/* Status & Non-purchasable Indicator */}
-            <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-2">
-              <span className="font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                <span>Binnenkort Beschikbaar</span>
-              </span>
-              <span className="font-semibold text-rose-300 bg-rose-950/70 border border-rose-800/40 px-1.5 py-0.5 rounded text-[9px]">
-                Niet op voorraad
-              </span>
-            </div>
+      product.batchStatus === 'binnenkort_beschikbaar' ||
+      (product.category as string) === 'capsules';
 
-            {/* Visual Representation: Dedicated Capsule Placeholder Asset (Easily replaceable by updating image file) */}
-            <div className="mb-2.5 relative w-full aspect-[4/5] sm:aspect-square md:aspect-[4/5] max-h-[160px] sm:max-h-[185px] md:max-h-[205px] bg-gradient-to-br from-stone-950 via-stone-900 to-amber-950/40 rounded-xl p-2 flex items-center justify-center border border-amber-500/20 overflow-hidden shadow-inner">
-              <img
-                src={product.imageUrl || '/images/maison_milau_capsule_placeholder.jpg'}
-                alt="Maison Milau Compatible Capsules"
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = '/images/maison_milau_capsule_placeholder.jpg';
-                }}
-              />
-
-              <div className="absolute bottom-1.5 inset-x-2 text-center bg-stone-900/90 backdrop-blur-xs border border-amber-600/30 py-0.5 px-1.5 rounded-md">
-                <span className="text-[9px] font-bold text-amber-300 tracking-wide uppercase">
-                  Coming Soon · Binnenkort Beschikbaar
-                </span>
-              </div>
-            </div>
-
-            {/* Product Name (Description removed for clean scanning) */}
-            <div className="mb-2">
-              <div className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-wider mb-0.5">
-                {product.collection ? `${product.collection} Edition` : 'Specialty Blend'} · Nespresso® Compatible
-              </div>
-              <h3 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight group-hover:text-amber-300 transition-colors">
-                Maison Milau Compatible Capsules
-              </h3>
-            </div>
-
-            {/* Status Information Box */}
-            <div className="mb-3 p-2 rounded-lg bg-stone-950/80 border border-stone-800 text-[10px] space-y-1">
-              <div className="flex items-center justify-between text-stone-400">
-                <span>Status:</span>
-                <span className="font-bold text-amber-300">Binnenkort Beschikbaar</span>
-              </div>
-              <div className="flex items-center justify-between text-stone-400">
-                <span>Availability:</span>
-                <span className="font-semibold text-rose-300">Niet op voorraad</span>
-              </div>
-              <div className="text-[9px] text-stone-400 italic pt-0.5 border-t border-stone-800/80 flex items-center justify-between">
-                <span>Not available yet</span>
-                <span className="text-stone-500">Geen aankoop mogelijk</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Action: Disabled Cart & VIP Waitlist Button */}
-          <div className="pt-2 border-t border-stone-800 flex flex-col gap-1.5 mt-auto">
-            <button
-              type="button"
-              disabled
-              className="w-full bg-stone-800/80 text-stone-400 py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase cursor-not-allowed border border-stone-700/50 flex items-center justify-center gap-1.5"
-            >
-              <Bell className="w-3.5 h-3.5 text-stone-500" />
-              <span>Niet op voorraad (Not available yet)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedCategory('new_products');
-                window.scrollTo({ top: 350, behavior: 'smooth' });
-              }}
-              className="w-full bg-amber-800/40 hover:bg-amber-800/60 active:scale-[0.98] text-amber-200 py-1.5 px-2 rounded-lg text-[10px] font-semibold tracking-wider uppercase transition-colors border border-amber-600/40 flex items-center justify-center gap-1 cursor-pointer"
-            >
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>Blijf op de hoogte (Coming Soon)</span>
-            </button>
-          </div>
-        </div>
-      );
-    }
+    const availInfo = getAvailabilityInfo(product);
 
     return (
       <div
@@ -744,20 +660,34 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Collection & Freshness Status Line */}
+          {/* Collection & Stock Availability Indicator */}
           <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-1.5">
             <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[55%]">
               {product.collection}
             </span>
-            <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0 text-[9px] sm:text-[10px]">
-              <Check className="w-2.5 h-2.5 shrink-0" />
-              <span>
-                {product.batchStatus === 'vers_gebrand'
-                  ? 'Vers gebrand'
-                  : product.batchStatus === 'op_voorraad'
-                  ? 'Op voorraad'
-                  : 'Batchplanning'}
-              </span>
+            <span
+              className={`font-medium px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 text-[9px] sm:text-[10px] ${
+                availInfo.status === 'out_of_stock'
+                  ? 'text-rose-700 bg-rose-50 border border-rose-200/60'
+                  : availInfo.status === 'low_stock'
+                  ? 'text-amber-800 bg-amber-50 border border-amber-200/60'
+                  : availInfo.status === 'binnenkort'
+                  ? 'text-amber-800 bg-amber-50 border border-amber-200/60'
+                  : 'text-emerald-700 bg-emerald-50'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  availInfo.status === 'out_of_stock'
+                    ? 'bg-rose-500'
+                    : availInfo.status === 'low_stock'
+                    ? 'bg-amber-500'
+                    : availInfo.status === 'binnenkort'
+                    ? 'bg-amber-400 animate-pulse'
+                    : 'bg-emerald-500'
+                }`}
+              />
+              <span>{availInfo.label}</span>
             </span>
           </div>
 
@@ -824,17 +754,31 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               className="!top-auto !bottom-2 !left-2 !px-1.5 !py-0.5 !text-xs shadow-2xs bg-white/95 backdrop-blur-md border-stone-200/80"
             />
 
-            <MediaPlaceholder
-              type="image"
-              badgeText="Productfoto"
-              title={product.name}
-              subtitle={`Artisanale verpakking (${currentWeight})`}
-              aspectRatio="square"
-              imageFit="contain"
-              className="w-full h-full"
-              imageUrl={displayImage}
-              hidePlaceholder={product.category === 'giftboxes'}
-            />
+            {isCapsule ? (
+              <div className="w-full h-full flex flex-col items-center justify-center p-2 bg-gradient-to-b from-stone-900/90 via-stone-950 to-stone-900/95 rounded-xl border border-amber-500/20 shadow-inner group-hover:scale-[1.02] transition-transform">
+                <CapsuleVisual collection={product.collection || 'Selection'} size="md" className="mx-auto drop-shadow-md" />
+                <div className="mt-1.5 text-center">
+                  <span className="text-[10px] font-bold text-amber-300 tracking-wider uppercase block">
+                    {product.collection || 'Selection'} Nespresso®
+                  </span>
+                  <span className="text-[8px] text-stone-400 block tracking-tight">
+                    100% Aluminium & Composteerbaar
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <MediaPlaceholder
+                type="image"
+                badgeText="Productfoto"
+                title={product.name}
+                subtitle={`Artisanale verpakking (${currentWeight})`}
+                aspectRatio="square"
+                imageFit="contain"
+                className="w-full h-full"
+                imageUrl={displayImage}
+                hidePlaceholder={product.category === 'giftboxes'}
+              />
+            )}
 
             {/* Image Gallery Switcher if product has multiple photos */}
             {product.galleryImages && product.galleryImages.length > 1 && (
@@ -882,7 +826,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   title="Bekijk terroir & branddossier in de Koffiegids"
                 >
                   <BookOpen className="w-2.5 h-2.5 text-amber-800 shrink-0" />
-                  <span className="hidden sm:inline">Dossier</span>
+                  <span className="hidden sm:inline">Meer Info</span>
                 </button>
               )}
             </div>
@@ -1057,8 +1001,63 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Bi-directional Link to Catalog Dossier, Terroir, and Taste Review */}
-          <div className="mb-2 flex items-center justify-between text-[10px] text-stone-500">
+          {/* Purchasing Information & Live Stock Management Section (Refined empty space) */}
+          <div className="mb-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200 text-xs space-y-1.5">
+            {/* Live Stock & Availability Indicator */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    availInfo.color === 'green'
+                      ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]'
+                      : availInfo.color === 'orange'
+                      ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]'
+                      : availInfo.color === 'red'
+                      ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]'
+                      : 'bg-amber-400 animate-pulse'
+                  }`}
+                />
+                <span
+                  className={`text-[11px] font-bold ${
+                    availInfo.color === 'green'
+                      ? 'text-emerald-800'
+                      : availInfo.color === 'orange'
+                      ? 'text-amber-900'
+                      : availInfo.color === 'red'
+                      ? 'text-rose-800'
+                      : 'text-amber-800'
+                  }`}
+                >
+                  {availInfo.label}
+                </span>
+              </div>
+              <span className="text-[11px] font-semibold text-stone-600 font-mono">
+                {availInfo.detailText}
+              </span>
+            </div>
+
+            {/* Roastery Quality & Traceability Snapshot */}
+            <div className="pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px] text-stone-500">
+              <div className="flex items-center gap-1">
+                <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
+                <span className="font-medium text-stone-700 truncate max-w-[170px]">
+                  {isCapsule
+                    ? 'Nespresso® Original compatibel'
+                    : product.scaScore
+                    ? `SCA ${product.scaScore}+ · ${matchingCatalogCoffee?.roastProfile || 'Specialty Roast'}`
+                    : isGiftbox
+                    ? 'Luxe Proeverijgeschenk'
+                    : 'Specialty Grade · 100% Arabica'}
+                </span>
+              </div>
+              <span className="text-stone-400 font-normal shrink-0">
+                {isCapsule ? 'Composteerbaar' : 'Micro-batch'}
+              </span>
+            </div>
+          </div>
+
+          {/* Action Buttons: Meer Info & Reviews - Larger Size, Padding & Click Area, Premium Bean Icon */}
+          <div className="mb-2.5 grid grid-cols-2 gap-2">
             {matchingCatalogCoffee ? (
               <button
                 type="button"
@@ -1067,11 +1066,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
                   )
                 }
-                className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-950 font-medium transition-colors cursor-pointer"
-                title={`Bekijk terroir & branddossier van ${product.name}`}
+                className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                title={`Bekijk alle specificaties van ${product.name}`}
               >
-                <BookOpen className="w-2.5 h-2.5 text-amber-800" />
-                <span>Terroir · Dossier</span>
+                <Info className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                <span>Meer Info</span>
               </button>
             ) : product.catalogSlug ? (
               <button
@@ -1081,35 +1080,61 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     `/koffies?coffee=${product.catalogSlug}&dossier=true#${product.catalogSlug}`
                   )
                 }
-                className="inline-flex items-center gap-1 text-amber-900 hover:text-amber-700 font-medium cursor-pointer"
+                className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
               >
-                <span>Terroir · Dossier</span>
+                <Info className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                <span>Meer Info</span>
               </button>
             ) : (
-              <span />
-            )}
-
-            {isCoffeeProduct && (
               <button
                 type="button"
                 onClick={() => {
                   setReviewCoffeeName(product.name);
                   setIsReviewModalOpen(true);
                 }}
-                className="inline-flex items-center gap-0.5 text-stone-500 hover:text-amber-900 font-medium transition-colors"
+                className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
               >
-                <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-400" />
-                <span>Review</span>
+                <Info className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                <span>Meer Info</span>
               </button>
+            )}
+
+            {isCoffeeProduct ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setReviewCoffeeName(product.name);
+                  setIsReviewModalOpen(true);
+                }}
+                className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-amber-950 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                title={`Beoordelingen voor ${product.name}`}
+              >
+                <CoffeeBeanIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" filled />
+                <span>Reviews</span>
+              </button>
+            ) : isCapsule ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('new_products');
+                  window.scrollTo({ top: 400, behavior: 'smooth' });
+                }}
+                className="h-9 px-3 text-xs font-semibold text-amber-900 bg-amber-50/80 hover:bg-amber-100 border border-amber-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+              >
+                <Bell className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                <span>VIP Lijst</span>
+              </button>
+            ) : (
+              <div />
             )}
           </div>
         </div>
 
-        {/* Bottom Action: Price & Add to Cart */}
-        <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-1.5 mt-auto">
+        {/* Bottom Action: Price & Add to Cart / Out of Stock / Capsule Waitlist */}
+        <div className="pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2 mt-auto">
           <div className="shrink-0">
             <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
-              {isGiftbox ? 'Boxprijs' : 'Prijs'}
+              {isGiftbox ? 'Boxprijs' : isCapsule ? 'Pre-order' : 'Prijs'}
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-sm sm:text-base font-bold text-stone-900 font-mono">
@@ -1118,16 +1143,39 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
 
-          <button
-            id={`btn-add-cart-${product.sku}`}
-            onClick={() => handleAddToCart(product)}
-            className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
-            title={`In winkelwagen: ${product.name}`}
-          >
-            <ShoppingBag className="w-3 h-3 shrink-0" />
-            <span className="truncate hidden min-[380px]:inline">In winkelwagen</span>
-            <span className="truncate min-[380px]:hidden">Bestel</span>
-          </button>
+          {isCapsule ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCategory('new_products');
+                window.scrollTo({ top: 400, behavior: 'smooth' });
+              }}
+              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+              title="Blijf op de hoogte van de capsule lancering"
+            >
+              <Bell className="w-3.5 h-3.5 shrink-0 text-amber-300" />
+              <span className="truncate">Binnenkort</span>
+            </button>
+          ) : availInfo.status === 'out_of_stock' ? (
+            <button
+              disabled
+              className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5"
+              title="Momenteel uitverkocht"
+            >
+              <span>Uitverkocht</span>
+            </button>
+          ) : (
+            <button
+              id={`btn-add-cart-${product.sku}`}
+              onClick={() => handleAddToCart(product)}
+              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
+              title={`In winkelwagen: ${product.name}`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate hidden min-[380px]:inline">In winkelwagen</span>
+              <span className="truncate min-[380px]:hidden">Bestel</span>
+            </button>
+          )}
         </div>
       </div>
     );

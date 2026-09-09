@@ -224,10 +224,11 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
           <button
             type="button"
             onClick={() => onOpenDossier(coffee)}
-            className="py-2 px-2.5 rounded-lg text-xs font-bold border border-amber-800/30 bg-amber-50/60 text-amber-950 hover:bg-amber-100 transition-colors flex items-center justify-center gap-1 shadow-2xs"
+            className="py-2 px-2.5 rounded-lg text-xs font-bold border border-stone-200 bg-stone-50 text-stone-800 hover:bg-stone-100 hover:text-stone-900 transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
+            title={`Meer info & specificaties van ${coffee.name}`}
           >
             <BookOpen className="w-3.5 h-3.5 text-amber-800" />
-            <span>Dossier</span>
+            <span>Meer Info</span>
           </button>
 
           <button

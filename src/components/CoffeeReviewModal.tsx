@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Star, X, CheckCircle, Coffee } from 'lucide-react';
+import { X, CheckCircle, Coffee } from 'lucide-react';
+import { CoffeeBeanIcon } from './CoffeeBeanIcon';
 import { CATALOG_ITEMS } from '../data/catalogData';
 
 interface CoffeeReviewModalProps {
@@ -214,28 +215,32 @@ export const CoffeeReviewModal: React.FC<CoffeeReviewModalProps> = ({
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
                   Algemene score:
                 </label>
-                <div className="flex items-center flex-wrap gap-1.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(null)}
-                      className="p-1 hover:scale-110 active:scale-95 transition-transform"
-                      aria-label={`${star} sterren`}
-                    >
-                      <Star
-                        className={`w-6 h-6 ${
-                          (hoverRating !== null ? hoverRating >= star : rating >= star)
-                            ? 'text-amber-500 fill-amber-500'
-                            : 'text-stone-300'
-                        }`}
-                      />
-                    </button>
-                  ))}
+                <div className="flex items-center flex-wrap gap-2">
+                  {[1, 2, 3, 4, 5].map((bean) => {
+                    const isFilled = (hoverRating !== null ? hoverRating >= bean : rating >= bean);
+                    return (
+                      <button
+                        key={bean}
+                        type="button"
+                        onClick={() => setRating(bean)}
+                        onMouseEnter={() => setHoverRating(bean)}
+                        onMouseLeave={() => setHoverRating(null)}
+                        className="p-1 hover:scale-125 active:scale-95 transition-all cursor-pointer"
+                        aria-label={`${bean} koffiebonen`}
+                      >
+                        <CoffeeBeanIcon
+                          filled={isFilled}
+                          className={`w-6 h-6 transition-colors ${
+                            isFilled
+                              ? 'text-amber-700 drop-shadow-xs'
+                              : 'text-stone-300'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
                   <span className="text-xs font-bold text-amber-950 ml-2">
-                    {rating === 5 ? 'Uitmuntend (5/5)' : `${rating} van 5 sterren`}
+                    {rating === 5 ? 'Uitmuntend (5/5 bonen)' : `${rating} van 5 bonen`}
                   </span>
                 </div>
               </div>
