@@ -1,0 +1,92 @@
+{
+  "green-brazil-canastra": {
+    "id": "green-brazil-canastra",
+    "name": "Brazil Canastra Sweet Catuai",
+    "origin": "Brazilië · Serra da Canastra (1.150m)",
+    "availableKg": 115,
+    "reservedKg": 0,
+    "incomingKg": 60,
+    "status": "Ruim op voorraad",
+    "lastUpdated": "2026-09-10T18:38:23.201Z"
+  },
+  "green-pink-bourbon": {
+    "id": "green-pink-bourbon",
+    "name": "Pink Bourbon (Huila Micro-Lot)",
+    "origin": "Colombia · San Adolfo Huila (1.750m)",
+    "availableKg": 35,
+    "reservedKg": 0,
+    "incomingKg": 20,
+    "status": "Lage voorraad",
+    "lastUpdated": "2026-09-10T18:38:03.596Z"
+  },
+  "green-uganda-robusta": {
+    "id": "green-uganda-robusta",
+    "name": "Uganda Robusta (Mount Elgon Specialty)",
+    "origin": "Oeganda · Mount Elgon Bio (1.300m)",
+    "availableKg": 60,
+    "reservedKg": 0,
+    "incomingKg": 0,
+    "status": "Ruim op voorraad",
+    "lastUpdated": "2026-09-10T18:38:03.596Z"
+  },
+  "green-kenya-aa": {
+    "id": "green-kenya-aa",
+    "name": "Kenya AA (Nyeri Hill)",
+    "origin": "Kenia · Nyeri Central Highlands (1.800m)",
+    "availableKg": 28,
+    "reservedKg": 12,
+    "incomingKg": 20,
+    "status": "Lage voorraad",
+    "lastUpdated": "2026-09-10T18:38:23.228Z"
+  },
+  "green-ethiopia-chelbesa": {
+    "id": "green-ethiopia-chelbesa",
+    "name": "Ethiopia Chelbesa Yirgacheffe",
+    "origin": "Ethiopië · Chelbesa Gedeo (2.050m)",
+    "availableKg": 57,
+    "reservedKg": 0,
+    "incomingKg": 30,
+    "status": "Ruim op voorraad",
+    "lastUpdated": "2026-09-10T18:38:23.215Z"
+  },
+  "green-colombia-castillo": {
+    "id": "green-colombia-castillo",
+    "name": "Colombia Castillo (Pitalito Huila)",
+    "origin": "Colombia · Pitalito Huila (1.650m)",
+    "availableKg": 54,
+    "reservedKg": 0,
+    "incomingKg": 40,
+    "status": "Ruim op voorraad",
+    "lastUpdated": "2026-09-10T18:38:03.596Z"
+  },
+  "green-honduras-comayagua": {
+    "id": "green-honduras-comayagua",
+    "name": "Honduras Comayagua Organic",
+    "origin": "Honduras · Montecillos Comayagua (1.500m)",
+    "availableKg": 32.5,
+    "reservedKg": 7.5,
+    "incomingKg": 25,
+    "status": "Ruim op voorraad",
+    "lastUpdated": "2026-09-10T18:38:03.596Z"
+  },
+  "green-guatemala-huehue": {
+    "id": "green-guatemala-huehue",
+    "name": "Guatemala Huehuetenango SHB",
+    "origin": "Guatemala · Los Altos Huehuetenango (1.700m)",
+    "availableKg": 35,
+    "reservedKg": 0,
+    "incomingKg": 15,
+    "status": "Ruim op voorraad",
+    "lastUpdated": "2026-09-10T18:38:03.596Z"
+  },
+  "green-indonesia-sumatra": {
+    "id": "green-indonesia-sumatra",
+    "name": "Indonesia Sumatra Mandheling Grade 1",
+    "origin": "Indonesië · Lake Toba Sumatra (1.450m)",
+    "availableKg": 25,
+    "reservedKg": 0,
+    "incomingKg": 10,
+    "status": "Lage voorraad",
+    "lastUpdated": "2026-09-10T18:38:03.596Z"
+  }
+}

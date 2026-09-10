@@ -520,17 +520,21 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
   const stockFilterOptions = [
     { id: 'all', label: 'Alle Voorraad' },
-    { id: 'in_stock', label: 'Beschikbaar', dot: 'bg-emerald-400' },
-    { id: 'low_stock', label: 'Lage Voorraad', dot: 'bg-amber-400' },
-    { id: 'out_of_stock', label: 'Niet Beschikbaar', dot: 'bg-rose-400' },
-    { id: 'binnenkort', label: 'Binnenkort Beschikbaar (Nieuw)', dot: 'bg-amber-300' },
+    { id: 'available', label: 'Beschikbaar', dot: 'bg-emerald-400' },
+    { id: 'low_stock', label: 'Lage Voorraad', dot: 'bg-amber-500' },
+    { id: 'coming_soon', label: 'Binnenkort Beschikbaar', dot: 'bg-amber-300' },
+    { id: 'out_of_stock', label: 'Niet Beschikbaar', dot: 'bg-rose-500' },
   ];
 
   const filteredProducts = SHOP_PRODUCTS.filter((prod) => {
-    // 1. Stock availability filter
+    // 1. Stock availability filter (authoritative single source of truth)
     if (selectedStockFilter !== 'all') {
       const avail = getAvailabilityInfo(prod);
-      if (avail.status !== selectedStockFilter) return false;
+      const code = avail.statusCode || (avail.status as string);
+      if (selectedStockFilter === 'available' && code !== 'available' && code !== 'in_stock') return false;
+      if (selectedStockFilter === 'low_stock' && code !== 'low_stock') return false;
+      if (selectedStockFilter === 'coming_soon' && code !== 'coming_soon' && code !== 'binnenkort') return false;
+      if (selectedStockFilter === 'out_of_stock' && code !== 'out_of_stock') return false;
     }
 
     if (selectedCategory === 'all') return true;
@@ -775,7 +779,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   ? 'text-rose-700 bg-rose-50 border border-rose-200/60'
                   : availInfo.status === 'low_stock'
                   ? 'text-amber-800 bg-amber-50 border border-amber-200/60'
-                  : availInfo.status === 'binnenkort'
+                  : availInfo.status === 'coming_soon'
                   ? 'text-amber-800 bg-amber-50 border border-amber-200/60'
                   : 'text-emerald-700 bg-emerald-50'
               }`}
@@ -786,7 +790,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     ? 'bg-rose-500'
                     : availInfo.status === 'low_stock'
                     ? 'bg-amber-500'
-                    : availInfo.status === 'binnenkort'
+                    : availInfo.status === 'coming_soon'
                     ? 'bg-amber-400 animate-pulse'
                     : 'bg-emerald-500'
                 }`}
@@ -1227,7 +1231,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
 
-          {isCapsule ? (
+          {(availInfo.statusCode === 'coming_soon') || (isCapsule && availInfo.statusCode !== 'available' && availInfo.statusCode !== 'low_stock') ? (
             <button
               type="button"
               onClick={() => {
@@ -1235,18 +1239,18 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 window.scrollTo({ top: 400, behavior: 'smooth' });
               }}
               className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-              title="Blijf op de hoogte van de capsule lancering"
+              title="Blijf op de hoogte van de lancering"
             >
               <Bell className="w-3.5 h-3.5 shrink-0 text-amber-300" />
               <span className="truncate">Binnenkort</span>
             </button>
-          ) : availInfo.status === 'out_of_stock' ? (
+          ) : availInfo.statusCode === 'out_of_stock' ? (
             <button
               disabled
               className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5"
-              title="Momenteel uitverkocht"
+              title="Momenteel niet beschikbaar"
             >
-              <span>Uitverkocht</span>
+              <span>Niet beschikbaar</span>
             </button>
           ) : (
             <button

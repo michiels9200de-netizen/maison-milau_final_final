@@ -2110,6 +2110,11 @@ app.post('/api/subscriptions', async (req: Request, res: Response) => {
   };
 
   subscriptions.unshift(newSub);
+  try {
+    await inventoryStore.reserveStockForSubscription(newSub.productName, newSub.weight);
+  } catch (subStockErr) {
+    console.warn('[INVENTORY WARNING] Failed to reserve subscription stock:', subStockErr);
+  }
   sendSubscriptionEmail('created', newSub).catch((e) => console.error(e));
   res.json({ success: true, data: newSub, message: 'Abonnement succesvol aangemaakt.' });
 });
@@ -3435,44 +3440,128 @@ interface StockRecord {
   lastUpdated: string;
 }
 
-// 14. Stock Synchronization & Real-Time Availability (PostgreSQL Single Source of Truth via inventoryStore)
+// 14. Stock Synchronization & Real-Time Availability (Single Source of Truth via inventoryStore)
 app.get('/api/stock', async (req: Request, res: Response) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  const stock = await inventoryStore.getAllStock();
-  res.json({ success: true, data: stock });
+  const full = await inventoryStore.getFullRoasteryData();
+  res.json({
+    success: true,
+    data: full.products,
+    fullData: full,
+    greenCoffee: full.greenCoffee,
+    blendRecipes: full.blendRecipes,
+    blendCapacities: full.blendCapacities,
+    roastBatches: full.roastBatches,
+    summary: full.summary,
+  });
 });
 
 app.get('/api/admin/stock', async (req: Request, res: Response) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  const stock = await inventoryStore.getAllStock();
-  res.json({ success: true, data: stock });
+  const full = await inventoryStore.getFullRoasteryData();
+  res.json({
+    success: true,
+    data: full.products,
+    fullData: full,
+    greenCoffee: full.greenCoffee,
+    blendRecipes: full.blendRecipes,
+    blendCapacities: full.blendCapacities,
+    roastBatches: full.roastBatches,
+    summary: full.summary,
+  });
 });
 
 app.post('/api/stock', async (req: Request, res: Response) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  const { productId, stockKg, reservedKg, subAllocatedKg, updates } = req.body || {};
+  const { productId, stockKg, manualStatus, reservedKg, subAllocatedKg, updates } = req.body || {};
 
   if (Array.isArray(updates)) {
     const updatedMap = await inventoryStore.bulkUpdateStock(updates);
-    return res.json({ success: true, data: updatedMap, message: 'Voorraad succesvol bijgewerkt in database.' });
+    const full = await inventoryStore.getFullRoasteryData();
+    return res.json({
+      success: true,
+      data: updatedMap,
+      fullData: full,
+      message: 'Voorraad succesvol bijgewerkt in database.',
+    });
   }
 
   if (!productId) {
     return res.status(400).json({ success: false, error: 'Product ID is verplicht' });
   }
 
-  const updatedItem = await inventoryStore.updateStock(productId, stockKg, reservedKg, subAllocatedKg);
-  const currentStock = await inventoryStore.getAllStock();
+  const updatedItem = await inventoryStore.updateStock(productId, stockKg, manualStatus, reservedKg, subAllocatedKg);
+  const full = await inventoryStore.getFullRoasteryData();
   res.json({
     success: true,
-    data: currentStock,
+    data: full.products,
     updatedItem,
-    message: `Voorraad voor ${productId} bijgewerkt naar ${updatedItem.stockKg} kg (Status: ${updatedItem.inStock ? 'Beschikbaar' : 'Niet beschikbaar'}).`,
+    fullData: full,
+    message: `Voorraad voor ${productId} bijgewerkt naar ${updatedItem.stockKg} kg (Status: ${updatedItem.effectiveStatus}).`,
   });
+});
+
+// Admin Manual Product Status Override
+app.post('/api/admin/product-status', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  const { productId, status } = req.body || {};
+  if (!productId || !status) {
+    return res.status(400).json({ success: false, error: 'ProductId en status zijn verplicht.' });
+  }
+
+  const updatedItem = await inventoryStore.updateProductStatus(productId, status);
+  const full = await inventoryStore.getFullRoasteryData();
+  res.json({
+    success: true,
+    updatedItem,
+    data: full.products,
+    fullData: full,
+    message: `Status voor ${productId} bijgewerkt naar ${status}.`,
+  });
+});
+
+// Admin Green Coffee Inventory Update
+app.post('/api/admin/green-stock', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  const { greenCoffeeId, availableKg, reservedKg, incomingKg, status } = req.body || {};
+  if (!greenCoffeeId) {
+    return res.status(400).json({ success: false, error: 'GreenCoffeeId is verplicht.' });
+  }
+
+  const updated = await inventoryStore.updateGreenCoffee(greenCoffeeId, { availableKg, reservedKg, incomingKg, status });
+  const full = await inventoryStore.getFullRoasteryData();
+  res.json({
+    success: true,
+    greenCoffee: updated,
+    fullData: full,
+    message: `Groene koffie voorraad ${updated.name} succesvol bijgewerkt.`,
+  });
+});
+
+// Admin Roasting Batch Execution
+app.post('/api/admin/roast-batch', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const { blendId, greenKgUsed, roaster, notes, targetProductId } = req.body || {};
+    if (!blendId || !greenKgUsed) {
+      return res.status(400).json({ success: false, error: 'Blend ID en aantal kg groen zijn verplicht.' });
+    }
+
+    const result = await inventoryStore.executeRoastBatch({ blendId, greenKgUsed, roaster, notes, targetProductId });
+    const full = await inventoryStore.getFullRoasteryData();
+    res.json({
+      success: true,
+      batch: result.batch,
+      fullData: full,
+      message: result.message,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err?.message || 'Fout bij branden van batch.' });
+  }
 });
 
 // Static image serving for /images

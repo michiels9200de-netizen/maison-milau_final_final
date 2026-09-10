@@ -305,3 +305,98 @@ export interface EmailNotification {
   body: string;
   sentAt: string;
 }
+
+// ==================================================
+// ROASTING, INVENTORY & AVAILABILITY MANAGEMENT TYPES
+// ==================================================
+
+export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
+export type ManualStatusOverride = ProductAvailabilityStatus | 'auto';
+
+export interface RoasteryInventoryItem {
+  productId: string;
+  stockKg: number;
+  rawStockKg: number;
+  reservedKg: number;
+  subscriptionAllocatedKg: number;
+  availableKg: number;
+  manualStatus?: ManualStatusOverride;
+  effectiveStatus: ProductAvailabilityStatus;
+  inStock: boolean;
+  lastUpdated: string;
+}
+
+export interface GreenCoffeeItem {
+  id: string;
+  name: string;
+  origin: string;
+  availableKg: number;
+  reservedKg: number;
+  incomingKg: number;
+  status: 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht';
+  lastUpdated: string;
+}
+
+export interface BlendComponent {
+  greenCoffeeId: string;
+  greenCoffeeName: string;
+  percentage: number;
+}
+
+export interface BlendRecipe {
+  id: string;
+  blendName: string;
+  associatedProductIds: string[];
+  components: BlendComponent[];
+  roastYieldPct: number;
+  targetProfile: string;
+}
+
+export interface BlendCapacity {
+  blendId: string;
+  blendName: string;
+  availableProductionKg: number;
+  availableRoastedKg: number;
+  bottleneckGreenCoffeeId: string;
+  bottleneckGreenCoffeeName: string;
+  bottleneckAvailableKg: number;
+  limitingComponentPct: number;
+  status: 'Ruim produseerbaar' | 'Beperkte productie' | 'Niet produseerbaar (Grondstof tekort)';
+  componentBreakdown: Array<{
+    greenCoffeeId: string;
+    greenCoffeeName: string;
+    percentage: number;
+    availableKg: number;
+    maxSupportedBlendKg: number;
+  }>;
+}
+
+export interface RoastBatchRecord {
+  id: string;
+  batchNumber: string;
+  blendId: string;
+  blendName: string;
+  targetProductId?: string;
+  greenKgUsed: number;
+  roastedKgProduced: number;
+  roaster: string;
+  roastDate: string;
+  notes: string;
+}
+
+export interface RoasteryInventoryData {
+  products: Record<string, RoasteryInventoryItem>;
+  greenCoffee: Record<string, GreenCoffeeItem>;
+  blendRecipes: Record<string, BlendRecipe>;
+  blendCapacities: Record<string, BlendCapacity>;
+  roastBatches: RoastBatchRecord[];
+  summary: {
+    totalRoastedStockKg: number;
+    totalGreenCoffeeKg: number;
+    totalReservedKg: number;
+    lowStockProductCount: number;
+    outOfStockProductCount: number;
+    comingSoonProductCount: number;
+    availableProductCount: number;
+  };
+}

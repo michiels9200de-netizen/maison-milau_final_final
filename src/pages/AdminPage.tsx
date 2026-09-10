@@ -25,10 +25,16 @@ import {
   Layers,
   Save,
   AlertTriangle,
+  Wheat,
+  Scale,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
 import { useStock } from '../context/StockContext';
 import { SHOP_PRODUCTS } from '../data/shopData';
+import { GreenCoffeeManagement } from '../components/admin/GreenCoffeeManagement';
+import { BlendCapacityView } from '../components/admin/BlendCapacityView';
+import { RoastBatchModal } from '../components/admin/RoastBatchModal';
+import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -44,6 +50,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [activeTab, setActiveTab] = useState<
     'roastery' | 'kg_stats' | 'orders' | 'customers' | 'emails' | 'inquiries' | 'stock'
   >('roastery');
+  const [stockSubTab, setStockSubTab] = useState<'products' | 'green' | 'capacities'>('products');
+  const [isRoastModalOpen, setIsRoastModalOpen] = useState<boolean>(false);
+  const [roastModalBlendId, setRoastModalBlendId] = useState<string>('blend-budget-espresso');
   const [stockSearchQuery, setStockSearchQuery] = useState<string>('');
   const [stockFilterCategory, setStockFilterCategory] = useState<string>('all');
   const [stockEditingState, setStockEditingState] = useState<Record<string, number>>({});
@@ -753,240 +762,124 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           </div>
         )}
 
-        {/* Tab: Central Stock Management Console */}
+        {/* Tab: Central Stock & Roastery Management Console */}
         {activeTab === 'stock' && (
           <div className="space-y-5">
-            {/* Header & Quick Sync */}
-            <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Roastery Management Sub-Navigation & Quick Action Bar */}
+            <div className="bg-stone-900 text-white rounded-2xl p-4 sm:p-5 border border-stone-800 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-amber-800" />
-                  <span>Centraal Voorraadbeheer (Live Webshop Stock)</span>
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                  <Flame className="w-4 h-4 text-amber-500" />
+                  <span>Geïntegreerd Branderijsysteem · Single Source of Truth</span>
+                </div>
+                <h2 className="text-lg font-bold text-white mt-1">
+                  Voorraad, Recepten, Capaciteit & Beschikbaarheid
                 </h2>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  Beheer live beschikbaarheidsstatussen en resterende kilogrammen per product. Wijzigingen zijn direct zichtbaar in de webshop en winkelmand.
+                <p className="text-xs text-stone-400 mt-0.5">
+                  Verbindt groene bonen per herkomst, blendrecepten, gebrande voorraad en actuele webshopstatussen.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRoastModalBlendId('blend-budget');
+                    setIsRoastModalOpen(true);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <Flame className="w-4 h-4 text-amber-200" />
+                  <span>Brandbatch Registreren</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={async () => {
                     await refreshStock();
-                    setStockSaveNotification('Voorraadgegevens opnieuw gesynchroniseerd met server.');
+                    setStockSaveNotification('Volledige branderijvoorraad gesynchroniseerd met server.');
                     setTimeout(() => setStockSaveNotification(''), 3000);
                   }}
-                  className="px-3 py-2 text-xs font-semibold rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-stone-700"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Herladen</span>
+                  <span>Synchroniseren</span>
                 </button>
               </div>
             </div>
 
-            {/* Notification Toast */}
-            {stockSaveNotification && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{stockSaveNotification}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setStockSaveNotification('')}
-                  className="text-emerald-700 hover:text-emerald-900 text-sm font-bold ml-2"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-
-            {/* Search & Filter Row */}
-            <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Zoek op koffienaam, collectie of SKU..."
-                  value={stockSearchQuery}
-                  onChange={(e) => setStockSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-900"
-                />
-              </div>
-
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                {[
-                  { id: 'all', label: 'Alle' },
-                  { id: 'blends', label: 'Blends' },
-                  { id: 'single_origins', label: 'Single Origins' },
-                  { id: 'capsules', label: 'Capsules' },
-                  { id: 'giftboxes', label: 'Giftboxes' },
-                ].map((f) => (
+            {/* Sub-tab Pills */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-stone-200 pb-3">
+              {[
+                {
+                  id: 'products',
+                  label: 'Eindproducten & 4 Statussen',
+                  icon: Layers,
+                  desc: 'Beschikbaar, Lage Voorraad, Binnenkort, Niet Beschikbaar',
+                },
+                {
+                  id: 'green',
+                  label: 'Groene Koffie per Herkomst',
+                  icon: Wheat,
+                  desc: 'Ruwe bonen, gereserveerd & inkomend',
+                },
+                {
+                  id: 'capacities',
+                  label: 'Blend Recepten & Capaciteit (Knelpunten)',
+                  icon: Scale,
+                  desc: 'Berekende brandcapaciteit & knelpunten',
+                },
+              ].map((sub) => {
+                const Icon = sub.icon;
+                const isActive = stockSubTab === sub.id;
+                return (
                   <button
-                    key={f.id}
+                    key={sub.id}
                     type="button"
-                    onClick={() => setStockFilterCategory(f.id)}
-                    className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
-                      stockFilterCategory === f.id
-                        ? 'bg-amber-900 text-white shadow-2xs'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    onClick={() => setStockSubTab(sub.id as any)}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                      isActive
+                        ? 'bg-amber-900 text-white shadow-sm ring-1 ring-amber-800'
+                        : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200 hover:bg-stone-50'
                     }`}
                   >
-                    {f.label}
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-amber-300' : 'text-stone-500'}`} />
+                    <span>{sub.label}</span>
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
-            {/* Products Stock Table */}
-            <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase tracking-wider text-[10px]">
-                    <tr>
-                      <th className="py-3 px-4">Product & SKU</th>
-                      <th className="py-3 px-3">Live Status Webshop</th>
-                      <th className="py-3 px-3">Resterende Voorraad (KG)</th>
-                      <th className="py-3 px-3">Snelle Voorinstelling</th>
-                      <th className="py-3 px-4 text-right">Actie</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-100 text-stone-800">
-                    {SHOP_PRODUCTS.filter((prod) => {
-                      const matchesQuery =
-                        !stockSearchQuery ||
-                        prod.name.toLowerCase().includes(stockSearchQuery.toLowerCase()) ||
-                        prod.sku.toLowerCase().includes(stockSearchQuery.toLowerCase()) ||
-                        (prod.collection && prod.collection.toLowerCase().includes(stockSearchQuery.toLowerCase()));
+            {/* Sub-Tab Views */}
+            {stockSubTab === 'products' && (
+              <ProductAvailabilityTable
+                onOpenRoastModal={(blendId) => {
+                  setRoastModalBlendId(blendId);
+                  setIsRoastModalOpen(true);
+                }}
+              />
+            )}
 
-                      const matchesCategory =
-                        stockFilterCategory === 'all' ||
-                        (stockFilterCategory === 'capsules' && (prod.id.includes('capsule') || (prod.category as string) === 'capsules')) ||
-                        prod.category === stockFilterCategory;
+            {stockSubTab === 'green' && <GreenCoffeeManagement />}
 
-                      return matchesQuery && matchesCategory;
-                    }).map((prod) => {
-                      const liveKg = getStockKg(prod.id, 0);
-                      const draftKg = stockEditingState[prod.id] !== undefined ? stockEditingState[prod.id] : liveKg;
-                      const availInfo = getAvailabilityInfo(prod);
-
-                      const handleSaveKg = async (targetKg: number) => {
-                        setStockSavingMap((prev) => ({ ...prev, [prod.id]: true }));
-                        try {
-                          const success = await updateStock(prod.id, targetKg);
-                          if (success) {
-                            setStockEditingState((prev) => {
-                              const next = { ...prev };
-                              delete next[prod.id];
-                              return next;
-                            });
-                            setStockSaveNotification(`Voorraad voor "${prod.name}" definitief opgeslagen in PostgreSQL: ${targetKg} kg.`);
-                            setTimeout(() => setStockSaveNotification(''), 3500);
-                          }
-                        } catch (err: any) {
-                          alert(`Fout bij opslaan voorraad: ${err?.message || err}`);
-                        } finally {
-                          setStockSavingMap((prev) => ({ ...prev, [prod.id]: false }));
-                        }
-                      };
-
-                      return (
-                        <tr key={prod.id} className="hover:bg-stone-50/80 transition-colors">
-                          <td className="py-3 px-4">
-                            <div className="font-bold text-stone-900">{prod.name}</div>
-                            <div className="text-[10px] text-stone-500 font-mono">
-                              {prod.sku} · {prod.collection || prod.category}
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${availInfo.badgeClass}`}
-                            >
-                              <span className={`w-1.5 h-1.5 rounded-full ${availInfo.dotClass}`} />
-                              <span>{availInfo.label}</span>
-                            </span>
-                            <div className="text-[9px] text-stone-500 mt-0.5 font-mono">
-                              {availInfo.detailText}
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <div className="flex items-center gap-1.5">
-                              <input
-                                type="number"
-                                min="0"
-                                max="1000"
-                                step="0.5"
-                                value={draftKg}
-                                onChange={(e) => {
-                                  const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
-                                  setStockEditingState((prev) => ({
-                                    ...prev,
-                                    [prod.id]: val,
-                                  }));
-                                }}
-                                className="w-20 text-xs p-1.5 rounded-lg border border-stone-300 bg-white font-mono focus:ring-1 focus:ring-amber-900"
-                                placeholder="kg"
-                              />
-                              <span className="text-stone-500 text-[11px] font-medium">kg</span>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleSaveKg(10)}
-                                className="px-2 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-semibold cursor-pointer whitespace-nowrap"
-                                title="Zet direct op 10 kg (Op voorraad)"
-                              >
-                                10 kg (Ruim)
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleSaveKg(2)}
-                                className="px-2 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-semibold cursor-pointer whitespace-nowrap"
-                                title="Zet direct op 2 kg (Beperkte voorraad)"
-                              >
-                                2 kg (Beperkt)
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleSaveKg(0)}
-                                className="px-2 py-1 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-semibold cursor-pointer whitespace-nowrap"
-                                title="Zet direct op Uitverkocht"
-                              >
-                                0 kg (Uitverkocht)
-                              </button>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-4 text-right">
-                            <button
-                              type="button"
-                              disabled={stockSavingMap[prod.id]}
-                              onClick={() => handleSaveKg(draftKg)}
-                              className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-xs transition-colors flex items-center gap-1 ml-auto shadow-2xs ${
-                                stockSavingMap[prod.id]
-                                  ? 'bg-amber-700 opacity-70 cursor-wait'
-                                  : 'bg-amber-900 hover:bg-amber-800 cursor-pointer'
-                              }`}
-                            >
-                              <Save className="w-3.5 h-3.5" />
-                              <span>{stockSavingMap[prod.id] ? 'Opslaan...' : 'Opslaan'}</span>
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {stockSubTab === 'capacities' && (
+              <BlendCapacityView
+                onOpenRoastModal={(blendId) => {
+                  setRoastModalBlendId(blendId);
+                  setIsRoastModalOpen(true);
+                }}
+              />
+            )}
           </div>
         )}
       </main>
+
+      {/* Roasting Batch Registration Modal */}
+      <RoastBatchModal
+        isOpen={isRoastModalOpen}
+        onClose={() => setIsRoastModalOpen(false)}
+        initialBlendId={roastModalBlendId}
+      />
     </div>
   );
 };

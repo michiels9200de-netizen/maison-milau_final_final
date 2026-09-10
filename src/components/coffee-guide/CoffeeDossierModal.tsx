@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { CoffeeCatalogItem } from '../../types';
 import { getCoffeeDossier } from '../../data/coffeeDiscoveryHelpers';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
+import { useStock } from '../../context/StockContext';
 import {
   X,
   Award,
@@ -32,6 +33,8 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
   isCompared = false,
   onToggleCompare,
 }) => {
+  const { getAvailabilityInfo } = useStock();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -52,6 +55,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
 
   const specs = getEnrichedSpecs(coffee);
   const dossier = getCoffeeDossier(coffee.id);
+  const availInfo = getAvailabilityInfo({ id: coffee.webshopProductId });
 
   const renderRoastBadge = (level: RoastLevel) => {
     const roastColors: Record<RoastLevel, { bg: string; text: string; dots: number }> = {
@@ -266,9 +270,15 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 <span className="text-xs font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full">
                   {coffee.type} · {coffee.collection}
                 </span>
+                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border ${availInfo.badgeClass}`}>
+                  <span className={`w-2 h-2 rounded-full ${availInfo.dotClass}`} />
+                  <span>{availInfo.badge}</span>
+                </span>
               </div>
-              <div className="text-xs font-semibold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60">
-                {coffee.retailPriceGuide}
+              <div className="flex items-center gap-2">
+                <div className="text-xs font-semibold text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60">
+                  {coffee.retailPriceGuide}
+                </div>
               </div>
             </div>
 

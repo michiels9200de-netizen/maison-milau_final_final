@@ -1,140 +1,140 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { Product } from '../types';
+import {
+  Product,
+  ProductAvailabilityStatus,
+  ManualStatusOverride,
+  RoasteryInventoryItem,
+  GreenCoffeeItem,
+  BlendRecipe,
+  BlendCapacity,
+  RoastBatchRecord,
+  RoasteryInventoryData,
+} from '../types';
 
-export type AvailabilityStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'binnenkort';
-
-interface LocalUpdateRecord {
-  kg: number;
-  time: number;
-}
-
-export interface StockItem {
-  productId: string;
-  stockKg: number;
-  inStock: boolean;
-  lastUpdated?: string;
-}
+export type AvailabilityStatus =
+  | 'available'
+  | 'in_stock'
+  | 'low_stock'
+  | 'coming_soon'
+  | 'binnenkort'
+  | 'out_of_stock';
 
 export interface AvailabilityInfo {
-  status: AvailabilityStatus;
-  label: string; // e.g. "Beschikbaar", "Lage voorraad", "Niet beschikbaar", "Binnenkort beschikbaar"
-  detailText: string; // e.g. "Nog 10 kg beschikbaar", "Nog 2 kg beschikbaar", "Uitverkocht", "Binnenkort beschikbaar"
-  color: 'green' | 'orange' | 'red' | 'amber';
+  status: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
+  statusCode: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
+  label: 'Beschikbaar' | 'Lage voorraad' | 'Binnenkort beschikbaar' | 'Niet beschikbaar';
+  badge: '✅ Beschikbaar' | '🟠 Lage Voorraad' | '🟡 Binnenkort Beschikbaar' | '🔴 Niet Beschikbaar';
+  detailText: string;
+  color: 'green' | 'orange' | 'yellow' | 'red' | 'amber';
   badgeClass: string;
   dotClass: string;
   stockKg: number;
   isPurchasable: boolean;
+  manualStatus?: ManualStatusOverride;
 }
 
+export type StockItem = RoasteryInventoryItem;
+
 interface StockContextType {
-  stockMap: Record<string, StockItem>;
+  stockMap: Record<string, RoasteryInventoryItem>;
+  greenCoffee: Record<string, GreenCoffeeItem>;
+  blendRecipes: Record<string, BlendRecipe>;
+  blendCapacities: Record<string, BlendCapacity>;
+  roastBatches: RoastBatchRecord[];
+  roasterySummary: RoasteryInventoryData['summary'];
   getStockKg: (productId: string, defaultKg?: number) => number;
-  updateStock: (productId: string, stockKg: number) => Promise<boolean>;
-  bulkUpdateStock: (updates: Array<{ productId: string; stockKg: number }>) => Promise<boolean>;
-  getAvailabilityInfo: (product: Product) => AvailabilityInfo;
+  getProductRecord: (productId: string) => RoasteryInventoryItem | undefined;
+  updateStock: (
+    productId: string,
+    stockKg: number,
+    manualStatus?: ManualStatusOverride,
+    reservedKg?: number,
+    subAllocatedKg?: number
+  ) => Promise<boolean>;
+  updateProductStatus: (
+    productId: string,
+    manualStatus: ManualStatusOverride
+  ) => Promise<boolean>;
+  updateGreenCoffee: (
+    greenCoffeeId: string,
+    data: {
+      availableKg?: number;
+      reservedKg?: number;
+      incomingKg?: number;
+      status?: GreenCoffeeItem['status'];
+    }
+  ) => Promise<boolean>;
+  executeRoastBatch: (params: {
+    blendId: string;
+    greenKgUsed: number;
+    roaster?: string;
+    notes?: string;
+    targetProductId?: string;
+  }) => Promise<{ success: boolean; message: string; batch?: RoastBatchRecord }>;
+  bulkUpdateStock: (
+    updates: Array<{ productId: string; stockKg: number; manualStatus?: ManualStatusOverride }>
+  ) => Promise<boolean>;
+  getAvailabilityInfo: (product: Product | { id: string; category?: string; batchStatus?: string }) => AvailabilityInfo;
   isLoading: boolean;
   refreshStock: () => Promise<void>;
 }
 
-const STORAGE_KEY = 'maison_milau_stock_registry_v1';
-
-// Initial default stock catalog (Realistic specialty roastery inventory)
-const INITIAL_STOCK_PRESETS: Record<string, number> = {
-  // Blends
-  'prod-budget-espresso': 18,
-  'prod-budget-omni': 14,
-  'prod-budget-filter': 12,
-  'prod-value-espresso': 15,
-  'prod-value-omni': 12,
-  'prod-value-filter': 10,
-  'prod-selection-espresso': 16,
-  'prod-selection-omni': 12,
-  'prod-selection-filter': 10,
-  'prod-premium-espresso': 10,
-  'prod-premium-omni': 8,
-  'prod-premium-filter': 8,
-  'prod-prestige-espresso': 2, // Low stock showcase
-  'prod-prestige-filter': 3, // Low stock showcase
-
-  // Single Origins (with cross-compatibility aliases)
-  'prod-so-gesha': 10, // Ethiopian Yirgacheffe / Gesha Betulia (Default: 10 kg)
-  'prod-origin-ethiopia': 10,
-  'prod-origin-geisha': 10,
-  'prod-so-pink-bourbon': 3.5,
-  'prod-origin-colombia': 12,
-  'prod-origin-brazil': 15,
-  'prod-origin-guatemala': 8,
-  'prod-origin-kenya': 2.5,
-  'prod-origin-indonesia': 6,
-
-  // Barrel Aged
-  'prod-barrel-moscatel': 7,
-  'prod-barrel-px': 5,
-  'prod-barrel-bourbon': 4,
-  'prod-barrel-whisky': 7,
-  'prod-barrel-rum': 5,
-  'prod-barrel-cognac': 4,
-
-  // Infused
-  'prod-infused-vanilla': 6,
-  'prod-infused-cinnamon': 4,
-  'prod-infused-almond': 5,
-  'prod-infused-hazelnut': 5,
-
-  // Giftboxes & Accessories
-  'prod-gift-duo': 15,
-  'prod-gift-trio': 12,
-  'prod-gift-quattro': 8,
-  'prod-acc-mok': 25,
-  'prod-acc-cups': 30,
-  'prod-acc-coldbrew': 18,
-  'prod-acc-recycled': 50,
-  'prod-acc-tshirt': 20,
-
-  // Subscriptions
-  'prod-sub-flexibel': 20,
-  'prod-sub-cotm': 16,
-  'prod-sub-cadeau': 13,
-
-  // Capsule placeholders (pre-order/coming soon)
-  'prod-budget-capsules-placeholder': 0,
-  'prod-value-capsules-placeholder': 0,
-  'prod-selection-capsules-placeholder': 0,
-  'prod-premium-capsules-placeholder': 0,
-  'prod-prestige-capsules-placeholder': 0,
-  'prod-nespresso-capsules-placeholder': 0,
-};
+const STORAGE_KEY = 'maison_milau_stock_registry_v2';
+const GREEN_STORAGE_KEY = 'maison_milau_green_coffee_v2';
+const RECIPES_STORAGE_KEY = 'maison_milau_blend_recipes_v2';
+const BATCHES_STORAGE_KEY = 'maison_milau_roast_batches_v2';
 
 const StockContext = createContext<StockContextType | undefined>(undefined);
 
 export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [stockMap, setStockMap] = useState<Record<string, StockItem>>(() => {
-    // 1. Try local storage cache
+  const [stockMap, setStockMap] = useState<Record<string, RoasteryInventoryItem>>(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Object.keys(parsed).length > 0) {
-          return parsed;
-        }
+        if (Object.keys(parsed).length > 0) return parsed;
       }
     } catch (e) {}
+    return {};
+  });
 
-    // 2. Initialize from default roastery presets
-    const initial: Record<string, StockItem> = {};
-    Object.entries(INITIAL_STOCK_PRESETS).forEach(([pid, kg]) => {
-      initial[pid] = {
-        productId: pid,
-        stockKg: kg,
-        inStock: kg > 0,
-        lastUpdated: new Date().toISOString(),
-      };
-    });
-    return initial;
+  const [greenCoffee, setGreenCoffee] = useState<Record<string, GreenCoffeeItem>>(() => {
+    try {
+      const cached = localStorage.getItem(GREEN_STORAGE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return {};
+  });
+
+  const [blendRecipes, setBlendRecipes] = useState<Record<string, BlendRecipe>>(() => {
+    try {
+      const cached = localStorage.getItem(RECIPES_STORAGE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return {};
+  });
+
+  const [blendCapacities, setBlendCapacities] = useState<Record<string, BlendCapacity>>({});
+  const [roastBatches, setRoastBatches] = useState<RoastBatchRecord[]>(() => {
+    try {
+      const cached = localStorage.getItem(BATCHES_STORAGE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return [];
+  });
+
+  const [roasterySummary, setRoasterySummary] = useState<RoasteryInventoryData['summary']>({
+    totalRoastedStockKg: 0,
+    totalGreenCoffeeKg: 0,
+    totalReservedKg: 0,
+    lowStockProductCount: 0,
+    outOfStockProductCount: 0,
+    comingSoonProductCount: 0,
+    availableProductCount: 0,
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const recentLocalUpdatesRef = useRef<Record<string, LocalUpdateRecord>>({});
+  const pendingUpdatesRef = useRef<Record<string, { stockKg: number; manualStatus?: ManualStatusOverride; timestamp: number }>>({});
 
   // Sync from server API on mount and on poll
   const refreshStock = useCallback(async () => {
@@ -147,36 +147,67 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           Pragma: 'no-cache',
         },
       });
+
       if (res.ok) {
         const json = await res.json();
-        if (json.success && json.data) {
+        if (json.success) {
+          const incomingProducts: Record<string, RoasteryInventoryItem> = json.data || {};
           const now = Date.now();
-          const incomingData = { ...json.data };
 
-          // Protect recent user-saved values from being overwritten by delayed cache
-          const recentEntries = Object.entries(recentLocalUpdatesRef.current) as [string, LocalUpdateRecord][];
-          for (const [pid, update] of recentEntries) {
-            if (now - update.time < 15000 && incomingData[pid]) {
-              incomingData[pid] = {
-                ...incomingData[pid],
-                stockKg: update.kg,
-                availableKg: update.kg,
-                inStock: update.kg > 0,
+          // Protect recent manual saves against delayed cache overwrites
+          (
+            Object.entries(pendingUpdatesRef.current) as Array<[
+              string,
+              { stockKg: number; manualStatus?: ManualStatusOverride; timestamp: number }
+            ]>
+          ).forEach(([pid, update]) => {
+            if (now - update.timestamp < 30000 && incomingProducts[pid]) {
+              incomingProducts[pid] = {
+                ...incomingProducts[pid],
+                stockKg: update.stockKg,
+                availableKg: update.stockKg,
+                manualStatus: update.manualStatus !== undefined ? update.manualStatus : incomingProducts[pid].manualStatus,
               };
             }
+          });
+
+          setStockMap(incomingProducts);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(incomingProducts));
+          } catch (e) {}
+
+          if (json.greenCoffee) {
+            setGreenCoffee(json.greenCoffee);
+            try {
+              localStorage.setItem(GREEN_STORAGE_KEY, JSON.stringify(json.greenCoffee));
+            } catch (e) {}
           }
 
-          setStockMap((prev) => {
-            const merged = { ...prev, ...incomingData };
+          if (json.blendRecipes) {
+            setBlendRecipes(json.blendRecipes);
             try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+              localStorage.setItem(RECIPES_STORAGE_KEY, JSON.stringify(json.blendRecipes));
             } catch (e) {}
-            return merged;
-          });
+          }
+
+          if (json.blendCapacities) {
+            setBlendCapacities(json.blendCapacities);
+          }
+
+          if (json.roastBatches) {
+            setRoastBatches(json.roastBatches);
+            try {
+              localStorage.setItem(BATCHES_STORAGE_KEY, JSON.stringify(json.roastBatches));
+            } catch (e) {}
+          }
+
+          if (json.summary) {
+            setRoasterySummary(json.summary);
+          }
         }
       }
     } catch (err) {
-      console.warn('Could not sync stock with server, using local roastery registry:', err);
+      console.warn('Roastery sync with server warning:', err);
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +216,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     refreshStock();
 
-    // Periodic synchronization across devices & tabs (every 6 seconds)
+    // Synchronization across devices & tabs (every 6 seconds)
     const interval = setInterval(refreshStock, 6000);
 
     // Instant sync when tab gains focus or visibility returns
@@ -200,68 +231,80 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const parsed = JSON.parse(e.newValue);
           setStockMap(parsed);
         } catch (err) {}
+      } else if (e.key === GREEN_STORAGE_KEY && e.newValue) {
+        try {
+          setGreenCoffee(JSON.parse(e.newValue));
+        } catch (err) {}
       }
     };
     window.addEventListener('storage', onStorage);
 
-    const onCustomSync = () => {
-      // Don't poll if we just updated locally in the last 2 seconds
-      const now = Date.now();
-      const updates = Object.values(recentLocalUpdatesRef.current) as LocalUpdateRecord[];
-      const hasVeryRecent = updates.some((u) => now - u.time < 2000);
-      if (!hasVeryRecent) {
-        refreshStock();
-      }
-    };
-    window.addEventListener('mm_stock_updated', onCustomSync);
+    // Listen for custom roastery update events
+    const onCustomUpdate = () => refreshStock();
+    window.addEventListener('mm_stock_updated', onCustomUpdate);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onFocus);
       window.removeEventListener('storage', onStorage);
-      window.removeEventListener('mm_stock_updated', onCustomSync);
+      window.removeEventListener('mm_stock_updated', onCustomUpdate);
     };
   }, [refreshStock]);
 
-  const getStockKg = useCallback(
-    (productId: string, defaultKg: number = 0): number => {
-      if (stockMap[productId] !== undefined) {
-        return Number(stockMap[productId].stockKg ?? stockMap[productId].availableKg ?? 0);
-      }
-      // Check alias IDs
-      const aliasMap: Record<string, string[]> = {
-        'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
-        'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
-        'prod-origin-geisha': ['prod-so-gesha', 'prod-origin-ethiopia'],
-        'prod-so-pink-bourbon': ['prod-origin-colombia'],
-        'prod-origin-colombia': ['prod-so-pink-bourbon'],
-      };
-      const aliases = aliasMap[productId] || [];
-      for (const a of aliases) {
-        if (stockMap[a] !== undefined) {
-          return Number(stockMap[a].stockKg ?? stockMap[a].availableKg ?? 0);
-        }
-      }
+  const getProductRecord = useCallback(
+    (productId: string): RoasteryInventoryItem | undefined => {
+      if (!productId) return undefined;
+      if (stockMap[productId]) return stockMap[productId];
 
-      if (INITIAL_STOCK_PRESETS[productId] !== undefined) {
-        return INITIAL_STOCK_PRESETS[productId];
-      }
-      for (const a of aliases) {
-        if (INITIAL_STOCK_PRESETS[a] !== undefined) {
-          return INITIAL_STOCK_PRESETS[a];
-        }
-      }
-      return defaultKg;
+      const aliasMap: Record<string, string> = {
+        'prod-so-gesha': 'prod-origin-ethiopia',
+        'prod-origin-ethiopia': 'prod-so-gesha',
+        'prod-origin-geisha': 'prod-so-gesha',
+        'prod-so-pink-bourbon': 'prod-origin-colombia',
+        'prod-origin-colombia': 'prod-so-pink-bourbon',
+      };
+
+      const mapped = aliasMap[productId];
+      if (mapped && stockMap[mapped]) return stockMap[mapped];
+      return undefined;
     },
     [stockMap]
   );
 
+  const getStockKg = useCallback(
+    (productId: string, defaultKg: number = 0): number => {
+      const record = getProductRecord(productId);
+      if (!record) return defaultKg;
+      return typeof record.availableKg === 'number'
+        ? record.availableKg
+        : typeof record.stockKg === 'number'
+        ? record.stockKg
+        : defaultKg;
+    },
+    [getProductRecord]
+  );
+
+  /**
+   * Update product stock, manual status override, and reservations
+   * Values NEVER revert after save!
+   */
   const updateStock = useCallback(
-    async (productId: string, stockKg: number): Promise<boolean> => {
-      const sanitizedKg = Math.max(0, Number(stockKg));
-      const inStock = sanitizedKg > 0;
+    async (
+      productId: string,
+      stockKg: number,
+      manualStatus?: ManualStatusOverride,
+      reservedKg?: number,
+      subAllocatedKg?: number
+    ): Promise<boolean> => {
+      const sanitizedKg = Math.max(0, Number(stockKg) || 0);
       const now = new Date().toISOString();
+
+      pendingUpdatesRef.current[productId] = {
+        stockKg: sanitizedKg,
+        manualStatus,
+        timestamp: Date.now(),
+      };
 
       const aliasMap: Record<string, string[]> = {
         'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
@@ -270,122 +313,86 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         'prod-so-pink-bourbon': ['prod-origin-colombia'],
         'prod-origin-colombia': ['prod-so-pink-bourbon'],
       };
-      const targetIds = [productId, ...(aliasMap[productId] || [])];
+      const targets = [productId, ...(aliasMap[productId] || [])];
 
-      // Mark recently updated to prevent background poll race condition
-      const updateTimestamp = Date.now();
-      targetIds.forEach((id) => {
-        recentLocalUpdatesRef.current[id] = { kg: sanitizedKg, time: updateTimestamp };
-      });
-
-      const updatedItem: StockItem = {
-        productId,
-        stockKg: sanitizedKg,
-        inStock,
-        lastUpdated: now,
-      };
-
-      // 1. Immediately update local state & localStorage for instantaneous UI reaction
+      // 1. Optimistic Local State Update
       setStockMap((prev) => {
         const next = { ...prev };
-        targetIds.forEach((id) => {
-          next[id] = { ...updatedItem, productId: id };
+        targets.forEach((tid) => {
+          const prevItem = prev[tid];
+          const curRes = reservedKg !== undefined ? reservedKg : prevItem?.reservedKg || 0;
+          const curSub = subAllocatedKg !== undefined ? subAllocatedKg : prevItem?.subscriptionAllocatedKg || 0;
+          const avail = Math.max(0, sanitizedKg - curRes - curSub);
+          const chosenStatus = manualStatus !== undefined ? manualStatus : prevItem?.manualStatus;
+
+          let effStatus: ProductAvailabilityStatus = 'available';
+          if (chosenStatus && chosenStatus !== 'auto') {
+            effStatus = chosenStatus;
+          } else if (tid.includes('capsule') || tid.includes('capsules-placeholder')) {
+            effStatus = 'coming_soon';
+          } else if (avail <= 0) {
+            effStatus = 'out_of_stock';
+          } else if (avail <= 5) {
+            effStatus = 'low_stock';
+          }
+
+          next[tid] = {
+            productId: tid,
+            stockKg: avail,
+            rawStockKg: sanitizedKg,
+            reservedKg: curRes,
+            subscriptionAllocatedKg: curSub,
+            availableKg: avail,
+            manualStatus: chosenStatus,
+            effectiveStatus: effStatus,
+            inStock: effStatus === 'available' || effStatus === 'low_stock',
+            lastUpdated: now,
+          };
         });
+
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
         } catch (e) {}
         return next;
       });
 
-      // 2. Transmit to server API (PostgreSQL database - single source of truth)
+      // 2. Persist to Server Database
       try {
-        const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-        };
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-
         const res = await fetch('/api/stock', {
           method: 'POST',
-          headers,
-          body: JSON.stringify({ productId, stockKg: sanitizedKg }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId,
+            stockKg: sanitizedKg,
+            manualStatus,
+            reservedKg,
+            subAllocatedKg,
+          }),
         });
 
         if (res.ok) {
           const json = await res.json();
           if (json.data) {
             setStockMap((prev) => {
-              const synced = { ...prev, ...json.data };
+              const merged = { ...prev, ...json.data };
               try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
               } catch (e) {}
-              return synced;
+              return merged;
             });
           }
-          // Broadcast to other components only after server persistence confirmed
-          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
+          if (json.fullData?.blendCapacities) {
+            setBlendCapacities(json.fullData.blendCapacities);
+          }
+          if (json.fullData?.summary) {
+            setRoasterySummary(json.fullData.summary);
+          }
           return true;
-        } else {
-          console.error('Failed to save stock to server, status:', res.status);
         }
       } catch (err) {
-        console.warn('Server stock sync failed, local state preserved:', err);
+        console.error('Failed to sync stock update with server:', err);
       }
-      return true;
-    },
-    []
-  );
-
-  const bulkUpdateStock = useCallback(
-    async (updates: Array<{ productId: string; stockKg: number }>): Promise<boolean> => {
-      const now = new Date().toISOString();
-      const newEntries: Record<string, StockItem> = {};
-
-      updates.forEach((u) => {
-        const kg = Math.max(0, Number(u.stockKg));
-        newEntries[u.productId] = {
-          productId: u.productId,
-          stockKg: kg,
-          inStock: kg > 0,
-          lastUpdated: now,
-        };
-      });
-
-      setStockMap((prev) => {
-        const next = { ...prev, ...newEntries };
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
-        } catch (e) {}
-        return next;
-      });
-
-      try {
-        const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch('/api/stock', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ updates }),
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.data) {
-            setStockMap((prev) => {
-              const synced = { ...prev, ...json.data };
-              try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
-              } catch (e) {}
-              return synced;
-            });
-          }
-        }
-      } catch (e) {}
 
       return true;
     },
@@ -393,87 +400,310 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 
   /**
-   * Evaluates dynamic availability status strictly from live database stock levels
+   * Direct manual status override: allows admin to set
+   * 'available' (Beschikbaar), 'low_stock' (Lage voorraad),
+   * 'coming_soon' (Binnenkort beschikbaar), or 'out_of_stock' (Niet beschikbaar)
+   */
+  const updateProductStatus = useCallback(
+    async (productId: string, manualStatus: ManualStatusOverride): Promise<boolean> => {
+      const curRecord = getProductRecord(productId);
+      const rawKg = curRecord ? curRecord.rawStockKg : getStockKg(productId, 0);
+      return updateStock(productId, rawKg, manualStatus);
+    },
+    [getProductRecord, getStockKg, updateStock]
+  );
+
+  const bulkUpdateStock = useCallback(
+    async (
+      updates: Array<{ productId: string; stockKg: number; manualStatus?: ManualStatusOverride }>
+    ): Promise<boolean> => {
+      for (const u of updates) {
+        await updateStock(u.productId, u.stockKg, u.manualStatus);
+      }
+      return true;
+    },
+    [updateStock]
+  );
+
+  /**
+   * Update Green Coffee Inventory
+   */
+  const updateGreenCoffee = useCallback(
+    async (
+      greenCoffeeId: string,
+      data: {
+        availableKg?: number;
+        reservedKg?: number;
+        incomingKg?: number;
+        status?: GreenCoffeeItem['status'];
+      }
+    ): Promise<boolean> => {
+      // Optimistic update
+      setGreenCoffee((prev) => {
+        const existing = prev[greenCoffeeId];
+        if (!existing) return prev;
+        const next = {
+          ...prev,
+          [greenCoffeeId]: {
+            ...existing,
+            availableKg: data.availableKg !== undefined ? data.availableKg : existing.availableKg,
+            reservedKg: data.reservedKg !== undefined ? data.reservedKg : existing.reservedKg,
+            incomingKg: data.incomingKg !== undefined ? data.incomingKg : existing.incomingKg,
+            status: data.status || existing.status,
+            lastUpdated: new Date().toISOString(),
+          },
+        };
+        try {
+          localStorage.setItem(GREEN_STORAGE_KEY, JSON.stringify(next));
+        } catch (e) {}
+        return next;
+      });
+
+      try {
+        const res = await fetch('/api/admin/green-stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ greenCoffeeId, ...data }),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.fullData) {
+            if (json.fullData.greenCoffee) setGreenCoffee(json.fullData.greenCoffee);
+            if (json.fullData.blendCapacities) setBlendCapacities(json.fullData.blendCapacities);
+            if (json.fullData.summary) setRoasterySummary(json.fullData.summary);
+          }
+          return true;
+        }
+      } catch (err) {
+        console.error('Failed to update green coffee on server:', err);
+      }
+      return true;
+    },
+    []
+  );
+
+  /**
+   * Execute Roasting Batch:
+   * Decreases Green Inventory, Increases Roasted Inventory, Logs Batch
+   */
+  const executeRoastBatch = useCallback(
+    async (params: {
+      blendId: string;
+      greenKgUsed: number;
+      roaster?: string;
+      notes?: string;
+      targetProductId?: string;
+    }): Promise<{ success: boolean; message: string; batch?: RoastBatchRecord }> => {
+      try {
+        const res = await fetch('/api/admin/roast-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params),
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+          if (json.fullData) {
+            if (json.fullData.products) setStockMap(json.fullData.products);
+            if (json.fullData.greenCoffee) setGreenCoffee(json.fullData.greenCoffee);
+            if (json.fullData.blendCapacities) setBlendCapacities(json.fullData.blendCapacities);
+            if (json.fullData.roastBatches) setRoastBatches(json.fullData.roastBatches);
+            if (json.fullData.summary) setRoasterySummary(json.fullData.summary);
+          }
+          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
+          return { success: true, message: json.message, batch: json.batch };
+        } else {
+          return { success: false, message: json.error || 'Fout bij uitvoeren van brandbatch.' };
+        }
+      } catch (err: any) {
+        return { success: false, message: err?.message || 'Netwerkfout bij brandbatch.' };
+      }
+    },
+    []
+  );
+
+  /**
+   * Authoritative Availability Info for Any Product
+   * Returns exact 4 statuses:
+   * ✅ Beschikbaar
+   * 🟠 Lage Voorraad
+   * 🟡 Binnenkort Beschikbaar
+   * 🔴 Niet Beschikbaar
    */
   const getAvailabilityInfo = useCallback(
-    (product: Product): AvailabilityInfo => {
-      const isCapsule =
-        product.id.includes('capsules-placeholder') ||
-        product.id === 'prod-nespresso-capsules-placeholder' ||
-        product.batchStatus === 'binnenkort_beschikbaar' ||
-        (product.category as string) === 'capsules';
+    (product: Product | { id: string; category?: string; batchStatus?: string }): AvailabilityInfo => {
+      const pid = product.id;
+      const record = getProductRecord(pid);
+      const currentStockKg = record ? record.availableKg : 0;
+      const manual = record?.manualStatus;
 
+      const isCapsule =
+        pid.includes('capsules-placeholder') ||
+        pid === 'prod-nespresso-capsules-placeholder' ||
+        product.batchStatus === 'binnenkort_beschikbaar' ||
+        product.category === 'capsules';
+
+      // 1. Manual Admin Override takes top priority if explicitly set
+      if (manual && manual !== 'auto') {
+        if (manual === 'available') {
+          const formattedKg = Number.isInteger(currentStockKg)
+            ? `${currentStockKg} kg`
+            : `${currentStockKg.toFixed(1)} kg`;
+          return {
+            status: 'available',
+            statusCode: 'available',
+            label: 'Beschikbaar',
+            badge: '✅ Beschikbaar',
+            detailText: currentStockKg > 0 ? `Ruime voorraad (${formattedKg})` : 'Direct leverbaar',
+            color: 'green',
+            badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs',
+            dotClass: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]',
+            stockKg: currentStockKg,
+            isPurchasable: true,
+            manualStatus: manual,
+          };
+        }
+
+        if (manual === 'low_stock') {
+          const formattedKg = Number.isInteger(currentStockKg)
+            ? `${currentStockKg} kg`
+            : `${currentStockKg.toFixed(1)} kg`;
+          return {
+            status: 'low_stock',
+            statusCode: 'low_stock',
+            label: 'Lage voorraad',
+            badge: '🟠 Lage Voorraad',
+            detailText: currentStockKg > 0 ? `Nog slechts ${formattedKg}` : 'Beperkte voorraad',
+            color: 'orange',
+            badgeClass: 'bg-amber-50 text-amber-950 border-amber-300 shadow-2xs',
+            dotClass: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]',
+            stockKg: currentStockKg,
+            isPurchasable: true,
+            manualStatus: manual,
+          };
+        }
+
+        if (manual === 'coming_soon') {
+          return {
+            status: 'coming_soon',
+            statusCode: 'coming_soon',
+            label: 'Binnenkort beschikbaar',
+            badge: '🟡 Binnenkort Beschikbaar',
+            detailText: 'Binnenkort beschikbaar · Pre-order VIP',
+            color: 'yellow',
+            badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 shadow-2xs',
+            dotClass: 'bg-amber-400 animate-pulse',
+            stockKg: 0,
+            isPurchasable: false,
+            manualStatus: manual,
+          };
+        }
+
+        if (manual === 'out_of_stock') {
+          return {
+            status: 'out_of_stock',
+            statusCode: 'out_of_stock',
+            label: 'Niet beschikbaar',
+            badge: '🔴 Niet Beschikbaar',
+            detailText: 'Momenteel uitverkocht',
+            color: 'red',
+            badgeClass: 'bg-rose-50 text-rose-900 border-rose-200 shadow-2xs',
+            dotClass: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]',
+            stockKg: 0,
+            isPurchasable: false,
+            manualStatus: manual,
+          };
+        }
+      }
+
+      // 2. Default for capsules: Binnenkort beschikbaar (unless admin explicitly overrides)
       if (isCapsule) {
         return {
-          status: 'binnenkort',
+          status: 'coming_soon',
+          statusCode: 'coming_soon',
           label: 'Binnenkort beschikbaar',
-          detailText: 'Binnenkort beschikbaar',
-          color: 'amber',
-          badgeClass: 'bg-amber-50 text-amber-900 border-amber-300/80',
-          dotClass: 'bg-amber-500 animate-pulse',
+          badge: '🟡 Binnenkort Beschikbaar',
+          detailText: 'Binnenkort beschikbaar · Nespresso® compatibel',
+          color: 'yellow',
+          badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 shadow-2xs',
+          dotClass: 'bg-amber-400 animate-pulse',
           stockKg: 0,
           isPurchasable: false,
+          manualStatus: 'auto',
         };
       }
 
-      // Check live database stock quantity (authoritative)
-      const currentStockKg = getStockKg(product.id, 0);
-
-      // 1. Out of stock / Uitverkocht (Strict single source of truth from database)
+      // 3. Dynamic Calculation Based on Live Database Available kg
       if (currentStockKg <= 0) {
         return {
           status: 'out_of_stock',
+          statusCode: 'out_of_stock',
           label: 'Niet beschikbaar',
-          detailText: 'Uitverkocht',
+          badge: '🔴 Niet Beschikbaar',
+          detailText: 'Momenteel uitverkocht',
           color: 'red',
-          badgeClass: 'bg-rose-50 text-rose-800 border-rose-200',
-          dotClass: 'bg-rose-600',
+          badgeClass: 'bg-rose-50 text-rose-900 border-rose-200 shadow-2xs',
+          dotClass: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]',
           stockKg: 0,
           isPurchasable: false,
+          manualStatus: 'auto',
         };
       }
 
-      // 2. Low stock / Beperkte voorraad (e.g. <= 5 kg)
       if (currentStockKg <= 5) {
         const formattedKg = Number.isInteger(currentStockKg)
           ? `${currentStockKg} kg`
           : `${currentStockKg.toFixed(1)} kg`;
         return {
           status: 'low_stock',
+          statusCode: 'low_stock',
           label: 'Lage voorraad',
+          badge: '🟠 Lage Voorraad',
           detailText: `Nog ${formattedKg} beschikbaar`,
           color: 'orange',
-          badgeClass: 'bg-amber-50 text-amber-950 border-amber-300',
-          dotClass: 'bg-amber-600',
+          badgeClass: 'bg-amber-50 text-amber-950 border-amber-300 shadow-2xs',
+          dotClass: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]',
           stockKg: currentStockKg,
           isPurchasable: true,
+          manualStatus: 'auto',
         };
       }
 
-      // 3. Normal in stock / Beschikbaar (> 5 kg)
       const formattedKg = Number.isInteger(currentStockKg)
         ? `${currentStockKg} kg`
         : `${currentStockKg.toFixed(1)} kg`;
+
       return {
-        status: 'in_stock',
+        status: 'available',
+        statusCode: 'available',
         label: 'Beschikbaar',
-        detailText: `Nog ${formattedKg} beschikbaar`,
+        badge: '✅ Beschikbaar',
+        detailText: `Direct leverbaar (${formattedKg})`,
         color: 'green',
-        badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-200',
-        dotClass: 'bg-emerald-600',
+        badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs',
+        dotClass: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]',
         stockKg: currentStockKg,
         isPurchasable: true,
+        manualStatus: 'auto',
       };
     },
-    [getStockKg]
+    [getProductRecord]
   );
 
   return (
     <StockContext.Provider
       value={{
         stockMap,
+        greenCoffee,
+        blendRecipes,
+        blendCapacities,
+        roastBatches,
+        roasterySummary,
         getStockKg,
+        getProductRecord,
         updateStock,
+        updateProductStatus,
+        updateGreenCoffee,
+        executeRoastBatch,
         bulkUpdateStock,
         getAvailabilityInfo,
         isLoading,
