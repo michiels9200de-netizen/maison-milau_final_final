@@ -519,11 +519,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   ];
 
   const stockFilterOptions = [
-    { id: 'all', label: 'Alle Voorraad' },
+    { id: 'all', label: 'Alle' },
     { id: 'available', label: 'Beschikbaar', dot: 'bg-emerald-400' },
-    { id: 'low_stock', label: 'Lage Voorraad', dot: 'bg-amber-500' },
-    { id: 'coming_soon', label: 'Binnenkort Beschikbaar', dot: 'bg-amber-300' },
-    { id: 'out_of_stock', label: 'Niet Beschikbaar', dot: 'bg-rose-500' },
+    { id: 'low_stock', label: 'Lage voorraad', dot: 'bg-amber-500' },
+    { id: 'coming_soon', label: 'Binnenkort beschikbaar', dot: 'bg-amber-300' },
+    { id: 'out_of_stock', label: 'Niet beschikbaar', dot: 'bg-rose-500' },
   ];
 
   const filteredProducts = SHOP_PRODUCTS.filter((prod) => {
@@ -1089,53 +1089,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Purchasing Information & Live Stock Management Section (Refined empty space) */}
-          <div className="mb-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200 text-xs space-y-1.5">
-            {/* Live Stock & Availability Indicator */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={`w-2 h-2 rounded-full shrink-0 ${
-                    availInfo.color === 'green'
-                      ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]'
-                      : availInfo.color === 'orange'
-                      ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]'
-                      : availInfo.color === 'red'
-                      ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]'
-                      : 'bg-amber-400 animate-pulse'
-                  }`}
-                />
-                <span
-                  className={`text-[11px] font-bold ${
-                    availInfo.color === 'green'
-                      ? 'text-emerald-800'
-                      : availInfo.color === 'orange'
-                      ? 'text-amber-900'
-                      : availInfo.color === 'red'
-                      ? 'text-rose-800'
-                      : 'text-amber-800'
-                  }`}
-                >
-                  {availInfo.label}
-                </span>
-              </div>
-              <span className="text-[11px] font-semibold text-stone-600 font-mono">
-                {availInfo.detailText}
+          {/* Roastery Quality & Roasting Degree */}
+          <div className="mb-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200 text-xs">
+            <div className="flex items-center gap-1.5 w-full min-w-0">
+              <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
+              <span className="font-semibold text-stone-800 truncate tracking-wide whitespace-nowrap text-[11px]">
+                {isCapsule
+                  ? 'Nespresso® Original compatibel'
+                  : isGiftbox
+                  ? 'Luxe Proeverijgeschenk'
+                  : (matchingCatalogCoffee?.roastProfile || 'Medium Roast')}
               </span>
-            </div>
-
-            {/* Roastery Quality & Roasting Degree */}
-            <div className="pt-1.5 border-t border-stone-200/70 flex items-center text-[11px]">
-              <div className="flex items-center gap-1.5 w-full min-w-0">
-                <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
-                <span className="font-semibold text-stone-800 truncate tracking-wide whitespace-nowrap">
-                  {isCapsule
-                    ? 'Nespresso® Original compatibel'
-                    : isGiftbox
-                    ? 'Luxe Proeverijgeschenk'
-                    : (matchingCatalogCoffee?.roastProfile || 'Medium Roast')}
-                </span>
-              </div>
             </div>
           </div>
 
@@ -1427,7 +1391,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             <div className="mt-2.5 pt-2 border-t border-stone-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 mr-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span>Voorraadfilter:</span>
+                <span>Beschikbaarheid:</span>
               </span>
               {stockFilterOptions.map((opt) => (
                 <button
