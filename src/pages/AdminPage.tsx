@@ -35,6 +35,7 @@ import { GreenCoffeeManagement } from '../components/admin/GreenCoffeeManagement
 import { BlendCapacityView } from '../components/admin/BlendCapacityView';
 import { RoastBatchModal } from '../components/admin/RoastBatchModal';
 import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
+import { ProcurementSourcingHub } from '../components/admin/procurement/ProcurementSourcingHub';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -299,7 +300,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           {[
             { id: 'roastery', label: 'Roastery Orders', icon: Flame },
             { id: 'stock', label: 'Voorraad & Stock Beheer', icon: Layers },
-            { id: 'kg_stats', label: 'Kilogram Statistieken', icon: BarChart3 },
+            { id: 'kg_stats', label: 'Sourcing & Inkoop (Kilogrammen)', icon: BarChart3 },
             { id: 'orders', label: 'Alle Bestellingen', icon: Package },
             { id: 'customers', label: 'Klanten & Accounts', icon: Users },
             { id: 'emails', label: 'E-mail Notificaties', icon: Mail },
@@ -480,47 +481,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           </div>
         )}
 
-        {/* Tab 2: Kilogram Statistieken & Blends */}
+        {/* Tab 2: Procurement & Sourcing Management System */}
         {activeTab === 'kg_stats' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs space-y-4">
-              <h2 className="text-lg font-bold text-stone-900">Verdeling per Blend Categorie (Kilograms)</h2>
-              <p className="text-xs text-stone-500">
-                Overzicht van het totaal gebrande volume per Maison Milau specialty categorie.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                {Object.entries(statsData?.blendBreakdown || {}).map(([category, data]: [string, any]) => (
-                  <div key={category} className="p-4 rounded-xl border border-stone-200 bg-stone-50 space-y-1">
-                    <div className="flex justify-between items-center text-xs font-semibold text-stone-700">
-                      <span>{category}</span>
-                      <span className="text-amber-900 font-bold">{data.kg?.toFixed(1) || 0} kg</span>
-                    </div>
-                    <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
-                      <div
-                        className="bg-amber-800 h-full rounded-full"
-                        style={{
-                          width: `${Math.min(100, ((data.kg || 0) / (statsData?.periods?.allTime?.totalKg || 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="text-[10px] text-stone-400">
-                      {data.count || 0} verpakkingen gebrand
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-stone-900 text-stone-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-md">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-400">
-                <Award className="w-4 h-4" />
-                <span>SCA Specialty Kwaliteitsgarantie & Roastery Normen</span>
-              </div>
-              <p className="text-xs text-stone-300 leading-relaxed max-w-3xl">
-                Alle partijen in de Budget (SCA 83+), Value (SCA 84.5+), Selection (SCA 86+), Prestige (SCA 88+) en Ultimate (SCA 90+) collecties worden vóór en na elke batch gecupt door meesterbrander Laurent Michiels. Bonen worden pas verpakt na 24 uur rusttijd in ontgassingssilo’s met aromaventiel.
-              </p>
-            </div>
+            <ProcurementSourcingHub />
           </div>
         )}
 

@@ -400,3 +400,127 @@ export interface RoasteryInventoryData {
     availableProductCount: number;
   };
 }
+
+// ==================================================
+// SOURCING & PROCUREMENT MANAGEMENT TYPES
+// ==================================================
+
+export type GreenCoffeeStatus = 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht';
+export type SourcingAvailability = 'Direct leverbaar' | 'In transit' | 'Pre-order oogst' | 'Beperkte toewijzing';
+export type CoffeeProcess = 'Washed' | 'Natural' | 'Pulped Natural' | 'Honey' | 'Anaerobic Washed' | 'Anaerobic Natural' | 'Experimental' | 'Wet-Hulled (Giling Basah)';
+
+export interface GreenCoffeeMasterBean {
+  id: string;
+  beanName: string;
+  lot: string;
+  origin: string; // e.g. Brazil, Colombia, Ethiopia
+  region: string; // e.g. Serra da Canastra, Huila, Yirgacheffe
+  process: CoffeeProcess;
+  supplier: string; // Supplier name
+  supplierId: string;
+  warehouse: string; // e.g. Antwerp Port, Hamburg, Roastery Silo
+  currentStockKg: number;
+  reservedKg: number;
+  incomingKg: number;
+  availableKg: number;
+  packSizeKg: number; // e.g. 60 or 30 kg
+  availablePacks: number;
+  scaScore: number; // e.g. 84.5, 87.0
+  greenPricePerKg: number; // €/kg green
+  roastedPricePerKg: number; // estimated or retail €/kg
+  flavorNotes: string;
+  status: GreenCoffeeStatus;
+  availability: SourcingAvailability;
+  minOrderQtyKg: number;
+  reorderAlert: boolean;
+  notes?: string;
+  lastUpdated: string;
+}
+
+export interface SupplierRecord {
+  id: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  region: string;
+  country?: string;
+  warehouseLocation: string;
+  status: 'active' | 'archived';
+  rating: number; // 1-5
+  leadTimeDays: number;
+  website?: string;
+  notes?: string;
+}
+
+export type PurchaseOrderStatus = 'open' | 'pending_delivery' | 'completed' | 'cancelled';
+
+export interface PurchaseOrderRecord {
+  id: string;
+  orderNumber: string;
+  supplierId: string;
+  supplierName: string;
+  beanId: string;
+  beanName: string;
+  purchaseDate: string;
+  expectedDeliveryDate: string;
+  quantityOrderedKg: number;
+  quantityReceivedKg: number;
+  packCount: number;
+  pricePerKg: number;
+  totalCost: number;
+  deliveryStatus: PurchaseOrderStatus;
+  notes?: string;
+}
+
+export type BlendTier = 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Specialty' | 'Barrel Aged' | 'Infusion' | 'Single Origin';
+export type BlendApplication = 'Espresso' | 'Daily' | 'Filter' | 'Omni' | 'Infusion' | 'Barrel Aged' | 'Espresso Bar & Milk Drinks' | 'Espresso & Filter';
+
+export interface ProcurementBlendComponent {
+  greenCoffeeId: string;
+  greenCoffeeName: string;
+  ratioPct: number; // e.g. 50%
+  greenPricePerKg: number;
+  costContribution: number; // (ratioPct / 100) * greenPricePerKg / (roastYieldPct / 100)
+}
+
+export interface ProcurementBlendRecord {
+  id: string;
+  name: string;
+  tier: BlendTier;
+  application: BlendApplication | string;
+  components: ProcurementBlendComponent[];
+  roastYieldPct: number; // e.g. 85 for 15% moisture loss
+  totalBlendCostPerKg: number; // sum of costContribution
+  targetProfile: string;
+  active: boolean;
+  notes?: string;
+  // Computed live:
+  availableProductionKg?: number;
+  bottleneckBeanName?: string;
+  limitingComponentPct?: number;
+}
+
+export interface SeasonalHarvestInfo {
+  origin: string;
+  country?: string;
+  harvestMonths: any;
+  shippingWindow?: string;
+  arrivalEurope: string;
+  arrivalEuropeMonths?: any;
+  mainVarietals?: string;
+  cupProfile?: string;
+  notes?: string;
+}
+
+export interface SourcingDashboardMetrics {
+  totalGreenInventoryKg: number;
+  totalInventoryValueEur: number;
+  lowStockCount: number;
+  pendingPurchasesCount: number;
+  pendingPurchasesValueEur: number;
+  activeSuppliersCount: number;
+  activeBlendsCount: number;
+  mostUsedCoffees: Array<{ beanName: string; blendUsageCount: number; totalAssignedKg: number }>;
+}
+

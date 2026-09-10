@@ -36,6 +36,7 @@ import cookieParser from 'cookie-parser';
 import { getSupabaseClient } from './server/supabaseClient.js';
 import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.js';
 import { inventoryStore } from './server/inventoryStore.js';
+import { procurementStore } from './server/procurementStore.js';
 
 dotenv.config();
 
@@ -3561,6 +3562,209 @@ app.post('/api/admin/roast-batch', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(400).json({ success: false, error: err?.message || 'Fout bij branden van batch.' });
+  }
+});
+
+// ============================================================================
+// 15. PROCUREMENT & SOURCING MANAGEMENT SYSTEM API
+// ============================================================================
+
+// Get full procurement state (Master Beans, Suppliers, POs, Blends, Metrics, Seasonal Calendar)
+app.get('/api/procurement', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  try {
+    const state = procurementStore.getFullProcurementState();
+    res.json({
+      success: true,
+      ...state,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Fout bij ophalen inkoopdata.' });
+  }
+});
+
+// Update green coffee bean stock or add new bean
+app.post('/api/procurement/beans', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const { action, beanId, updates, newBean } = req.body || {};
+
+    if (action === 'create' && newBean) {
+      const created = procurementStore.addBean(newBean);
+      const state = procurementStore.getFullProcurementState();
+      return res.json({
+        success: true,
+        bean: created,
+        state,
+        message: `Koffieboon "${created.beanName}" succesvol toegevoegd aan de master database.`,
+      });
+    }
+
+    if (!beanId) {
+      return res.status(400).json({ success: false, error: 'Bean ID is verplicht.' });
+    }
+
+    const updated = procurementStore.updateBeanStock(beanId, updates || {});
+    const state = procurementStore.getFullProcurementState();
+    res.json({
+      success: true,
+      bean: updated,
+      state,
+      message: `Voorraad voor "${updated.beanName}" succesvol bijgewerkt.`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err?.message || 'Fout bij bijwerken boon.' });
+  }
+});
+
+// Add or update supplier
+app.post('/api/procurement/suppliers', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const { action, supplierId, data } = req.body || {};
+
+    if (action === 'create') {
+      if (!data?.name) {
+        return res.status(400).json({ success: false, error: 'Leveranciersnaam is verplicht.' });
+      }
+      const created = procurementStore.addSupplier(data);
+      const state = procurementStore.getFullProcurementState();
+      return res.json({
+        success: true,
+        supplier: created,
+        state,
+        message: `Leverancier "${created.name}" succesvol geregistreerd.`,
+      });
+    }
+
+    if (!supplierId) {
+      return res.status(400).json({ success: false, error: 'Supplier ID is verplicht.' });
+    }
+
+    const updated = procurementStore.updateSupplier(supplierId, data || {});
+    const state = procurementStore.getFullProcurementState();
+    res.json({
+      success: true,
+      supplier: updated,
+      state,
+      message: `Leverancier "${updated.name}" succesvol bijgewerkt.`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err?.message || 'Fout bij leveranciersbeheer.' });
+  }
+});
+
+// Create Purchase Order
+app.post('/api/procurement/purchase-orders', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const data = req.body;
+    if (!data?.supplierName || !data?.beanName || !data?.quantityOrderedKg) {
+      return res.status(400).json({ success: false, error: 'Leverancier, koffie en aantal kg zijn verplicht.' });
+    }
+
+    const po = procurementStore.createPurchaseOrder(data);
+    const state = procurementStore.getFullProcurementState();
+    res.json({
+      success: true,
+      purchaseOrder: po,
+      state,
+      message: `Inkooporder ${po.orderNumber} succesvol aangemaakt.`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err?.message || 'Fout bij aanmaken inkooporder.' });
+  }
+});
+
+// Update Purchase Order Status (e.g. mark as received -> auto replenishes inventory)
+app.post('/api/procurement/purchase-orders/:id/status', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const { id } = req.params;
+    const { status, receivedQty } = req.body || {};
+    if (!status) {
+      return res.status(400).json({ success: false, error: 'Status is verplicht.' });
+    }
+
+    const po = procurementStore.updatePurchaseOrderStatus(id, status, receivedQty);
+    const state = procurementStore.getFullProcurementState();
+    res.json({
+      success: true,
+      purchaseOrder: po,
+      state,
+      message: `Inkooporder ${po.orderNumber} status gewijzigd naar "${status}".`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err?.message || 'Fout bij updaten inkooporder status.' });
+  }
+});
+
+// Create or update blend recipe & ratios
+app.post('/api/procurement/blends', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const { action, blendId, data } = req.body || {};
+
+    if (action === 'create') {
+      if (!data?.name || !Array.isArray(data?.components) || data.components.length === 0) {
+        return res.status(400).json({ success: false, error: 'Blendnaam en ten minste 1 component zijn verplicht.' });
+      }
+      const created = procurementStore.createBlend(data);
+      const state = procurementStore.getFullProcurementState();
+      return res.json({
+        success: true,
+        blend: created,
+        state,
+        message: `Nieuwe blend "${created.name}" succesvol samengesteld en opgeslagen.`,
+      });
+    }
+
+    if (!blendId) {
+      return res.status(400).json({ success: false, error: 'Blend ID is verplicht.' });
+    }
+
+    const updated = procurementStore.updateBlend(blendId, data || {});
+    const state = procurementStore.getFullProcurementState();
+    res.json({
+      success: true,
+      blend: updated,
+      state,
+      message: `Blend "${updated.name}" succesvol bijgewerkt. Nieuwe kostprijs: €${updated.totalBlendCostPerKg.toFixed(2)}/kg.`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err?.message || 'Fout bij bijwerken blend.' });
+  }
+});
+
+// Export CSV
+app.get('/api/procurement/export/csv', (req: Request, res: Response) => {
+  try {
+    const type = (req.query.type as 'inventory' | 'pos' | 'blends') || 'inventory';
+    const csvContent = procurementStore.generateCsvExport(type);
+    const filename = `Maison_Milau_${type}_${new Date().toISOString().split('T')[0]}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvContent);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Export error' });
+  }
+});
+
+// Export Excel (UTF-8 TSV/CSV with excel compatible layout)
+app.get('/api/procurement/export/excel', (req: Request, res: Response) => {
+  try {
+    const type = (req.query.type as 'inventory' | 'pos' | 'blends') || 'inventory';
+    const csvContent = procurementStore.generateCsvExport(type);
+    const filename = `Maison_Milau_${type}_Procurement_${new Date().toISOString().split('T')[0]}.csv`;
+
+    res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvContent);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Excel export error' });
   }
 });
 
