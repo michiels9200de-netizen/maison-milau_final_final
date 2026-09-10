@@ -30,6 +30,7 @@ import {
   Tag,
   Globe,
   Wine,
+  Barrel,
   Gem,
   Coins,
   Building2,
@@ -362,6 +363,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [blendSubcategory, setBlendSubcategory] = useState<string>('all');
   const [selectedStockFilter, setSelectedStockFilter] = useState<string>('all');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [selectedGrind, setSelectedGrind] = useState<{ [productId: string]: 'Volle bonen' | 'Gemalen (Filter)' }>({});
   const [selectedWeight, setSelectedWeight] = useState<{ [productId: string]: string }>({});
   const [purchaseTypes, setPurchaseTypes] = useState<{ [productId: string]: 'eenmalig' | 'abonnement' }>({});
@@ -449,7 +451,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     {
       id: 'barrel_aged',
       name: 'Barrel Aged Coffees',
-      icon: Wine,
+      icon: Barrel,
       activeClass: 'bg-[#78350F] text-amber-50 border-amber-600/70 shadow-md ring-1 ring-amber-400/40',
       accentColor: 'text-amber-500',
     },
@@ -518,6 +520,125 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     },
   ];
 
+  const mobileCoffeeLines = [
+    {
+      id: 'all',
+      name: 'Alle Collecties',
+      shortName: 'Alle',
+      icon: Coffee,
+      category: 'all',
+      blendSub: 'all',
+      badge: null,
+      color: 'text-amber-400',
+      activeBg: 'bg-amber-800 text-white border-amber-500 shadow-md ring-1 ring-amber-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-amber-700/60',
+    },
+    {
+      id: 'budget',
+      name: 'Budget',
+      shortName: 'Budget',
+      icon: Coins,
+      category: 'blends',
+      blendSub: 'budget',
+      badge: '€',
+      color: 'text-stone-300',
+      activeBg: 'bg-[#FAF9F5] text-stone-900 border-stone-400 shadow-md ring-2 ring-amber-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-stone-600',
+    },
+    {
+      id: 'value',
+      name: 'Value',
+      shortName: 'Value',
+      icon: Tag,
+      category: 'blends',
+      blendSub: 'value',
+      badge: null,
+      color: 'text-amber-300',
+      activeBg: 'bg-[#1C1917] text-white border-stone-500 shadow-md ring-2 ring-stone-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-stone-600',
+    },
+    {
+      id: 'selection',
+      name: 'Selection',
+      shortName: 'Selection',
+      icon: Heart,
+      category: 'blends',
+      blendSub: 'selection',
+      badge: null,
+      color: 'text-blue-300',
+      activeBg: 'bg-[#1E3A8A] text-white border-blue-400 shadow-md ring-2 ring-blue-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-blue-800/60',
+    },
+    {
+      id: 'premium',
+      name: 'Premium',
+      shortName: 'Premium',
+      icon: Award,
+      category: 'blends',
+      blendSub: 'premium',
+      badge: null,
+      color: 'text-slate-200',
+      activeBg: 'bg-[#475569] text-white border-slate-300 shadow-md ring-2 ring-slate-300/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-slate-600',
+    },
+    {
+      id: 'prestige',
+      name: 'Prestige',
+      shortName: 'Prestige',
+      icon: Gem,
+      category: 'blends',
+      blendSub: 'prestige',
+      badge: null,
+      color: 'text-pink-300',
+      activeBg: 'bg-[#831843] text-white border-pink-400 shadow-md ring-2 ring-pink-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-pink-900/60',
+    },
+    {
+      id: 'barrel_aged',
+      name: 'Barrel Aged',
+      shortName: 'Barrel Aged',
+      icon: Barrel,
+      category: 'barrel_aged',
+      blendSub: 'all',
+      badge: null,
+      color: 'text-amber-400',
+      activeBg: 'bg-[#78350F] text-amber-50 border-amber-500 shadow-md ring-2 ring-amber-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-amber-700/60',
+    },
+    {
+      id: 'infused',
+      name: 'Infused',
+      shortName: 'Infused',
+      icon: Sparkles,
+      category: 'infused',
+      blendSub: 'all',
+      badge: null,
+      color: 'text-purple-300',
+      activeBg: 'bg-[#581C87] text-purple-50 border-purple-500 shadow-md ring-2 ring-purple-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-purple-800/60',
+    },
+    {
+      id: 'single_origins',
+      name: 'Single Origins',
+      shortName: 'Single Origins',
+      icon: Globe,
+      category: 'single_origins',
+      blendSub: 'all',
+      badge: null,
+      color: 'text-emerald-300',
+      activeBg: 'bg-[#065F46] text-emerald-50 border-emerald-500 shadow-md ring-2 ring-emerald-400/40 font-bold',
+      inactiveBg: 'bg-stone-900/90 text-stone-200 border-stone-800 hover:border-emerald-800/60',
+    },
+  ];
+
+  const mobileOtherAssortments = [
+    { id: 'giftboxes', name: 'Giftboxen', icon: Gift, category: 'giftboxes' },
+    { id: 'merchandise', name: 'Toebehoren', icon: Layers, category: 'merchandise' },
+    { id: 'subscriptions', name: 'Abonnementen (-10%)', icon: RefreshCw, category: 'subscriptions' },
+    { id: 'new_products', name: 'Nieuw (Capsules)', icon: Sparkles, category: 'new_products' },
+    { id: 'promotions', name: 'Promoties', icon: Tag, category: 'promotions' },
+  ];
+
   const stockFilterOptions = [
     { id: 'all', label: 'Alle' },
     { id: 'available', label: 'Beschikbaar', dot: 'bg-emerald-400' },
@@ -552,6 +673,16 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     }
     return prod.category === selectedCategory;
   });
+
+  const currentActiveLine = mobileCoffeeLines.find((line) => {
+    if (line.id === 'all') return selectedCategory === 'all';
+    if (line.category === 'blends') {
+      return selectedCategory === 'blends' && blendSubcategory === line.blendSub;
+    }
+    return selectedCategory === line.category;
+  }) || mobileCoffeeLines[0];
+
+  const currentOtherCategory = mobileOtherAssortments.find((cat) => selectedCategory === cat.category);
 
   // Smoothly scroll to the highlighted product card and ensure it is fully visible
   useEffect(() => {
@@ -1287,20 +1418,230 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         </div>
 
         <div className="relative z-10 max-w-[1760px] mx-auto">
+          {/* Header Top: Title */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-0.5 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                 <span>Webshop · Bestellen</span>
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif leading-tight">
                 Artisanale Koffies & Accessoires
               </h1>
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <div className="mt-2.5 pt-2 border-t border-stone-800/80">
+          {/* ============================================================ */}
+          {/* MOBILE ONLY (md:hidden): Compact Collapsible "Selecteer Koffielijn" Menu */}
+          {/* ============================================================ */}
+          <div className="md:hidden mt-2.5">
+            {/* Trigger Button: Occupies minimal vertical height so products are immediately visible */}
+            <button
+              id="btn-mobile-koffielijn-toggle"
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-stone-900/95 via-[#1C120B]/95 to-stone-900/95 border border-amber-500/40 text-stone-200 text-xs font-semibold flex items-center justify-between shadow-md active:scale-[0.99] transition-all cursor-pointer"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-koffielijn-dropdown"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {(() => {
+                  const DisplayIcon = currentOtherCategory ? currentOtherCategory.icon : currentActiveLine.icon;
+                  const displayColor = currentOtherCategory ? 'text-amber-400' : currentActiveLine.color;
+                  return <DisplayIcon className={`w-4 h-4 shrink-0 ${displayColor}`} />;
+                })()}
+                <span className="truncate">
+                  {currentOtherCategory ? (
+                    <>
+                      <span className="text-stone-400 font-normal">Assortiment: </span>
+                      <span className="text-amber-300 font-bold">{currentOtherCategory.name}</span>
+                    </>
+                  ) : currentActiveLine.id === 'all' ? (
+                    <>
+                      <span className="text-amber-200 font-bold">Selecteer Koffielijn</span>
+                      <span className="text-stone-400 font-normal ml-1.5">· Alle Collecties</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-stone-400 font-normal">Koffielijn: </span>
+                      <span className="text-amber-300 font-bold">{currentActiveLine.name}</span>
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                <span className="text-[10px] uppercase font-bold text-amber-400/90 tracking-wider">
+                  {isMobileMenuOpen ? 'Sluit' : 'Kies'}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-amber-400 transition-transform duration-200 ${
+                    isMobileMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </div>
+            </button>
+
+            {/* Expandable Menu (visible only when tapped) */}
+            {isMobileMenuOpen && (
+              <div
+                id="mobile-koffielijn-dropdown"
+                className="mt-2 p-2.5 bg-stone-950/95 border border-amber-600/40 rounded-xl shadow-2xl backdrop-blur-md animate-fadeIn"
+              >
+                {/* Menu Header with clear title & quick reset */}
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-800/80">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <Coffee className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Koffie Assortiment · Kies een lijn</span>
+                  </div>
+                  {(selectedCategory !== 'all' || blendSubcategory !== 'all') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory('all');
+                        setBlendSubcategory('all');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-[11px] text-amber-400 underline font-medium hover:text-amber-300 cursor-pointer"
+                    >
+                      Toon alles
+                    </button>
+                  )}
+                </div>
+
+                {/* All Coffees Option */}
+                <button
+                  type="button"
+                  id="mobile-line-all"
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setBlendSubcategory('all');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full mb-2 px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                    selectedCategory === 'all'
+                      ? 'bg-amber-800 text-white border border-amber-500 shadow-xs'
+                      : 'bg-stone-900/90 text-stone-200 border border-stone-800 hover:border-amber-700/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Coffee className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Alle Koffies & Collecties</span>
+                  </div>
+                  {selectedCategory === 'all' && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-700/60">
+                      Actief
+                    </span>
+                  )}
+                </button>
+
+                {/* The 8 Signature Coffee Collections with their Dedicated Icons */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  {mobileCoffeeLines.filter((l) => l.id !== 'all').map((line) => {
+                    const LineIcon = line.icon;
+                    const isLineSelected =
+                      line.category === 'blends'
+                        ? selectedCategory === 'blends' && blendSubcategory === line.blendSub
+                        : selectedCategory === line.category;
+
+                    return (
+                      <button
+                        key={line.id}
+                        type="button"
+                        id={`mobile-line-${line.id}`}
+                        onClick={() => {
+                          setSelectedCategory(line.category);
+                          setBlendSubcategory(line.blendSub || 'all');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-1.5 transition-all cursor-pointer ${
+                          isLineSelected ? line.activeBg : line.inactiveBg
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <LineIcon className={`w-4 h-4 shrink-0 ${line.color}`} />
+                          <span className="truncate">{line.name}</span>
+                        </div>
+                        {line.badge && (
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded font-bold shrink-0 ${
+                              isLineSelected
+                                ? 'bg-stone-900 text-white'
+                                : 'bg-stone-800 text-amber-300 border border-amber-600/40'
+                            }`}
+                          >
+                            {line.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Secondary Assortments (Giftboxen, Toebehoren, Abonnementen) */}
+                <div className="mt-2.5 pt-2 border-t border-stone-800/80">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+                    Overige Producten:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {mobileOtherAssortments.map((other) => {
+                      const OtherIcon = other.icon;
+                      const isOtherSelected = selectedCategory === other.category;
+                      return (
+                        <button
+                          key={other.id}
+                          type="button"
+                          id={`mobile-other-${other.id}`}
+                          onClick={() => {
+                            setSelectedCategory(other.category);
+                            setBlendSubcategory('all');
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className={`px-2 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+                            isOtherSelected
+                              ? 'bg-amber-800 text-white border border-amber-500 font-semibold shadow-xs'
+                              : 'bg-stone-900/80 text-stone-300 hover:text-white border border-stone-800 hover:border-stone-700'
+                          }`}
+                        >
+                          <OtherIcon className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>{other.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Availability Filter Chips (inside expanded menu) */}
+                <div className="mt-2.5 pt-2 border-t border-stone-800/80">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 mb-1.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    <span>Beschikbaarheid:</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {stockFilterOptions.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setSelectedStockFilter(opt.id)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 cursor-pointer transition-all ${
+                          selectedStockFilter === opt.id
+                            ? 'bg-amber-800 text-white font-semibold border border-amber-500/60'
+                            : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800'
+                        }`}
+                      >
+                        {opt.dot && <span className={`w-1 h-1 rounded-full ${opt.dot}`} />}
+                        <span>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ============================================================ */}
+          {/* DESKTOP ONLY (hidden md:block): Full Horizontal Categories & Filters */}
+          {/* ============================================================ */}
+          <div className="hidden md:block mt-2.5 pt-2 border-t border-stone-800/80">
             <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => {
                 const IconComp = cat.icon;
@@ -1317,7 +1658,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       setSelectedCategory(cat.id);
                       if (cat.id !== 'blends') setBlendSubcategory('all');
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
                       isSelected
                         ? activeStyle
                         : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
@@ -1387,7 +1728,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               </div>
             )}
 
-            {/* Stock Availability Filter Bar */}
+            {/* Stock Availability Filter Bar (Desktop) */}
             <div className="mt-2.5 pt-2 border-t border-stone-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 mr-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />

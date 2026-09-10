@@ -1,0 +1,677 @@
+{
+  "blend-budget-espresso": {
+    "id": "blend-budget-espresso",
+    "name": "Budget Espresso",
+    "tier": "Budget",
+    "application": "Espresso",
+    "roastYieldPct": 85,
+    "targetProfile": "Krachtig, Kruidig, Romige Crema, Donkere Chocolade",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-canastra",
+        "greenCoffeeName": "Canastra Sweet Catuai",
+        "ratioPct": 50,
+        "greenPricePerKg": 6.9,
+        "costContribution": 4.058823529411765
+      },
+      {
+        "greenCoffeeId": "gc-uganda-robusta-bariguna",
+        "greenCoffeeName": "Robusta Bariguna",
+        "ratioPct": 30,
+        "greenPricePerKg": 5.2,
+        "costContribution": 1.835294117647059
+      },
+      {
+        "greenCoffeeId": "gc-colombia-castillo-jardin",
+        "greenCoffeeName": "Castillo Jardin de Linares",
+        "ratioPct": 20,
+        "greenPricePerKg": 8.5,
+        "costContribution": 2.0000000000000004
+      }
+    ],
+    "totalBlendCostPerKg": 7.88
+  },
+  "blend-budget-daily": {
+    "id": "blend-budget-daily",
+    "name": "Budget Daily",
+    "tier": "Budget",
+    "application": "Daily",
+    "roastYieldPct": 85,
+    "targetProfile": "Toegankelijk, Zacht, Melkchocolade en Noten",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-pico-mirante",
+        "greenCoffeeName": "Pico Mirante #3",
+        "ratioPct": 60,
+        "greenPricePerKg": 6.95,
+        "costContribution": 4.905882352941177
+      },
+      {
+        "greenCoffeeId": "gc-uganda-kiwabo-2",
+        "greenCoffeeName": "Kiwabo #2",
+        "ratioPct": 20,
+        "greenPricePerKg": 5.6,
+        "costContribution": 1.3176470588235294
+      },
+      {
+        "greenCoffeeId": "gc-peru-colectivo-ayacucho",
+        "greenCoffeeName": "Colectivo Ayacucho",
+        "ratioPct": 20,
+        "greenPricePerKg": 7.8,
+        "costContribution": 1.835294117647059
+      }
+    ],
+    "totalBlendCostPerKg": 8.06
+  },
+  "blend-budget-filter": {
+    "id": "blend-budget-filter",
+    "name": "Budget Filter",
+    "tier": "Budget",
+    "application": "Filter",
+    "roastYieldPct": 86,
+    "targetProfile": "Licht, Helder, Noten en Appel, Vriendelijk Mondgevoel",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-aurora-1",
+        "greenCoffeeName": "Aurora Collective #1",
+        "ratioPct": 60,
+        "greenPricePerKg": 7.15,
+        "costContribution": 4.988372093023256
+      },
+      {
+        "greenCoffeeId": "gc-peru-colectivo-ayacucho",
+        "greenCoffeeName": "Colectivo Ayacucho",
+        "ratioPct": 40,
+        "greenPricePerKg": 7.8,
+        "costContribution": 3.6279069767441863
+      }
+    ],
+    "totalBlendCostPerKg": 8.62
+  },
+  "blend-value-espresso": {
+    "id": "blend-value-espresso",
+    "name": "Value Espresso",
+    "tier": "Value",
+    "application": "Espresso",
+    "roastYieldPct": 85,
+    "targetProfile": "Chocolade Fudge, Geroosterde Hazelnoten, Romig",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-canastra",
+        "greenCoffeeName": "Canastra Sweet Catuai",
+        "ratioPct": 60,
+        "greenPricePerKg": 6.9,
+        "costContribution": 4.870588235294117
+      },
+      {
+        "greenCoffeeId": "gc-colombia-castillo-jardin",
+        "greenCoffeeName": "Castillo Jardin de Linares",
+        "ratioPct": 30,
+        "greenPricePerKg": 8.5,
+        "costContribution": 3
+      },
+      {
+        "greenCoffeeId": "gc-uganda-robusta-bariguna",
+        "greenCoffeeName": "Robusta Bariguna",
+        "ratioPct": 10,
+        "greenPricePerKg": 5.2,
+        "costContribution": 0.611764705882353
+      }
+    ],
+    "totalBlendCostPerKg": 8.48
+  },
+  "blend-value-daily": {
+    "id": "blend-value-daily",
+    "name": "Value Daily",
+    "tier": "Value",
+    "application": "Daily",
+    "roastYieldPct": 85,
+    "targetProfile": "Evenwichtig, Karamel, Rietsuiker, Zachte Zuurgraad",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-sitio-natural",
+        "greenCoffeeName": "Sitio dos Cedros (Natural)",
+        "ratioPct": 50,
+        "greenPricePerKg": 7.2,
+        "costContribution": 4.235294117647059
+      },
+      {
+        "greenCoffeeId": "gc-colombia-la-union-castillo",
+        "greenCoffeeName": "La Union Castillo",
+        "ratioPct": 30,
+        "greenPricePerKg": 8.9,
+        "costContribution": 3.1411764705882352
+      },
+      {
+        "greenCoffeeId": "gc-peru-colectivo-pacaybamba",
+        "greenCoffeeName": "Colectivo Pacaybamba",
+        "ratioPct": 20,
+        "greenPricePerKg": 8.4,
+        "costContribution": 1.9764705882352944
+      }
+    ],
+    "totalBlendCostPerKg": 9.35
+  },
+  "blend-value-filter": {
+    "id": "blend-value-filter",
+    "name": "Value Filter",
+    "tier": "Value",
+    "application": "Filter",
+    "roastYieldPct": 86,
+    "targetProfile": "Rode Bessen, Zachte Karamel, Bloemig Aroma",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-colombia-la-union-castillo",
+        "greenCoffeeName": "La Union Castillo",
+        "ratioPct": 50,
+        "greenPricePerKg": 8.9,
+        "costContribution": 5.174418604651163
+      },
+      {
+        "greenCoffeeId": "gc-honduras-caballero-collective",
+        "greenCoffeeName": "Caballero Collective",
+        "ratioPct": 30,
+        "greenPricePerKg": 7.9,
+        "costContribution": 2.755813953488372
+      },
+      {
+        "greenCoffeeId": "gc-peru-finca-artemira",
+        "greenCoffeeName": "Finca Artemira",
+        "ratioPct": 20,
+        "greenPricePerKg": 8.2,
+        "costContribution": 1.9069767441860463
+      }
+    ],
+    "totalBlendCostPerKg": 9.84
+  },
+  "blend-selection-daily": {
+    "id": "blend-selection-daily",
+    "name": "Selection Daily",
+    "tier": "Selection",
+    "application": "Daily",
+    "roastYieldPct": 85,
+    "targetProfile": "Gebalanceerd, Steenvruchten, Subtiele Bloemigheid, Toffee",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-canastra",
+        "greenCoffeeName": "Canastra Sweet Catuai",
+        "ratioPct": 50,
+        "greenPricePerKg": 6.9,
+        "costContribution": 4.058823529411765
+      },
+      {
+        "greenCoffeeId": "gc-ethiopia-chelbesa-8",
+        "greenCoffeeName": "Chelbesa #8",
+        "ratioPct": 30,
+        "greenPricePerKg": 13.5,
+        "costContribution": 4.764705882352941
+      },
+      {
+        "greenCoffeeId": "gc-kenya-inoi-kerugoya",
+        "greenCoffeeName": "AA Inoi Kerugoya",
+        "ratioPct": 20,
+        "greenPricePerKg": 14.9,
+        "costContribution": 3.505882352941177
+      }
+    ],
+    "totalBlendCostPerKg": 12.33
+  },
+  "blend-selection-espresso": {
+    "id": "blend-selection-espresso",
+    "name": "Selection Espresso",
+    "tier": "Selection",
+    "application": "Espresso",
+    "roastYieldPct": 85,
+    "targetProfile": "Rode Bessen, Pure Chocolade, Panela Karamel, Fluweel",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-mantiqueira-1",
+        "greenCoffeeName": "Mantiqueira Collective #1",
+        "ratioPct": 50,
+        "greenPricePerKg": 7.8,
+        "costContribution": 4.588235294117647
+      },
+      {
+        "greenCoffeeId": "gc-colombia-hannah-choice",
+        "greenCoffeeName": "Hannah's Choice Caturra",
+        "ratioPct": 30,
+        "greenPricePerKg": 9.8,
+        "costContribution": 3.458823529411765
+      },
+      {
+        "greenCoffeeId": "gc-ethiopia-halo-1",
+        "greenCoffeeName": "Halo #1",
+        "ratioPct": 20,
+        "greenPricePerKg": 13.2,
+        "costContribution": 3.1058823529411765
+      }
+    ],
+    "totalBlendCostPerKg": 11.15
+  },
+  "blend-selection-filter": {
+    "id": "blend-selection-filter",
+    "name": "Selection Filter",
+    "tier": "Selection",
+    "application": "Filter",
+    "roastYieldPct": 86,
+    "targetProfile": "Jasmijn, Perzik, Earl Grey, Verfijnde Zuren",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-ethiopia-nano-challa",
+        "greenCoffeeName": "Nano Challa",
+        "ratioPct": 50,
+        "greenPricePerKg": 13.8,
+        "costContribution": 8.023255813953488
+      },
+      {
+        "greenCoffeeId": "gc-kenya-ab-baragwi",
+        "greenCoffeeName": "AB Baragwi",
+        "ratioPct": 30,
+        "greenPricePerKg": 12.8,
+        "costContribution": 4.465116279069767
+      },
+      {
+        "greenCoffeeId": "gc-rwanda-gitesi",
+        "greenCoffeeName": "Gitesi",
+        "ratioPct": 20,
+        "greenPricePerKg": 9.8,
+        "costContribution": 2.2790697674418605
+      }
+    ],
+    "totalBlendCostPerKg": 14.77
+  },
+  "blend-premium-daily": {
+    "id": "blend-premium-daily",
+    "name": "Premium Daily",
+    "tier": "Premium",
+    "application": "Daily",
+    "roastYieldPct": 85,
+    "targetProfile": "Abrikoos, Melkchocolade, Gele Pruimen, Zijdezacht",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-honduras-caballero-bosque",
+        "greenCoffeeName": "Caballero El Bosque",
+        "ratioPct": 40,
+        "greenPricePerKg": 8.8,
+        "costContribution": 4.141176470588236
+      },
+      {
+        "greenCoffeeId": "gc-brazil-mantiqueira-pb2",
+        "greenCoffeeName": "Mantiqueira Collective PB #2",
+        "ratioPct": 30,
+        "greenPricePerKg": 8.2,
+        "costContribution": 2.894117647058823
+      },
+      {
+        "greenCoffeeId": "gc-ethiopia-banko-gotiti",
+        "greenCoffeeName": "Banko Gotiti",
+        "ratioPct": 30,
+        "greenPricePerKg": 13.9,
+        "costContribution": 4.905882352941177
+      }
+    ],
+    "totalBlendCostPerKg": 11.94
+  },
+  "blend-premium-espresso": {
+    "id": "blend-premium-espresso",
+    "name": "Premium Espresso",
+    "tier": "Premium",
+    "application": "Espresso",
+    "roastYieldPct": 85,
+    "targetProfile": "Donkere Chocolade, Vijgen, Karamel Toetsen, Crema Goud",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-honduras-caballero-bosque",
+        "greenCoffeeName": "Caballero El Bosque",
+        "ratioPct": 50,
+        "greenPricePerKg": 8.8,
+        "costContribution": 5.176470588235294
+      },
+      {
+        "greenCoffeeId": "gc-brazil-canastra",
+        "greenCoffeeName": "Canastra Sweet Catuai",
+        "ratioPct": 30,
+        "greenPricePerKg": 6.9,
+        "costContribution": 2.4352941176470586
+      },
+      {
+        "greenCoffeeId": "gc-kenya-inoi-kerugoya",
+        "greenCoffeeName": "AA Inoi Kerugoya",
+        "ratioPct": 20,
+        "greenPricePerKg": 14.9,
+        "costContribution": 3.505882352941177
+      }
+    ],
+    "totalBlendCostPerKg": 11.12
+  },
+  "blend-premium-filter": {
+    "id": "blend-premium-filter",
+    "name": "Premium Filter",
+    "tier": "Premium",
+    "application": "Filter",
+    "roastYieldPct": 86,
+    "targetProfile": "Rode Aalbes, Oranjebloesem, Suikerspin, Zuivere Elegantie",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-kenya-barichu-gatomboya",
+        "greenCoffeeName": "AA Barichu Gatomboya",
+        "ratioPct": 40,
+        "greenPricePerKg": 15.5,
+        "costContribution": 7.209302325581396
+      },
+      {
+        "greenCoffeeId": "gc-ethiopia-halo-3",
+        "greenCoffeeName": "Halo #3",
+        "ratioPct": 35,
+        "greenPricePerKg": 14.5,
+        "costContribution": 5.901162790697674
+      },
+      {
+        "greenCoffeeId": "gc-rwanda-gitesi",
+        "greenCoffeeName": "Gitesi",
+        "ratioPct": 25,
+        "greenPricePerKg": 9.8,
+        "costContribution": 2.8488372093023258
+      }
+    ],
+    "totalBlendCostPerKg": 15.96
+  },
+  "blend-prestige-daily": {
+    "id": "blend-prestige-daily",
+    "name": "Prestige Daily",
+    "tier": "Prestige",
+    "application": "Daily",
+    "roastYieldPct": 85,
+    "targetProfile": "Roze Grapefruit, Jasmijn, Witte Chocolade, Sublieme Balans",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-colombia-pink-bourbon-betulia",
+        "greenCoffeeName": "Pink Bourbon Betulia",
+        "ratioPct": 40,
+        "greenPricePerKg": 16.5,
+        "costContribution": 7.764705882352942
+      },
+      {
+        "greenCoffeeId": "gc-ethiopia-chelbesa-8",
+        "greenCoffeeName": "Chelbesa #8",
+        "ratioPct": 35,
+        "greenPricePerKg": 13.5,
+        "costContribution": 5.5588235294117645
+      },
+      {
+        "greenCoffeeId": "gc-colombia-orange-bourbon",
+        "greenCoffeeName": "Orange Bourbon Washed",
+        "ratioPct": 25,
+        "greenPricePerKg": 12.5,
+        "costContribution": 3.6764705882352944
+      }
+    ],
+    "totalBlendCostPerKg": 17
+  },
+  "blend-prestige-espresso": {
+    "id": "blend-prestige-espresso",
+    "name": "Prestige Espresso",
+    "tier": "Prestige",
+    "application": "Espresso",
+    "roastYieldPct": 85,
+    "targetProfile": "Bergamot, Jasmijn, Rode Bessen, Verfijnde Crema",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-ethiopia-chelbesa-8",
+        "greenCoffeeName": "Chelbesa #8",
+        "ratioPct": 60,
+        "greenPricePerKg": 13.5,
+        "costContribution": 9.529411764705882
+      },
+      {
+        "greenCoffeeId": "gc-colombia-pink-bourbon-betulia",
+        "greenCoffeeName": "Pink Bourbon Betulia",
+        "ratioPct": 40,
+        "greenPricePerKg": 16.5,
+        "costContribution": 7.764705882352942
+      }
+    ],
+    "totalBlendCostPerKg": 17.29
+  },
+  "blend-prestige-filter": {
+    "id": "blend-prestige-filter",
+    "name": "Prestige Filter",
+    "tier": "Prestige",
+    "application": "Filter",
+    "roastYieldPct": 86,
+    "targetProfile": "Passievrucht, Lavendel, Earl Grey, Ultieme Zuiverheid",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-colombia-gesha-betulia",
+        "greenCoffeeName": "Gesha Betulia",
+        "ratioPct": 35,
+        "greenPricePerKg": 28,
+        "costContribution": 11.395348837209301
+      },
+      {
+        "greenCoffeeId": "gc-ethiopia-lalesa-6",
+        "greenCoffeeName": "Lalesa #6",
+        "ratioPct": 35,
+        "greenPricePerKg": 16,
+        "costContribution": 6.511627906976744
+      },
+      {
+        "greenCoffeeId": "gc-colombia-sl28-betulia",
+        "greenCoffeeName": "SL-28 Villa Betulia",
+        "ratioPct": 30,
+        "greenPricePerKg": 18,
+        "costContribution": 6.27906976744186
+      }
+    ],
+    "totalBlendCostPerKg": 24.19
+  },
+  "blend-so-pink-bourbon": {
+    "id": "blend-so-pink-bourbon",
+    "name": "Pink Bourbon Betulia",
+    "tier": "Specialty",
+    "application": "Omni",
+    "roastYieldPct": 85,
+    "targetProfile": "Roze Grapefruit, Papaja, Witte Bloemen, Kaneelbloesem",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-colombia-pink-bourbon-betulia",
+        "greenCoffeeName": "Pink Bourbon Betulia",
+        "ratioPct": 100,
+        "greenPricePerKg": 16.5,
+        "costContribution": 19.411764705882355
+      }
+    ],
+    "totalBlendCostPerKg": 19.41
+  },
+  "blend-so-gesha-betulia": {
+    "id": "blend-so-gesha-betulia",
+    "name": "Gesha Betulia",
+    "tier": "Specialty",
+    "application": "Omni",
+    "roastYieldPct": 86,
+    "targetProfile": "Bergamot, Jasmijn, Lychee, Earl Grey, Passievrucht",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-colombia-gesha-betulia",
+        "greenCoffeeName": "Gesha Betulia",
+        "ratioPct": 100,
+        "greenPricePerKg": 28,
+        "costContribution": 32.55813953488372
+      }
+    ],
+    "totalBlendCostPerKg": 32.56
+  },
+  "blend-barrel-bourbon": {
+    "id": "blend-barrel-bourbon",
+    "name": "Buffalo Trace Bourbon Barrel",
+    "tier": "Barrel Aged",
+    "application": "Barrel Aged",
+    "roastYieldPct": 83,
+    "targetProfile": "Bourbon Vanille, Eikenhout, Getoaste Karamel, Donkere Chocolade",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-colombia-almibar",
+        "greenCoffeeName": "Almibar Series",
+        "ratioPct": 70,
+        "greenPricePerKg": 14.2,
+        "costContribution": 11.975903614457831
+      },
+      {
+        "greenCoffeeId": "gc-brazil-sitio-natural",
+        "greenCoffeeName": "Sitio dos Cedros (Natural)",
+        "ratioPct": 30,
+        "greenPricePerKg": 7.2,
+        "costContribution": 2.6024096385542173
+      }
+    ],
+    "totalBlendCostPerKg": 14.58
+  },
+  "blend-barrel-moscatel": {
+    "id": "blend-barrel-moscatel",
+    "name": "Moscatel Barrel Aged",
+    "tier": "Barrel Aged",
+    "application": "Barrel Aged",
+    "roastYieldPct": 83,
+    "targetProfile": "Gedroogde Abrikozen, Moscatel Wijn, Bloemenhoning, Eik",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-ethiopia-burtukaana",
+        "greenCoffeeName": "Burtukaana Series",
+        "ratioPct": 60,
+        "greenPricePerKg": 14.8,
+        "costContribution": 10.698795180722893
+      },
+      {
+        "greenCoffeeId": "gc-honduras-caballero-lomas",
+        "greenCoffeeName": "Caballero Las Lomas",
+        "ratioPct": 40,
+        "greenPricePerKg": 10.2,
+        "costContribution": 4.91566265060241
+      }
+    ],
+    "totalBlendCostPerKg": 15.61
+  },
+  "blend-barrel-px": {
+    "id": "blend-barrel-px",
+    "name": "Pedro Ximenez Barrel Aged",
+    "tier": "Barrel Aged",
+    "application": "Barrel Aged",
+    "roastYieldPct": 83,
+    "targetProfile": "Donkere Rozijnen, Vijgen, PX Sherry Zoetheid, Melasse",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-indonesia-frinsa-estate",
+        "greenCoffeeName": "Frinsa Estate",
+        "ratioPct": 60,
+        "greenPricePerKg": 12.6,
+        "costContribution": 9.108433734939759
+      },
+      {
+        "greenCoffeeId": "gc-colombia-la-union-castillo",
+        "greenCoffeeName": "La Union Castillo",
+        "ratioPct": 40,
+        "greenPricePerKg": 8.9,
+        "costContribution": 4.289156626506025
+      }
+    ],
+    "totalBlendCostPerKg": 13.4
+  },
+  "blend-infusion-vanilla": {
+    "id": "blend-infusion-vanilla",
+    "name": "Vanilla Infusion",
+    "tier": "Infusion",
+    "application": "Infusion",
+    "roastYieldPct": 84,
+    "targetProfile": "Madagascar Vanillestokjes, Romige Karamel, Melkchocolade",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-canastra",
+        "greenCoffeeName": "Canastra Sweet Catuai",
+        "ratioPct": 70,
+        "greenPricePerKg": 6.9,
+        "costContribution": 5.75
+      },
+      {
+        "greenCoffeeId": "gc-colombia-castillo-jardin",
+        "greenCoffeeName": "Castillo Jardin de Linares",
+        "ratioPct": 30,
+        "greenPricePerKg": 8.5,
+        "costContribution": 3.0357142857142856
+      }
+    ],
+    "totalBlendCostPerKg": 8.79
+  },
+  "blend-infusion-cinnamon": {
+    "id": "blend-infusion-cinnamon",
+    "name": "Cinnamon Infusion",
+    "tier": "Infusion",
+    "application": "Infusion",
+    "roastYieldPct": 84,
+    "targetProfile": "Ceylon Kaneel, Appelgebak, Toffee, Verwarmende Specerij",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-honduras-caballero-campo",
+        "greenCoffeeName": "Caballero El Campo",
+        "ratioPct": 60,
+        "greenPricePerKg": 9.4,
+        "costContribution": 6.714285714285714
+      },
+      {
+        "greenCoffeeId": "gc-brazil-sitio-natural",
+        "greenCoffeeName": "Sitio dos Cedros (Natural)",
+        "ratioPct": 40,
+        "greenPricePerKg": 7.2,
+        "costContribution": 3.4285714285714293
+      }
+    ],
+    "totalBlendCostPerKg": 10.14
+  },
+  "blend-infusion-almond": {
+    "id": "blend-infusion-almond",
+    "name": "Almond Infusion",
+    "tier": "Infusion",
+    "application": "Infusion",
+    "roastYieldPct": 84,
+    "targetProfile": "Geroosterde Amandel, Marsepein, Melkchocolade, Romig",
+    "active": true,
+    "components": [
+      {
+        "greenCoffeeId": "gc-brazil-sitio-pulped",
+        "greenCoffeeName": "Sitio dos Cedros (Pulped Natural)",
+        "ratioPct": 70,
+        "greenPricePerKg": 7.4,
+        "costContribution": 6.166666666666667
+      },
+      {
+        "greenCoffeeId": "gc-peru-la-condesa",
+        "greenCoffeeName": "La Condesa",
+        "ratioPct": 30,
+        "greenPricePerKg": 9.6,
+        "costContribution": 3.4285714285714284
+      }
+    ],
+    "totalBlendCostPerKg": 9.6
+  }
+}
