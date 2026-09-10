@@ -310,7 +310,7 @@ export interface EmailNotification {
 // ROASTING, INVENTORY & AVAILABILITY MANAGEMENT TYPES
 // ==================================================
 
-export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
+export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
 export type ManualStatusOverride = ProductAvailabilityStatus | 'auto';
 
 export interface RoasteryInventoryItem {
@@ -323,6 +323,7 @@ export interface RoasteryInventoryItem {
   manualStatus?: ManualStatusOverride;
   effectiveStatus: ProductAvailabilityStatus;
   inStock: boolean;
+  isConfigured: boolean; // true ONLY if entered manually by an administrator
   lastUpdated: string;
 }
 
@@ -333,7 +334,8 @@ export interface GreenCoffeeItem {
   availableKg: number;
   reservedKg: number;
   incomingKg: number;
-  status: 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht';
+  status: 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht' | 'Niet geconfigureerd';
+  isConfigured: boolean; // true ONLY if entered manually by an administrator
   lastUpdated: string;
 }
 
@@ -355,19 +357,22 @@ export interface BlendRecipe {
 export interface BlendCapacity {
   blendId: string;
   blendName: string;
-  availableProductionKg: number;
-  availableRoastedKg: number;
-  bottleneckGreenCoffeeId: string;
-  bottleneckGreenCoffeeName: string;
-  bottleneckAvailableKg: number;
-  limitingComponentPct: number;
-  status: 'Ruim produseerbaar' | 'Beperkte productie' | 'Niet produseerbaar (Grondstof tekort)';
+  availableProductionKg: number | null; // null if unconfigured / insufficient data
+  availableRoastedKg: number | null;
+  hasSufficientData: boolean; // false if any component has unconfigured stock
+  unconfiguredComponents?: string[];
+  bottleneckGreenCoffeeId?: string;
+  bottleneckGreenCoffeeName?: string;
+  bottleneckAvailableKg?: number;
+  limitingComponentPct?: number;
+  status: 'Ruim produseerbaar' | 'Beperkte productie' | 'Niet produseerbaar (Grondstof tekort)' | 'Onvoldoende Data (Voorraad Niet Ingesteld)';
   componentBreakdown: Array<{
     greenCoffeeId: string;
     greenCoffeeName: string;
     percentage: number;
     availableKg: number;
-    maxSupportedBlendKg: number;
+    isConfigured: boolean;
+    maxSupportedBlendKg: number | null;
   }>;
 }
 
@@ -405,7 +410,7 @@ export interface RoasteryInventoryData {
 // SOURCING & PROCUREMENT MANAGEMENT TYPES
 // ==================================================
 
-export type GreenCoffeeStatus = 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht';
+export type GreenCoffeeStatus = 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht' | 'Niet geconfigureerd';
 export type SourcingAvailability = 'Direct leverbaar' | 'In transit' | 'Pre-order oogst' | 'Beperkte toewijzing';
 export type CoffeeProcess = 'Washed' | 'Natural' | 'Pulped Natural' | 'Honey' | 'Anaerobic Washed' | 'Anaerobic Natural' | 'Experimental' | 'Wet-Hulled (Giling Basah)';
 
@@ -433,6 +438,7 @@ export interface GreenCoffeeMasterBean {
   availability: SourcingAvailability;
   minOrderQtyKg: number;
   reorderAlert: boolean;
+  isConfigured?: boolean; // true ONLY if entered manually by an administrator
   notes?: string;
   lastUpdated: string;
 }
@@ -496,9 +502,11 @@ export interface ProcurementBlendRecord {
   active: boolean;
   notes?: string;
   // Computed live:
-  availableProductionKg?: number;
+  hasSufficientData?: boolean;
+  availableProductionKg?: number | null;
   bottleneckBeanName?: string;
   limitingComponentPct?: number;
+  unconfiguredComponents?: string[];
 }
 
 export interface SeasonalHarvestInfo {

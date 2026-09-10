@@ -24,6 +24,8 @@ export const GreenCoffeeManagement: React.FC = () => {
 
   const getStatusBadge = (status: GreenCoffeeItem['status']) => {
     switch (status) {
+      case 'Niet geconfigureerd':
+        return 'bg-stone-100 text-stone-700 border-dashed border-stone-300';
       case 'Ruim op voorraad':
         return 'bg-emerald-50 text-emerald-800 border-emerald-300';
       case 'Lage voorraad':
@@ -105,7 +107,7 @@ export const GreenCoffeeManagement: React.FC = () => {
             <span>Groene Koffie Voorraad (Ruwe Bonen per Herkomst)</span>
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Realtime beheer van ongebrande bonen per herkomst. Wijzigingen werken direct door in brandcapaciteit en blendcalculaties.
+            Realtime beheer van ongebrande bonen per herkomst. Uitsluitend handmatig ingevoerde data is geldig. Wijzigingen werken direct door in brandcapaciteit en blendcalculaties.
           </p>
         </div>
 
@@ -153,11 +155,18 @@ export const GreenCoffeeManagement: React.FC = () => {
                 const isSaving = savingId === item.id;
                 const hasChanges = currentDraft !== undefined;
 
+                const isConfigured = item.isConfigured !== false;
+
                 return (
                   <tr key={item.id} className="hover:bg-stone-50/70 transition-colors">
                     <td className="py-3 px-4">
-                      <div className="font-bold text-stone-900 flex items-center gap-1.5">
+                      <div className="font-bold text-stone-900 flex items-center gap-1.5 flex-wrap">
                         <span>{item.name}</span>
+                        {!isConfigured && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
+                            Niet geconfigureerd (0 kg)
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-stone-500 font-medium flex items-center gap-1">
                         <span className="font-mono text-amber-800 font-semibold">{item.origin}</span>
@@ -218,6 +227,7 @@ export const GreenCoffeeManagement: React.FC = () => {
                           status
                         )}`}
                       >
+                        <option value="Niet geconfigureerd">Niet geconfigureerd</option>
                         <option value="Ruim op voorraad">Ruim op voorraad</option>
                         <option value="Lage voorraad">Lage voorraad</option>
                         <option value="Nabesteld">Nabesteld</option>
@@ -250,12 +260,12 @@ export const GreenCoffeeManagement: React.FC = () => {
                     <td className="py-3 px-4 text-right">
                       <button
                         type="button"
-                        disabled={isSaving || !hasChanges}
+                        disabled={isSaving || (!hasChanges && isConfigured)}
                         onClick={() => handleSave(item.id)}
                         className={`px-3 py-1.5 rounded-lg text-white font-semibold text-xs transition-colors flex items-center gap-1 ml-auto shadow-2xs ${
                           isSaving
                             ? 'bg-amber-700 opacity-70 cursor-wait'
-                            : hasChanges
+                            : hasChanges || !isConfigured
                             ? 'bg-emerald-700 hover:bg-emerald-600 cursor-pointer ring-1 ring-emerald-500'
                             : 'bg-stone-300 text-stone-500 cursor-not-allowed'
                         }`}

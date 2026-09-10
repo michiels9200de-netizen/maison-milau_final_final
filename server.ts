@@ -3565,6 +3565,37 @@ app.post('/api/admin/roast-batch', async (req: Request, res: Response) => {
   }
 });
 
+// Admin Inventory Audit Report
+app.get('/api/admin/inventory-audit', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const report = await inventoryStore.getInventoryAuditReport();
+    res.json({
+      success: true,
+      report,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Fout bij ophalen van audit rapport.' });
+  }
+});
+
+// Admin Reset Unconfigured Inventory (Zero Out All Auto-Generated Values)
+app.post('/api/admin/reset-unconfigured-inventory', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  try {
+    const result = await inventoryStore.resetAllUnconfiguredInventory();
+    const full = await inventoryStore.getFullRoasteryData();
+    res.json({
+      success: true,
+      result,
+      fullData: full,
+      message: result.message,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Fout bij resetten van voorraad.' });
+  }
+});
+
 // ============================================================================
 // 15. PROCUREMENT & SOURCING MANAGEMENT SYSTEM API
 // ============================================================================

@@ -12,6 +12,11 @@ import {
   Clock,
   Sparkles,
   ChevronDown,
+  ShieldCheck,
+  FileText,
+  X,
+  AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 
 interface ProductAvailabilityTableProps {
@@ -37,6 +42,59 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
   const [editingStatusState, setEditingStatusState] = useState<Record<string, ManualStatusOverride>>({});
   const [savingMap, setSavingMap] = useState<Record<string, boolean>>({});
   const [notification, setNotification] = useState<string>('');
+
+  // Audit Report State
+  const [showAuditModal, setShowAuditModal] = useState<boolean>(false);
+  const [auditReport, setAuditReport] = useState<any>(null);
+  const [isAuditLoading, setIsAuditLoading] = useState<boolean>(false);
+  const [isResetting, setIsResetting] = useState<boolean>(false);
+
+  const fetchAuditReport = async () => {
+    setIsAuditLoading(true);
+    try {
+      const res = await fetch('/api/admin/inventory-audit');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setAuditReport(data.report);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load audit report', e);
+    } finally {
+      setIsAuditLoading(false);
+    }
+  };
+
+  const handleOpenAuditModal = () => {
+    setShowAuditModal(true);
+    fetchAuditReport();
+  };
+
+  const handleResetUnconfigured = async () => {
+    if (!window.confirm('Weet je zeker dat je alle niet door een beheerder ingevoerde voorraden wilt resetten naar 0 kg? Dit verwijdert alle geschatte of gegenereerde waarden.')) {
+      return;
+    }
+    setIsResetting(true);
+    try {
+      const res = await fetch('/api/admin/reset-unconfigured-inventory', {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setNotification('Alle niet-geconfigureerde voorraden zijn gereset naar 0 kg.');
+          await refreshStock();
+          await fetchAuditReport();
+          setTimeout(() => setNotification(''), 4000);
+        }
+      }
+    } catch (e) {
+      alert('Fout bij resetten van niet-geconfigureerde voorraad');
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const statusOptions: Array<{
     value: ManualStatusOverride;
@@ -161,6 +219,15 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={handleOpenAuditModal}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-amber-900/10 hover:bg-amber-900/20 text-amber-950 transition-colors flex items-center gap-1.5 cursor-pointer border border-amber-800/20"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+            <span>Data Integriteit & Audit</span>
+          </button>
+
+          <button
+            type="button"
             onClick={async () => {
               await refreshStock();
               setNotification('Voorraad en statussen ververst.');
@@ -276,7 +343,14 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                 return (
                   <tr key={prod.id} className="hover:bg-stone-50/80 transition-colors">
                     <td className="py-3 px-4">
-                      <div className="font-bold text-stone-900">{prod.name}</div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-stone-900">{prod.name}</span>
+                        {record?.isConfigured === false && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
+                            Niet geconfigureerd
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[10px] text-stone-500 font-mono">
                         {prod.sku} · {prod.collection || prod.category}
                         {record?.subscriptionAllocatedKg ? (
@@ -413,6 +487,155 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
           </table>
         </div>
       </div>
+
+      {/* Inventory Integrity Audit Modal */}
+      {showAuditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-2xl w-full border border-stone-200 shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-amber-100 text-amber-900 border border-amber-300">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-stone-900">Voorraad Integriteit & Audit Rapport</h3>
+                  <p className="text-xs text-stone-500">
+                    Controle op administrator-ingevoerde data versus onbewezen/geschatte voorraad.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAuditModal(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-5 text-xs text-stone-700">
+              {/* Policy Rule Box */}
+              <div className="p-3.5 bg-amber-50/80 rounded-xl border border-amber-300/80 flex items-start gap-3">
+                <AlertTriangle className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-amber-950">Strikte Integriteitsregel:</div>
+                  <p className="text-amber-900 mt-0.5 leading-relaxed">
+                    Alleen expliciet door een beheerder ingevoerde voorraadwaarden worden geaccepteerd. Automatisch gegenereerde, geschatte of veronderstelde voorraadwaarden worden als ongeldig beschouwd en genegeerd.
+                  </p>
+                </div>
+              </div>
+
+              {isAuditLoading ? (
+                <div className="py-12 text-center text-stone-400">
+                  <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-800" />
+                  <span>Audit rapport genereren...</span>
+                </div>
+              ) : auditReport ? (
+                <div className="space-y-4">
+                  {/* Summary Metric Cards */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3.5 rounded-xl border border-stone-200 bg-stone-50">
+                      <div className="text-[10px] uppercase font-bold text-stone-500">Winkelproducten (Gebrand)</div>
+                      <div className="text-lg font-black text-stone-900 mt-1">
+                        {auditReport.products.configured} / {auditReport.products.total}
+                        <span className="text-xs font-normal text-stone-500 ml-1.5">geconfigureerd</span>
+                      </div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">
+                        {auditReport.products.unconfigured} items nog niet ingevoerd (0 kg)
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl border border-stone-200 bg-stone-50">
+                      <div className="text-[10px] uppercase font-bold text-stone-500">Groene Koffie Lots</div>
+                      <div className="text-lg font-black text-stone-900 mt-1">
+                        {auditReport.greenCoffee.configured} / {auditReport.greenCoffee.total}
+                        <span className="text-xs font-normal text-stone-500 ml-1.5">geconfigureerd</span>
+                      </div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">
+                        {auditReport.greenCoffee.unconfigured} lots nog niet ingevoerd (0 kg)
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reset Unconfigured Action Box */}
+                  <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="font-bold text-rose-950">Niet-geconfigureerde Data Wissen</div>
+                      <p className="text-[11px] text-rose-850 mt-0.5">
+                        Zet alle niet door de beheerder ingevoerde voorraadwaarden definitief op 0 kg en markeer als 'Niet Geconfigureerd'.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isResetting}
+                      onClick={handleResetUnconfigured}
+                      className="px-3.5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shrink-0 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
+                      <span>{isResetting ? 'Bezig met reset...' : 'Reset Alles naar 0 kg'}</span>
+                    </button>
+                  </div>
+
+                  {/* Status of All Items */}
+                  <div>
+                    <h4 className="font-bold text-stone-900 mb-2">Audit Detail per Product:</h4>
+                    <div className="border border-stone-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                      <table className="w-full text-left text-[11px]">
+                        <thead className="bg-stone-100 border-b border-stone-200 text-stone-600 uppercase tracking-wider text-[9px] font-semibold sticky top-0">
+                          <tr>
+                            <th className="py-2 px-3">Product ID</th>
+                            <th className="py-2 px-3">Voorraad (kg)</th>
+                            <th className="py-2 px-3">Status</th>
+                            <th className="py-2 px-3">Integriteit</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100">
+                          {auditReport.products.items.map((item: any) => (
+                            <tr key={item.id} className="hover:bg-stone-50">
+                              <td className="py-1.5 px-3 font-mono font-medium text-stone-900">{item.id}</td>
+                              <td className="py-1.5 px-3 font-mono">{item.stockKg} kg</td>
+                              <td className="py-1.5 px-3 font-medium">{item.status}</td>
+                              <td className="py-1.5 px-3">
+                                {item.isConfigured ? (
+                                  <span className="inline-flex items-center gap-1 text-emerald-800 font-bold">
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                    <span>Door admin ingevoerd</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-amber-800 font-bold">
+                                    <AlertCircle className="w-3 h-3 text-amber-600" />
+                                    <span>Niet geconfigureerd (0 kg)</span>
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between">
+              <span className="text-[11px] text-stone-500">
+                Laatste audit check: {new Date().toLocaleTimeString('nl-NL')}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowAuditModal(false)}
+                className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-semibold text-xs cursor-pointer"
+              >
+                Sluiten
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

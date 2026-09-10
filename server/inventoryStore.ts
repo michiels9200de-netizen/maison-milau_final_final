@@ -4,7 +4,7 @@ import path from 'path';
 
 const { Pool } = pg;
 
-export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
+export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
 export type ManualStatusOverride = ProductAvailabilityStatus | 'auto';
 
 export interface InventoryItem {
@@ -17,6 +17,7 @@ export interface InventoryItem {
   manualStatus?: ManualStatusOverride;
   effectiveStatus: ProductAvailabilityStatus;
   inStock: boolean;
+  isConfigured?: boolean;
   lastUpdated: string;
 }
 
@@ -27,7 +28,8 @@ export interface GreenCoffeeItem {
   availableKg: number;
   reservedKg: number;
   incomingKg: number;
-  status: 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht';
+  status: 'Ruim op voorraad' | 'Lage voorraad' | 'Nabesteld' | 'Onderweg' | 'Uitverkocht' | 'Niet geconfigureerd';
+  isConfigured?: boolean;
   lastUpdated: string;
 }
 
@@ -49,19 +51,22 @@ export interface BlendRecipe {
 export interface BlendCapacity {
   blendId: string;
   blendName: string;
-  availableProductionKg: number; // Available production in kg (maximum producible green blend)
-  availableRoastedKg: number; // After roast yield
-  bottleneckGreenCoffeeId: string;
-  bottleneckGreenCoffeeName: string;
-  bottleneckAvailableKg: number;
-  limitingComponentPct: number;
-  status: 'Ruim produseerbaar' | 'Beperkte productie' | 'Niet produseerbaar (Grondstof tekort)';
+  availableProductionKg: number | null; // Available production in kg (maximum producible green blend)
+  availableRoastedKg: number | null; // After roast yield
+  hasSufficientData?: boolean;
+  unconfiguredComponents?: string[];
+  bottleneckGreenCoffeeId?: string;
+  bottleneckGreenCoffeeName?: string;
+  bottleneckAvailableKg?: number;
+  limitingComponentPct?: number;
+  status: 'Ruim produseerbaar' | 'Beperkte productie' | 'Niet produseerbaar (Grondstof tekort)' | 'Onvoldoende Data (Voorraad Niet Ingesteld)';
   componentBreakdown: Array<{
     greenCoffeeId: string;
     greenCoffeeName: string;
     percentage: number;
     availableKg: number;
-    maxSupportedBlendKg: number;
+    isConfigured?: boolean;
+    maxSupportedBlendKg: number | null;
   }>;
 }
 
@@ -100,167 +105,177 @@ const GREEN_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_green.json');
 const BATCHES_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_batches.json');
 
 // Default initial catalog inventory presets for all Maison Milau products
-export const ALL_SHOP_PRODUCTS_PRESETS: Record<string, { stockKg: number; reservedKg?: number; subAllocatedKg?: number; manualStatus?: ManualStatusOverride }> = {
+// ZERO quantities until entered explicitly by an administrator
+export const ALL_SHOP_PRODUCTS_PRESETS: Record<string, { stockKg: number; reservedKg?: number; subAllocatedKg?: number; manualStatus?: ManualStatusOverride; isConfigured?: boolean }> = {
   // Blends
-  'prod-budget-espresso': { stockKg: 18, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-budget-omni': { stockKg: 14, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-budget-filter': { stockKg: 12, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-budget-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon' },
+  'prod-budget-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-budget-omni': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-budget-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-budget-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
 
-  'prod-value-espresso': { stockKg: 15, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-value-omni': { stockKg: 12, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-value-filter': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-value-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon' },
+  'prod-value-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-value-omni': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-value-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-value-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
 
-  'prod-selection-daily': { stockKg: 16, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-selection-espresso': { stockKg: 14, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-selection-filter': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-selection-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon' },
+  'prod-selection-daily': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-selection-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-selection-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-selection-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
 
-  'prod-premium-daily': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-premium-espresso': { stockKg: 8, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-premium-filter': { stockKg: 8, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-premium-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon' },
+  'prod-premium-daily': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-premium-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-premium-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-premium-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
 
-  'prod-prestige-daily': { stockKg: 3, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-prestige-espresso': { stockKg: 2, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-prestige-filter': { stockKg: 3, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-prestige-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon' },
-  'prod-nespresso-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon' },
+  'prod-prestige-daily': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-prestige-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-prestige-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-prestige-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
+  'prod-nespresso-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
 
   // Barrel Aged
-  'prod-barrel-moscatel': { stockKg: 7, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-barrel-px': { stockKg: 5, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-barrel-bourbon': { stockKg: 4, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-barrel-whisky': { stockKg: 6, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-barrel-rum': { stockKg: 5, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-barrel-cognac': { stockKg: 4, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-barrel-moscatel': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-barrel-px': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-barrel-bourbon': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-barrel-whisky': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-barrel-rum': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-barrel-cognac': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
 
   // Infused
-  'prod-infused-vanilla': { stockKg: 6, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-infused-cinnamon': { stockKg: 4, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-infused-almond': { stockKg: 5, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-infused-hazelnut': { stockKg: 5, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-infused-vanilla': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-infused-cinnamon': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-infused-almond': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-infused-hazelnut': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
 
   // Single Origins (with cross-compatibility aliases)
-  'prod-so-gesha': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-origin-ethiopia': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-origin-geisha': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-so-pink-bourbon': { stockKg: 3.5, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-origin-colombia': { stockKg: 3.5, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-origin-brazil': { stockKg: 15, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-origin-guatemala': { stockKg: 8, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-origin-kenya': { stockKg: 2.5, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'low_stock' },
-  'prod-origin-indonesia': { stockKg: 6, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-so-gesha': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-ethiopia': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-geisha': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-so-pink-bourbon': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-colombia': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-brazil': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-guatemala': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-kenya': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-origin-indonesia': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
 
   // Giftboxes
-  'prod-gift-duo': { stockKg: 15, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-gift-trio': { stockKg: 12, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-gift-quattro': { stockKg: 8, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-gift-duo': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-gift-trio': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-gift-quattro': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
 
   // Merchandise & Accessories
-  'prod-acc-mok': { stockKg: 25, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-acc-cups': { stockKg: 30, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-acc-coldbrew': { stockKg: 18, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-acc-recycled': { stockKg: 50, reservedKg: 0, subAllocatedKg: 0 },
-  'prod-acc-tshirt': { stockKg: 20, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-acc-mok': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-acc-cups': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-acc-coldbrew': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-acc-recycled': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-acc-tshirt': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
 
   // Subscriptions
-  'prod-sub-flexibel': { stockKg: 25, reservedKg: 0, subAllocatedKg: 5 },
-  'prod-sub-cotm': { stockKg: 20, reservedKg: 0, subAllocatedKg: 4 },
-  'prod-sub-cadeau': { stockKg: 15, reservedKg: 0, subAllocatedKg: 2 },
+  'prod-sub-flexibel': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-sub-cotm': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
+  'prod-sub-cadeau': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
 };
 
-// Initial Green Coffee inventory presets as specified in prompt
+// Initial Green Coffee inventory presets - all set to 0 kg & Niet geconfigureerd until entered
 export const INITIAL_GREEN_COFFEE: Record<string, GreenCoffeeItem> = {
   'green-brazil-canastra': {
     id: 'green-brazil-canastra',
     name: 'Brazil Canastra Sweet Catuai',
     origin: 'Brazilië · Serra da Canastra (1.150m)',
-    availableKg: 120,
+    availableKg: 0,
     reservedKg: 0,
-    incomingKg: 60,
-    status: 'Ruim op voorraad',
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-pink-bourbon': {
     id: 'green-pink-bourbon',
     name: 'Pink Bourbon (Huila Micro-Lot)',
     origin: 'Colombia · San Adolfo Huila (1.750m)',
-    availableKg: 35,
+    availableKg: 0,
     reservedKg: 0,
-    incomingKg: 20,
-    status: 'Lage voorraad',
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-uganda-robusta': {
     id: 'green-uganda-robusta',
     name: 'Uganda Robusta (Mount Elgon Specialty)',
     origin: 'Oeganda · Mount Elgon Bio (1.300m)',
-    availableKg: 60,
+    availableKg: 0,
     reservedKg: 0,
     incomingKg: 0,
-    status: 'Ruim op voorraad',
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-kenya-aa': {
     id: 'green-kenya-aa',
     name: 'Kenya AA (Nyeri Hill)',
     origin: 'Kenia · Nyeri Central Highlands (1.800m)',
-    availableKg: 30,
-    reservedKg: 12, // 12 kg reserved for Single Origin Kenya AA batches
-    incomingKg: 20,
-    status: 'Lage voorraad',
+    availableKg: 0,
+    reservedKg: 0,
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-ethiopia-chelbesa': {
     id: 'green-ethiopia-chelbesa',
     name: 'Ethiopia Chelbesa Yirgacheffe',
     origin: 'Ethiopië · Chelbesa Gedeo (2.050m)',
-    availableKg: 60,
+    availableKg: 0,
     reservedKg: 0,
-    incomingKg: 30,
-    status: 'Ruim op voorraad',
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-colombia-castillo': {
     id: 'green-colombia-castillo',
     name: 'Colombia Castillo (Pitalito Huila)',
     origin: 'Colombia · Pitalito Huila (1.650m)',
-    availableKg: 54, // 54 kg / 0.3 = 180 kg available production for Value Espresso
+    availableKg: 0,
     reservedKg: 0,
-    incomingKg: 40,
-    status: 'Ruim op voorraad',
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-honduras-comayagua': {
     id: 'green-honduras-comayagua',
     name: 'Honduras Comayagua Organic',
     origin: 'Honduras · Montecillos Comayagua (1.500m)',
-    availableKg: 32.5, // 32.5 kg / 0.5 = 65 kg available production for Premium Espresso
-    reservedKg: 7.5,
-    incomingKg: 25,
-    status: 'Ruim op voorraad',
+    availableKg: 0,
+    reservedKg: 0,
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-guatemala-huehue': {
     id: 'green-guatemala-huehue',
     name: 'Guatemala Huehuetenango SHB',
     origin: 'Guatemala · Los Altos Huehuetenango (1.700m)',
-    availableKg: 35,
+    availableKg: 0,
     reservedKg: 0,
-    incomingKg: 15,
-    status: 'Ruim op voorraad',
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
   'green-indonesia-sumatra': {
     id: 'green-indonesia-sumatra',
     name: 'Indonesia Sumatra Mandheling Grade 1',
     origin: 'Indonesië · Lake Toba Sumatra (1.450m)',
-    availableKg: 25,
+    availableKg: 0,
     reservedKg: 0,
-    incomingKg: 10,
-    status: 'Lage voorraad',
+    incomingKg: 0,
+    status: 'Niet geconfigureerd',
+    isConfigured: false,
     lastUpdated: new Date().toISOString(),
   },
 };
@@ -328,32 +343,8 @@ export const INITIAL_BLEND_RECIPES: Record<string, BlendRecipe> = {
   },
 };
 
-const INITIAL_ROAST_BATCHES: RoastBatchRecord[] = [
-  {
-    id: 'batch-001',
-    batchNumber: 'MM-BATCH-2026-088',
-    blendId: 'blend-value-espresso',
-    blendName: 'Value Espresso',
-    targetProductId: 'prod-value-espresso',
-    greenKgUsed: 20,
-    roastedKgProduced: 17,
-    roaster: 'Laurent Michiels (Master Roaster)',
-    roastDate: '2026-09-08T10:15:00.000Z',
-    notes: 'Drum roaster Giesen W15, eerste knak bij 198°C, ontwikkeltijd 15.5%. Uitstekend aromatisch profiel.',
-  },
-  {
-    id: 'batch-002',
-    batchNumber: 'MM-BATCH-2026-089',
-    blendId: 'blend-selection-daily',
-    blendName: 'Selection Daily',
-    targetProductId: 'prod-selection-daily',
-    greenKgUsed: 15,
-    roastedKgProduced: 12.8,
-    roaster: 'Laurent Michiels (Master Roaster)',
-    roastDate: '2026-09-09T08:45:00.000Z',
-    notes: 'Medium roast profiel voor omni/filter. Bloemig boeket van de Chelbesa component prachtig behouden.',
-  },
-];
+// No mock roast batches
+const INITIAL_ROAST_BATCHES: RoastBatchRecord[] = [];
 
 class InventoryStore {
   private pgPool: pg.Pool | null = null;
@@ -399,9 +390,10 @@ class InventoryStore {
   private computeEffectiveStatus(
     productId: string,
     availableKg: number,
-    manualStatus?: ManualStatusOverride
+    manualStatus?: ManualStatusOverride,
+    isConfigured: boolean = false
   ): ProductAvailabilityStatus {
-    // 1. Manual status takes top priority if explicitly set (and not 'auto')
+    // 1. Explicit manual status takes top priority if set (and not 'auto')
     if (manualStatus && manualStatus !== 'auto') {
       return manualStatus;
     }
@@ -416,7 +408,12 @@ class InventoryStore {
       return 'coming_soon';
     }
 
-    // 3. Dynamic availability based on live available stock
+    // 3. If inventory has not been manually entered by an administrator, return 'not_configured'
+    if (!isConfigured) {
+      return 'not_configured';
+    }
+
+    // 4. Dynamic availability based strictly on live available stock entered by admin
     if (availableKg <= 0) {
       return 'out_of_stock';
     }
@@ -432,12 +429,14 @@ class InventoryStore {
       if (fs.existsSync(STOCK_FILE_PATH)) {
         const data = JSON.parse(fs.readFileSync(STOCK_FILE_PATH, 'utf-8'));
         Object.entries(data).forEach(([pid, rec]: [string, any]) => {
-          const rawStock = Number(rec.rawStockKg ?? rec.stockKg ?? 0);
-          const reserved = Number(rec.reservedKg ?? 0);
-          const subAlloc = Number(rec.subscriptionAllocatedKg ?? 0);
-          const available = Math.max(0, rawStock - reserved - subAlloc);
+          // Only true if explicitly verified / configured by administrator
+          const isConfigured = rec.isConfigured === true;
+          const rawStock = isConfigured ? Number(rec.rawStockKg ?? rec.stockKg ?? 0) : 0;
+          const reserved = isConfigured ? Number(rec.reservedKg ?? 0) : 0;
+          const subAlloc = isConfigured ? Number(rec.subscriptionAllocatedKg ?? 0) : 0;
+          const available = isConfigured ? Math.max(0, rawStock - reserved - subAlloc) : 0;
           const manualStatus: ManualStatusOverride | undefined = rec.manualStatus;
-          const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus);
+          const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus, isConfigured);
 
           this.productsCache[pid] = {
             productId: pid,
@@ -448,7 +447,8 @@ class InventoryStore {
             availableKg: available,
             manualStatus,
             effectiveStatus,
-            inStock: effectiveStatus === 'available' || effectiveStatus === 'low_stock',
+            isConfigured,
+            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'low_stock'),
             lastUpdated: rec.lastUpdated || new Date().toISOString(),
           };
         });
@@ -461,23 +461,22 @@ class InventoryStore {
     const now = new Date().toISOString();
     Object.entries(ALL_SHOP_PRODUCTS_PRESETS).forEach(([pid, preset]) => {
       if (!this.productsCache[pid]) {
-        const rawStock = preset.stockKg;
-        const reserved = preset.reservedKg || 0;
-        const subAlloc = preset.subAllocatedKg || 0;
-        const available = Math.max(0, rawStock - reserved - subAlloc);
+        const isConfigured = false;
+        const available = 0;
         const manualStatus = preset.manualStatus;
-        const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus);
+        const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus, isConfigured);
 
         this.productsCache[pid] = {
           productId: pid,
-          stockKg: available,
-          rawStockKg: rawStock,
-          reservedKg: reserved,
-          subscriptionAllocatedKg: subAlloc,
-          availableKg: available,
+          stockKg: 0,
+          rawStockKg: 0,
+          reservedKg: 0,
+          subscriptionAllocatedKg: 0,
+          availableKg: 0,
           manualStatus,
           effectiveStatus,
-          inStock: effectiveStatus === 'available' || effectiveStatus === 'low_stock',
+          isConfigured: false,
+          inStock: false,
           lastUpdated: now,
         };
       }
@@ -487,7 +486,17 @@ class InventoryStore {
     try {
       if (fs.existsSync(GREEN_FILE_PATH)) {
         const data = JSON.parse(fs.readFileSync(GREEN_FILE_PATH, 'utf-8'));
-        this.greenCoffeeCache = data;
+        Object.entries(data).forEach(([gid, item]: [string, any]) => {
+          const isConfigured = item.isConfigured === true;
+          this.greenCoffeeCache[gid] = {
+            ...item,
+            availableKg: isConfigured ? Math.max(0, Number(item.availableKg || 0)) : 0,
+            reservedKg: isConfigured ? Math.max(0, Number(item.reservedKg || 0)) : 0,
+            incomingKg: isConfigured ? Math.max(0, Number(item.incomingKg || 0)) : 0,
+            status: isConfigured ? (item.status || 'Ruim op voorraad') : 'Niet geconfigureerd',
+            isConfigured,
+          };
+        });
       } else {
         this.greenCoffeeCache = { ...INITIAL_GREEN_COFFEE };
       }
@@ -619,14 +628,22 @@ class InventoryStore {
       let bottleneckAvailable = 0;
       let limitingPct = 0;
 
+      const unconfiguredComponents: string[] = [];
+
       const breakdown = recipe.components.map((comp) => {
         const greenItem = this.greenCoffeeCache[comp.greenCoffeeId];
-        // Available for production is availableKg (excluding reserved for other uses)
-        const netAvailable = greenItem ? Math.max(0, greenItem.availableKg) : 0;
-        const pctFraction = comp.percentage / 100;
-        const maxSupported = pctFraction > 0 ? netAvailable / pctFraction : 0;
+        const isCompConfigured = greenItem ? greenItem.isConfigured === true : false;
 
-        if (maxSupported < minProducibleBlendKg) {
+        if (!isCompConfigured) {
+          unconfiguredComponents.push(comp.greenCoffeeName);
+        }
+
+        // Available for production is availableKg ONLY if explicitly entered by admin
+        const netAvailable = isCompConfigured && greenItem ? Math.max(0, greenItem.availableKg) : 0;
+        const pctFraction = comp.percentage / 100;
+        const maxSupported = (isCompConfigured && pctFraction > 0) ? (netAvailable / pctFraction) : 0;
+
+        if (isCompConfigured && maxSupported < minProducibleBlendKg) {
           minProducibleBlendKg = maxSupported;
           bottleneckId = comp.greenCoffeeId;
           bottleneckName = comp.greenCoffeeName;
@@ -639,30 +656,38 @@ class InventoryStore {
           greenCoffeeName: comp.greenCoffeeName,
           percentage: comp.percentage,
           availableKg: netAvailable,
-          maxSupportedBlendKg: Math.round(maxSupported * 10) / 10,
+          isConfigured: isCompConfigured,
+          maxSupportedBlendKg: isCompConfigured ? Math.round(maxSupported * 10) / 10 : null,
         };
       });
 
-      const maxGreenKg = minProducibleBlendKg === Infinity ? 0 : Math.round(minProducibleBlendKg * 10) / 10;
+      const hasSufficientData = unconfiguredComponents.length === 0;
+      const maxGreenKg = (!hasSufficientData || minProducibleBlendKg === Infinity) ? 0 : Math.round(minProducibleBlendKg * 10) / 10;
       const roastYield = (recipe.roastYieldPct || 85) / 100;
-      const maxRoastedKg = Math.round(maxGreenKg * roastYield * 10) / 10;
+      const maxRoastedKg = hasSufficientData ? Math.round(maxGreenKg * roastYield * 10) / 10 : null;
 
-      let status: BlendCapacity['status'] = 'Ruim produseerbaar';
-      if (maxGreenKg <= 0) {
+      let status: BlendCapacity['status'];
+      if (!hasSufficientData) {
+        status = 'Onvoldoende Data (Voorraad Niet Ingesteld)';
+      } else if (maxGreenKg <= 0) {
         status = 'Niet produseerbaar (Grondstof tekort)';
       } else if (maxGreenKg < 50) {
         status = 'Beperkte productie';
+      } else {
+        status = 'Ruim produseerbaar';
       }
 
       capacities[blendId] = {
         blendId,
         blendName: recipe.blendName,
-        availableProductionKg: maxGreenKg,
+        availableProductionKg: hasSufficientData ? maxGreenKg : null,
         availableRoastedKg: maxRoastedKg,
-        bottleneckGreenCoffeeId: bottleneckId,
-        bottleneckGreenCoffeeName: bottleneckName,
-        bottleneckAvailableKg: bottleneckAvailable,
-        limitingComponentPct: limitingPct,
+        hasSufficientData,
+        unconfiguredComponents: hasSufficientData ? [] : unconfiguredComponents,
+        bottleneckGreenCoffeeId: hasSufficientData ? bottleneckId : undefined,
+        bottleneckGreenCoffeeName: hasSufficientData ? bottleneckName : undefined,
+        bottleneckAvailableKg: hasSufficientData ? bottleneckAvailable : undefined,
+        limitingComponentPct: hasSufficientData ? limitingPct : undefined,
         status,
         componentBreakdown: breakdown,
       };
@@ -771,7 +796,8 @@ class InventoryStore {
       const avail = Math.max(0, sanitizedRawKg - resKg - subKg);
       const chosenManualStatus: ManualStatusOverride | undefined =
         manualStatus !== undefined ? manualStatus : existing.manualStatus;
-      const effectiveStatus = this.computeEffectiveStatus(targetId, avail, chosenManualStatus);
+      const isConfigured = true; // Any manual or programmatic admin update configures the item
+      const effectiveStatus = this.computeEffectiveStatus(targetId, avail, chosenManualStatus, isConfigured);
 
       const newItem: InventoryItem = {
         productId: targetId,
@@ -782,6 +808,7 @@ class InventoryStore {
         availableKg: avail,
         manualStatus: chosenManualStatus,
         effectiveStatus,
+        isConfigured,
         inStock: effectiveStatus === 'available' || effectiveStatus === 'low_stock',
         lastUpdated: now,
       };
@@ -879,6 +906,7 @@ class InventoryStore {
       reservedKg: newRes,
       incomingKg: newInc,
       status: computedStatus,
+      isConfigured: true, // Configured by explicit admin entry
       lastUpdated: new Date().toISOString(),
     };
 
@@ -1099,6 +1127,154 @@ class InventoryStore {
     }
 
     this.saveToDisk();
+  }
+
+  /**
+   * Generates a comprehensive inventory audit report detailing
+   * configured vs unconfigured items and blend production readiness.
+   */
+  public async getInventoryAuditReport(): Promise<{
+    timestamp: string;
+    rule: string;
+    summary: {
+      totalProducts: number;
+      configuredProducts: number;
+      unconfiguredProducts: number;
+      totalGreenCoffees: number;
+      configuredGreenCoffees: number;
+      unconfiguredGreenCoffees: number;
+      totalBlends: number;
+      blendsWithSufficientData: number;
+      blendsLackingData: number;
+    };
+    greenCoffeeAudit: Array<{
+      id: string;
+      name: string;
+      origin: string;
+      availableKg: number;
+      status: string;
+      isConfigured: boolean;
+      dataStatus: 'Manually Entered (Valid)' | 'Not Configured (Pending Admin Entry)';
+    }>;
+    productsAudit: Array<{
+      productId: string;
+      stockKg: number;
+      effectiveStatus: string;
+      isConfigured: boolean;
+      dataStatus: 'Manually Entered (Valid)' | 'Not Configured (Pending Admin Entry)';
+    }>;
+    blendCapacityAudit: Array<{
+      blendId: string;
+      blendName: string;
+      hasSufficientData: boolean;
+      status: string;
+      availableProductionKg: number | null;
+      availableRoastedKg: number | null;
+      unconfiguredComponents: string[];
+    }>;
+  }> {
+    await this.ensureSchemaAndSeed();
+    const capacities = this.calculateBlendCapacities();
+
+    const greenList = Object.values(this.greenCoffeeCache).map((g) => ({
+      id: g.id,
+      name: g.name,
+      origin: g.origin,
+      availableKg: g.availableKg,
+      status: g.status,
+      isConfigured: g.isConfigured === true,
+      dataStatus: g.isConfigured === true
+        ? ('Manually Entered (Valid)' as const)
+        : ('Not Configured (Pending Admin Entry)' as const),
+    }));
+
+    const prodList = Object.values(this.productsCache).map((p) => ({
+      productId: p.productId,
+      stockKg: p.stockKg,
+      effectiveStatus: p.effectiveStatus,
+      isConfigured: p.isConfigured === true,
+      dataStatus: p.isConfigured === true
+        ? ('Manually Entered (Valid)' as const)
+        : ('Not Configured (Pending Admin Entry)' as const),
+    }));
+
+    const blendAudit = Object.values(capacities).map((b) => ({
+      blendId: b.blendId,
+      blendName: b.blendName,
+      hasSufficientData: b.hasSufficientData ?? false,
+      status: b.status,
+      availableProductionKg: b.availableProductionKg,
+      availableRoastedKg: b.availableRoastedKg,
+      unconfiguredComponents: b.unconfiguredComponents || [],
+    }));
+
+    return {
+      timestamp: new Date().toISOString(),
+      rule: 'Only administrator-entered inventory values are valid. Unconfigured entries display 0 kg and Not Configured.',
+      summary: {
+        totalProducts: prodList.length,
+        configuredProducts: prodList.filter((p) => p.isConfigured).length,
+        unconfiguredProducts: prodList.filter((p) => !p.isConfigured).length,
+        totalGreenCoffees: greenList.length,
+        configuredGreenCoffees: greenList.filter((g) => g.isConfigured).length,
+        unconfiguredGreenCoffees: greenList.filter((g) => !g.isConfigured).length,
+        totalBlends: blendAudit.length,
+        blendsWithSufficientData: blendAudit.filter((b) => b.hasSufficientData).length,
+        blendsLackingData: blendAudit.filter((b) => !b.hasSufficientData).length,
+      },
+      greenCoffeeAudit: greenList,
+      productsAudit: prodList,
+      blendCapacityAudit: blendAudit,
+    };
+  }
+
+  /**
+   * Resets any unconfigured or legacy mock values to 0 and Not Configured
+   */
+  public async resetAllUnconfiguredInventory(): Promise<{ resetCount: number; message: string }> {
+    let count = 0;
+    const now = new Date().toISOString();
+
+    // Reset unconfigured green coffees
+    for (const [gid, item] of Object.entries(this.greenCoffeeCache)) {
+      if (item.isConfigured !== true) {
+        this.greenCoffeeCache[gid] = {
+          ...item,
+          availableKg: 0,
+          reservedKg: 0,
+          incomingKg: 0,
+          status: 'Niet geconfigureerd',
+          isConfigured: false,
+          lastUpdated: now,
+        };
+        count++;
+      }
+    }
+
+    // Reset unconfigured products
+    for (const [pid, item] of Object.entries(this.productsCache)) {
+      if (item.isConfigured !== true) {
+        this.productsCache[pid] = {
+          ...item,
+          stockKg: 0,
+          rawStockKg: 0,
+          reservedKg: 0,
+          subscriptionAllocatedKg: 0,
+          availableKg: 0,
+          effectiveStatus: this.computeEffectiveStatus(pid, 0, item.manualStatus, false),
+          isConfigured: false,
+          inStock: false,
+          lastUpdated: now,
+        };
+        count++;
+      }
+    }
+
+    this.saveToDisk();
+    return {
+      resetCount: count,
+      message: 'All unconfigured mock inventory values have been reset to 0 kg and Niet geconfigureerd.',
+    };
   }
 }
 

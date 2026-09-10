@@ -20,10 +20,10 @@ export type AvailabilityStatus =
   | 'out_of_stock';
 
 export interface AvailabilityInfo {
-  status: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
-  statusCode: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock';
-  label: 'Beschikbaar' | 'Lage voorraad' | 'Binnenkort beschikbaar' | 'Niet beschikbaar';
-  badge: '✅ Beschikbaar' | '🟠 Lage Voorraad' | '🟡 Binnenkort Beschikbaar' | '🔴 Niet Beschikbaar';
+  status: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
+  statusCode: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
+  label: 'Beschikbaar' | 'Lage voorraad' | 'Binnenkort beschikbaar' | 'Niet beschikbaar' | 'Voorraad Niet Geconfigureerd';
+  badge: string;
   detailText: string;
   color: 'green' | 'orange' | 'yellow' | 'red' | 'amber';
   badgeClass: string;
@@ -31,6 +31,7 @@ export interface AvailabilityInfo {
   stockKg: number;
   isPurchasable: boolean;
   manualStatus?: ManualStatusOverride;
+  isConfigured?: boolean;
 }
 
 export type StockItem = RoasteryInventoryItem;
@@ -345,6 +346,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             availableKg: avail,
             manualStatus: chosenStatus,
             effectiveStatus: effStatus,
+            isConfigured: true,
             inStock: effStatus === 'available' || effStatus === 'low_stock',
             lastUpdated: now,
           };
@@ -629,10 +631,30 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           stockKg: 0,
           isPurchasable: false,
           manualStatus: 'auto',
+          isConfigured: record?.isConfigured,
         };
       }
 
-      // 3. Dynamic Calculation Based on Live Database Available kg
+      // 3. Unconfigured Inventory: Do NOT automatically mark products as available
+      // If stock has not been explicitly entered by an administrator, display 'Binnenkort beschikbaar'
+      if (!record || record.isConfigured === false) {
+        return {
+          status: 'coming_soon',
+          statusCode: 'not_configured',
+          label: 'Binnenkort beschikbaar',
+          badge: '🟡 Binnenkort Beschikbaar',
+          detailText: 'Binnenkort beschikbaar · Voorraad nog niet geconfigureerd',
+          color: 'yellow',
+          badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 shadow-2xs',
+          dotClass: 'bg-amber-400 animate-pulse',
+          stockKg: 0,
+          isPurchasable: false,
+          manualStatus: 'auto',
+          isConfigured: false,
+        };
+      }
+
+      // 4. Dynamic Calculation Based on Live Database Available kg entered by administrator
       if (currentStockKg <= 0) {
         return {
           status: 'out_of_stock',
