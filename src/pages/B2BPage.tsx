@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, Calculator, Coffee, CheckCircle, ArrowRight, Send, Gift, Layers } from 'lucide-react';
+import { Building2, Calculator, Coffee, CheckCircle, ArrowRight, Send, Gift, Layers, ChevronDown } from 'lucide-react';
 import { CONFIG } from '../config';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
@@ -11,7 +11,6 @@ import {
   HandelszakenIllustration,
   KapsalonIllustration,
 } from '../components/b2b/SectorLineArt';
-import { SectorShowcase } from '../components/b2b/SectorShowcase';
 
 interface B2BPageProps {
   navigate: (path: string) => void;
@@ -26,6 +25,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   const [cupsPerPersonPerDay, setCupsPerPersonPerDay] = useState<number>(2.5);
   const [tasteProfile, setTasteProfile] = useState<'krachtig' | 'toegankelijk' | 'gebalanceerd' | 'exclusief'>('toegankelijk');
   const [machineOption, setMachineOption] = useState<string>('beans_only');
+  const [showMachineDetails, setShowMachineDetails] = useState<boolean>(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -156,16 +156,16 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               {/* Premium Line-Art Sector Pills in Hero */}
               <div className="p-3.5 sm:p-4 bg-stone-900/90 backdrop-blur-xs rounded-2xl border border-stone-700/80 text-xs text-stone-300 space-y-2.5 shadow-xl ring-1 ring-amber-900/20">
                 <div className="flex items-center justify-between">
-                  <div className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="text-xs font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                     <span>Geschikt voor elke onderneming</span>
                   </div>
                   <a
-                    href="#geschikt-voor-sectoren"
-                    className="text-[11px] text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 transition-colors"
+                    href="#b2b-calculator"
+                    className="text-xs text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 transition-colors"
                   >
-                    <span>Bekijk formules</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <span>Bereken uw formule</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </a>
                 </div>
 
@@ -184,7 +184,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                       onClick={() => {
                         setSettingType(sec.id as any);
                         setFormData((prev) => ({ ...prev, sector: sec.label }));
-                        const el = document.getElementById('geschikt-voor-sectoren');
+                        const el = document.getElementById('b2b-calculator');
                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       className="flex items-center gap-2 p-2 rounded-xl bg-stone-950/70 border border-stone-800 hover:border-amber-500/60 hover:bg-stone-800/90 transition-all text-left cursor-pointer group"
@@ -193,10 +193,10 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                         <sec.Icon className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] font-bold text-stone-200 group-hover:text-amber-200 truncate">
+                        <div className="text-xs font-bold text-stone-200 group-hover:text-amber-200 truncate">
                           {sec.label}
                         </div>
-                        <div className="text-[9px] text-stone-400 truncate">{sec.sub}</div>
+                        <div className="text-[10.5px] text-stone-400 truncate">{sec.sub}</div>
                       </div>
                     </button>
                   ))}
@@ -222,34 +222,16 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
-        {/* Dedicated Geschikt voor uw sector section with full line-art showcase */}
-        <div id="geschikt-voor-sectoren">
-          <SectorShowcase
-            onSelectSector={(sectorId, sectorLabel) => {
-              if (
-                sectorId === 'horeca' ||
-                sectorId === 'kantoor' ||
-                sectorId === 'residentieel' ||
-                sectorId === 'handelszaken' ||
-                sectorId === 'kapsalon'
-              ) {
-                setSettingType(sectorId as any);
-              }
-              setFormData((prev) => ({ ...prev, sector: sectorLabel }));
-            }}
-          />
-        </div>
-
-        {/* Interactive B2B Calculator Section */}
+        {/* Interactive B2B Calculator Section - Compact & High-Efficiency */}
         <section
           id="b2b-calculator"
-          className="relative overflow-hidden bg-[#1A0E08] rounded-2xl border border-amber-900/50 p-6 sm:p-8 lg:p-10 shadow-2xl text-white"
+          className="relative overflow-hidden bg-[#1A0E08] rounded-2xl border border-amber-900/50 p-5 sm:p-7 lg:p-8 shadow-2xl text-white"
         >
           {/* Coffee Bean Background Motif with lightened texture */}
           <CoffeeBeanAtmosphere variant="section" />
 
-          <div className="relative z-10 max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-700/60 text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-2.5 backdrop-blur-xs">
+          <div className="relative z-10 max-w-3xl mb-5 sm:mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-700/60 text-xs font-bold uppercase tracking-wider text-amber-300 mb-2 backdrop-blur-xs">
               <Calculator className="w-3.5 h-3.5 text-amber-400" />
               <span>Interactieve Calculator (indicatief)</span>
             </div>
@@ -257,26 +239,26 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               Bereken uw B2B Prijs (indicatief)
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 mt-1 font-normal leading-relaxed">
-              Bereken uw maandelijkse koffiebehoefte, geschat aantal kopjes en staffelkorting.
+              Bereken direct uw maandelijkse koffiebehoefte, geschat aantal kopjes en staffelkorting.
             </p>
           </div>
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Controls Card */}
-            <div className="lg:col-span-6 bg-stone-950/80 backdrop-blur-md rounded-2xl border border-stone-800/90 p-5 sm:p-6 space-y-6 shadow-xl ring-1 ring-white/5">
-              {/* Setting Type Selection with Line-Art */}
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Controls Card - Compact Interaction Model */}
+            <div className="lg:col-span-6 bg-stone-950/80 backdrop-blur-md rounded-2xl border border-stone-800/90 p-4 sm:p-5 space-y-4 shadow-xl ring-1 ring-white/5">
+              {/* Setting Type Selection: Compact 6-Pill Grid */}
               <div>
                 <label className="block text-xs font-semibold text-stone-200 mb-2">
                   1. Type Onderneming / Setting:
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                   {[
-                    { id: 'horeca', label: 'Horeca & Café', sub: '26 dagen / mnd', Icon: HorecaIllustration },
+                    { id: 'horeca', label: 'Horeca & Café', sub: '26 d/mnd', Icon: HorecaIllustration },
                     { id: 'kantoor', label: 'Kantoor / Bedrijf', sub: '22 werkdagen', Icon: KantoorIllustration },
-                    { id: 'residentieel', label: 'Residentiële Zorg', sub: '30 dagen (continu)', Icon: ResidentieleZorgIllustration },
-                    { id: 'handelszaken', label: 'Handelszaken', sub: '24 dagen retail', Icon: HandelszakenIllustration },
-                    { id: 'kapsalon', label: 'Kapsalon & Beauty', sub: '22 dagen VIP beleving', Icon: KapsalonIllustration },
-                    { id: 'evenement', label: 'Evenement / Pop-up', sub: 'Flexibele periode', Icon: Coffee },
+                    { id: 'residentieel', label: 'Residentieel', sub: '30 d continu', Icon: ResidentieleZorgIllustration },
+                    { id: 'handelszaken', label: 'Handelszaken', sub: '24 d retail', Icon: HandelszakenIllustration },
+                    { id: 'kapsalon', label: 'Kapsalon & Spa', sub: '22 d VIP', Icon: KapsalonIllustration },
+                    { id: 'evenement', label: 'Evenement', sub: 'Flexibel', Icon: Coffee },
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -285,39 +267,34 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                         setSettingType(s.id as any);
                         setFormData((prev) => ({ ...prev, sector: s.label }));
                       }}
-                      className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                      className={`p-2 rounded-xl border text-left transition-all flex items-center gap-2 cursor-pointer ${
                         settingType === s.id
                           ? 'border-amber-400 bg-amber-950/70 text-amber-100 font-semibold ring-1 ring-amber-400 shadow-xs'
                           : 'border-stone-800 bg-stone-900/80 text-stone-300 hover:bg-stone-800/80 hover:border-stone-700'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center p-1.5 ${
-                          settingType === s.id
-                            ? 'bg-amber-800 text-amber-100'
-                            : 'bg-stone-800 text-stone-300'
-                        }`}>
-                          <s.Icon className="w-5 h-5" />
-                        </div>
-                        {settingType === s.id && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                        )}
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 p-1 ${
+                        settingType === s.id
+                          ? 'bg-amber-800 text-amber-100'
+                          : 'bg-stone-800 text-stone-300'
+                      }`}>
+                        <s.Icon className="w-4 h-4" />
                       </div>
-                      <div>
-                        <div className="text-xs font-bold leading-tight mb-0.5">{s.label}</div>
-                        <div className="text-[10px] text-stone-400 font-normal leading-tight">{s.sub}</div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold leading-tight truncate">{s.label}</div>
+                        <div className="text-[10.5px] text-stone-400 font-normal leading-tight truncate">{s.sub}</div>
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* People and Daily Cups */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="flex justify-between items-center text-xs font-semibold text-stone-200 mb-2">
-                    <span>Aantal personen / gasten</span>
-                    <span className="text-sm font-bold text-amber-300">{peopleCount} pers.</span>
+              {/* People and Daily Cups - Compact 2-Column Well */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/80">
+                  <div className="flex justify-between items-center text-xs font-semibold text-stone-200 mb-1.5">
+                    <span>Aantal personen</span>
+                    <span className="text-xs font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/60">{peopleCount} pers.</span>
                   </div>
                   <input
                     type="range"
@@ -326,9 +303,9 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     step="5"
                     value={peopleCount}
                     onChange={(e) => setPeopleCount(Number(e.target.value))}
-                    className="w-full accent-amber-500 h-2 bg-stone-800 rounded-lg cursor-pointer"
+                    className="w-full accent-amber-500 h-1.5 bg-stone-800 rounded-lg cursor-pointer"
                   />
-                  <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+                  <div className="flex justify-between text-[11px] text-stone-400 mt-1">
                     <span>5</span>
                     <span>50</span>
                     <span>100</span>
@@ -336,10 +313,10 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex justify-between items-center text-xs font-semibold text-stone-200 mb-2">
+                <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/80">
+                  <div className="flex justify-between items-center text-xs font-semibold text-stone-200 mb-1.5">
                     <span>Kopjes per persoon/dag</span>
-                    <span className="text-sm font-bold text-amber-300">{cupsPerPersonPerDay} koppen</span>
+                    <span className="text-xs font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/60">{cupsPerPersonPerDay} koppen</span>
                   </div>
                   <input
                     type="range"
@@ -348,9 +325,9 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     step="0.5"
                     value={cupsPerPersonPerDay}
                     onChange={(e) => setCupsPerPersonPerDay(Number(e.target.value))}
-                    className="w-full accent-amber-500 h-2 bg-stone-800 rounded-lg cursor-pointer"
+                    className="w-full accent-amber-500 h-1.5 bg-stone-800 rounded-lg cursor-pointer"
                   />
-                  <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+                  <div className="flex justify-between text-[11px] text-stone-400 mt-1">
                     <span>1 kop</span>
                     <span>2.5 koppen</span>
                     <span>5 koppen</span>
@@ -358,169 +335,159 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 </div>
               </div>
 
-              {/* Taste Profile with dynamic suggestions */}
+              {/* Taste Profile: Compact Selection with dynamic suggestion */}
               <div>
-                <label className="block text-xs font-semibold text-stone-200 mb-2">
-                  2. Gewenst Smaak- & Koffieprofiel:
-                </label>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-stone-200">
+                    2. Gewenst Smaakprofiel:
+                  </label>
+                  <span className="text-[11px] text-amber-300/90 font-medium truncate max-w-[50%] text-right">
+                    {profileDetails[tasteProfile].name}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
                   {[
-                    { id: 'krachtig', label: 'Krachtig & Chocolade', desc: 'Intens, donkere cacao, stevige body' },
-                    { id: 'toegankelijk', label: 'Toegankelijk & Nootachtig', desc: 'Rond, melkchocolade, allemansvriend' },
-                    { id: 'gebalanceerd', label: 'Gebalanceerd & Zacht', desc: 'Lichte hazelnoot, zuivere afdronk' },
-                    { id: 'exclusief', label: 'Exclusief Specialty', desc: 'SCA 86+ complexiteit, fruittoetsen' },
+                    { id: 'krachtig', label: 'Krachtig', desc: 'Chocolade & cacao' },
+                    { id: 'toegankelijk', label: 'Toegankelijk', desc: 'Rond & nootachtig' },
+                    { id: 'gebalanceerd', label: 'Gebalanceerd', desc: 'Zacht & zuiver' },
+                    { id: 'exclusief', label: 'Exclusief', desc: 'SCA 86+ specialty' },
                   ].map((p) => (
                     <button
                       key={p.id}
                       type="button"
                       onClick={() => setTasteProfile(p.id as any)}
-                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
                         tasteProfile === p.id
-                          ? 'border-amber-400 bg-amber-950/70 text-amber-100 font-semibold ring-1 ring-amber-400'
+                          ? 'border-amber-400 bg-amber-950/70 text-amber-100 font-semibold ring-1 ring-amber-400 shadow-xs'
                           : 'border-stone-800 bg-stone-900/80 text-stone-300 hover:bg-stone-800/80 hover:border-stone-700'
                       }`}
                     >
-                      <div className="text-xs font-medium">{p.label}</div>
-                      <div className="text-[10px] text-stone-400 font-normal leading-tight mt-0.5">{p.desc}</div>
+                      <div className="text-xs font-bold leading-tight truncate">{p.label}</div>
+                      <div className="text-[10.5px] text-stone-400 font-normal leading-tight truncate mt-0.5">{p.desc}</div>
                     </button>
                   ))}
                 </div>
 
-                {/* Dynamic Blend Recommendation Pill */}
-                <div className="mt-2.5 p-3 bg-amber-950/60 border border-amber-800/70 rounded-xl flex items-start gap-2.5">
-                  <Coffee className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <div className="text-xs text-amber-200">
-                    <span className="font-bold text-amber-300">Aanbevolen Blend: </span>
+                {/* Compact Blend Recommendation Pill */}
+                <div className="mt-2 p-2.5 bg-amber-950/60 border border-amber-800/60 rounded-xl flex items-center gap-2">
+                  <Coffee className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div className="text-xs text-amber-200 truncate">
+                    <span className="font-bold text-amber-300">Aanbevolen: </span>
                     <span className="underline decoration-amber-400/40 font-semibold">{profileDetails[tasteProfile].name}</span>
-                    <p className="text-[11px] text-stone-300 mt-0.5">{profileDetails[tasteProfile].notes}</p>
+                    <span className="text-stone-300 hidden sm:inline ml-1.5">— {profileDetails[tasteProfile].notes}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Machine Lease Option */}
+              {/* Machine Lease Option: Compact Dropdown & Expandable Panel */}
               <div>
-                <label className="block text-xs font-semibold text-stone-200 mb-2">
-                  3. Machinelease Optie (optioneel):
-                </label>
-                <div className="space-y-2 text-xs">
-                  <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                    machineOption === 'beans_only'
-                      ? 'border-amber-500/70 bg-amber-950/40'
-                      : 'border-stone-800 bg-stone-900/80 hover:bg-stone-800/80'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="machine"
-                      checked={machineOption === 'beans_only'}
-                      onChange={() => setMachineOption('beans_only')}
-                      className="accent-amber-500"
-                    />
-                    <div>
-                      <span className="font-semibold text-stone-200">
-                        Enkel verse koffiebonen (+€0 / mnd)
-                      </span>
-                      <span className="block text-[11px] text-stone-400">
-                        Wij beschikken reeds over een eigen machine of leasen elders.
-                      </span>
-                    </div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-stone-200">
+                    3. Machinelease Optie (optioneel):
                   </label>
-
-                  <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                    machineOption === 'volautomaat'
-                      ? 'border-amber-500/70 bg-amber-950/40'
-                      : 'border-stone-800 bg-stone-900/80 hover:bg-stone-800/80'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="machine"
-                      checked={machineOption === 'volautomaat'}
-                      onChange={() => setMachineOption('volautomaat')}
-                      className="accent-amber-500"
-                    />
-                    <div>
-                      <span className="font-semibold text-stone-200">
-                        Compacte Office Bean-to-Cup Volautomaat (+€69 / mnd)
-                      </span>
-                      <span className="block text-[11px] text-stone-400">
-                        Tot 40 koppen per uur. One-touch espresso, lungo en warm water.
-                      </span>
-                    </div>
-                  </label>
-
-                  <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                    machineOption === 'heavy'
-                      ? 'border-amber-500/70 bg-amber-950/40'
-                      : 'border-stone-800 bg-stone-900/80 hover:bg-stone-800/80'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="machine"
-                      checked={machineOption === 'heavy'}
-                      onChange={() => setMachineOption('heavy')}
-                      className="accent-amber-500"
-                    />
-                    <div>
-                      <span className="font-semibold text-stone-200">
-                        High-Capacity Professionele Volautomaat (+€99 / mnd)
-                      </span>
-                      <span className="block text-[11px] text-stone-400">
-                        Tot 120 koppen per uur. Dubbele uitloop, verse melkopschuimer, vaste wateraansluiting.
-                      </span>
-                    </div>
-                  </label>
-
-                  <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                    machineOption === 'piston'
-                      ? 'border-amber-500/70 bg-amber-950/40'
-                      : 'border-stone-800 bg-stone-900/80 hover:bg-stone-800/80'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="machine"
-                      checked={machineOption === 'piston'}
-                      onChange={() => setMachineOption('piston')}
-                      className="accent-amber-500"
-                    />
-                    <div>
-                      <span className="font-semibold text-stone-200">
-                        Traditionele 2-Groeps Horeca Espressomachine (+€165 / mnd)
-                      </span>
-                      <span className="block text-[11px] text-stone-400">
-                        Voor restaurants, bars en brasseries inclusief professionele on-demand molen.
-                      </span>
-                    </div>
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowMachineDetails(!showMachineDetails)}
+                    className="text-[11px] text-amber-400 hover:text-amber-300 font-medium underline transition-colors cursor-pointer"
+                  >
+                    {showMachineDetails ? 'Compacte weergave' : 'Toon machine details'}
+                  </button>
                 </div>
+
+                {/* Compact Dropdown Selection */}
+                <div className="relative">
+                  <select
+                    id="machine-lease-select"
+                    value={machineOption}
+                    onChange={(e) => setMachineOption(e.target.value)}
+                    className="w-full bg-stone-900/90 text-stone-100 text-xs font-semibold py-2.5 pl-3 pr-8 rounded-xl border border-stone-700 focus:outline-none focus:ring-1.5 focus:ring-amber-500 cursor-pointer appearance-none shadow-xs"
+                  >
+                    <option value="beans_only">Enkel verse koffiebonen (+€0 / mnd) — Reeds eigen machine</option>
+                    <option value="volautomaat">Compacte Office Volautomaat (+€69 / mnd) — Tot 40 koppen/uur</option>
+                    <option value="heavy">High-Capacity Professionele Volautomaat (+€99 / mnd) — Tot 120 koppen/uur</option>
+                    <option value="piston">Traditionele 2-Groeps Espressomachine (+€165 / mnd) — Inclusief molen</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Selected Machine Summary & Spec Preview */}
+                <div className="mt-1.5 p-2 bg-stone-900/80 rounded-lg border border-stone-800 text-[11px] text-stone-300">
+                  {machineOption === 'beans_only' && 'Geen machinelease. Wij leveren uitsluitend verse specialty koffiebonen op factuur.'}
+                  {machineOption === 'volautomaat' && 'Bean-to-cup volautomaat tot 40 koppen/u. All-in onderhoud & wisselmachine inbegrepen.'}
+                  {machineOption === 'heavy' && 'High-capacity tot 120 koppen/u. Dubbele uitloop, verse melk & vaste wateraansluiting.'}
+                  {machineOption === 'piston' && 'Traditionele 2-groeps espressomachine voor horeca inclusief professionele on-demand molen.'}
+                </div>
+
+                {/* Expandable Comparative Cards (visible when toggled) */}
+                {showMachineDetails && (
+                  <div className="mt-2 space-y-1.5 text-xs animate-fadeIn">
+                    {[
+                      {
+                        id: 'beans_only',
+                        label: 'Enkel verse koffiebonen (+€0 / mnd)',
+                        desc: 'Wij beschikken reeds over een eigen machine of leasen elders.',
+                      },
+                      {
+                        id: 'volautomaat',
+                        label: 'Compacte Office Bean-to-Cup Volautomaat (+€69 / mnd)',
+                        desc: 'Tot 40 koppen per uur. One-touch espresso, lungo en warm water.',
+                      },
+                      {
+                        id: 'heavy',
+                        label: 'High-Capacity Professionele Volautomaat (+€99 / mnd)',
+                        desc: 'Tot 120 koppen per uur. Dubbele uitloop, verse melkopschuimer, vaste wateraansluiting.',
+                      },
+                      {
+                        id: 'piston',
+                        label: 'Traditionele 2-Groeps Horeca Espressomachine (+€165 / mnd)',
+                        desc: 'Voor restaurants, bars en brasseries inclusief professionele on-demand molen.',
+                      },
+                    ].map((m) => (
+                      <div
+                        key={m.id}
+                        onClick={() => setMachineOption(m.id)}
+                        className={`p-2 rounded-lg border cursor-pointer transition-all ${
+                          machineOption === m.id
+                            ? 'border-amber-500 bg-amber-950/40 text-amber-100 ring-1 ring-amber-500'
+                            : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:bg-stone-800/80'
+                        }`}
+                      >
+                        <div className="font-semibold text-stone-200">{m.label}</div>
+                        <div className="text-[11px] text-stone-400 mt-0.5">{m.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Results Card */}
-            <div className="lg:col-span-6 bg-stone-950/90 backdrop-blur-md text-stone-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl border border-amber-900/60 ring-1 ring-amber-500/20">
+            {/* Results Card - Compact & Clear */}
+            <div className="lg:col-span-6 bg-stone-950/90 backdrop-blur-md text-stone-100 rounded-2xl p-5 sm:p-6 space-y-3.5 shadow-xl border border-amber-900/60 ring-1 ring-amber-500/20">
               <div className="flex items-center justify-between">
                 <div className="text-xs uppercase tracking-widest text-amber-400 font-semibold">
                   Indicatieve B2B Berekening
                 </div>
-                <div className="text-[11px] text-stone-400">
+                <div className="text-xs text-stone-400">
                   Basis: Milau Budget (€{basePricePerKg.toFixed(2)}/kg)
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pb-4 border-b border-stone-800 text-xs">
-                <div>
-                  <div className="text-stone-400">Geschat aantal kopjes / mnd</div>
-                  <div className="text-xl sm:text-2xl font-bold text-white mt-0.5">
+              <div className="grid grid-cols-2 gap-3 pb-3 border-b border-stone-800 text-xs">
+                <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/80">
+                  <div className="text-stone-400 text-[11px]">Geschat aantal kopjes / mnd</div>
+                  <div className="text-lg sm:text-xl font-bold text-white mt-0.5">
                     ~{estimatedCups} kopjes
                   </div>
                 </div>
-                <div>
-                  <div className="text-stone-400">Benodigd bonenvolume:</div>
-                  <div className="text-xl sm:text-2xl font-bold text-amber-300 mt-0.5">
+                <div className="bg-stone-900/60 p-2.5 rounded-xl border border-stone-800/80">
+                  <div className="text-stone-400 text-[11px]">Benodigd bonenvolume:</div>
+                  <div className="text-lg sm:text-xl font-bold text-amber-300 mt-0.5">
                     {monthlyKg} kg / maand
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs text-stone-300 py-1">
+              <div className="space-y-1.5 text-xs text-stone-300 py-0.5">
                 <div className="flex justify-between">
                   <span>Aanbevolen blend:</span>
                   <span className="font-semibold text-amber-200">{profileDetails[tasteProfile].name}</span>
@@ -544,7 +511,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               </div>
 
               {/* Service Always Free Notice */}
-              <div className="p-3.5 bg-amber-950/80 rounded-xl border border-amber-700/80 text-xs text-amber-100 space-y-1">
+              <div className="p-3 bg-amber-950/80 rounded-xl border border-amber-700/80 text-xs text-amber-100 space-y-1">
                 <div className="font-bold text-amber-300 flex items-center gap-1.5">
                   <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>SERVICE IS ALTIJD 100% GRATIS & INBEGREPEN</span>
@@ -554,23 +521,23 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-stone-800 flex justify-between items-baseline">
+              <div className="pt-2.5 border-t border-stone-800 flex justify-between items-baseline">
                 <div>
                   <div className="text-sm font-medium text-stone-300">Totaal maandelijks:</div>
-                  <div className="text-[11px] text-stone-400">Koffie + gekozen apparatuur (excl. btw)</div>
+                  <div className="text-xs text-stone-400">Koffie + gekozen apparatuur (excl. btw)</div>
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-amber-100">
                   €{totalMonthly.toFixed(2)}{' '}
                   <span className="text-xs text-stone-400 font-normal">/ mnd (excl. btw)</span>
                 </div>
               </div>
-              <p className="text-[10px] text-stone-400 leading-tight">
+              <p className="text-[11px] text-stone-400 leading-tight">
                 * Prijzen zijn excl. btw (6% btw op specialty koffiebonen, 21% btw op machinelease & diensten).
               </p>
 
               <a
                 href="#b2b-form"
-                className="w-full mt-2 bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-center block transition-colors shadow-lg hover:shadow-amber-900/40"
+                className="w-full mt-1.5 bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-center block transition-colors shadow-lg hover:shadow-amber-900/40"
               >
                 Vraag B2B Voorstel aan voor {peopleCount} personen
               </a>
@@ -611,7 +578,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               </div>
               {/* H3 */}
               <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
-                02 Bonenlevering
+                Bonenlevering
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-2.5">
                 Stipt geleverd elke 2 weken of maandelijks, naar wens, op factuur met gunstige B2B volumetarieven en persoonlijke opvolging door onze brander.

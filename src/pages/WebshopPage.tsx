@@ -900,12 +900,12 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           )}
 
           {/* Collection & Stock Availability Indicator */}
-          <div className="flex items-center justify-between gap-1.5 text-[10px] uppercase tracking-wider mb-1.5">
+          <div className="flex items-center justify-between gap-1.5 text-[10.5px] uppercase tracking-wider mb-1.5">
             <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[55%]">
               {product.collection}
             </span>
             <span
-              className={`font-medium px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 text-[9px] sm:text-[10px] ${
+              className={`font-medium px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 text-[10px] sm:text-[11px] ${
                 availInfo.status === 'out_of_stock'
                   ? 'text-rose-700 bg-rose-50 border border-rose-200/60'
                   : availInfo.status === 'low_stock'
@@ -974,7 +974,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   {formattedStartingPrice}
                 </span>
                 {isB2B && (
-                  <span className="text-[8px] sm:text-[9px] text-amber-900/80 font-sans ml-1 font-semibold">
+                  <span className="text-[10px] text-amber-900/80 font-sans ml-1 font-semibold">
                     excl.
                   </span>
                 )}
@@ -991,10 +991,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               <div className="w-full h-full flex flex-col items-center justify-center p-2 bg-gradient-to-b from-stone-900/90 via-stone-950 to-stone-900/95 rounded-xl border border-amber-500/20 shadow-inner group-hover:scale-[1.02] transition-transform">
                 <CapsuleVisual collection={product.collection || 'Selection'} size="md" className="mx-auto drop-shadow-md" />
                 <div className="mt-1.5 text-center">
-                  <span className="text-[10px] font-bold text-amber-300 tracking-wider uppercase block">
+                  <span className="text-xs font-bold text-amber-300 tracking-wider uppercase block">
                     {product.collection || 'Selection'} Nespresso®
                   </span>
-                  <span className="text-[8px] text-stone-400 block tracking-tight">
+                  <span className="text-[10px] text-stone-400 block tracking-tight">
                     100% Aluminium & Composteerbaar
                   </span>
                 </div>
@@ -1053,7 +1053,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             <div className={`mb-2 ${product.grindOptions.length > 1 ? 'grid grid-cols-2 gap-1.5' : ''}`}>
               {/* Format Dropdown */}
               <div>
-                <div className="text-[9px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">
+                <div className="text-[10.5px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">
                   Formaat
                 </div>
                 <div className="relative">
@@ -1063,7 +1063,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     onChange={(e) =>
                       setSelectedWeight({ ...selectedWeight, [product.id]: e.target.value })
                     }
-                    className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-[11px] font-semibold py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
+                    className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-semibold py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
                   >
                     {product.variants.map((v) => {
                       const vPrice = isB2B ? Math.round((v.price / (1 + vatRate)) * 100) / 100 : v.price;
@@ -1081,7 +1081,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               {/* Grind Dropdown (if multiple grind options) */}
               {product.grindOptions.length > 1 && (
                 <div>
-                  <div className="text-[9px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">
+                  <div className="text-[10.5px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">
                     Maalgraad
                   </div>
                   <div className="relative">
@@ -1091,7 +1091,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       onChange={(e) =>
                         setSelectedGrind({ ...selectedGrind, [product.id]: e.target.value as any })
                       }
-                      className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-[11px] font-medium py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
+                      className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-medium py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
                     >
                       {product.grindOptions.map((g) => (
                         <option key={g} value={g}>
@@ -1311,7 +1311,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         {/* Bottom Action: Price & Add to Cart / Out of Stock / Capsule Waitlist */}
         <div className="pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2 mt-auto">
           <div className="shrink-0">
-            <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
+            <div className="text-[10px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
               {isGiftbox ? 'Boxprijs' : isCapsule ? 'Pre-order' : isB2B ? 'B2B (excl. btw)' : 'Prijs'}
             </div>
             <div className="flex items-baseline gap-1">
@@ -1319,7 +1319,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 €{b2bEffectivePrice.toFixed(2)}
               </span>
               {isB2B && (
-                <span className="text-[9px] text-stone-500 font-mono" title={`Inclusief ${Math.round(vatRate * 100)}% BTW: €${effectivePrice.toFixed(2)}`}>
+                <span className="text-[10px] text-stone-500 font-mono" title={`Inclusief ${Math.round(vatRate * 100)}% BTW: €${effectivePrice.toFixed(2)}`}>
                   (€{effectivePrice.toFixed(2)} incl.)
                 </span>
               )}
@@ -1333,7 +1333,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 setSelectedCategory('new_products');
                 window.scrollTo({ top: 400, behavior: 'smooth' });
               }}
-              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
               title="Blijf op de hoogte van de lancering"
             >
               <Bell className="w-3.5 h-3.5 shrink-0 text-amber-300" />
@@ -1342,7 +1342,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           ) : availInfo.statusCode === 'out_of_stock' ? (
             <button
               disabled
-              className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5"
+              className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-2 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5"
               title="Momenteel niet beschikbaar"
             >
               <span>Niet beschikbaar</span>
@@ -1351,7 +1351,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             <button
               id={`btn-add-cart-${product.sku}`}
               onClick={() => handleAddToCart(product)}
-              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
+              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-1.5 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
               title={`In winkelwagen: ${product.name}`}
             >
               <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
@@ -1435,46 +1435,47 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           {/* MOBILE ONLY (md:hidden): Compact Collapsible "Selecteer Koffielijn" Menu */}
           {/* ============================================================ */}
           <div className="md:hidden mt-2.5">
-            {/* Trigger Button: Occupies minimal vertical height so products are immediately visible */}
+            {/* Trigger Button: Warm orange / copper accent, high-contrast coffee-inspired styling */}
             <button
               id="btn-mobile-koffielijn-toggle"
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-stone-900/95 via-[#1C120B]/95 to-stone-900/95 border border-amber-500/40 text-stone-200 text-xs font-semibold flex items-center justify-between shadow-md active:scale-[0.99] transition-all cursor-pointer"
+              className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#B45309] via-[#D97706] to-[#C25E1A] hover:from-[#92400E] hover:to-[#B45309] border-2 border-amber-200/70 text-white text-xs font-bold flex items-center justify-between shadow-lg shadow-amber-950/40 active:scale-[0.99] transition-all cursor-pointer ring-1 ring-amber-400/40"
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-koffielijn-dropdown"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                {(() => {
-                  const DisplayIcon = currentOtherCategory ? currentOtherCategory.icon : currentActiveLine.icon;
-                  const displayColor = currentOtherCategory ? 'text-amber-400' : currentActiveLine.color;
-                  return <DisplayIcon className={`w-4 h-4 shrink-0 ${displayColor}`} />;
-                })()}
-                <span className="truncate">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-6 h-6 rounded-lg bg-black/25 flex items-center justify-center shrink-0 border border-white/30 text-white">
+                  {(() => {
+                    const DisplayIcon = currentOtherCategory ? currentOtherCategory.icon : currentActiveLine.icon;
+                    return <DisplayIcon className="w-3.5 h-3.5 text-white shrink-0" />;
+                  })()}
+                </div>
+                <span className="truncate text-left">
                   {currentOtherCategory ? (
                     <>
-                      <span className="text-stone-400 font-normal">Assortiment: </span>
-                      <span className="text-amber-300 font-bold">{currentOtherCategory.name}</span>
+                      <span className="text-amber-100 font-normal">Assortiment: </span>
+                      <span className="text-white font-extrabold">{currentOtherCategory.name}</span>
                     </>
                   ) : currentActiveLine.id === 'all' ? (
                     <>
-                      <span className="text-amber-200 font-bold">Selecteer Koffielijn</span>
-                      <span className="text-stone-400 font-normal ml-1.5">· Alle Collecties</span>
+                      <span className="text-white font-extrabold tracking-wide">Selecteer Koffielijn</span>
+                      <span className="text-amber-100 font-medium ml-1.5 text-[11px]">· Alle Collecties</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-stone-400 font-normal">Koffielijn: </span>
-                      <span className="text-amber-300 font-bold">{currentActiveLine.name}</span>
+                      <span className="text-amber-100 font-normal">Koffielijn: </span>
+                      <span className="text-white font-extrabold">{currentActiveLine.name}</span>
                     </>
                   )}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                <span className="text-[10px] uppercase font-bold text-amber-400/90 tracking-wider">
-                  {isMobileMenuOpen ? 'Sluit' : 'Kies'}
+              <div className="flex items-center gap-1.5 shrink-0 ml-2 bg-black/25 px-2.5 py-1 rounded-lg border border-white/25">
+                <span className="text-[11px] uppercase font-extrabold text-white tracking-wider">
+                  {isMobileMenuOpen ? 'Sluit' : 'Filter'}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-amber-400 transition-transform duration-200 ${
+                  className={`w-3.5 h-3.5 text-white transition-transform duration-200 ${
                     isMobileMenuOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -1563,7 +1564,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         </div>
                         {line.badge && (
                           <span
-                            className={`text-[10px] px-1.5 py-0.2 rounded font-bold shrink-0 ${
+                            className={`text-[11px] px-1.5 py-0.2 rounded font-bold shrink-0 ${
                               isLineSelected
                                 ? 'bg-stone-900 text-white'
                                 : 'bg-stone-800 text-amber-300 border border-amber-600/40'
@@ -1579,7 +1580,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                 {/* Secondary Assortments (Giftboxen, Toebehoren, Abonnementen) */}
                 <div className="mt-2.5 pt-2 border-t border-stone-800/80">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
                     Overige Producten:
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -1596,7 +1597,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                             setBlendSubcategory('all');
                             setIsMobileMenuOpen(false);
                           }}
-                          className={`px-2 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+                          className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
                             isOtherSelected
                               ? 'bg-amber-800 text-white border border-amber-500 font-semibold shadow-xs'
                               : 'bg-stone-900/80 text-stone-300 hover:text-white border border-stone-800 hover:border-stone-700'
@@ -1612,7 +1613,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
                 {/* Availability Filter Chips (inside expanded menu) */}
                 <div className="mt-2.5 pt-2 border-t border-stone-800/80">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 mb-1.5 flex items-center gap-1">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300/90 mb-1.5 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                     <span>Beschikbaarheid:</span>
                   </div>
@@ -1622,7 +1623,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         key={opt.id}
                         type="button"
                         onClick={() => setSelectedStockFilter(opt.id)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 cursor-pointer transition-all ${
+                        className={`px-2 py-0.5 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-all ${
                           selectedStockFilter === opt.id
                             ? 'bg-amber-800 text-white font-semibold border border-amber-500/60'
                             : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800'
@@ -1674,7 +1675,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     <span>{cat.name}</span>
                     {cat.isNew && (
                       <span
-                        className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full leading-none ${
+                        className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full leading-none ${
                           isSelected
                             ? 'bg-amber-800 text-amber-200 border border-amber-500/40'
                             : 'bg-amber-950/80 text-amber-300 border border-amber-700/50'
@@ -1691,7 +1692,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             {/* Submenu for Maison Milau Speciality blends with designated colors & icons */}
             {selectedCategory === 'blends' && (
               <div className="mt-2.5 p-2 sm:p-2.5 bg-stone-900/90 border border-amber-900/50 rounded-xl animate-fadeIn backdrop-blur-xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 mb-1.5 flex items-center gap-1.5">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1.5 flex items-center gap-1.5">
                   <Award className="w-3.5 h-3.5 text-amber-400" />
                   <span>{t('webshop.subcategories_blends', 'Subcategorieën Speciality Blends (Budget tot Prestige)')}</span>
                 </div>
@@ -1715,7 +1716,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         />
                         <span>{sub.name}</span>
                         {sub.badge && (
-                          <span className={`text-[10px] px-1 py-0.2 rounded font-bold ${
+                          <span className={`text-[11px] px-1.5 py-0.2 rounded font-bold ${
                             isSelected ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-900'
                           }`}>
                             {sub.badge}
@@ -1730,7 +1731,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
             {/* Stock Availability Filter Bar (Desktop) */}
             <div className="mt-2.5 pt-2 border-t border-stone-800/80 flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 mr-1 flex items-center gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300/90 mr-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                 <span>Beschikbaarheid:</span>
               </span>
@@ -1739,7 +1740,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   key={opt.id}
                   id={`stock-filter-${opt.id}`}
                   onClick={() => setSelectedStockFilter(opt.id)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
                     selectedStockFilter === opt.id
                       ? 'bg-amber-800 text-white font-semibold border border-amber-500/60 shadow-xs'
                       : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60'
@@ -1764,7 +1765,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <strong>Professioneel B2B Tarief:</strong> Alle prijzen worden getoond exclusief btw (6% op koffiebonen, 21% op machines, textiel & toebehoren).
               </span>
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-800 text-amber-200 px-2 py-0.5 rounded border border-amber-600/50">
+            <span className="text-xs font-bold uppercase tracking-wider bg-amber-800 text-amber-200 px-2 py-0.5 rounded border border-amber-600/50">
               Belgische B2B Facturatie
             </span>
           </div>

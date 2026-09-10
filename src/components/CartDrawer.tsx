@@ -121,7 +121,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                       />
                     ) : (
                       <div className="p-1 flex flex-col justify-center items-center text-center">
-                        <span className="text-[10px] font-bold uppercase text-amber-900 line-clamp-1">
+                        <span className="text-[11px] font-bold uppercase text-amber-900 line-clamp-1">
                           {item.collection}
                         </span>
                         <span className="text-xs font-mono font-semibold text-stone-800">
@@ -237,7 +237,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                   <span>€{total.toFixed(2)}</span>
                 </div>
                 {isB2B && (
-                  <div className="text-[10px] text-stone-500 italic pt-0.5">
+                  <div className="text-[11px] text-stone-500 italic pt-0.5">
                     * Officiële Belgische B2B factuur met gespecificeerde BTW inbegrepen.
                   </div>
                 )}
@@ -265,7 +265,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                 <span>Verder Winkelen</span>
               </button>
 
-              <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-stone-500 pt-0.5">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-stone-500 pt-0.5">
                 <ShieldCheck className="w-3 h-3 text-emerald-600" />
                 <span>Veilig betalen via Bancontact, iDEAL & Kaart</span>
               </div>
