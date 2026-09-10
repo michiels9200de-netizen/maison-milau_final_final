@@ -84,7 +84,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                 <span>Events & Verhuur</span>
               </div>
               {/* H1: ~25% reduced */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2.5 drop-shadow-xs">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2.5 drop-shadow-xs font-serif">
                 Koffiecatering & Apparatuur
               </h1>
               {/* Body */}
@@ -137,7 +137,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
               <div className="text-[10px] uppercase tracking-wider font-semibold text-amber-900 mb-1.5">
                 Pakket 1
               </div>
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
                 Enkel Verse Bonen
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-3">
@@ -160,7 +160,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
               <div className="text-[10px] uppercase tracking-wider font-semibold text-amber-900 mb-1.5">
                 Pakket 2
               </div>
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
                 Dry-Hire Machine + Bonen
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-3">
@@ -180,7 +180,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
               <div className="text-[10px] uppercase tracking-wider font-semibold text-amber-900 mb-1.5">
                 Pakket 3
               </div>
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
                 Full-Service Barista Bar
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-3">
@@ -209,7 +209,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
               <Calculator className="w-3.5 h-3.5 text-amber-400" />
               <span>Event Planner Calculator</span>
             </div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif">
               Bereken uw Evenement Benodigdheden
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 mt-1 font-normal leading-relaxed">
@@ -354,7 +354,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
         <section id="event-form" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
           <div className="max-w-3xl mb-5">
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
               Vraag een Offerte aan voor uw Evenement
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">

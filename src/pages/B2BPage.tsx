@@ -145,7 +145,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 <span>B2B · Kantoor & Horeca</span>
               </div>
               {/* H1: ~25% reduced */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2.5 drop-shadow-xs">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2.5 drop-shadow-xs font-serif">
                 Koffieformules voor Thuis & Onderneming
               </h1>
               {/* Body */}
@@ -253,7 +253,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               <Calculator className="w-3.5 h-3.5 text-amber-400" />
               <span>Interactieve Calculator (indicatief)</span>
             </div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif">
               Bereken uw B2B Prijs (indicatief)
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 mt-1 font-normal leading-relaxed">
@@ -586,7 +586,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 <Gift className="w-4 h-4" />
               </div>
               {/* H3 */}
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
                 Gratis Proefpakket & Cupping
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
@@ -610,7 +610,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 <Coffee className="w-4 h-4" />
               </div>
               {/* H3 */}
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
+              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
                 02 Bonenlevering
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-2.5">
@@ -638,7 +638,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               <span>Custom Roasting & White Label</span>
             </div>
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-2 font-serif">
               Persoonlijke koffie labels op maat
             </h2>
             <p className="text-xs sm:text-sm text-stone-700 font-normal leading-relaxed mb-3">
@@ -668,7 +668,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         <section id="b2b-form" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
           <div className="max-w-3xl mb-5">
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
               Vraag een B2B Voorstel of Gratis Proefpakket aan
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">

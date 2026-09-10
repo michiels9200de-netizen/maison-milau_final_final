@@ -272,11 +272,11 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               </div>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 tracking-tight font-serif">
               {coffee.name}
             </h1>
 
-            <p className="text-stone-600 text-sm sm:text-base leading-relaxed italic border-l-2 border-amber-800 pl-3">
+            <p className="text-stone-700 text-sm sm:text-base leading-relaxed italic border-l-2 border-amber-800 pl-3 font-serif">
               "{specs.shortIntro}"
             </p>
 
@@ -448,7 +448,8 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 Koffieverhaal & Herkomst
               </h3>
             </div>
-            <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
+
+            <p className="text-stone-800 text-sm sm:text-base leading-relaxed font-serif">
               {dossier?.story || coffee.character}
             </p>
           </div>
@@ -471,7 +472,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                   <Award className="w-3.5 h-3.5 text-amber-800" />
                   <span>Selectie & Positie in de Collectie</span>
                 </div>
-                <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
+                <p className="text-stone-800 text-sm sm:text-base leading-relaxed font-serif">
                   {dossier?.whySelected ||
                     'Geselecteerd na uitgebreide cupping-sessies door onze brander te Oudegem vanwege zijn uitzonderlijke balans, zuiverheid en memorabele afdronk.'}
                 </p>
@@ -579,18 +580,18 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-sm sm:text-base font-semibold text-stone-900">
+              <h4 className="text-base sm:text-lg font-semibold text-stone-900 font-serif">
                 {educationalData.title}
               </h4>
 
               {educationalData.quote && (
-                <div className="p-3 bg-stone-50 rounded-xl border-l-2 border-stone-700 text-xs italic text-stone-800 flex items-start gap-2">
+                <div className="p-3 bg-stone-50 rounded-xl border-l-2 border-stone-700 text-xs sm:text-sm italic text-stone-800 flex items-start gap-2 font-serif">
                   <Quote className="w-3.5 h-3.5 text-stone-500 shrink-0 mt-0.5" />
                   <span>"{educationalData.quote}"</span>
                 </div>
               )}
 
-              <div className="space-y-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+              <div className="space-y-2 text-xs sm:text-sm text-stone-600 leading-relaxed font-serif">
                 {educationalData.paragraphs.map((p, pIdx) => (
                   <p key={pIdx}>{p}</p>
                 ))}

@@ -133,11 +133,11 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
         {/* Coffee Name & Origin Terroir */}
         <div className="cursor-pointer mb-2" onClick={() => onOpenDossier(coffee)}>
-          <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-amber-950 transition-colors mb-0.5">
+          <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-amber-950 transition-colors mb-0.5 line-clamp-2" title={coffee.name}>
             {coffee.name}
           </h3>
 
-          <div className="text-[11px] text-stone-500 font-medium">
+          <div className="text-[11px] text-stone-500 font-medium truncate">
             <span>Oorsprong: </span>
             <strong className="text-stone-800">
               {coffee.origins?.map((o) => o.country).join(', ') || 'Specialty micro-lot'}
@@ -146,7 +146,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         </div>
 
         {/* Short Introduction / Storytelling */}
-        <p className="text-xs text-stone-600 leading-relaxed font-normal mb-2.5">
+        <p className="text-xs text-stone-600 leading-relaxed font-normal mb-2.5 line-clamp-3">
           {specs.shortIntro}
         </p>
 

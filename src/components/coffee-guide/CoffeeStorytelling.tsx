@@ -72,11 +72,11 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             Vatlagering & Eikenhout
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white font-serif">
             Hoe Ambachtelijke Vatlagering Werkt
           </h2>
 
-          <p className="text-base sm:text-lg text-amber-200/90 leading-relaxed font-normal">
+          <p className="text-base sm:text-lg text-amber-200/90 leading-relaxed font-serif">
             Koffie vatlagering bij Maison Milau is géén trucje met smaaksiropen of toegevoegde alcohol. Het is een geduldig botanisch en fysisch proces waarbij ongebrande groene specialty bonen wekenlang rusten in ontleende, originele eikenhouten vaten.
           </p>
 
@@ -150,11 +150,11 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             Kenniscentrum · Wat is Infused Coffee?
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900 font-serif">
             Specialty Koffie Blijft het Fundament
           </h2>
 
-          <p className="text-stone-700 text-base sm:text-lg leading-relaxed">
+          <p className="text-stone-700 text-base sm:text-lg leading-relaxed font-serif">
             In tegenstelling tot commerciële supermarktkoffies met synthetische chemische 'aroma-sprays' die kwaliteitsarme robusta proberen te camoufleren, begint Maison Milau altijd met hoogwaardige 100% arabica specialty bonen.
           </p>
 
@@ -230,7 +230,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
               Uitzonderlijke Variëteit · Gesha
             </div>
 
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight font-serif">
               Waarom Koffie-Experts Gesha Waarderen
             </h3>
 
@@ -276,7 +276,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
               Micro-Lot Selectie · Pink Bourbon
             </div>
 
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight font-serif">
               De Oorsprong van Pink Bourbon
             </h3>
 
@@ -323,11 +323,11 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
             Het Ambacht van Maison Milau
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-6 font-serif">
             Van terroir tot het perfecte kopje.
           </h2>
 
-          <p className="text-base sm:text-lg text-stone-300 leading-relaxed font-normal mb-8">
+          <p className="text-base sm:text-lg text-stone-300 leading-relaxed font-serif mb-8">
             In onze artisanale branderij te Oudegem (Dendermonde) branden wij uitsluitend in kleine micro-batches.
             Hierdoor kunnen we de brandcurve millimeter voor millimeter afstemmen op de unieke dichtheid, vochtigheid en celstructuur van elke oogst.
           </p>
@@ -372,7 +372,7 @@ export const CoffeeStorytelling: React.FC<CoffeeStorytellingProps> = ({
           <div className="text-xs font-semibold uppercase tracking-widest text-stone-500 mb-2">
             Barista Richtlijnen
           </div>
-          <h3 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+          <h3 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight font-serif">
             Zetadvies van de Brander
           </h3>
           <p className="text-stone-600 text-sm mt-1">

@@ -64,7 +64,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
               <span>Branderij & Ambacht</span>
             </div>
             {/* H1: ~25% reduced */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 drop-shadow-xs">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 drop-shadow-xs font-serif">
               Over Maison Milau
             </h1>
             {/* Body */}
@@ -80,7 +80,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
         <section className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
           <div className="max-w-3xl mb-5">
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1.5">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
               Branderij en Ambacht
             </h2>
             <p className="text-xs sm:text-sm text-stone-500">
@@ -134,11 +134,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
             </div>
 
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-white mb-4">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-white mb-4 font-serif">
               De Oorsprong van Maison Milau: De tafel die altijd gedekt stond en steeds een verse tas koffie.
             </h2>
 
-            <div className="space-y-3 text-xs sm:text-sm text-stone-300 leading-relaxed font-normal">
+            <div className="space-y-3 text-sm sm:text-base text-stone-200 leading-relaxed font-serif">
               <p>
                 Bij onze mama en papa thuis was iedereen welkom. Of je nu onverwacht binnensprong na een lange werkdag, of op zondagochtend aanschoof: er werd steevast een verse kan koffie gezet, vergezeld van iets lekkers en een luisterend oor. Niemand mocht met een lege maag of een zwaar gemoed vertrekken.
               </p>
@@ -147,7 +147,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
               </p>
             </div>
 
-            <blockquote className="my-5 pl-4 border-l-2 border-amber-400 text-amber-200 text-base sm:text-lg font-medium leading-relaxed">
+            <blockquote className="my-5 pl-4 border-l-2 border-amber-400 text-amber-200 text-base sm:text-lg font-serif italic leading-relaxed">
               “Goede koffie is geen haastig product, maar een uitnodiging om samen aan tafel te gaan zitten en het leven te delen.”
             </blockquote>
 
@@ -175,7 +175,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
                 Marktstand & Proeven
               </div>
               {/* H3: ~25% reduced */}
-              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-stone-900 mb-2">
+              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-stone-900 mb-2 font-serif">
                 Wekelijkse streekmarkten
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-4">
@@ -217,7 +217,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
                 Atelier Bezoek & Contact
               </div>
               {/* H3: ~25% reduced */}
-              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-stone-900 mb-2">
+              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-stone-900 mb-2 font-serif">
                 Maison Milau Branderij & Atelier
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mb-4">

@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-cormorant: "Cormorant Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-inter: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
 @layer base {
   :root {
+    --font-cormorant: "Cormorant Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
     --font-inter: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   }
 
@@ -24,35 +32,41 @@
     min-height: 100vh;
   }
 
-  /* Core typographic scale adhering to design guidelines */
-  h1 {
-    font-family: var(--font-inter);
-    font-weight: 700;
-    letter-spacing: -0.025em;
+  /* Core typographic scale adhering to luxury roastery guidelines */
+  .font-serif,
+  .font-cormorant,
+  .font-editorial,
+  .font-story,
+  .font-heritage {
+    font-family: var(--font-cormorant);
   }
 
-  h2 {
+  .font-sans,
+  .font-inter,
+  .font-ui,
+  .font-commerce {
     font-family: var(--font-inter);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-
-  h3 {
-    font-family: var(--font-inter);
-    font-weight: 600;
-    letter-spacing: -0.015em;
   }
 
   p {
     font-weight: 400;
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
   button,
-  .btn {
+  .btn,
+  input,
+  select,
+  textarea {
     font-family: var(--font-inter);
-    font-weight: 600;
   }
+}
+
+/* Enhanced legibility & efficient spacing for small secondary text on mobile & cards */
+.text-secondary-readability {
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* Warm artisanal theme: replace harsh pure white with soft, readable warm surface */

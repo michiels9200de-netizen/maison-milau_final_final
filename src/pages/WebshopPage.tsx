@@ -1325,7 +1325,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                 <span>Webshop · Bestellen</span>
               </div>
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white drop-shadow-xs">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif">
                 Artisanale Koffies & Accessoires
               </h1>
             </div>
@@ -1487,7 +1487,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               </div>
 
               {/* Main Headline */}
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-amber-50 mb-2">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-amber-50 mb-2 font-serif">
                 Maison Milau Compatible Coffee Capsules
               </h2>
 
@@ -1799,7 +1799,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             return (
               <section className="relative py-6 sm:py-8 border-t border-[#D8CEBE] bg-[#F4EFE6]">
                 <div className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 mb-4">
-                  <h2 className="text-xl font-bold text-stone-900">Overige Specialiteiten</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-stone-900 font-serif">Overige Specialiteiten</h2>
                 </div>
                 <div className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[1800px]:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-4.5 xl:gap-5">

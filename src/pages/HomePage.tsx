@@ -76,7 +76,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               </div>
 
               {/* H1: High-Contrast Premium Display Typography */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-[1.18] mb-3.5 drop-shadow-xs">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-[1.18] mb-3.5 drop-shadow-xs font-serif">
                 {t('hero.title')}
               </h1>
 
@@ -149,7 +149,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               {t('promises.badge')}
             </div>
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
               {t('promises.title')}
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">
@@ -220,7 +220,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="mb-6">
             {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
               Direct naar onze hoofddiensten
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">
@@ -309,7 +309,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               Bezoek Ons In Oudegem
             </div>
             {/* H3 */}
-            <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-white mb-1.5">
+            <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-white mb-1.5 font-serif">
               Kom proeven in ons atelier of ontwikkel je eigen huisblend
             </h3>
             <p className="text-xs sm:text-sm text-stone-400 max-w-2xl leading-relaxed">

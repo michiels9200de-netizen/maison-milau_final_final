@@ -210,7 +210,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
                 <span>Maison Milau · Collectie & Terroir</span>
               </div>
 
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif">
                 Koffiegids & Collecties
               </h1>
             </div>
@@ -291,11 +291,11 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
                 </div>
               </div>
 
-              <h2 className="text-lg sm:text-xl font-bold text-stone-900 tracking-tight mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight mb-2 font-serif">
                 {activeIntro.title}
               </h2>
 
-              <div className="space-y-2 text-stone-600 text-xs sm:text-sm leading-relaxed max-w-4xl">
+              <div className="space-y-2 text-stone-700 text-sm sm:text-base leading-relaxed max-w-4xl font-serif">
                 {activeIntro.description.map((paragraph, idx) => (
                   <p key={idx}>{paragraph}</p>
                 ))}
