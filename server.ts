@@ -3435,77 +3435,7 @@ interface StockRecord {
   lastUpdated: string;
 }
 
-const STOCK_FILE_PATH = path.join(process.cwd(), 'data', 'stock.json');
-
-const defaultStockPresets: Record<string, number> = {
-  'prod-budget-espresso': 18,
-  'prod-budget-omni': 14,
-  'prod-budget-filter': 12,
-  'prod-value-espresso': 15,
-  'prod-value-omni': 12,
-  'prod-value-filter': 10,
-  'prod-selection-espresso': 16,
-  'prod-selection-omni': 12,
-  'prod-selection-filter': 10,
-  'prod-premium-espresso': 10,
-  'prod-premium-omni': 8,
-  'prod-premium-filter': 8,
-  'prod-prestige-espresso': 2,
-  'prod-prestige-filter': 3,
-  'prod-origin-ethiopia': 10,
-  'prod-origin-colombia': 12,
-  'prod-origin-brazil': 15,
-  'prod-origin-guatemala': 8,
-  'prod-origin-kenya': 2.5,
-  'prod-origin-indonesia': 6,
-  'prod-origin-geisha': 1.5,
-  'prod-barrel-whisky': 7,
-  'prod-barrel-rum': 5,
-  'prod-barrel-cognac': 4,
-  'prod-infused-vanilla': 6,
-  'prod-infused-cinnamon': 4,
-  'prod-infused-hazelnut': 5,
-  'prod-budget-capsules-placeholder': 0,
-  'prod-value-capsules-placeholder': 0,
-  'prod-selection-capsules-placeholder': 0,
-  'prod-premium-capsules-placeholder': 0,
-  'prod-prestige-capsules-placeholder': 0,
-  'prod-nespresso-capsules-placeholder': 0,
-};
-
-let roasteryStock: Record<string, StockRecord> = {};
-
-// Load initial stock from disk or presets
-try {
-  if (fs.existsSync(STOCK_FILE_PATH)) {
-    roasteryStock = JSON.parse(fs.readFileSync(STOCK_FILE_PATH, 'utf-8'));
-  }
-} catch (e) {
-  roasteryStock = {};
-}
-
-// Populate missing defaults
-Object.entries(defaultStockPresets).forEach(([pid, kg]) => {
-  if (!roasteryStock[pid]) {
-    roasteryStock[pid] = {
-      productId: pid,
-      stockKg: kg,
-      inStock: kg > 0,
-      lastUpdated: new Date().toISOString(),
-    };
-  }
-});
-
-function saveStockToDisk() {
-  try {
-    const dir = path.dirname(STOCK_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(STOCK_FILE_PATH, JSON.stringify(roasteryStock, null, 2), 'utf-8');
-  } catch (err) {}
-}
-
+// 14. Stock Synchronization & Real-Time Availability (PostgreSQL Single Source of Truth via inventoryStore)
 app.get('/api/stock', async (req: Request, res: Response) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');

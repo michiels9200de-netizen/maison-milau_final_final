@@ -3,6 +3,14 @@ import { Building2, Calculator, Coffee, CheckCircle, ArrowRight, Send, Gift, Lay
 import { CONFIG } from '../config';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
+import {
+  HorecaIllustration,
+  KantoorIllustration,
+  ResidentieleZorgIllustration,
+  HandelszakenIllustration,
+  KapsalonIllustration,
+} from '../components/b2b/SectorLineArt';
+import { SectorShowcase } from '../components/b2b/SectorShowcase';
 
 interface B2BPageProps {
   navigate: (path: string) => void;
@@ -10,7 +18,9 @@ interface B2BPageProps {
 
 export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   // Calculator State
-  const [settingType, setSettingType] = useState<'kantoor' | 'horeca' | 'residentieel' | 'evenement'>('kantoor');
+  const [settingType, setSettingType] = useState<
+    'kantoor' | 'horeca' | 'residentieel' | 'handelszaken' | 'kapsalon' | 'evenement'
+  >('kantoor');
   const [peopleCount, setPeopleCount] = useState<number>(15);
   const [cupsPerPersonPerDay, setCupsPerPersonPerDay] = useState<number>(2.5);
   const [tasteProfile, setTasteProfile] = useState<'krachtig' | 'toegankelijk' | 'gebalanceerd' | 'exclusief'>('toegankelijk');
@@ -32,7 +42,18 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
 
   // Dynamic calculations based strictly on Milau Budget pricing (€19.95 / kg)
   const basePricePerKg = 19.95; // Based on Milau Budget Blend
-  const workingDays = settingType === 'horeca' ? 26 : settingType === 'evenement' ? 12 : 22;
+  const workingDays =
+    settingType === 'horeca'
+      ? 26
+      : settingType === 'residentieel'
+      ? 30
+      : settingType === 'handelszaken'
+      ? 24
+      : settingType === 'kapsalon'
+      ? 22
+      : settingType === 'evenement'
+      ? 12
+      : 22;
   const estimatedCups = Math.round(peopleCount * cupsPerPersonPerDay * workingDays);
   // 8g of coffee per cup = 125 cups per kg
   const calculatedKg = Math.max(5, Math.ceil((estimatedCups / 125)));
@@ -172,9 +193,53 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 Flexibele maandabonnementen, aantrekkelijke volumetarieven en unieke custom roasting & white label branding voor horeca en bedrijven.
               </p>
 
-              <div className="p-3.5 bg-stone-900/80 backdrop-blur-xs rounded-xl border border-stone-700/70 text-xs text-stone-300 space-y-1">
-                <div>
-                  <strong className="text-amber-200">Geschikt voor:</strong> Horeca (brasseries, restaurants, koffiebars), Kantoren, Bedrijven, Handelszaken & Residentiële centra.
+              {/* Premium Line-Art Sector Pills in Hero */}
+              <div className="p-3.5 sm:p-4 bg-stone-900/90 backdrop-blur-xs rounded-2xl border border-stone-700/80 text-xs text-stone-300 space-y-2.5 shadow-xl ring-1 ring-amber-900/20">
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    <span>Geschikt voor elke onderneming</span>
+                  </div>
+                  <a
+                    href="#geschikt-voor-sectoren"
+                    className="text-[11px] text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 transition-colors"
+                  >
+                    <span>Bekijk formules</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
+
+                {/* 5 Sectors with Custom Line-Art Icons */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-0.5">
+                  {[
+                    { id: 'horeca', label: 'Horeca & Bar', sub: 'Wekelijks vers', Icon: HorecaIllustration },
+                    { id: 'kantoor', label: 'Kantoor & B2B', sub: 'Maandfactuur', Icon: KantoorIllustration },
+                    { id: 'residentieel', label: 'Residentieel', sub: 'Milde blends', Icon: ResidentieleZorgIllustration },
+                    { id: 'handelszaken', label: 'Handelszaken', sub: 'Hospitality', Icon: HandelszakenIllustration },
+                    { id: 'kapsalon', label: 'Kapsalon & Spa', sub: 'VIP verwennerij', Icon: KapsalonIllustration },
+                  ].map((sec) => (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      onClick={() => {
+                        setSettingType(sec.id as any);
+                        setFormData((prev) => ({ ...prev, sector: sec.label }));
+                        const el = document.getElementById('geschikt-voor-sectoren');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                      className="flex items-center gap-2 p-2 rounded-xl bg-stone-950/70 border border-stone-800 hover:border-amber-500/60 hover:bg-stone-800/90 transition-all text-left cursor-pointer group"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-amber-950/40 border border-amber-900/30 flex items-center justify-center text-amber-300 shrink-0 group-hover:scale-105 transition-transform">
+                        <sec.Icon className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold text-stone-200 group-hover:text-amber-200 truncate">
+                          {sec.label}
+                        </div>
+                        <div className="text-[9px] text-stone-400 truncate">{sec.sub}</div>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -197,8 +262,26 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
+        {/* Dedicated Geschikt voor uw sector section with full line-art showcase */}
+        <div id="geschikt-voor-sectoren">
+          <SectorShowcase
+            onSelectSector={(sectorId, sectorLabel) => {
+              if (
+                sectorId === 'horeca' ||
+                sectorId === 'kantoor' ||
+                sectorId === 'residentieel' ||
+                sectorId === 'handelszaken' ||
+                sectorId === 'kapsalon'
+              ) {
+                setSettingType(sectorId as any);
+              }
+              setFormData((prev) => ({ ...prev, sector: sectorLabel }));
+            }}
+          />
+        </div>
+
         {/* Interactive B2B Calculator Section */}
-        <section className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+        <section id="b2b-calculator" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
           <div className="max-w-3xl mb-6">
             <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 mb-1.5">
               <Calculator className="w-3.5 h-3.5" />
@@ -216,17 +299,19 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Controls */}
             <div className="lg:col-span-6 space-y-6">
-              {/* Setting Type Selection */}
+              {/* Setting Type Selection with Line-Art */}
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-2">
                   1. Type Onderneming / Setting:
                 </label>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
                   {[
-                    { id: 'kantoor', label: 'Kantoor / Bedrijf', sub: '22 werkdagen' },
-                    { id: 'horeca', label: 'Horeca Zaak / Café', sub: '26 dagen per mnd' },
-                    { id: 'residentieel', label: 'Residentiële Voorziening', sub: 'Zorg & Co-living' },
-                    { id: 'evenement', label: 'Evenement / Pop-up', sub: 'Flexibele periode' },
+                    { id: 'horeca', label: 'Horeca & Café', sub: '26 dagen / mnd', Icon: HorecaIllustration },
+                    { id: 'kantoor', label: 'Kantoor / Bedrijf', sub: '22 werkdagen', Icon: KantoorIllustration },
+                    { id: 'residentieel', label: 'Residentiële Zorg', sub: '30 dagen (continu)', Icon: ResidentieleZorgIllustration },
+                    { id: 'handelszaken', label: 'Handelszaken', sub: '24 dagen retail', Icon: HandelszakenIllustration },
+                    { id: 'kapsalon', label: 'Kapsalon & Beauty', sub: '22 dagen VIP beleving', Icon: KapsalonIllustration },
+                    { id: 'evenement', label: 'Evenement / Pop-up', sub: 'Flexibele periode', Icon: Coffee },
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -235,14 +320,28 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                         setSettingType(s.id as any);
                         setFormData((prev) => ({ ...prev, sector: s.label }));
                       }}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
                         settingType === s.id
-                          ? 'border-amber-900 bg-amber-50/80 text-amber-950 font-semibold ring-1 ring-amber-900'
-                          : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                          ? 'border-amber-900 bg-amber-50/80 text-amber-950 font-semibold ring-1 ring-amber-900 shadow-xs'
+                          : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300'
                       }`}
                     >
-                      <div>{s.label}</div>
-                      <div className="text-[10px] text-stone-400 font-normal">{s.sub}</div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center p-1.5 ${
+                          settingType === s.id
+                            ? 'bg-amber-900 text-amber-100'
+                            : 'bg-stone-100 text-stone-600'
+                        }`}>
+                          <s.Icon className="w-5 h-5" />
+                        </div>
+                        {settingType === s.id && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-900" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold leading-tight mb-0.5">{s.label}</div>
+                        <div className="text-[10px] text-stone-400 font-normal leading-tight">{s.sub}</div>
+                      </div>
                     </button>
                   ))}
                 </div>

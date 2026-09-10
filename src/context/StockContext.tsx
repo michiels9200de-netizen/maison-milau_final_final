@@ -1,7 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Product } from '../types';
 
 export type AvailabilityStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'binnenkort';
+
+interface LocalUpdateRecord {
+  kg: number;
+  time: number;
+}
 
 export interface StockItem {
   productId: string;
@@ -51,16 +56,21 @@ const INITIAL_STOCK_PRESETS: Record<string, number> = {
   'prod-prestige-espresso': 2, // Low stock showcase
   'prod-prestige-filter': 3, // Low stock showcase
 
-  // Single Origins
-  'prod-origin-ethiopia': 10, // Ethiopian Yirgacheffe (As requested in prompt: 10 kg)
+  // Single Origins (with cross-compatibility aliases)
+  'prod-so-gesha': 10, // Ethiopian Yirgacheffe / Gesha Betulia (Default: 10 kg)
+  'prod-origin-ethiopia': 10,
+  'prod-origin-geisha': 10,
+  'prod-so-pink-bourbon': 3.5,
   'prod-origin-colombia': 12,
   'prod-origin-brazil': 15,
   'prod-origin-guatemala': 8,
-  'prod-origin-kenya': 2.5, // Low stock showcase
+  'prod-origin-kenya': 2.5,
   'prod-origin-indonesia': 6,
-  'prod-origin-geisha': 1.5, // Rare microlot low stock showcase
 
   // Barrel Aged
+  'prod-barrel-moscatel': 7,
+  'prod-barrel-px': 5,
+  'prod-barrel-bourbon': 4,
   'prod-barrel-whisky': 7,
   'prod-barrel-rum': 5,
   'prod-barrel-cognac': 4,
@@ -68,7 +78,23 @@ const INITIAL_STOCK_PRESETS: Record<string, number> = {
   // Infused
   'prod-infused-vanilla': 6,
   'prod-infused-cinnamon': 4,
+  'prod-infused-almond': 5,
   'prod-infused-hazelnut': 5,
+
+  // Giftboxes & Accessories
+  'prod-gift-duo': 15,
+  'prod-gift-trio': 12,
+  'prod-gift-quattro': 8,
+  'prod-acc-mok': 25,
+  'prod-acc-cups': 30,
+  'prod-acc-coldbrew': 18,
+  'prod-acc-recycled': 50,
+  'prod-acc-tshirt': 20,
+
+  // Subscriptions
+  'prod-sub-flexibel': 20,
+  'prod-sub-cotm': 16,
+  'prod-sub-cadeau': 13,
 
   // Capsule placeholders (pre-order/coming soon)
   'prod-budget-capsules-placeholder': 0,
@@ -108,6 +134,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const recentLocalUpdatesRef = useRef<Record<string, LocalUpdateRecord>>({});
 
   // Sync from server API on mount and on poll
   const refreshStock = useCallback(async () => {
@@ -123,8 +150,24 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
+          const now = Date.now();
+          const incomingData = { ...json.data };
+
+          // Protect recent user-saved values from being overwritten by delayed cache
+          const recentEntries = Object.entries(recentLocalUpdatesRef.current) as [string, LocalUpdateRecord][];
+          for (const [pid, update] of recentEntries) {
+            if (now - update.time < 15000 && incomingData[pid]) {
+              incomingData[pid] = {
+                ...incomingData[pid],
+                stockKg: update.kg,
+                availableKg: update.kg,
+                inStock: update.kg > 0,
+              };
+            }
+          }
+
           setStockMap((prev) => {
-            const merged = { ...prev, ...json.data };
+            const merged = { ...prev, ...incomingData };
             try {
               localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
             } catch (e) {}
@@ -161,7 +204,15 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     window.addEventListener('storage', onStorage);
 
-    const onCustomSync = () => refreshStock();
+    const onCustomSync = () => {
+      // Don't poll if we just updated locally in the last 2 seconds
+      const now = Date.now();
+      const updates = Object.values(recentLocalUpdatesRef.current) as LocalUpdateRecord[];
+      const hasVeryRecent = updates.some((u) => now - u.time < 2000);
+      if (!hasVeryRecent) {
+        refreshStock();
+      }
+    };
     window.addEventListener('mm_stock_updated', onCustomSync);
 
     return () => {
@@ -178,8 +229,28 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (stockMap[productId] !== undefined) {
         return Number(stockMap[productId].stockKg ?? stockMap[productId].availableKg ?? 0);
       }
+      // Check alias IDs
+      const aliasMap: Record<string, string[]> = {
+        'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
+        'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
+        'prod-origin-geisha': ['prod-so-gesha', 'prod-origin-ethiopia'],
+        'prod-so-pink-bourbon': ['prod-origin-colombia'],
+        'prod-origin-colombia': ['prod-so-pink-bourbon'],
+      };
+      const aliases = aliasMap[productId] || [];
+      for (const a of aliases) {
+        if (stockMap[a] !== undefined) {
+          return Number(stockMap[a].stockKg ?? stockMap[a].availableKg ?? 0);
+        }
+      }
+
       if (INITIAL_STOCK_PRESETS[productId] !== undefined) {
         return INITIAL_STOCK_PRESETS[productId];
+      }
+      for (const a of aliases) {
+        if (INITIAL_STOCK_PRESETS[a] !== undefined) {
+          return INITIAL_STOCK_PRESETS[a];
+        }
       }
       return defaultKg;
     },
@@ -192,6 +263,21 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const inStock = sanitizedKg > 0;
       const now = new Date().toISOString();
 
+      const aliasMap: Record<string, string[]> = {
+        'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
+        'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
+        'prod-origin-geisha': ['prod-so-gesha', 'prod-origin-ethiopia'],
+        'prod-so-pink-bourbon': ['prod-origin-colombia'],
+        'prod-origin-colombia': ['prod-so-pink-bourbon'],
+      };
+      const targetIds = [productId, ...(aliasMap[productId] || [])];
+
+      // Mark recently updated to prevent background poll race condition
+      const updateTimestamp = Date.now();
+      targetIds.forEach((id) => {
+        recentLocalUpdatesRef.current[id] = { kg: sanitizedKg, time: updateTimestamp };
+      });
+
       const updatedItem: StockItem = {
         productId,
         stockKg: sanitizedKg,
@@ -201,10 +287,12 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // 1. Immediately update local state & localStorage for instantaneous UI reaction
       setStockMap((prev) => {
-        const next = { ...prev, [productId]: updatedItem };
+        const next = { ...prev };
+        targetIds.forEach((id) => {
+          next[id] = { ...updatedItem, productId: id };
+        });
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
         } catch (e) {}
         return next;
       });
@@ -237,7 +325,11 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               return synced;
             });
           }
+          // Broadcast to other components only after server persistence confirmed
+          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
           return true;
+        } else {
+          console.error('Failed to save stock to server, status:', res.status);
         }
       } catch (err) {
         console.warn('Server stock sync failed, local state preserved:', err);

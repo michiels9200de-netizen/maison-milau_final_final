@@ -47,6 +47,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [stockSearchQuery, setStockSearchQuery] = useState<string>('');
   const [stockFilterCategory, setStockFilterCategory] = useState<string>('all');
   const [stockEditingState, setStockEditingState] = useState<Record<string, number>>({});
+  const [stockSavingMap, setStockSavingMap] = useState<Record<string, boolean>>({});
   const [stockSaveNotification, setStockSaveNotification] = useState<string>('');
   const [timeFilter, setTimeFilter] = useState<'today' | 'thisWeek' | 'thisMonth' | 'allTime'>('thisWeek');
   const [statsData, setStatsData] = useState<any>(null);
@@ -870,17 +871,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                       const availInfo = getAvailabilityInfo(prod);
 
                       const handleSaveKg = async (targetKg: number) => {
+                        setStockSavingMap((prev) => ({ ...prev, [prod.id]: true }));
                         try {
-                          await updateStock(prod.id, targetKg);
-                          setStockEditingState((prev) => {
-                            const next = { ...prev };
-                            delete next[prod.id];
-                            return next;
-                          });
-                          setStockSaveNotification(`Voorraad voor "${prod.name}" ingesteld op ${targetKg} kg.`);
-                          setTimeout(() => setStockSaveNotification(''), 3000);
+                          const success = await updateStock(prod.id, targetKg);
+                          if (success) {
+                            setStockEditingState((prev) => {
+                              const next = { ...prev };
+                              delete next[prod.id];
+                              return next;
+                            });
+                            setStockSaveNotification(`Voorraad voor "${prod.name}" definitief opgeslagen in PostgreSQL: ${targetKg} kg.`);
+                            setTimeout(() => setStockSaveNotification(''), 3500);
+                          }
                         } catch (err: any) {
-                          alert(`Fout bij opslaan voorraad: ${err.message}`);
+                          alert(`Fout bij opslaan voorraad: ${err?.message || err}`);
+                        } finally {
+                          setStockSavingMap((prev) => ({ ...prev, [prod.id]: false }));
                         }
                       };
 
@@ -959,11 +965,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                           <td className="py-3 px-4 text-right">
                             <button
                               type="button"
+                              disabled={stockSavingMap[prod.id]}
                               onClick={() => handleSaveKg(draftKg)}
-                              className="px-2.5 py-1.5 rounded-lg bg-amber-900 hover:bg-amber-800 text-white font-semibold text-xs transition-colors flex items-center gap-1 ml-auto cursor-pointer shadow-2xs"
+                              className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-xs transition-colors flex items-center gap-1 ml-auto shadow-2xs ${
+                                stockSavingMap[prod.id]
+                                  ? 'bg-amber-700 opacity-70 cursor-wait'
+                                  : 'bg-amber-900 hover:bg-amber-800 cursor-pointer'
+                              }`}
                             >
                               <Save className="w-3.5 h-3.5" />
-                              <span>Opslaan</span>
+                              <span>{stockSavingMap[prod.id] ? 'Opslaan...' : 'Opslaan'}</span>
                             </button>
                           </td>
                         </tr>

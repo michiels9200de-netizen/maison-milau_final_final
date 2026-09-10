@@ -55,9 +55,16 @@ export const ALL_SHOP_PRODUCTS_PRESETS: Record<string, { stockKg: number; reserv
   'prod-infused-cinnamon': { stockKg: 4, reservedKg: 0, subAllocatedKg: 0 }, // Low stock showcase
   'prod-infused-almond': { stockKg: 5, reservedKg: 0, subAllocatedKg: 0 },
 
-  // Single Origins
-  'prod-so-gesha': { stockKg: 1.5, reservedKg: 0, subAllocatedKg: 0 }, // Rare microlot low stock showcase
-  'prod-so-pink-bourbon': { stockKg: 3.5, reservedKg: 0, subAllocatedKg: 0 }, // Low stock showcase
+  // Single Origins (with cross-compatibility aliases)
+  'prod-so-gesha': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 }, // Ethiopia Gesha Bench Maji / Gesha Betulia (Default: 10 kg)
+  'prod-origin-ethiopia': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-origin-geisha': { stockKg: 10, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-so-pink-bourbon': { stockKg: 3.5, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-origin-colombia': { stockKg: 3.5, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-origin-brazil': { stockKg: 15, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-origin-guatemala': { stockKg: 8, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-origin-kenya': { stockKg: 2.5, reservedKg: 0, subAllocatedKg: 0 },
+  'prod-origin-indonesia': { stockKg: 6, reservedKg: 0, subAllocatedKg: 0 },
 
   // Giftboxes
   'prod-gift-duo': { stockKg: 15, reservedKg: 0, subAllocatedKg: 0 },
@@ -266,70 +273,87 @@ class InventoryStore {
     const sanitizedReservedKg = reservedKg !== undefined ? Math.max(0, Number(reservedKg) || 0) : undefined;
     const sanitizedSubAllocKg = subAllocatedKg !== undefined ? Math.max(0, Number(subAllocatedKg) || 0) : undefined;
 
-    let updatedItem: InventoryItem;
+    // Cross-reference aliases so both legacy and modern IDs remain 100% synchronized
+    const aliasMap: Record<string, string[]> = {
+      'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
+      'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
+      'prod-origin-geisha': ['prod-so-gesha', 'prod-origin-ethiopia'],
+      'prod-so-pink-bourbon': ['prod-origin-colombia'],
+      'prod-origin-colombia': ['prod-so-pink-bourbon'],
+    };
+    const targetProductIds = [productId, ...(aliasMap[productId] || [])];
+
+    let updatedItem: InventoryItem | null = null;
 
     if (this.pgPool) {
       try {
-        let query: string;
-        let values: any[];
+        for (const targetId of targetProductIds) {
+          let query: string;
+          let values: any[];
 
-        if (sanitizedReservedKg !== undefined && sanitizedSubAllocKg !== undefined) {
-          query = `
-            INSERT INTO public.inventory (product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, in_stock, last_updated)
-            VALUES ($1, $2, $3, $4, GREATEST(0, $2 - $3 - $4), ($2 - $3 - $4 > 0), NOW())
-            ON CONFLICT (product_id) DO UPDATE SET
-              stock_kg = EXCLUDED.stock_kg,
-              reserved_kg = EXCLUDED.reserved_kg,
-              subscription_allocated_kg = EXCLUDED.subscription_allocated_kg,
-              available_kg = GREATEST(0, EXCLUDED.stock_kg - EXCLUDED.reserved_kg - EXCLUDED.subscription_allocated_kg),
-              in_stock = (GREATEST(0, EXCLUDED.stock_kg - EXCLUDED.reserved_kg - EXCLUDED.subscription_allocated_kg) > 0),
-              last_updated = NOW()
-            RETURNING *;
-          `;
-          values = [productId, sanitizedRawKg, sanitizedReservedKg, sanitizedSubAllocKg];
-        } else {
-          query = `
-            INSERT INTO public.inventory (product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, in_stock, last_updated)
-            VALUES ($1, $2, 0, 0, $2, ($2 > 0), NOW())
-            ON CONFLICT (product_id) DO UPDATE SET
-              stock_kg = EXCLUDED.stock_kg,
-              available_kg = GREATEST(0, EXCLUDED.stock_kg - inventory.reserved_kg - inventory.subscription_allocated_kg),
-              in_stock = (GREATEST(0, EXCLUDED.stock_kg - inventory.reserved_kg - inventory.subscription_allocated_kg) > 0),
-              last_updated = NOW()
-            RETURNING *;
-          `;
-          values = [productId, sanitizedRawKg];
+          if (sanitizedReservedKg !== undefined && sanitizedSubAllocKg !== undefined) {
+            query = `
+              INSERT INTO public.inventory (product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, in_stock, last_updated)
+              VALUES ($1::varchar, $2::numeric, $3::numeric, $4::numeric, GREATEST(0, $2::numeric - $3::numeric - $4::numeric), ($2::numeric - $3::numeric - $4::numeric > 0), NOW())
+              ON CONFLICT (product_id) DO UPDATE SET
+                stock_kg = EXCLUDED.stock_kg,
+                reserved_kg = EXCLUDED.reserved_kg,
+                subscription_allocated_kg = EXCLUDED.subscription_allocated_kg,
+                available_kg = GREATEST(0, EXCLUDED.stock_kg - EXCLUDED.reserved_kg - EXCLUDED.subscription_allocated_kg),
+                in_stock = (GREATEST(0, EXCLUDED.stock_kg - EXCLUDED.reserved_kg - EXCLUDED.subscription_allocated_kg) > 0),
+                last_updated = NOW()
+              RETURNING *;
+            `;
+            values = [targetId, sanitizedRawKg, sanitizedReservedKg, sanitizedSubAllocKg];
+          } else {
+            query = `
+              INSERT INTO public.inventory (product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, in_stock, last_updated)
+              VALUES ($1::varchar, $2::numeric, 0::numeric, 0::numeric, $2::numeric, ($2::numeric > 0), NOW())
+              ON CONFLICT (product_id) DO UPDATE SET
+                stock_kg = EXCLUDED.stock_kg,
+                available_kg = GREATEST(0, EXCLUDED.stock_kg - COALESCE(inventory.reserved_kg, 0) - COALESCE(inventory.subscription_allocated_kg, 0)),
+                in_stock = (GREATEST(0, EXCLUDED.stock_kg - COALESCE(inventory.reserved_kg, 0) - COALESCE(inventory.subscription_allocated_kg, 0)) > 0),
+                last_updated = NOW()
+              RETURNING *;
+            `;
+            values = [targetId, sanitizedRawKg];
+          }
+
+          const res = await this.pgPool.query(query, values);
+          const row = res.rows[0];
+          const rawStock = parseFloat(row.stock_kg || '0');
+          const reserved = parseFloat(row.reserved_kg || '0');
+          const subAlloc = parseFloat(row.subscription_allocated_kg || '0');
+          const available = Math.max(0, rawStock - reserved - subAlloc);
+          const inStock = Boolean(row.in_stock && available > 0);
+
+          const itemResult: InventoryItem = {
+            productId: row.product_id,
+            stockKg: available,
+            rawStockKg: rawStock,
+            reservedKg: reserved,
+            subscriptionAllocatedKg: subAlloc,
+            availableKg: available,
+            inStock,
+            lastUpdated: new Date(row.last_updated).toISOString(),
+          };
+
+          this.inMemoryCache[targetId] = itemResult;
+
+          if (targetId === productId || !updatedItem) {
+            updatedItem = itemResult;
+          }
         }
 
-        const res = await this.pgPool.query(query, values);
-        const row = res.rows[0];
-        const rawStock = parseFloat(row.stock_kg || '0');
-        const reserved = parseFloat(row.reserved_kg || '0');
-        const subAlloc = parseFloat(row.subscription_allocated_kg || '0');
-        const available = Math.max(0, rawStock - reserved - subAlloc);
-        const inStock = Boolean(row.in_stock && available > 0);
-
-        updatedItem = {
-          productId: row.product_id,
-          stockKg: available,
-          rawStockKg: rawStock,
-          reservedKg: reserved,
-          subscriptionAllocatedKg: subAlloc,
-          availableKg: available,
-          inStock,
-          lastUpdated: new Date(row.last_updated).toISOString(),
-        };
-
-        this.inMemoryCache[productId] = updatedItem;
         this.saveToDisk();
-        console.log(`[INVENTORY_STORE] Product ${productId} updated in PostgreSQL: Raw=${rawStock}kg, Available=${available}kg, InStock=${inStock}`);
-        return updatedItem;
+        console.log(`[INVENTORY_STORE] Product ${productId} and aliases successfully persisted to PostgreSQL: Raw=${sanitizedRawKg}kg`);
+        if (updatedItem) return updatedItem;
       } catch (err: any) {
-        console.error('[INVENTORY_STORE] PostgreSQL stock update failed, updating memory cache:', err?.message || err);
+        console.error('[INVENTORY_STORE] PostgreSQL stock update error:', err?.message || err);
       }
     }
 
-    // Fallback to in-memory
+    // Fallback to in-memory cache if PG unavailable
     const existing = this.inMemoryCache[productId] || {
       productId,
       stockKg: sanitizedRawKg,
@@ -356,7 +380,12 @@ class InventoryStore {
       lastUpdated: new Date().toISOString(),
     };
 
-    this.inMemoryCache[productId] = updatedItem;
+    for (const targetId of targetProductIds) {
+      this.inMemoryCache[targetId] = {
+        ...updatedItem,
+        productId: targetId,
+      };
+    }
     this.saveToDisk();
     return updatedItem;
   }
@@ -381,6 +410,14 @@ class InventoryStore {
   }>): Promise<void> {
     await this.ensureSchemaAndSeed();
 
+    const aliasMap: Record<string, string[]> = {
+      'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
+      'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
+      'prod-origin-geisha': ['prod-so-gesha', 'prod-origin-ethiopia'],
+      'prod-so-pink-bourbon': ['prod-origin-colombia'],
+      'prod-origin-colombia': ['prod-so-pink-bourbon'],
+    };
+
     for (const item of items) {
       const pid = item.productId;
       if (!pid) continue;
@@ -396,7 +433,6 @@ class InventoryStore {
       } else if (weight.includes('1kg')) {
         kgDeduction = 1.0 * qty;
       } else if (weight.includes('box')) {
-        // Giftbox has multiple 250g bags
         if (weight.includes('2x') || pid.includes('duo')) kgDeduction = 0.5 * qty;
         else if (weight.includes('3x') || pid.includes('trio')) kgDeduction = 0.75 * qty;
         else if (weight.includes('4x') || pid.includes('quattro')) kgDeduction = 1.0 * qty;
@@ -407,54 +443,56 @@ class InventoryStore {
         kgDeduction = 1.0 * qty;
       }
 
-      if (this.pgPool) {
-        try {
-          if (item.isSubscription) {
-            // Subscription: update subscription_allocated_kg and deduct from available
-            await this.pgPool.query(`
-              UPDATE public.inventory
-              SET 
-                stock_kg = GREATEST(0, stock_kg - $1),
-                subscription_allocated_kg = subscription_allocated_kg + $1,
-                available_kg = GREATEST(0, stock_kg - $1 - reserved_kg - (subscription_allocated_kg + $1)),
-                in_stock = (GREATEST(0, stock_kg - $1 - reserved_kg - (subscription_allocated_kg + $1)) > 0),
-                last_updated = NOW()
-              WHERE product_id = $2;
-            `, [kgDeduction, pid]);
-          } else {
-            // Standard order: deduct from stock_kg
-            await this.pgPool.query(`
-              UPDATE public.inventory
-              SET 
-                stock_kg = GREATEST(0, stock_kg - $1),
-                available_kg = GREATEST(0, stock_kg - $1 - reserved_kg - subscription_allocated_kg),
-                in_stock = (GREATEST(0, stock_kg - $1 - reserved_kg - subscription_allocated_kg) > 0),
-                last_updated = NOW()
-              WHERE product_id = $2;
-            `, [kgDeduction, pid]);
+      const allTargetPids = [pid, ...(aliasMap[pid] || [])];
+
+      for (const targetId of allTargetPids) {
+        if (this.pgPool) {
+          try {
+            if (item.isSubscription) {
+              await this.pgPool.query(`
+                UPDATE public.inventory
+                SET 
+                  stock_kg = GREATEST(0, stock_kg - $1::numeric),
+                  subscription_allocated_kg = subscription_allocated_kg + $1::numeric,
+                  available_kg = GREATEST(0, stock_kg - $1::numeric - COALESCE(reserved_kg, 0) - (subscription_allocated_kg + $1::numeric)),
+                  in_stock = (GREATEST(0, stock_kg - $1::numeric - COALESCE(reserved_kg, 0) - (subscription_allocated_kg + $1::numeric)) > 0),
+                  last_updated = NOW()
+                WHERE product_id = $2::varchar;
+              `, [kgDeduction, targetId]);
+            } else {
+              await this.pgPool.query(`
+                UPDATE public.inventory
+                SET 
+                  stock_kg = GREATEST(0, stock_kg - $1::numeric),
+                  available_kg = GREATEST(0, stock_kg - $1::numeric - COALESCE(reserved_kg, 0) - COALESCE(subscription_allocated_kg, 0)),
+                  in_stock = (GREATEST(0, stock_kg - $1::numeric - COALESCE(reserved_kg, 0) - COALESCE(subscription_allocated_kg, 0)) > 0),
+                  last_updated = NOW()
+                WHERE product_id = $2::varchar;
+              `, [kgDeduction, targetId]);
+            }
+
+            console.log(`[INVENTORY_STORE] Deducted ${kgDeduction}kg from ${targetId} for confirmed order.`);
+          } catch (err: any) {
+            console.error(`[INVENTORY_STORE] Failed to deduct stock for ${targetId}:`, err?.message || err);
           }
-
-          console.log(`[INVENTORY_STORE] Deducted ${kgDeduction}kg from ${pid} for confirmed order.`);
-        } catch (err: any) {
-          console.error(`[INVENTORY_STORE] Failed to deduct stock for ${pid}:`, err?.message || err);
         }
-      }
 
-      // Memory cache sync
-      if (this.inMemoryCache[pid]) {
-        const cur = this.inMemoryCache[pid];
-        const newRaw = Math.max(0, cur.rawStockKg - kgDeduction);
-        const newSubAlloc = item.isSubscription ? cur.subscriptionAllocatedKg + kgDeduction : cur.subscriptionAllocatedKg;
-        const newAvail = Math.max(0, newRaw - cur.reservedKg - newSubAlloc);
-        this.inMemoryCache[pid] = {
-          ...cur,
-          stockKg: newAvail,
-          rawStockKg: newRaw,
-          subscriptionAllocatedKg: newSubAlloc,
-          availableKg: newAvail,
-          inStock: newAvail > 0,
-          lastUpdated: new Date().toISOString(),
-        };
+        // Memory cache sync
+        if (this.inMemoryCache[targetId]) {
+          const cur = this.inMemoryCache[targetId];
+          const newRaw = Math.max(0, cur.rawStockKg - kgDeduction);
+          const newSubAlloc = item.isSubscription ? cur.subscriptionAllocatedKg + kgDeduction : cur.subscriptionAllocatedKg;
+          const newAvail = Math.max(0, newRaw - cur.reservedKg - newSubAlloc);
+          this.inMemoryCache[targetId] = {
+            ...cur,
+            stockKg: newAvail,
+            rawStockKg: newRaw,
+            subscriptionAllocatedKg: newSubAlloc,
+            availableKg: newAvail,
+            inStock: newAvail > 0,
+            lastUpdated: new Date().toISOString(),
+          };
+        }
       }
     }
 
