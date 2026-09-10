@@ -3,6 +3,7 @@ import { CalendarCheck, Calculator, Coffee, UserCheck, ShieldCheck, Send, ArrowR
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import baristaEventsHero from '../assets/images/barista_events_hero.jpg';
 import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
+import { CoffeeBeanAtmosphere } from '../components/common/CoffeeBeanAtmosphere';
 
 interface EventsPageProps {
   navigate: (path: string) => void;
@@ -73,48 +74,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
       {/* Header Banner - Artisanal Roastery Ambience */}
       <section className="relative overflow-hidden bg-[#1A0E08] border-b border-amber-950/80 py-8 sm:py-10 text-stone-100">
         {/* Coffee Beans Atmosphere Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          {/* 1. Consistent Coffee Bean Hero Background Image */}
-          <img
-            src={encodeURI('/images/hero background webshop en catalogus.jpg')}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = coffeeBeansHeroBg;
-            }}
-            alt="Maison Milau Specialty Koffie Events & Barista"
-            aria-hidden="true"
-            className="w-full h-full object-cover object-center opacity-70 sm:opacity-75 scale-102 transition-transform duration-1000 ease-out"
-          />
-
-          {/* 2. Delicate Roastery Micro-Texture */}
-          <div
-            className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
-            style={{
-              backgroundImage: `radial-gradient(#f59e0b 1px, transparent 1px), radial-gradient(#d97706 1px, transparent 1px)`,
-              backgroundSize: '24px 24px',
-              backgroundPosition: '0 0, 12px 12px',
-            }}
-          />
-          {/* 3. Subtle bean silhouette */}
-          <svg
-            className="absolute right-10 -top-10 w-64 h-64 text-amber-500/10 pointer-events-none"
-            viewBox="0 0 200 200"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <ellipse cx="100" cy="100" rx="68" ry="88" transform="rotate(-20 100 100)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
-            <path d="M78 30 C100 65, 95 135, 122 170" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          {/* 4. Warm Copper & Amber Roasting Light Ambient Radial Glows */}
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -top-12 left-10 w-[420px] h-[320px] bg-gradient-to-br from-amber-500/20 via-amber-700/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-          {/* 5. Rich Multi-Stop Directional Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#180E08]/94 via-[#22130B]/82 via-[#2A150D]/60 to-[#180E08]/35" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-transparent to-[#180E08]/40" />
-          {/* 6. Section Continuity Gradient & Soft Bottom Transition Bridge */}
-          <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent via-[#140B06]/70 to-[#140B06] pointer-events-none" />
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 via-amber-400/80 to-transparent" />
-        </div>
+        <CoffeeBeanAtmosphere variant="hero" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -237,28 +197,33 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
         </section>
 
         {/* Event Planner Calculator */}
-        <section id="event-calculator" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
-          <div className="max-w-3xl mb-5">
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 mb-1.5">
-              <Calculator className="w-3.5 h-3.5" />
+        <section
+          id="event-calculator"
+          className="relative overflow-hidden bg-[#1A0E08] rounded-2xl border border-amber-900/50 p-6 sm:p-8 lg:p-10 shadow-2xl text-white"
+        >
+          {/* Coffee Bean Background Motif with lightened texture */}
+          <CoffeeBeanAtmosphere variant="section" />
+
+          <div className="relative z-10 max-w-3xl mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-700/60 text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-2.5 backdrop-blur-xs">
+              <Calculator className="w-3.5 h-3.5 text-amber-400" />
               <span>Event Planner Calculator</span>
             </div>
-            {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs">
               Bereken uw Evenement Benodigdheden
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-300 mt-1 font-normal leading-relaxed">
               Bereken exact de benodigde hoeveelheid specialty koffiebonen en apparatuur voor uw bruiloft, bedrijfsreceptie of tuinfeest.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Form Controls */}
-            <div className="lg:col-span-6 space-y-6">
+            <div className="lg:col-span-6 bg-stone-950/80 backdrop-blur-md rounded-2xl border border-stone-800/90 p-5 sm:p-6 space-y-6 shadow-xl ring-1 ring-white/5">
               <div>
-                <div className="flex justify-between items-center text-xs font-semibold text-stone-700 mb-2">
+                <div className="flex justify-between items-center text-xs font-semibold text-stone-200 mb-2">
                   <span>Aantal gasten / aanwezigen</span>
-                  <span className="text-sm font-bold text-amber-900">{guestsCount} personen</span>
+                  <span className="text-sm font-bold text-amber-300">{guestsCount} personen</span>
                 </div>
                 <input
                   type="range"
@@ -271,14 +236,14 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                     setGuestsCount(count);
                     setFormData((prev) => ({ ...prev, guestsCount: count }));
                   }}
-                  className="w-full accent-amber-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                  className="w-full accent-amber-500 h-2 bg-stone-800 rounded-lg cursor-pointer"
                 />
               </div>
 
               <div>
-                <div className="flex justify-between items-center text-xs font-semibold text-stone-700 mb-2">
+                <div className="flex justify-between items-center text-xs font-semibold text-stone-200 mb-2">
                   <span>Duur van het evenement</span>
-                  <span className="text-sm font-bold text-amber-900">{durationHours} uur</span>
+                  <span className="text-sm font-bold text-amber-300">{durationHours} uur</span>
                 </div>
                 <input
                   type="range"
@@ -287,40 +252,40 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                   step="1"
                   value={durationHours}
                   onChange={(e) => setDurationHours(Number(e.target.value))}
-                  className="w-full accent-amber-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
+                  className="w-full accent-amber-500 h-2 bg-stone-800 rounded-lg cursor-pointer"
                 />
               </div>
 
               <div className="space-y-3 pt-2">
-                <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:bg-stone-50 cursor-pointer text-xs">
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-800 bg-stone-900/80 hover:bg-stone-800/80 cursor-pointer text-xs transition-colors">
                   <input
                     type="checkbox"
                     checked={includeMachine}
                     onChange={(e) => setIncludeMachine(e.target.checked)}
-                    className="accent-amber-900 w-4 h-4 rounded-sm"
+                    className="accent-amber-500 w-4 h-4 rounded-sm"
                   />
                   <div>
-                    <span className="font-semibold text-stone-800">
+                    <span className="font-semibold text-stone-200">
                       Inclusief machine-verhuur
                     </span>
-                    <span className="block text-[11px] text-stone-500">
+                    <span className="block text-[11px] text-stone-400">
                       (volautomaat of compacte professionele machine)
                     </span>
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:bg-stone-50 cursor-pointer text-xs">
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-stone-800 bg-stone-900/80 hover:bg-stone-800/80 cursor-pointer text-xs transition-colors">
                   <input
                     type="checkbox"
                     checked={includeBarista}
                     onChange={(e) => setIncludeBarista(e.target.checked)}
-                    className="accent-amber-900 w-4 h-4 rounded-sm"
+                    className="accent-amber-500 w-4 h-4 rounded-sm"
                   />
                   <div>
-                    <span className="font-semibold text-stone-800">
+                    <span className="font-semibold text-stone-200">
                       Inclusief professionele SCA-gecertificeerde barista ter plaatse
                     </span>
-                    <span className="block text-[11px] text-stone-500">
+                    <span className="block text-[11px] text-stone-400">
                       (latte art & live baristaservice)
                     </span>
                   </div>
@@ -329,7 +294,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
             </div>
 
             {/* Calculation Results Card */}
-            <div className="lg:col-span-6 bg-stone-900 text-stone-100 rounded-xl p-5 sm:p-6 space-y-3 shadow-md">
+            <div className="lg:col-span-6 bg-stone-950/90 backdrop-blur-md text-stone-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl border border-amber-900/60 ring-1 ring-amber-500/20">
               <div className="text-[11px] uppercase tracking-widest text-amber-400 font-semibold">
                 Gecumuleerde Behoefte
               </div>
@@ -364,7 +329,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
                 </div>
               </div>
 
-              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-800/60 text-[11px] text-amber-200/90 leading-relaxed">
+              <div className="p-3 bg-amber-950/80 rounded-xl border border-amber-700/80 text-[11px] text-amber-100 leading-relaxed">
                 <span className="font-bold text-amber-300">✓ Service is ALTIJD 100% GRATIS:</span> Gratis afstelling op uw wensen, reinigingsmiddelen en telefonische stand-by support tijdens het evenement inbegrepen.
               </div>
 
@@ -377,7 +342,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
 
               <a
                 href="#event-form"
-                className="w-full mt-2.5 bg-amber-700 hover:bg-amber-600 text-white py-2.5 rounded-lg font-semibold text-xs uppercase tracking-wider text-center block transition-colors shadow-xs"
+                className="w-full mt-2.5 bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-center block transition-colors shadow-lg hover:shadow-amber-900/40"
               >
                 Vraag Event Voorstel aan voor {guestsCount} personen
               </a>
