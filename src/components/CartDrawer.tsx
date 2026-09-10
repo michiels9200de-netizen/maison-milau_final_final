@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, ArrowRight, ArrowLeft, ShieldCheck, Truck } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ArrowRight, ArrowLeft, ShieldCheck, Truck, Building2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 interface CartDrawerProps {
   navigate: (path: string) => void;
@@ -17,6 +18,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
     shippingCost,
     total,
   } = useCart();
+  const { accountType } = useAuth();
+  const isB2B = accountType === 'professioneel';
 
   if (!isCartOpen) return null;
 
@@ -203,9 +206,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
           {items.length > 0 && (
             <div className="p-4 sm:p-5 border-t border-stone-200 bg-stone-50 space-y-2.5">
               <div className="space-y-1 text-xs text-stone-600">
+                {isB2B && (
+                  <div className="flex items-center gap-1.5 p-1.5 rounded bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-semibold mb-1">
+                    <Building2 className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                    <span>Professioneel B2B Tarief actief</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <span>Subtotaal</span>
-                  <span className="font-medium text-stone-900">€{subtotal.toFixed(2)}</span>
+                  <span>{isB2B ? 'Subtotaal (excl. BTW)' : 'Subtotaal'}</span>
+                  <span className="font-medium text-stone-900">
+                    €{(isB2B ? subtotal / 1.06 : subtotal).toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Verzendkosten (bpost)</span>
@@ -213,10 +224,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                     {shippingCost === 0 ? 'Gratis' : `€${shippingCost.toFixed(2)}`}
                   </span>
                 </div>
+                {isB2B && (
+                  <div className="flex justify-between text-[11px] text-stone-500">
+                    <span>BTW (6% op bonen)</span>
+                    <span className="font-medium text-stone-800">
+                      €{(subtotal - subtotal / 1.06).toFixed(2)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between text-xs font-semibold text-stone-950 pt-1.5 border-t border-stone-200">
-                  <span>Totaal (incl. BTW)</span>
+                  <span>{isB2B ? 'Totaal te voldoen (incl. BTW)' : 'Totaal (incl. BTW)'}</span>
                   <span>€{total.toFixed(2)}</span>
                 </div>
+                {isB2B && (
+                  <div className="text-[10px] text-stone-500 italic pt-0.5">
+                    * Officiële Belgische B2B factuur met gespecificeerde BTW inbegrepen.
+                  </div>
+                )}
               </div>
 
               <button

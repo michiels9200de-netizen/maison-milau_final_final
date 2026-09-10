@@ -109,11 +109,17 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Sync from server API on mount
+  // Sync from server API on mount and on poll
   const refreshStock = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/stock');
+      const res = await fetch(`/api/stock?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+        },
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
@@ -135,12 +141,42 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     refreshStock();
+
+    // Periodic synchronization across devices & tabs (every 6 seconds)
+    const interval = setInterval(refreshStock, 6000);
+
+    // Instant sync when tab gains focus or visibility returns
+    const onFocus = () => refreshStock();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+
+    // Instant sync across tabs in the same browser session
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setStockMap(parsed);
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    const onCustomSync = () => refreshStock();
+    window.addEventListener('mm_stock_updated', onCustomSync);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('mm_stock_updated', onCustomSync);
+    };
   }, [refreshStock]);
 
   const getStockKg = useCallback(
-    (productId: string, defaultKg: number = 10): number => {
-      if (stockMap[productId]) {
-        return stockMap[productId].stockKg;
+    (productId: string, defaultKg: number = 0): number => {
+      if (stockMap[productId] !== undefined) {
+        return Number(stockMap[productId].stockKg ?? stockMap[productId].availableKg ?? 0);
       }
       if (INITIAL_STOCK_PRESETS[productId] !== undefined) {
         return INITIAL_STOCK_PRESETS[productId];
@@ -168,15 +204,17 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const next = { ...prev, [productId]: updatedItem };
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
         } catch (e) {}
         return next;
       });
 
-      // 2. Transmit to server API
+      // 2. Transmit to server API (PostgreSQL database - single source of truth)
       try {
         const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
         const headers: HeadersInit = {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
         };
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
@@ -228,6 +266,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const next = { ...prev, ...newEntries };
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
         } catch (e) {}
         return next;
       });
@@ -237,11 +276,23 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        await fetch('/api/stock', {
+        const res = await fetch('/api/stock', {
           method: 'POST',
           headers,
           body: JSON.stringify({ updates }),
         });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) {
+            setStockMap((prev) => {
+              const synced = { ...prev, ...json.data };
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(synced));
+              } catch (e) {}
+              return synced;
+            });
+          }
+        }
       } catch (e) {}
 
       return true;
@@ -250,14 +301,15 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 
   /**
-   * Evaluates dynamic availability status from live stock levels
+   * Evaluates dynamic availability status strictly from live database stock levels
    */
   const getAvailabilityInfo = useCallback(
     (product: Product): AvailabilityInfo => {
       const isCapsule =
         product.id.includes('capsules-placeholder') ||
         product.id === 'prod-nespresso-capsules-placeholder' ||
-        product.batchStatus === 'binnenkort_beschikbaar';
+        product.batchStatus === 'binnenkort_beschikbaar' ||
+        (product.category as string) === 'capsules';
 
       if (isCapsule) {
         return {
@@ -272,11 +324,11 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
       }
 
-      // Check live stock quantity
-      const currentStockKg = getStockKg(product.id, product.inStock ? 10 : 0);
+      // Check live database stock quantity (authoritative)
+      const currentStockKg = getStockKg(product.id, 0);
 
-      // 1. Out of stock / Uitverkocht
-      if (currentStockKg <= 0 || product.inStock === false) {
+      // 1. Out of stock / Uitverkocht (Strict single source of truth from database)
+      if (currentStockKg <= 0) {
         return {
           status: 'out_of_stock',
           label: 'Niet beschikbaar',
@@ -289,8 +341,8 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
       }
 
-      // 2. Low stock / Beperkte voorraad (e.g. <= 4 kg)
-      if (currentStockKg <= 4) {
+      // 2. Low stock / Beperkte voorraad (e.g. <= 5 kg)
+      if (currentStockKg <= 5) {
         const formattedKg = Number.isInteger(currentStockKg)
           ? `${currentStockKg} kg`
           : `${currentStockKg.toFixed(1)} kg`;
@@ -306,7 +358,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
       }
 
-      // 3. Normal in stock / Beschikbaar (> 4 kg)
+      // 3. Normal in stock / Beschikbaar (> 5 kg)
       const formattedKg = Number.isInteger(currentStockKg)
         ? `${currentStockKg} kg`
         : `${currentStockKg.toFixed(1)} kg`;

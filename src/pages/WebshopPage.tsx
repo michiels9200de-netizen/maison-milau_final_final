@@ -26,7 +26,15 @@ import {
   Layers,
   ChevronDown,
   Info,
+  Heart,
+  Tag,
+  Globe,
+  Wine,
+  Gem,
+  Coins,
+  Building2,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { CoffeeBeanIcon } from '../components/CoffeeBeanIcon';
 import { CapsuleVisual } from '../components/CapsuleVisual';
 import { SubscriptionConfigurator } from '../components/SubscriptionConfigurator';
@@ -349,6 +357,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const { t } = useTranslation();
   const { addItem } = useCart();
   const { getAvailabilityInfo, getStockKg } = useStock();
+  const { accountType } = useAuth();
+  const isB2B = accountType === 'professioneel';
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [blendSubcategory, setBlendSubcategory] = useState<string>('all');
   const [selectedStockFilter, setSelectedStockFilter] = useState<string>('all');
@@ -426,25 +436,86 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   }, [searchParams]);
 
   const categories = [
-    { id: 'all', name: 'Alles' },
-    { id: 'new_products', name: 'Nieuw', isNew: true },
-    { id: 'blends', name: 'Maison Milau Speciality Blends' },
-    { id: 'single_origins', name: 'Single Origins' },
-    { id: 'barrel_aged', name: 'Barrel Aged Coffees' },
-    { id: 'infused', name: 'Infused Coffees' },
-    { id: 'giftboxes', name: 'Giftboxen & Proefpakketten' },
-    { id: 'merchandise', name: 'Koffie Toebehoren & merchandise' },
-    { id: 'subscriptions', name: 'Abonnementen (-10%)' },
-    { id: 'promotions', name: 'Promoties' },
+    { id: 'all', name: 'Alles', icon: Coffee },
+    { id: 'new_products', name: 'Nieuw', isNew: true, icon: Sparkles },
+    { id: 'blends', name: 'Maison Milau Speciality Blends', icon: Award },
+    {
+      id: 'single_origins',
+      name: 'Single Origins',
+      icon: Globe,
+      activeClass: 'bg-[#065F46] text-emerald-50 border-emerald-500/70 shadow-md ring-1 ring-emerald-400/40',
+      accentColor: 'text-emerald-400',
+    },
+    {
+      id: 'barrel_aged',
+      name: 'Barrel Aged Coffees',
+      icon: Wine,
+      activeClass: 'bg-[#78350F] text-amber-50 border-amber-600/70 shadow-md ring-1 ring-amber-400/40',
+      accentColor: 'text-amber-500',
+    },
+    {
+      id: 'infused',
+      name: 'Infused Coffees',
+      icon: Sparkles,
+      activeClass: 'bg-[#581C87] text-purple-50 border-purple-500/70 shadow-md ring-1 ring-purple-400/40',
+      accentColor: 'text-purple-400',
+    },
+    { id: 'giftboxes', name: 'Giftboxen & Proefpakketten', icon: Gift },
+    { id: 'merchandise', name: 'Koffie Toebehoren & merchandise', icon: Layers },
+    { id: 'subscriptions', name: 'Abonnementen (-10%)', icon: RefreshCw },
+    { id: 'promotions', name: 'Promoties', icon: Tag },
   ];
 
   const blendSubcategories = [
-    { id: 'all', name: t('nav.all_blends', 'Alle Speciality Blends'), icon: Coffee },
-    { id: 'budget', name: t('nav.budget', 'Budget'), icon: Sparkles },
-    { id: 'value', name: t('nav.value', 'Value'), icon: ShieldCheck },
-    { id: 'selection', name: t('nav.selection', 'Selection'), icon: Compass },
-    { id: 'premium', name: t('nav.premium', 'Premium'), icon: Award },
-    { id: 'prestige', name: t('nav.prestige', 'Prestige'), icon: Crown },
+    {
+      id: 'all',
+      name: t('nav.all_blends', 'Alle Speciality Blends'),
+      icon: Coffee,
+      activeClass: 'bg-amber-800 text-white shadow-xs border border-amber-600/60 font-semibold',
+      inactiveClass: 'bg-stone-800/80 text-stone-300 hover:bg-stone-800 hover:text-white border border-stone-700/60',
+      iconColor: 'text-amber-300',
+    },
+    {
+      id: 'budget',
+      name: t('nav.budget', 'Budget'),
+      icon: Coins,
+      badge: '€',
+      activeClass: 'bg-[#FAF9F5] text-stone-900 shadow-md border-2 border-stone-400 font-bold ring-2 ring-amber-400/40',
+      inactiveClass: 'bg-[#FAF9F5]/90 text-stone-800 hover:bg-white border border-stone-300 hover:border-stone-400',
+      iconColor: 'text-stone-700',
+    },
+    {
+      id: 'value',
+      name: t('nav.value', 'Value'),
+      icon: Tag,
+      activeClass: 'bg-[#1C1917] text-white shadow-md border-2 border-stone-500 font-bold ring-2 ring-stone-400/40',
+      inactiveClass: 'bg-[#1C1917]/90 text-stone-200 hover:bg-[#1C1917] border border-stone-700 hover:border-stone-500',
+      iconColor: 'text-amber-300',
+    },
+    {
+      id: 'selection',
+      name: t('nav.selection', 'Selection'),
+      icon: Heart,
+      activeClass: 'bg-[#1E3A8A] text-white shadow-md border-2 border-blue-400 font-bold ring-2 ring-blue-400/40',
+      inactiveClass: 'bg-[#1E3A8A]/85 text-blue-100 hover:bg-[#1E3A8A] border border-blue-800 hover:border-blue-500',
+      iconColor: 'text-blue-200',
+    },
+    {
+      id: 'premium',
+      name: t('nav.premium', 'Premium'),
+      icon: Award,
+      activeClass: 'bg-[#475569] text-white shadow-md border-2 border-slate-300 font-bold ring-2 ring-slate-300/40',
+      inactiveClass: 'bg-[#475569]/85 text-slate-100 hover:bg-[#475569] border border-slate-600 hover:border-slate-400',
+      iconColor: 'text-amber-300',
+    },
+    {
+      id: 'prestige',
+      name: t('nav.prestige', 'Prestige'),
+      icon: Gem,
+      activeClass: 'bg-[#831843] text-white shadow-md border-2 border-pink-400 font-bold ring-2 ring-pink-400/40',
+      inactiveClass: 'bg-[#831843]/85 text-pink-100 hover:bg-[#831843] border border-pink-900 hover:border-pink-500',
+      iconColor: 'text-pink-200',
+    },
   ];
 
   const stockFilterOptions = [
@@ -563,11 +634,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
       : undefined;
 
     // Dynamic giftbox price calculation based on actual retail prices of the selected coffees
-    const unitPrice = isGiftbox
+    const rawUnitPrice = isGiftbox
       ? calculateGiftboxPrice(selectedBeans || [])
       : purchaseType === 'abonnement'
       ? Math.round(currentVariant.price * 0.9 * 100) / 100
       : currentVariant.price;
+
+    const isMerchandiseOrMachine = product.category === 'merchandise' || product.id.includes('tshirt') || product.id.includes('machine');
+    const vatRate = isMerchandiseOrMachine ? 0.21 : 0.06;
+    const unitPrice = isB2B ? Math.round((rawUnitPrice / (1 + vatRate)) * 100) / 100 : rawUnitPrice;
 
     const isTshirt = product.id === 'prod-acc-tshirt';
     const selectedColor = isTshirt ? (selectedTshirtColor[product.id] || 'Zwart') : undefined;
@@ -620,6 +695,9 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
     const defaultChoices = GIFTBOX_COFFEE_OPTIONS.slice(0, choiceCount).map((o) => o.name);
     const currentChoices = giftboxSelections[product.id] || defaultChoices;
 
+    const isMerchandiseOrMachine = product.category === 'merchandise' || product.id.includes('tshirt') || product.id.includes('machine');
+    const vatRate = isMerchandiseOrMachine ? 0.21 : 0.06;
+
     // Dynamic price for giftbox or subscription discount or regular variant price
     const effectivePrice = isGiftbox
       ? calculateGiftboxPrice(currentChoices)
@@ -627,13 +705,20 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
       ? Math.round(currentVariant.price * 0.9 * 100) / 100
       : currentVariant.price;
 
+    const b2bEffectivePrice = isB2B
+      ? Math.round((effectivePrice / (1 + vatRate)) * 100) / 100
+      : effectivePrice;
+
     const displayImage = activeProductImage[product.id] || product.imageUrl;
 
     // Calculate starting "Vanaf" price for the product card badge
     const startingPrice = product.variants && product.variants.length > 0
       ? Math.min(...product.variants.map((v) => v.price))
       : currentVariant.price;
-    const formattedStartingPrice = startingPrice.toFixed(2).replace('.', ',');
+    const b2bStartingPrice = isB2B
+      ? Math.round((startingPrice / (1 + vatRate)) * 100) / 100
+      : startingPrice;
+    const formattedStartingPrice = b2bStartingPrice.toFixed(2).replace('.', ',');
     const isMultiOption = (product.variants && product.variants.length > 1) || isCoffeeProduct || isGiftbox;
 
     const matchingCatalogCoffee = CATALOG_ITEMS.find(
@@ -657,7 +742,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         key={product.id}
         id={`product-card-${product.id}`}
         data-product-id={product.id}
-        className={`group relative scroll-mt-24 bg-white rounded-xl border transition-all p-3 sm:p-3.5 flex flex-col justify-between ${
+        className={`group relative scroll-mt-24 bg-white rounded-xl border transition-all p-3 sm:p-3.5 flex flex-col justify-between h-full ${
           isHighlighted
             ? 'border-amber-600 ring-3 ring-amber-500/30 shadow-lg scale-[1.01]'
             : theme.isDarkTheme
@@ -739,7 +824,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             {/* Refined Maison Milau Starting Price Badge - Elegant Frosted Glass */}
             <div
               className="absolute top-2 left-2 z-20 bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-stone-200/90 shadow-2xs flex flex-col items-start leading-none select-none pointer-events-none transition-all group-hover:border-amber-400/60"
-              title={isMultiOption ? `Vanaf € ${formattedStartingPrice}` : `Prijs: € ${formattedStartingPrice}`}
+              title={isMultiOption ? `Vanaf € ${formattedStartingPrice} ${isB2B ? 'excl. btw' : ''}` : `Prijs: € ${formattedStartingPrice} ${isB2B ? 'excl. btw' : ''}`}
             >
               {isMultiOption && (
                 <span className="text-[9px] font-medium text-stone-500 lowercase tracking-tight leading-none mb-0.5">
@@ -753,6 +838,11 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <span className="text-xs sm:text-sm font-bold text-stone-900 font-mono tracking-tight">
                   {formattedStartingPrice}
                 </span>
+                {isB2B && (
+                  <span className="text-[8px] sm:text-[9px] text-amber-900/80 font-sans ml-1 font-semibold">
+                    excl.
+                  </span>
+                )}
               </div>
             </div>
 
@@ -817,7 +907,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           </div>
 
           {/* Product Name */}
-          <div className="mb-1.5">
+          <div className="mb-1.5 min-h-[2.25rem] sm:min-h-[2.5rem] flex items-start">
             <h3 className="text-xs sm:text-sm md:text-base font-bold text-stone-900 tracking-tight leading-snug group-hover:text-amber-900 transition-colors line-clamp-2" title={product.name}>
               {product.name}
             </h3>
@@ -840,11 +930,14 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     }
                     className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-[11px] font-semibold py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
                   >
-                    {product.variants.map((v) => (
-                      <option key={v.weight} value={v.weight}>
-                        {v.weight} — €{v.price.toFixed(2)}
-                      </option>
-                    ))}
+                    {product.variants.map((v) => {
+                      const vPrice = isB2B ? Math.round((v.price / (1 + vatRate)) * 100) / 100 : v.price;
+                      return (
+                        <option key={v.weight} value={v.weight}>
+                          {v.weight} — €{vPrice.toFixed(2)}{isB2B ? ' excl.' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ChevronDown className="w-3 h-3 text-stone-500 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -1028,10 +1121,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
 
             {/* Roastery Quality & Roasting Degree */}
-            <div className="pt-1.5 border-t border-stone-200/70 flex items-center justify-between text-[10px] text-stone-500">
-              <div className="flex items-center gap-1 min-w-0">
+            <div className="pt-1.5 border-t border-stone-200/70 flex items-center text-[11px]">
+              <div className="flex items-center gap-1.5 w-full min-w-0">
                 <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
-                <span className="font-medium text-stone-700 truncate">
+                <span className="font-semibold text-stone-800 truncate tracking-wide whitespace-nowrap">
                   {isCapsule
                     ? 'Nespresso® Original compatibel'
                     : isGiftbox
@@ -1039,9 +1132,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     : (matchingCatalogCoffee?.roastProfile || 'Medium Roast')}
                 </span>
               </div>
-              <span className="text-stone-400 font-normal shrink-0 ml-1">
-                {isCapsule ? 'Composteerbaar' : 'Micro-batch'}
-              </span>
             </div>
           </div>
 
@@ -1123,12 +1213,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         <div className="pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2 mt-auto">
           <div className="shrink-0">
             <div className="text-[9px] uppercase tracking-wider text-stone-400 font-medium leading-none mb-0.5">
-              {isGiftbox ? 'Boxprijs' : isCapsule ? 'Pre-order' : 'Prijs'}
+              {isGiftbox ? 'Boxprijs' : isCapsule ? 'Pre-order' : isB2B ? 'B2B (excl. btw)' : 'Prijs'}
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-sm sm:text-base font-bold text-stone-900 font-mono">
-                €{effectivePrice.toFixed(2)}
+                €{b2bEffectivePrice.toFixed(2)}
               </span>
+              {isB2B && (
+                <span className="text-[9px] text-stone-500 font-mono" title={`Inclusief ${Math.round(vatRate * 100)}% BTW: €${effectivePrice.toFixed(2)}`}>
+                  (€{effectivePrice.toFixed(2)} incl.)
+                </span>
+              )}
             </div>
           </div>
 
@@ -1239,38 +1334,52 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           {/* Category Tabs */}
           <div className="mt-2.5 pt-2 border-t border-stone-800/80">
             <div className="flex flex-wrap gap-1.5">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  id={`cat-btn-${cat.id}`}
-                  onClick={() => {
-                    setSelectedCategory(cat.id);
-                    if (cat.id !== 'blends') setBlendSubcategory('all');
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
-                    selectedCategory === cat.id
-                      ? 'bg-gradient-to-r from-amber-700 to-amber-800 text-white shadow-md border border-amber-600/50'
-                      : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
-                  }`}
-                >
-                  {cat.id === 'new_products' && (
-                    <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === cat.id ? 'text-amber-300' : 'text-amber-400'}`} />
-                  )}
-                  <span>{cat.name}</span>
-                  {cat.isNew && (
-                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full leading-none ${
-                      selectedCategory === cat.id
-                        ? 'bg-amber-800 text-amber-200 border border-amber-500/40'
-                        : 'bg-amber-950/80 text-amber-300 border border-amber-700/50'
-                    }`}>
-                      Nieuw
-                    </span>
-                  )}
-                </button>
-              ))}
+              {categories.map((cat) => {
+                const IconComp = cat.icon;
+                const isSelected = selectedCategory === cat.id;
+                const activeStyle =
+                  cat.activeClass ||
+                  'bg-gradient-to-r from-amber-700 to-amber-800 text-white shadow-md border border-amber-600/50';
+
+                return (
+                  <button
+                    key={cat.id}
+                    id={`cat-btn-${cat.id}`}
+                    onClick={() => {
+                      setSelectedCategory(cat.id);
+                      if (cat.id !== 'blends') setBlendSubcategory('all');
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${
+                      isSelected
+                        ? activeStyle
+                        : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700/60 backdrop-blur-xs'
+                    }`}
+                  >
+                    <IconComp
+                      className={`w-3.5 h-3.5 shrink-0 ${
+                        isSelected
+                          ? 'text-white'
+                          : cat.accentColor || 'text-amber-400'
+                      }`}
+                    />
+                    <span>{cat.name}</span>
+                    {cat.isNew && (
+                      <span
+                        className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full leading-none ${
+                          isSelected
+                            ? 'bg-amber-800 text-amber-200 border border-amber-500/40'
+                            : 'bg-amber-950/80 text-amber-300 border border-amber-700/50'
+                        }`}
+                      >
+                        Nieuw
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Submenu for Maison Milau Speciality blends */}
+            {/* Submenu for Maison Milau Speciality blends with designated colors & icons */}
             {selectedCategory === 'blends' && (
               <div className="mt-2.5 p-2 sm:p-2.5 bg-stone-900/90 border border-amber-900/50 rounded-xl animate-fadeIn backdrop-blur-xs">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 mb-1.5 flex items-center gap-1.5">
@@ -1280,19 +1389,29 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 <div className="flex flex-wrap gap-1.5">
                   {blendSubcategories.map((sub) => {
                     const IconComponent = sub.icon;
+                    const isSelected = blendSubcategory === sub.id;
                     return (
                       <button
                         key={sub.id}
                         id={`btn-blend-sub-${sub.id}`}
                         onClick={() => setBlendSubcategory(sub.id)}
-                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-                          blendSubcategory === sub.id
-                            ? 'bg-amber-800 text-white shadow-xs border border-amber-600/60 font-semibold'
-                            : 'bg-stone-800/80 text-stone-300 hover:bg-stone-800 hover:text-white border border-stone-700/60'
+                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isSelected ? sub.activeClass : sub.inactiveClass
                         }`}
                       >
-                        <IconComponent className="w-3 h-3 shrink-0 text-amber-300" />
+                        <IconComponent
+                          className={`w-3.5 h-3.5 shrink-0 ${
+                            isSelected ? (sub.id === 'budget' ? 'text-stone-900' : 'text-white') : sub.iconColor || 'text-amber-300'
+                          }`}
+                        />
                         <span>{sub.name}</span>
+                        {sub.badge && (
+                          <span className={`text-[10px] px-1 py-0.2 rounded font-bold ${
+                            isSelected ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-900'
+                          }`}>
+                            {sub.badge}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -1325,6 +1444,23 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           </div>
         </div>
       </section>
+
+      {/* Professional Customer Pricing Indicator Banner */}
+      {isB2B && (
+        <div className="max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-3 pb-1">
+          <div className="bg-amber-950/90 text-amber-100 border border-amber-500/40 rounded-xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-sm text-xs">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>
+                <strong>Professioneel B2B Tarief:</strong> Alle prijzen worden getoond exclusief btw (6% op koffiebonen, 21% op machines, textiel & toebehoren).
+              </span>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-800 text-amber-200 px-2 py-0.5 rounded border border-amber-600/50">
+              Belgische B2B Facturatie
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* NEW PRODUCTS Category: Dedicated Innovations & Upcoming Releases (Maison Milau Compatible Coffee Capsules) */}
       {selectedCategory === 'new_products' ? (

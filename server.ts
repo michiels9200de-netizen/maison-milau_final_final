@@ -35,6 +35,7 @@ import { generateInvoicePdfBuffer, FullInvoiceData } from './server/invoicePdfSe
 import cookieParser from 'cookie-parser';
 import { getSupabaseClient } from './server/supabaseClient.js';
 import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.js';
+import { inventoryStore } from './server/inventoryStore.js';
 
 dotenv.config();
 
@@ -1272,6 +1273,13 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
   };
 
   orders.unshift(newOrder);
+
+  // Real-time PostgreSQL stock deduction for the order (Single Source of Truth)
+  try {
+    await inventoryStore.deductStockForOrder(newOrder.items || []);
+  } catch (stockErr) {
+    console.error('[INVENTORY ERROR] Failed to deduct stock for order:', stockErr);
+  }
 
   // Create associated invoice
   const newInvoice = {
@@ -3498,48 +3506,43 @@ function saveStockToDisk() {
   } catch (err) {}
 }
 
-app.get('/api/stock', (req: Request, res: Response) => {
-  res.json({ success: true, data: roasteryStock });
+app.get('/api/stock', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  const stock = await inventoryStore.getAllStock();
+  res.json({ success: true, data: stock });
 });
 
-app.get('/api/admin/stock', (req: Request, res: Response) => {
-  res.json({ success: true, data: roasteryStock });
+app.get('/api/admin/stock', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  const stock = await inventoryStore.getAllStock();
+  res.json({ success: true, data: stock });
 });
 
-app.post('/api/stock', (req: Request, res: Response) => {
-  const { productId, stockKg, updates } = req.body || {};
-  const now = new Date().toISOString();
+app.post('/api/stock', async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  const { productId, stockKg, reservedKg, subAllocatedKg, updates } = req.body || {};
 
   if (Array.isArray(updates)) {
-    updates.forEach((u: { productId: string; stockKg: number }) => {
-      if (u.productId) {
-        const kg = Math.max(0, Number(u.stockKg) || 0);
-        roasteryStock[u.productId] = {
-          productId: u.productId,
-          stockKg: kg,
-          inStock: kg > 0,
-          lastUpdated: now,
-        };
-      }
-    });
-    saveStockToDisk();
-    return res.json({ success: true, data: roasteryStock, message: 'Voorraad succesvol bijgewerkt.' });
+    const updatedMap = await inventoryStore.bulkUpdateStock(updates);
+    return res.json({ success: true, data: updatedMap, message: 'Voorraad succesvol bijgewerkt in database.' });
   }
 
   if (!productId) {
     return res.status(400).json({ success: false, error: 'Product ID is verplicht' });
   }
 
-  const kg = Math.max(0, Number(stockKg) || 0);
-  roasteryStock[productId] = {
-    productId,
-    stockKg: kg,
-    inStock: kg > 0,
-    lastUpdated: now,
-  };
-
-  saveStockToDisk();
-  res.json({ success: true, data: roasteryStock, message: `Voorraad bijgewerkt naar ${kg} kg.` });
+  const updatedItem = await inventoryStore.updateStock(productId, stockKg, reservedKg, subAllocatedKg);
+  const currentStock = await inventoryStore.getAllStock();
+  res.json({
+    success: true,
+    data: currentStock,
+    updatedItem,
+    message: `Voorraad voor ${productId} bijgewerkt naar ${updatedItem.stockKg} kg (Status: ${updatedItem.inStock ? 'Beschikbaar' : 'Niet beschikbaar'}).`,
+  });
 });
 
 // Static image serving for /images

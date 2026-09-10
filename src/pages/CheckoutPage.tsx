@@ -20,7 +20,8 @@ interface MollieStatus {
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   const { items, subtotal, shippingCost, total, clearCart } = useCart();
-  const { currentUser } = useAuth();
+  const { currentUser, accountType } = useAuth();
+  const isB2B = accountType === 'professioneel' || currentUser?.accountType === 'professioneel';
 
   const [deliveryMethod, setDeliveryMethod] = useState<'bpost' | 'atelier' | 'markt'>('bpost');
   const [marketLocation, setMarketLocation] = useState<string>('Dendermonde (Maandag)');
@@ -794,9 +795,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 </div>
 
                 <div className="pt-3 border-t border-stone-200 text-xs space-y-2 text-stone-600">
+                  {isB2B && (
+                    <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-[11px] mb-1">
+                      Professioneel B2B Tarief actief (Belgische btw-factuur)
+                    </div>
+                  )}
                   <div className="flex justify-between">
-                    <span>Subtotaal</span>
-                    <span className="font-semibold text-stone-900">€{subtotal.toFixed(2)}</span>
+                    <span>{isB2B ? 'Subtotaal (excl. BTW)' : 'Subtotaal'}</span>
+                    <span className="font-semibold text-stone-900">
+                      €{(isB2B ? subtotal / 1.06 : subtotal).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Verzendkosten</span>
@@ -805,13 +813,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>BTW (6% inbegrepen op koffie)</span>
+                    <span>{isB2B ? 'BTW (6% op bonen / 21% non-food)' : 'BTW (6% inbegrepen op koffie)'}</span>
                     <span className="font-medium text-stone-900">
-                      €{((subtotal / 1.06) * 0.06).toFixed(2)}
+                      €{(isB2B ? subtotal - subtotal / 1.06 : (subtotal / 1.06) * 0.06).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-base font-bold text-stone-900 pt-3 border-t border-stone-200">
-                    <span>Totaal (incl. BTW)</span>
+                    <span>{isB2B ? 'Totaal te voldoen (incl. BTW)' : 'Totaal (incl. BTW)'}</span>
                     <span>€{grandTotal.toFixed(2)}</span>
                   </div>
                 </div>

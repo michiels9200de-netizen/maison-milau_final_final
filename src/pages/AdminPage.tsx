@@ -865,7 +865,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
 
                       return matchesQuery && matchesCategory;
                     }).map((prod) => {
-                      const liveKg = getStockKg(prod.id, prod.inStock ? 10 : 0);
+                      const liveKg = getStockKg(prod.id, 0);
                       const draftKg = stockEditingState[prod.id] !== undefined ? stockEditingState[prod.id] : liveKg;
                       const availInfo = getAvailabilityInfo(prod);
 

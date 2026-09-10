@@ -176,9 +176,6 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 <div>
                   <strong className="text-amber-200">Geschikt voor:</strong> Horeca (brasseries, restaurants, koffiebars), Kantoren, Bedrijven, Handelszaken & Residentiële centra.
                 </div>
-                <div>
-                  <strong className="text-amber-200">BTW Facturatie:</strong> {CONFIG.vatNumber} (Maandelijkse verzamelfactuur met 6% BTW op koffiebonen en 21% op apparatuur/diensten).
-                </div>
               </div>
             </div>
 
@@ -373,7 +370,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                         Compacte Office Bean-to-Cup Volautomaat (+€69 / mnd)
                       </span>
                       <span className="block text-[11px] text-stone-500">
-                        Tot 40 koppen per dag. One-touch espresso, lungo en warm water.
+                        Tot 40 koppen per uur. One-touch espresso, lungo en warm water.
                       </span>
                     </div>
                   </label>
@@ -391,7 +388,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                         High-Capacity Professionele Volautomaat (+€99 / mnd)
                       </span>
                       <span className="block text-[11px] text-stone-500">
-                        Tot 120 koppen per dag. Dubbele uitloop, verse melkopschuimer, vaste wateraansluiting.
+                        Tot 120 koppen per uur. Dubbele uitloop, verse melkopschuimer, vaste wateraansluiting.
                       </span>
                     </div>
                   </label>
@@ -480,13 +477,16 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               <div className="pt-3 border-t border-stone-800 flex justify-between items-baseline">
                 <div>
                   <div className="text-sm font-medium text-stone-300">Totaal maandelijks:</div>
-                  <div className="text-[11px] text-stone-400">Koffie + gekozen apparatuur</div>
+                  <div className="text-[11px] text-stone-400">Koffie + gekozen apparatuur (excl. btw)</div>
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-amber-100">
                   €{totalMonthly.toFixed(2)}{' '}
-                  <span className="text-xs text-stone-400 font-normal">/ mnd</span>
+                  <span className="text-xs text-stone-400 font-normal">/ mnd (excl. btw)</span>
                 </div>
               </div>
+              <p className="text-[10px] text-stone-400 leading-tight">
+                * Prijzen zijn excl. btw (6% btw op specialty koffiebonen, 21% btw op machinelease & diensten).
+              </p>
 
               <a
                 href="#b2b-form"
