@@ -41,8 +41,8 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formFeedback, setFormFeedback] = useState<string>('');
 
-  // Dynamic calculations based strictly on Milau Budget pricing (€19.95 / kg)
-  const basePricePerKg = 19.95; // Based on Milau Budget Blend
+  // Dynamic calculations based strictly on Milau Budget pricing (€24.95 / kg)
+  const basePricePerKg = 24.95; // Based on Milau Budget Blend
   const workingDays =
     settingType === 'horeca'
       ? 26

@@ -18,7 +18,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Dark chocolate', 'Roasted nuts', 'Toast', 'Heavy crema'],
     character: 'Sterk, chocoladeachtig met een lage aciditeit (Body 5/5, aciditeit 1/5, zoetheid 2/5).',
     brewRecommendations: ['Espresso', 'Volautomaat', 'Moka pot'],
-    retailPriceGuide: 'Vanaf €5,25 per 250g (€19,95 / kg)',
+    retailPriceGuide: 'Vanaf €6,95 per 250g (€24,95 / kg)',
     webshopProductId: 'prod-budget-espresso',
   },
   {
@@ -33,7 +33,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Cocoa', 'Peanut', 'Brown sugar'],
     character: 'Alledaagse koffie voor bean-to-cup machines met een betrouwbaar en rond mondgevoel.',
     brewRecommendations: ['Volautomatische machines', 'Lungo', 'Melkbereidingen'],
-    retailPriceGuide: 'Vanaf €5,25 per 250g (€18,95 / kg)',
+    retailPriceGuide: 'Vanaf €6,50 per 250g (€23,95 / kg)',
     webshopProductId: 'prod-budget-omni',
   },
   {
@@ -48,7 +48,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Milk chocolate', 'Biscuit', 'Walnut'],
     character: 'Toegankelijke filterkoffie met veel body en zachte notentoetsen.',
     brewRecommendations: ['Koffiezetapparaat', 'Filterzetter', 'French Press'],
-    retailPriceGuide: 'Vanaf €5,50 per 250g (€19,95 / kg)',
+    retailPriceGuide: 'Vanaf €6,95 per 250g (€24,95 / kg)',
     webshopProductId: 'prod-budget-filter',
   },
 
@@ -65,7 +65,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Chocolate', 'Caramel', 'Hazelnut', 'Dried fruit'],
     character: 'Evenwichtige espresso met zachte zoetheid en een verfijnde toets gedroogd fruit.',
     brewRecommendations: ['Espresso', 'Cappuccino', 'Volautomaat'],
-    retailPriceGuide: 'Vanaf €6,25 per 250g (€22,95 / kg)',
+    retailPriceGuide: 'Vanaf €7,95 per 250g (€28,95 / kg)',
     webshopProductId: 'prod-value-espresso',
   },
   {
@@ -80,7 +80,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Cocoa', 'Toffee', 'Almond'],
     character: 'Ideale brug tussen traditionele koffie en specialty coffee met zoetheid en herkenbare amandelaccenten.',
     brewRecommendations: ['Volautomaat', 'Lungo', 'Filter'],
-    retailPriceGuide: 'Vanaf €5,95 per 250g (€21,95 / kg)',
+    retailPriceGuide: 'Vanaf €7,50 per 250g (€27,95 / kg)',
     webshopProductId: 'prod-value-omni',
   },
   {
@@ -95,7 +95,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Honey', 'Citrus', 'Milk chocolate'],
     character: 'Fris en harmonieus met een elegante zoetheid van bloemenhoning.',
     brewRecommendations: ['V60', 'Chemex', 'Batch Brew'],
-    retailPriceGuide: 'Vanaf €6,50 per 250g (€23,95 / kg)',
+    retailPriceGuide: 'Vanaf €8,25 per 250g (€29,95 / kg)',
     webshopProductId: 'prod-value-filter',
   },
 
@@ -112,7 +112,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Melkchocolade', 'Karamel', 'Bergamot', 'Zwarte thee', 'Zachte bloemen', 'Lichte citrus'],
     character: 'Een toegankelijke en evenwichtige koffie. Brazilië levert body en chocolade, Ethiopië geeft een lichte aromatische lift en Costa Rica zorgt voor zoetheid en structuur.',
     brewRecommendations: ['Espresso', 'Lungo', 'Cappuccino', 'Filter'],
-    retailPriceGuide: 'Vanaf €8,50 per 250g (€31,95 / kg)',
+    retailPriceGuide: 'Vanaf €9,50 per 250g (€34,95 / kg)',
     webshopProductId: 'prod-selection-daily',
   },
   {
@@ -127,7 +127,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Donkere chocolade', 'Cacao', 'Geroosterde hazelnoot', 'Bruine specerijen', 'Lange krachtige afdronk'],
     character: 'De Braziliaanse arabica vormt de zoete chocoladebasis. India voegt kruidigheid en body toe. De Uganda robusta versterkt crema, intensiteit en herkenbaarheid in melkdranken.',
     brewRecommendations: ['Espresso', 'Flat White', 'Ristretto'],
-    retailPriceGuide: 'Vanaf €8,95 per 250g (€32,95 / kg)',
+    retailPriceGuide: 'Vanaf €9,95 per 250g (€36,95 / kg)',
     webshopProductId: 'prod-selection-espresso',
   },
   {
@@ -142,7 +142,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Citrus', 'Groene druif', 'Pruim', 'Amandel', 'Hazelnoot', 'Walnoot'],
     character: 'Een zachte filterblend met frisse Ethiopische aroma’s, een cleane Peruaanse structuur en een ronde Braziliaanse notenbasis.',
     brewRecommendations: ['Pour-over V60', 'Chemex', 'Moccamaster'],
-    retailPriceGuide: 'Vanaf €8,95 per 250g (€33,95 / kg)',
+    retailPriceGuide: 'Vanaf €9,95 per 250g (€36,95 / kg)',
     webshopProductId: 'prod-selection-filter',
   },
 
@@ -159,7 +159,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Cacao nibs', 'Melkchocolade', 'Bessen', 'Abrikoos', 'Braam', 'Peer'],
     character: 'Brazilië geeft zoete chocolade en body. Ethiopië levert bessen en cacao. Kenya zorgt voor helderheid, sappigheid en een langere afdronk.',
     brewRecommendations: ['Espresso', 'Lungo', 'Aeropress', 'Melkbereidingen'],
-    retailPriceGuide: 'Vanaf €10,95 per 250g (€41,95 / kg)',
+    retailPriceGuide: 'Vanaf €11,95 per 250g (€44,95 / kg)',
     webshopProductId: 'prod-premium-daily',
   },
   {
@@ -174,7 +174,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Kers', 'Pruim', 'Kokos', 'Hazelnoot', 'Cashew', 'Honing', 'Cranberry', 'Sinaasappel', 'Vanille'],
     character: 'Een complexe maar toegankelijke premium espresso. Honduras levert rijp fruit, Brazilië geeft body en zoetheid, en de Colombia Pink Bourbon voegt aromatische verfijning toe.',
     brewRecommendations: ['Espresso', 'Cortado', 'Cappuccino'],
-    retailPriceGuide: 'Vanaf €11,50 per 250g (€42,95 / kg)',
+    retailPriceGuide: 'Vanaf €12,50 per 250g (€46,95 / kg)',
     webshopProductId: 'prod-premium-espresso',
   },
   {
@@ -189,7 +189,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Groene appel', 'Grapefruit', 'Groene thee', 'Abrikoos', 'Braam', 'Witte druif', 'Sencha-thee'],
     character: 'Ethiopië levert florale frisheid, Kenya geeft sappige aciditeit en Indonesië zorgt voor theeachtige structuur en een iets langere body.',
     brewRecommendations: ['Kalita Wave', 'V60', 'Aeropress'],
-    retailPriceGuide: 'Vanaf €10,95 per 250g (€40,95 / kg)',
+    retailPriceGuide: 'Vanaf €11,95 per 250g (€44,95 / kg)',
     webshopProductId: 'prod-premium-filter',
   },
 
@@ -206,7 +206,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Groene appel', 'Citrus', 'Koffiebloesem', 'Lemongrass', 'Delicate bloemen', 'Thee', 'Warme specerijen'],
     character: 'Een precieze, elegante omniroast. De gewassen Indonesië geeft structuur zonder zware aardse tonen, Ethiopië levert bloemen en citrus, en Orange Bourbon zorgt voor zoetheid en finesse.',
     brewRecommendations: ['Espresso', 'Lungo', 'Syphon', 'Filter'],
-    retailPriceGuide: 'Vanaf €13,95 per 250g (€53,95 / kg)',
+    retailPriceGuide: 'Vanaf €14,95 per 250g (€56,95 / kg)',
     webshopProductId: 'prod-prestige-daily',
   },
   {
@@ -221,7 +221,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Cacao nibs', 'Honing', 'Pruim', 'Rode druif', 'Tropisch fruit', 'Wijnachtige zoetheid', 'Suikerriet'],
     character: 'De Frinsa Natural geeft body en exotische fruitigheid. Halo voegt florale en rijpe fruitaroma’s toe. Costa Rica maakt het profiel sappig, zoet en gestructureerd.',
     brewRecommendations: ['Specialty Espresso', 'Single Origin style shots'],
-    retailPriceGuide: 'Vanaf €11,95 per 250g (€45,95 / kg)',
+    retailPriceGuide: 'Vanaf €13,95 per 250g (€52,95 / kg)',
     webshopProductId: 'prod-prestige-espresso',
   },
   {
@@ -236,7 +236,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Jasmijn', 'Zwarte thee', 'Sinaasappel', 'Mandarijn', 'Watermeloen', 'Bloemen', 'Zwarte bes'],
     character: 'Een zeer heldere en florale filterblend. Chelbesa vormt de elegante basis, Kenya geeft spanning en sappigheid, en Gesha Bench Maji levert florale complexiteit en een lange afdronk.',
     brewRecommendations: ['V60 Hand Drip', 'Chemex', 'Origami Dripper'],
-    retailPriceGuide: 'Vanaf €13,50 per 250g (€52,95 / kg)',
+    retailPriceGuide: 'Vanaf €14,95 per 250g (€56,95 / kg)',
     webshopProductId: 'prod-prestige-filter',
   },
 
@@ -253,7 +253,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Rijpe druif', 'Oranjebloesem', 'Honing', 'Gedroogd fruit', 'Vanille', 'Karamel', 'Toast', 'Zachte eikenkruiden'],
     character: 'De pruim- en kersachtige natural tonen sluiten perfect aan bij Moscatel zonder dat de koffie zwaar of bitter wordt.',
     brewRecommendations: ['Filter', 'Aeropress', 'Slow Drip', 'Degustatie Espresso'],
-    retailPriceGuide: 'Vanaf €16,95 per 250g (€64,95 / kg)',
+    retailPriceGuide: 'Vanaf €17,95 per 250g (€68,95 / kg)',
     webshopProductId: 'prod-barrel-moscatel',
   },
   {
@@ -268,7 +268,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Rozijn', 'Vijg', 'Dadel', 'Donkere chocolade', 'Donkere karamel', 'Melasse', 'Geroosterde eik', 'Warme zoetheid'],
     character: 'Intens rijk en gelaagd met diepe zoete tonen van PX sherry, vijgen en zachte melasse.',
     brewRecommendations: ['Espresso', 'French Press', 'Filter'],
-    retailPriceGuide: 'Vanaf €16,95 per 250g (€64,95 / kg)',
+    retailPriceGuide: 'Vanaf €17,95 per 250g (€68,95 / kg)',
     webshopProductId: 'prod-barrel-px',
   },
   {
@@ -283,7 +283,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Vanille', 'Melasse', 'Bruine suiker', 'Toffee', 'Donkere vruchten', 'Anijs', 'Specerijen', 'Eik'],
     character: 'Subtiele bourbonwarmte met royale toffee, vanille en eikenhoutaccenten.',
     brewRecommendations: ['Espresso', 'Moka', 'Filter'],
-    retailPriceGuide: 'Vanaf €17,95 per 250g (€68,95 / kg)',
+    retailPriceGuide: 'Vanaf €18,95 per 250g (€72,95 / kg)',
     webshopProductId: 'prod-barrel-bourbon',
   },
 
@@ -300,7 +300,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Natuurlijke Madagascar-vanille', 'Melkchocolade', 'Karamel', 'Bruine suiker', 'Geroosterde amandel'],
     character: 'Zachte tonen van vanillestokjes, room en karamel zonder enige artificiële bijsmaak.',
     brewRecommendations: ['Volautomaat', 'Cappuccino', 'Filter'],
-    retailPriceGuide: 'Vanaf €10,95 per 250g (€39,95 / kg)',
+    retailPriceGuide: 'Vanaf €11,95 per 250g (€44,95 / kg)',
     webshopProductId: 'prod-infused-vanilla',
   },
   {
@@ -315,7 +315,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Kaneel', 'Bruine suiker', 'Bakkerschocolade', 'Amandel', 'Karamel', 'Vanille'],
     character: 'Warme toetsen van kaneel, bruine suiker en koekjeskruiden, perfect in balans met specialty arabica.',
     brewRecommendations: ['Filter', 'Lungo', 'Latte Macchiato'],
-    retailPriceGuide: 'Vanaf €10,95 per 250g (€39,95 / kg)',
+    retailPriceGuide: 'Vanaf €11,95 per 250g (€44,95 / kg)',
     webshopProductId: 'prod-infused-cinnamon',
   },
   {
@@ -330,7 +330,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Amandel', 'Hazelnoot', 'Walnoot', 'Geroosterde amandel', 'Melkchocolade', 'Bruine suiker'],
     character: 'Verfijnde aroma’s van amandel, marsepein en chocoladepraliné met een fluweelzachte body.',
     brewRecommendations: ['Espresso', 'Filter', 'Volautomaat'],
-    retailPriceGuide: 'Vanaf €10,95 per 250g (€39,95 / kg)',
+    retailPriceGuide: 'Vanaf €11,95 per 250g (€44,95 / kg)',
     webshopProductId: 'prod-infused-almond',
   },
 
@@ -347,7 +347,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Zwarte thee', 'Sinaasappel', 'Mandarijn', 'Watermeloen'],
     character: 'Exclusieve Gesha met opmerkelijke helderheid, sappige citrus en florale elegantie.',
     brewRecommendations: ['V60', 'Chemex', 'Cold Drip'],
-    retailPriceGuide: 'Vanaf €22,95 per 250g',
+    retailPriceGuide: 'Vanaf €24,95 per 250g (€96,95 / kg)',
     webshopProductId: 'prod-so-gesha',
   },
   {
@@ -362,7 +362,7 @@ const RAW_CATALOG_ITEMS: CoffeeCatalogItem[] = [
     flavors: ['Amandel', 'Bruine suiker', 'Cranberry', 'Citroen', 'Sinaasappel', 'Suikerriet', 'Vanille'],
     character: 'Zeldzame Pink Bourbon variëteit met levendige bessen, citruszoetheid en lange aromatische verfijning.',
     brewRecommendations: ['Filter', 'Aeropress', 'Specialty Espresso'],
-    retailPriceGuide: 'Vanaf €15,50 per 250g',
+    retailPriceGuide: 'Vanaf €16,95 per 250g (€64,95 / kg)',
     webshopProductId: 'prod-so-pink-bourbon',
   },
 ];

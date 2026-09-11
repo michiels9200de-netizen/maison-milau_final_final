@@ -45,24 +45,24 @@ interface AccountPageProps {
 
 // Artisan Coffee Catalog for Subscriptions with Base Pricing
 const SUBSCRIPTION_COFFEE_CATALOG: Record<string, { collection: string; prices: Record<string, number> }> = {
-  'Selection Daily': { collection: 'Selection', prices: { '250g': 8.50, '500g': 15.95, '1kg': 31.95 } },
-  'Selection Espresso': { collection: 'Selection', prices: { '250g': 8.95, '500g': 16.50, '1kg': 32.95 } },
-  'Selection Lungo': { collection: 'Selection', prices: { '250g': 8.95, '500g': 16.95, '1kg': 33.95 } },
-  'Budget Espresso': { collection: 'Budget', prices: { '250g': 5.50, '500g': 9.95, '1kg': 19.95 } },
-  'Budget Omni': { collection: 'Budget', prices: { '250g': 5.25, '500g': 9.50, '1kg': 18.95 } },
-  'Value Espresso': { collection: 'Value', prices: { '250g': 6.25, '500g': 11.50, '1kg': 22.95 } },
-  'Value Filter': { collection: 'Value', prices: { '250g': 6.50, '500g': 11.95, '1kg': 23.95 } },
-  'Colombia Huila Pitalito': { collection: 'Premium', prices: { '250g': 10.95, '500g': 20.95, '1kg': 41.95 } },
-  'Ethiopia Yirgacheffe': { collection: 'Premium', prices: { '250g': 11.50, '500g': 21.50, '1kg': 42.95 } },
-  'Guatemala Antigua': { collection: 'Premium', prices: { '250g': 10.95, '500g': 20.50, '1kg': 40.95 } },
-  'Bourbon Barrel Aged': { collection: 'Barrel Aged', prices: { '250g': 13.95, '500g': 26.95, '1kg': 53.95 } },
-  'Rum Cask Finish': { collection: 'Barrel Aged', prices: { '250g': 11.95, '500g': 22.95, '1kg': 45.95 } },
-  'Sugarcane Decaf Colombia': { collection: 'Selection', prices: { '250g': 10.95, '500g': 20.95, '1kg': 39.95 } },
+  'Selection Daily': { collection: 'Selection', prices: { '250g': 9.50, '500g': 17.95, '1kg': 34.95 } },
+  'Selection Espresso': { collection: 'Selection', prices: { '250g': 9.95, '500g': 18.95, '1kg': 36.95 } },
+  'Selection Lungo': { collection: 'Selection', prices: { '250g': 9.95, '500g': 18.95, '1kg': 36.95 } },
+  'Budget Espresso': { collection: 'Budget', prices: { '250g': 6.95, '500g': 12.95, '1kg': 24.95 } },
+  'Budget Omni': { collection: 'Budget', prices: { '250g': 6.50, '500g': 12.50, '1kg': 23.95 } },
+  'Value Espresso': { collection: 'Value', prices: { '250g': 7.95, '500g': 14.95, '1kg': 28.95 } },
+  'Value Filter': { collection: 'Value', prices: { '250g': 8.25, '500g': 15.50, '1kg': 29.95 } },
+  'Colombia Huila Pitalito': { collection: 'Premium', prices: { '250g': 11.95, '500g': 22.95, '1kg': 44.95 } },
+  'Ethiopia Yirgacheffe': { collection: 'Premium', prices: { '250g': 12.50, '500g': 23.95, '1kg': 46.95 } },
+  'Guatemala Antigua': { collection: 'Premium', prices: { '250g': 11.95, '500g': 22.95, '1kg': 44.95 } },
+  'Bourbon Barrel Aged': { collection: 'Barrel Aged', prices: { '250g': 18.95, '500g': 36.95, '1kg': 72.95 } },
+  'Rum Cask Finish': { collection: 'Barrel Aged', prices: { '250g': 17.95, '500g': 34.95, '1kg': 68.95 } },
+  'Sugarcane Decaf Colombia': { collection: 'Selection', prices: { '250g': 11.95, '500g': 22.95, '1kg': 44.95 } },
 };
 
 function calculateSubscriptionBreakdown(productName: string, weight: string) {
   const catalogEntry = SUBSCRIPTION_COFFEE_CATALOG[productName] || SUBSCRIPTION_COFFEE_CATALOG['Selection Daily'];
-  const basePrice = catalogEntry.prices[weight] || catalogEntry.prices['250g'] || 8.50;
+  const basePrice = catalogEntry.prices[weight] || catalogEntry.prices['250g'] || 9.50;
   const discountPercent = 10;
   const discountedPrice = Math.round(basePrice * (1 - discountPercent / 100) * 100) / 100;
   const shippingCost = discountedPrice >= 45 ? 0 : 4.95;

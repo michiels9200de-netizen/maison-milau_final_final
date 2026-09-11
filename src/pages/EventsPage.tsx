@@ -32,8 +32,8 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formFeedback, setFormFeedback] = useState<string>('');
 
-  // Event calculations based on Milau Budget prices (€19.95 / kg)
-  const MILAU_BUDGET_PRICE_PER_KG = 19.95;
+  // Event calculations based on Milau Budget prices (€24.95 / kg)
+  const MILAU_BUDGET_PRICE_PER_KG = 24.95;
   const cupsPerGuest = Math.max(1, Math.min(4, durationHours * 0.45));
   const estimatedCups = Math.round(guestsCount * cupsPerGuest);
   const recommendedKg = Number((estimatedCups / 125).toFixed(1));
@@ -145,7 +145,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({ navigate }) => {
               </p>
             </div>
             <div className="pt-3 border-t border-stone-100 flex items-baseline justify-between">
-              <span className="text-xs font-bold text-stone-900">Vanaf €21,50 / kg</span>
+              <span className="text-xs font-bold text-stone-900">Vanaf €23,95 / kg</span>
               <button
                 onClick={() => navigate('/webshop')}
                 className="text-xs text-amber-900 font-semibold hover:underline"
