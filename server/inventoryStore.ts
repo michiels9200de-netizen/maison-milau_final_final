@@ -561,6 +561,7 @@ class InventoryStore {
           available_kg NUMERIC(10, 2) NOT NULL DEFAULT 0,
           manual_status VARCHAR(50) DEFAULT NULL,
           in_stock BOOLEAN NOT NULL DEFAULT true,
+          is_configured BOOLEAN NOT NULL DEFAULT false,
           last_updated TIMESTAMPTZ DEFAULT NOW()
         );
       `);
@@ -576,6 +577,14 @@ class InventoryStore {
             AND column_name = 'manual_status'
           ) THEN
             ALTER TABLE public.inventory ADD COLUMN manual_status VARCHAR(50) DEFAULT NULL;
+          END IF;
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_schema = 'public' 
+            AND table_name = 'inventory' 
+            AND column_name = 'is_configured'
+          ) THEN
+            ALTER TABLE public.inventory ADD COLUMN is_configured BOOLEAN NOT NULL DEFAULT false;
           END IF;
         END $$;
       `);
@@ -610,7 +619,83 @@ class InventoryStore {
         );
       `);
 
-      console.log('[INVENTORY_STORE] PostgreSQL roastery inventory schemas verified.');
+      // 4. Authoritative load from PostgreSQL Single Source of Truth
+      const invRes = await this.pgPool.query(`
+        SELECT product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, manual_status, in_stock, is_configured, last_updated
+        FROM public.inventory;
+      `);
+
+      if (invRes.rows.length > 0) {
+        for (const row of invRes.rows) {
+          const pid = row.product_id;
+          const rawStock = Number(row.stock_kg || 0);
+          const resKg = Number(row.reserved_kg || 0);
+          const subKg = Number(row.subscription_allocated_kg || 0);
+          const availKg = Number(row.available_kg !== null && row.available_kg !== undefined ? row.available_kg : Math.max(0, rawStock - resKg - subKg));
+          const manual = (row.manual_status as ManualStatusOverride) || undefined;
+          const isConfigured = row.is_configured === true || rawStock > 0 || (!!manual && manual !== 'auto');
+          const effectiveStatus = this.computeEffectiveStatus(pid, availKg, manual, isConfigured);
+
+          this.productsCache[pid] = {
+            productId: pid,
+            stockKg: availKg,
+            rawStockKg: rawStock,
+            reservedKg: resKg,
+            subscriptionAllocatedKg: subKg,
+            availableKg: availKg,
+            manualStatus: manual,
+            effectiveStatus,
+            isConfigured,
+            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'low_stock'),
+            lastUpdated: row.last_updated ? new Date(row.last_updated).toISOString() : new Date().toISOString(),
+          };
+        }
+      }
+
+      // Load green coffee from PostgreSQL
+      const greenRes = await this.pgPool.query(`
+        SELECT id, name, origin, available_kg, reserved_kg, incoming_kg, status, last_updated
+        FROM public.green_inventory;
+      `);
+      if (greenRes.rows.length > 0) {
+        for (const row of greenRes.rows) {
+          this.greenCoffeeCache[row.id] = {
+            id: row.id,
+            name: row.name,
+            origin: row.origin,
+            availableKg: Number(row.available_kg || 0),
+            reservedKg: Number(row.reserved_kg || 0),
+            incomingKg: Number(row.incoming_kg || 0),
+            status: row.status || 'Ruim op voorraad',
+            isConfigured: true,
+            lastUpdated: row.last_updated ? new Date(row.last_updated).toISOString() : new Date().toISOString(),
+          };
+        }
+      }
+
+      // Load roast batches from PostgreSQL
+      const batchRes = await this.pgPool.query(`
+        SELECT id, batch_number, blend_id, blend_name, target_product_id, green_kg_used, roasted_kg_produced, roaster, roast_date, notes
+        FROM public.roast_batches
+        ORDER BY roast_date DESC LIMIT 50;
+      `);
+      if (batchRes.rows.length > 0) {
+        this.roastBatchesCache = batchRes.rows.map((r: any) => ({
+          id: r.id,
+          batchNumber: r.batch_number,
+          blendId: r.blend_id,
+          blendName: r.blend_name,
+          targetProductId: r.target_product_id,
+          greenKgUsed: Number(r.green_kg_used || 0),
+          roastedKgProduced: Number(r.roasted_kg_produced || 0),
+          roaster: r.roaster,
+          roastDate: r.roast_date ? new Date(r.roast_date).toISOString() : new Date().toISOString(),
+          notes: r.notes || '',
+        }));
+      }
+
+      this.saveToDisk();
+      console.log(`[INVENTORY_STORE] PostgreSQL synchronized as authoritative Single Source of Truth (${invRes.rows.length} products loaded).`);
     } catch (err: any) {
       console.error('[INVENTORY_STORE] Failed during ensureSchemaAndSeed:', err?.message || err);
     }
@@ -823,8 +908,8 @@ class InventoryStore {
       if (this.pgPool) {
         try {
           await this.pgPool.query(`
-            INSERT INTO public.inventory (product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, manual_status, in_stock, last_updated)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+            INSERT INTO public.inventory (product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, manual_status, in_stock, is_configured, last_updated)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW())
             ON CONFLICT (product_id) DO UPDATE SET
               stock_kg = EXCLUDED.stock_kg,
               reserved_kg = EXCLUDED.reserved_kg,
@@ -832,6 +917,7 @@ class InventoryStore {
               available_kg = EXCLUDED.available_kg,
               manual_status = EXCLUDED.manual_status,
               in_stock = EXCLUDED.in_stock,
+              is_configured = true,
               last_updated = NOW();
           `, [targetId, sanitizedRawKg, resKg, subKg, avail, chosenManualStatus || null, newItem.inStock]);
         } catch (pgErr) {

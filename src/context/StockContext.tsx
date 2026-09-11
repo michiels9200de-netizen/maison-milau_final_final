@@ -80,49 +80,14 @@ interface StockContextType {
   refreshStock: () => Promise<void>;
 }
 
-const STORAGE_KEY = 'maison_milau_stock_registry_v2';
-const GREEN_STORAGE_KEY = 'maison_milau_green_coffee_v2';
-const RECIPES_STORAGE_KEY = 'maison_milau_blend_recipes_v2';
-const BATCHES_STORAGE_KEY = 'maison_milau_roast_batches_v2';
-
 const StockContext = createContext<StockContextType | undefined>(undefined);
 
 export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [stockMap, setStockMap] = useState<Record<string, RoasteryInventoryItem>>(() => {
-    try {
-      const cached = localStorage.getItem(STORAGE_KEY);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Object.keys(parsed).length > 0) return parsed;
-      }
-    } catch (e) {}
-    return {};
-  });
-
-  const [greenCoffee, setGreenCoffee] = useState<Record<string, GreenCoffeeItem>>(() => {
-    try {
-      const cached = localStorage.getItem(GREEN_STORAGE_KEY);
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
-    return {};
-  });
-
-  const [blendRecipes, setBlendRecipes] = useState<Record<string, BlendRecipe>>(() => {
-    try {
-      const cached = localStorage.getItem(RECIPES_STORAGE_KEY);
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
-    return {};
-  });
-
+  const [stockMap, setStockMap] = useState<Record<string, RoasteryInventoryItem>>({});
+  const [greenCoffee, setGreenCoffee] = useState<Record<string, GreenCoffeeItem>>({});
+  const [blendRecipes, setBlendRecipes] = useState<Record<string, BlendRecipe>>({});
   const [blendCapacities, setBlendCapacities] = useState<Record<string, BlendCapacity>>({});
-  const [roastBatches, setRoastBatches] = useState<RoastBatchRecord[]>(() => {
-    try {
-      const cached = localStorage.getItem(BATCHES_STORAGE_KEY);
-      if (cached) return JSON.parse(cached);
-    } catch (e) {}
-    return [];
-  });
+  const [roastBatches, setRoastBatches] = useState<RoastBatchRecord[]>([]);
 
   const [roasterySummary, setRoasterySummary] = useState<RoasteryInventoryData['summary']>({
     totalRoastedStockKg: 0,
@@ -135,9 +100,8 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const pendingUpdatesRef = useRef<Record<string, { stockKg: number; manualStatus?: ManualStatusOverride; timestamp: number }>>({});
 
-  // Sync from server API on mount and on poll
+  // Authoritative sync directly from PostgreSQL database via server API
   const refreshStock = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -153,62 +117,27 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const json = await res.json();
         if (json.success) {
           const incomingProducts: Record<string, RoasteryInventoryItem> = json.data || {};
-          const now = Date.now();
-
-          // Protect recent manual saves against delayed cache overwrites
-          (
-            Object.entries(pendingUpdatesRef.current) as Array<[
-              string,
-              { stockKg: number; manualStatus?: ManualStatusOverride; timestamp: number }
-            ]>
-          ).forEach(([pid, update]) => {
-            if (now - update.timestamp < 30000 && incomingProducts[pid]) {
-              incomingProducts[pid] = {
-                ...incomingProducts[pid],
-                stockKg: update.stockKg,
-                availableKg: update.stockKg,
-                manualStatus: update.manualStatus !== undefined ? update.manualStatus : incomingProducts[pid].manualStatus,
-              };
-            }
-          });
-
           setStockMap(incomingProducts);
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(incomingProducts));
-          } catch (e) {}
 
           if (json.greenCoffee) {
             setGreenCoffee(json.greenCoffee);
-            try {
-              localStorage.setItem(GREEN_STORAGE_KEY, JSON.stringify(json.greenCoffee));
-            } catch (e) {}
           }
-
           if (json.blendRecipes) {
             setBlendRecipes(json.blendRecipes);
-            try {
-              localStorage.setItem(RECIPES_STORAGE_KEY, JSON.stringify(json.blendRecipes));
-            } catch (e) {}
           }
-
           if (json.blendCapacities) {
             setBlendCapacities(json.blendCapacities);
           }
-
           if (json.roastBatches) {
             setRoastBatches(json.roastBatches);
-            try {
-              localStorage.setItem(BATCHES_STORAGE_KEY, JSON.stringify(json.roastBatches));
-            } catch (e) {}
           }
-
           if (json.summary) {
             setRoasterySummary(json.summary);
           }
         }
       }
     } catch (err) {
-      console.warn('Roastery sync with server warning:', err);
+      console.warn('[STOCK_CONTEXT] Server database sync warning:', err);
     } finally {
       setIsLoading(false);
     }
@@ -217,30 +146,15 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     refreshStock();
 
-    // Synchronization across devices & tabs (every 6 seconds)
-    const interval = setInterval(refreshStock, 6000);
+    // Periodic synchronization across devices & tabs (every 10 seconds)
+    const interval = setInterval(refreshStock, 10000);
 
     // Instant sync when tab gains focus or visibility returns
     const onFocus = () => refreshStock();
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onFocus);
 
-    // Instant sync across tabs in the same browser session
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          setStockMap(parsed);
-        } catch (err) {}
-      } else if (e.key === GREEN_STORAGE_KEY && e.newValue) {
-        try {
-          setGreenCoffee(JSON.parse(e.newValue));
-        } catch (err) {}
-      }
-    };
-    window.addEventListener('storage', onStorage);
-
-    // Listen for custom roastery update events
+    // Listen for custom roastery update events triggered after saves
     const onCustomUpdate = () => refreshStock();
     window.addEventListener('mm_stock_updated', onCustomUpdate);
 
@@ -248,7 +162,6 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onFocus);
-      window.removeEventListener('storage', onStorage);
       window.removeEventListener('mm_stock_updated', onCustomUpdate);
     };
   }, [refreshStock]);
@@ -301,12 +214,6 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const sanitizedKg = Math.max(0, Number(stockKg) || 0);
       const now = new Date().toISOString();
 
-      pendingUpdatesRef.current[productId] = {
-        stockKg: sanitizedKg,
-        manualStatus,
-        timestamp: Date.now(),
-      };
-
       const aliasMap: Record<string, string[]> = {
         'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
         'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
@@ -352,10 +259,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           };
         });
 
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-          window.dispatchEvent(new CustomEvent('mm_stock_updated'));
-        } catch (e) {}
+        window.dispatchEvent(new CustomEvent('mm_stock_updated'));
         return next;
       });
 
@@ -376,13 +280,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (res.ok) {
           const json = await res.json();
           if (json.data) {
-            setStockMap((prev) => {
-              const merged = { ...prev, ...json.data };
-              try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-              } catch (e) {}
-              return merged;
-            });
+            setStockMap((prev) => ({ ...prev, ...json.data }));
           }
           if (json.fullData?.blendCapacities) {
             setBlendCapacities(json.fullData.blendCapacities);
@@ -419,12 +317,35 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     async (
       updates: Array<{ productId: string; stockKg: number; manualStatus?: ManualStatusOverride }>
     ): Promise<boolean> => {
-      for (const u of updates) {
-        await updateStock(u.productId, u.stockKg, u.manualStatus);
+      try {
+        const res = await fetch('/api/stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ updates }),
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success) {
+            if (json.data) {
+              setStockMap(json.data);
+            }
+            if (json.fullData?.blendCapacities) {
+              setBlendCapacities(json.fullData.blendCapacities);
+            }
+            if (json.fullData?.summary) {
+              setRoasterySummary(json.fullData.summary);
+            }
+            window.dispatchEvent(new CustomEvent('mm_stock_updated'));
+            return true;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync bulk stock updates with server:', err);
       }
-      return true;
+      return false;
     },
-    [updateStock]
+    []
   );
 
   /**
@@ -444,7 +365,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setGreenCoffee((prev) => {
         const existing = prev[greenCoffeeId];
         if (!existing) return prev;
-        const next = {
+        return {
           ...prev,
           [greenCoffeeId]: {
             ...existing,
@@ -455,10 +376,6 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             lastUpdated: new Date().toISOString(),
           },
         };
-        try {
-          localStorage.setItem(GREEN_STORAGE_KEY, JSON.stringify(next));
-        } catch (e) {}
-        return next;
       });
 
       try {

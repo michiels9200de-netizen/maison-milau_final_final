@@ -756,19 +756,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                   <Flame className="w-4 h-4 text-amber-200" />
                   <span>Brandbatch Registreren</span>
                 </button>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await refreshStock();
-                    setStockSaveNotification('Volledige branderijvoorraad gesynchroniseerd met server.');
-                    setTimeout(() => setStockSaveNotification(''), 3000);
-                  }}
-                  className="px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-stone-700"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Synchroniseren</span>
-                </button>
               </div>
             </div>
 

@@ -28,8 +28,7 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
 }) => {
   const {
     stockMap,
-    updateStock,
-    updateProductStatus,
+    bulkUpdateStock,
     getAvailabilityInfo,
     refreshStock,
     getStockKg,
@@ -40,7 +39,7 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [editingKgState, setEditingKgState] = useState<Record<string, number>>({});
   const [editingStatusState, setEditingStatusState] = useState<Record<string, ManualStatusOverride>>({});
-  const [savingMap, setSavingMap] = useState<Record<string, boolean>>({});
+  const [isSavingAll, setIsSavingAll] = useState<boolean>(false);
   const [notification, setNotification] = useState<string>('');
 
   // Audit Report State
@@ -48,6 +47,68 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
   const [auditReport, setAuditReport] = useState<any>(null);
   const [isAuditLoading, setIsAuditLoading] = useState<boolean>(false);
   const [isResetting, setIsResetting] = useState<boolean>(false);
+
+  // Compute pending draft changes
+  const changedProductIds = Array.from(
+    new Set([...Object.keys(editingKgState), ...Object.keys(editingStatusState)])
+  );
+  const hasPendingChanges = changedProductIds.length > 0;
+
+  const handleStatusChange = (productId: string, newStatus: ManualStatusOverride) => {
+    setEditingStatusState((prev) => ({ ...prev, [productId]: newStatus }));
+  };
+
+  const handleKgChange = (productId: string, val: number) => {
+    setEditingKgState((prev) => ({ ...prev, [productId]: val }));
+  };
+
+  const handleDiscardChanges = () => {
+    setEditingKgState({});
+    setEditingStatusState({});
+    setNotification('Niet-opgeslagen conceptwijzigingen zijn geannuleerd.');
+    setTimeout(() => setNotification(''), 3000);
+  };
+
+  /**
+   * ONE PRIMARY SAVE ACTION: "Opslaan en Synchroniseren"
+   * Commits all administrator changes to the PostgreSQL database,
+   * updates inventory, product availability, and webshop simultaneously.
+   */
+  const handleSaveAndSyncAll = async () => {
+    setIsSavingAll(true);
+    try {
+      // Gather all products that have pending changes, or current values if none are pending
+      const targetIds = changedProductIds.length > 0 ? changedProductIds : SHOP_PRODUCTS.map((p) => p.id);
+      const updates = targetIds.map((id) => {
+        const liveKg = getStockKg(id, 0);
+        const targetKg = editingKgState[id] !== undefined ? editingKgState[id] : liveKg;
+        const targetStatus =
+          editingStatusState[id] !== undefined
+            ? editingStatusState[id]
+            : (stockMap[id]?.manualStatus || 'auto');
+
+        return {
+          productId: id,
+          stockKg: Math.max(0, targetKg),
+          manualStatus: targetStatus,
+        };
+      });
+
+      const success = await bulkUpdateStock(updates);
+      if (success) {
+        setEditingKgState({});
+        setEditingStatusState({});
+        setNotification('✅ Voorraad en beschikbaarheid succesvol opgeslagen en gesynchroniseerd met de database en webshop.');
+        setTimeout(() => setNotification(''), 5000);
+      } else {
+        alert('Er is een fout opgetreden bij het synchroniseren met de database.');
+      }
+    } catch (err: any) {
+      alert(`Fout bij opslaan en synchroniseren: ${err?.message || err}`);
+    } finally {
+      setIsSavingAll(false);
+    }
+  };
 
   const fetchAuditReport = async () => {
     setIsAuditLoading(true);
@@ -140,111 +201,73 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
     },
   ];
 
-  const handleSaveProduct = async (productId: string, productName: string) => {
-    setSavingMap((prev) => ({ ...prev, [productId]: true }));
-
-    const record = stockMap[productId];
-    const liveKg = getStockKg(productId, 0);
-    const targetKg = editingKgState[productId] !== undefined ? editingKgState[productId] : liveKg;
-    const targetStatus =
-      editingStatusState[productId] !== undefined
-        ? editingStatusState[productId]
-        : record?.manualStatus || 'auto';
-
-    try {
-      const success = await updateStock(productId, targetKg, targetStatus);
-      if (success) {
-        setEditingKgState((prev) => {
-          const next = { ...prev };
-          delete next[productId];
-          return next;
-        });
-        setEditingStatusState((prev) => {
-          const next = { ...prev };
-          delete next[productId];
-          return next;
-        });
-        setNotification(
-          `Status en voorraad voor "${productName}" permanent opgeslagen in database: ${targetKg} kg · ${
-            targetStatus === 'auto' ? 'Automatisch berekend' : targetStatus
-          }.`
-        );
-        setTimeout(() => setNotification(''), 4000);
-      }
-    } catch (err: any) {
-      alert(`Fout bij opslaan voorraad: ${err?.message || err}`);
-    } finally {
-      setSavingMap((prev) => ({ ...prev, [productId]: false }));
-    }
-  };
-
-  const handleDirectStatusChange = async (
-    productId: string,
-    productName: string,
-    newStatus: ManualStatusOverride
-  ) => {
-    setEditingStatusState((prev) => ({ ...prev, [productId]: newStatus }));
-    setSavingMap((prev) => ({ ...prev, [productId]: true }));
-
-    const liveKg = getStockKg(productId, 0);
-    const targetKg = editingKgState[productId] !== undefined ? editingKgState[productId] : liveKg;
-
-    try {
-      const success = await updateStock(productId, targetKg, newStatus);
-      if (success) {
-        setNotification(`Status voor "${productName}" direct gewijzigd naar "${newStatus}".`);
-        setTimeout(() => setNotification(''), 3500);
-      }
-    } catch (err: any) {
-      alert(`Fout bij wijzigen status: ${err?.message || err}`);
-    } finally {
-      setSavingMap((prev) => ({ ...prev, [productId]: false }));
-    }
-  };
-
   return (
     <div className="space-y-4">
-      {/* Header & Quick Sync */}
+      {/* Header & Single Primary Action */}
       <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
             <Layers className="w-5 h-5 text-amber-800" />
-            <span>Product Beschikbaarheid & Voorraadbeheer (Live Single Source of Truth)</span>
+            <span>Product Voorraad & Beschikbaarheid</span>
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Beheer voor elk product de actuele voorraad (kg) en handmatige statusoverschrijving. Wijzigingen worden direct en permanent bewaard.
+            Beheer voor elk product de actuele voorraad (kg) en status. Wijzigingen worden direct doorgevoerd in database en webshop via één primaire actieknop.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          {hasPendingChanges && (
+            <button
+              type="button"
+              onClick={handleDiscardChanges}
+              disabled={isSavingAll}
+              className="px-3.5 py-2.5 text-xs font-semibold rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Annuleren</span>
+            </button>
+          )}
+
+          {/* ONE PRIMARY SAVE BUTTON */}
           <button
             type="button"
-            onClick={handleOpenAuditModal}
-            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-amber-900/10 hover:bg-amber-900/20 text-amber-950 transition-colors flex items-center gap-1.5 cursor-pointer border border-amber-800/20"
+            onClick={handleSaveAndSyncAll}
+            disabled={isSavingAll}
+            id="btn-save-and-sync-inventory"
+            className={`px-5 py-2.5 text-xs font-bold rounded-xl text-white transition-all flex items-center gap-2 shadow-sm cursor-pointer ${
+              hasPendingChanges
+                ? 'bg-emerald-700 hover:bg-emerald-600 ring-2 ring-emerald-500/40 animate-pulse'
+                : 'bg-amber-900 hover:bg-amber-800'
+            }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
-            <span>Data Integriteit & Audit</span>
+            {isSavingAll ? (
+              <RefreshCw className="w-4 h-4 animate-spin text-white" />
+            ) : (
+              <Save className="w-4 h-4 text-white" />
+            )}
+            <span>
+              {isSavingAll
+                ? 'Opslaan en Synchroniseren...'
+                : hasPendingChanges
+                ? `Opslaan en Synchroniseren (${changedProductIds.length} gewijzigd)`
+                : 'Opslaan en Synchroniseren'}
+            </span>
           </button>
 
           <button
             type="button"
-            onClick={async () => {
-              await refreshStock();
-              setNotification('Voorraad en statussen ververst.');
-              setTimeout(() => setNotification(''), 3000);
-            }}
-            disabled={isLoading}
-            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+            onClick={handleOpenAuditModal}
+            className="px-3.5 py-2.5 text-xs font-semibold rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer border border-stone-200"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>{isLoading ? 'Synchroniseren...' : 'Herladen'}</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+            <span>Audit</span>
           </button>
         </div>
       </div>
 
       {/* Notification Toast */}
       {notification && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200">
+        <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs animate-in fade-in duration-200">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{notification}</span>
@@ -306,8 +329,7 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                 <th className="py-3 px-3">Live Status Webshop</th>
                 <th className="py-3 px-3">Status Instelling (Beheerder)</th>
                 <th className="py-3 px-3">Beschikbare Voorraad (kg)</th>
-                <th className="py-3 px-3">Snelle Instelling</th>
-                <th className="py-3 px-4 text-right">Opslaan</th>
+                <th className="py-3 px-4 text-right">Database Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-stone-800">
@@ -335,19 +357,18 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                     ? editingStatusState[prod.id]
                     : record?.manualStatus || 'auto';
                 const availInfo = getAvailabilityInfo(prod);
-                const isSaving = savingMap[prod.id];
 
-                const hasDraftChanges =
+                const hasRowChanges =
                   editingKgState[prod.id] !== undefined || editingStatusState[prod.id] !== undefined;
 
                 return (
-                  <tr key={prod.id} className="hover:bg-stone-50/80 transition-colors">
+                  <tr key={prod.id} className={`hover:bg-stone-50/80 transition-colors ${hasRowChanges ? 'bg-amber-50/30' : ''}`}>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-bold text-stone-900">{prod.name}</span>
                         {record?.isConfigured === false && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
-                            Niet geconfigureerd
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
+                            Niet ingesteld
                           </span>
                         )}
                       </div>
@@ -379,13 +400,12 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                       <select
                         value={activeManual}
                         onChange={(e) =>
-                          handleDirectStatusChange(
+                          handleStatusChange(
                             prod.id,
-                            prod.name,
                             e.target.value as ManualStatusOverride
                           )
                         }
-                        className="text-xs font-semibold py-1.5 px-2 rounded-lg border border-stone-300 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-900"
+                        className="text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-stone-300 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-900"
                       >
                         {statusOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -411,74 +431,32 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                           value={draftKg}
                           onChange={(e) => {
                             const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
-                            setEditingKgState((prev) => ({
-                              ...prev,
-                              [prod.id]: val,
-                            }));
+                            handleKgChange(prod.id, isNaN(val) ? 0 : val);
                           }}
-                          className="w-20 text-xs p-1.5 rounded-lg border border-stone-300 bg-white font-mono font-semibold focus:ring-2 focus:ring-amber-900"
+                          className={`w-24 text-xs p-1.5 rounded-lg border font-mono font-semibold focus:ring-2 focus:ring-amber-900 ${
+                            hasRowChanges
+                              ? 'border-amber-400 bg-amber-50/50'
+                              : 'border-stone-300 bg-white'
+                          }`}
                           placeholder="kg"
                         />
                         <span className="text-stone-500 text-[11px] font-medium">kg</span>
                       </div>
                     </td>
 
-                    {/* Quick Preset Buttons */}
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingKgState((prev) => ({ ...prev, [prod.id]: 15 }));
-                            handleSaveProduct(prod.id, prod.name);
-                          }}
-                          className="px-2 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-semibold cursor-pointer whitespace-nowrap"
-                          title="Zet op 15 kg (Ruime voorraad)"
-                        >
-                          15 kg
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingKgState((prev) => ({ ...prev, [prod.id]: 3 }));
-                            handleSaveProduct(prod.id, prod.name);
-                          }}
-                          className="px-2 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-semibold cursor-pointer whitespace-nowrap"
-                          title="Zet op 3 kg (Lage voorraad)"
-                        >
-                          3 kg
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingKgState((prev) => ({ ...prev, [prod.id]: 0 }));
-                            handleSaveProduct(prod.id, prod.name);
-                          }}
-                          className="px-2 py-1 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-semibold cursor-pointer whitespace-nowrap"
-                          title="Zet op 0 kg (Uitverkocht)"
-                        >
-                          0 kg
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Save Button */}
+                    {/* Database / Sync Status */}
                     <td className="py-3 px-4 text-right">
-                      <button
-                        type="button"
-                        disabled={isSaving}
-                        onClick={() => handleSaveProduct(prod.id, prod.name)}
-                        className={`px-3 py-1.5 rounded-lg text-white font-semibold text-xs transition-colors flex items-center gap-1 ml-auto shadow-2xs ${
-                          isSaving
-                            ? 'bg-amber-700 opacity-70 cursor-wait'
-                            : hasDraftChanges
-                            ? 'bg-emerald-700 hover:bg-emerald-600 ring-1 ring-emerald-500 cursor-pointer'
-                            : 'bg-amber-900 hover:bg-amber-800 cursor-pointer'
-                        }`}
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                        <span>{isSaving ? 'Opslaan...' : 'Opslaan'}</span>
-                      </button>
+                      {hasRowChanges ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100/70 border border-amber-300 px-2 py-0.5 rounded-md">
+                          <AlertCircle className="w-3 h-3 text-amber-800" />
+                          <span>Concept wijziging</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-stone-500">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Opgeslagen in DB</span>
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );
