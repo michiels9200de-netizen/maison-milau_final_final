@@ -395,9 +395,6 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
                         {renderBadgeIcon(theme.badgeIcon)}
                         <span>{theme.badgeLabel}</span>
                       </span>
-                      <span className={`text-[11px] sm:text-xs font-medium ${theme.subtitleColor}`}>
-                        {theme.subtitle}
-                      </span>
                     </div>
                     <h2 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight font-serif ${theme.titleColor}`}>
                       {theme.name}

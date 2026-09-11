@@ -2,14 +2,8 @@ import React from 'react';
 import {
   ArrowRight,
   CheckCircle2,
-  Coffee,
   Building2,
-  CalendarCheck,
-  Clock,
-  ShieldCheck,
-  Truck,
   Award,
-  Flame,
   Sparkles,
   Compass,
   ShoppingBag,
@@ -409,92 +403,6 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                     <span className="text-[10px] text-stone-400 mt-0.5">Formules op maat</span>
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Direct naar onze hoofddiensten */}
-      <section className="py-8 sm:py-10 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="mb-6">
-            {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
-              Direct naar onze hoofddiensten
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              Kies de gewenste oplossing voor particulieren, bedrijven of feestelijke gelegenheden.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Dienst 1: Webshop */}
-            <div
-              onClick={() => navigate('/webshop')}
-              className="cursor-pointer group bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl p-5 sm:p-6 transition-all hover:shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-10 h-10 rounded-lg bg-amber-900/10 text-amber-900 flex items-center justify-center mb-4">
-                  <Coffee className="w-5 h-5" />
-                </div>
-                {/* H3: ~25% reduced */}
-                <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
-                  Webshop
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Artisanale Houseblends, Barrel Aged Koffies, Infused Specialities en flexibele koffie-abonnementen met 10% korting.
-                </p>
-              </div>
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-amber-900 group-hover:translate-x-1 transition-transform">
-                <span>Bekijk assortiment</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            {/* Dienst 2: B2B Oplossingen */}
-            <div
-              onClick={() => navigate('/kantoor-en-horeca')}
-              className="cursor-pointer group bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl p-5 sm:p-6 transition-all hover:shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-10 h-10 rounded-lg bg-stone-200 text-stone-900 flex items-center justify-center mb-4">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                {/* H3 */}
-                <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
-                  B2B Oplossingen
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Horeca, kantoren, volumekortingen tot -20%, gratis proefpakketten en complete machineformules.
-                </p>
-              </div>
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-amber-900 group-hover:translate-x-1 transition-transform">
-                <span>Ontdek B2B formules</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            {/* Dienst 3: Events & Verhuur */}
-            <div
-              onClick={() => navigate('/events')}
-              className="cursor-pointer group bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl p-5 sm:p-6 transition-all hover:shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center mb-4">
-                  <CalendarCheck className="w-5 h-5" />
-                </div>
-                {/* H3 */}
-                <h3 className="text-base sm:text-lg font-semibold tracking-tight text-stone-900 mb-1.5">
-                  Events & Verhuur
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Mobiele artisanale barista bar, professionele espresso machines en verse bonen voor bruiloften en bedrijfsfeesten.
-                </p>
-              </div>
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-amber-900 group-hover:translate-x-1 transition-transform">
-                <span>Bereken event formule</span>
-                <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </div>
           </div>

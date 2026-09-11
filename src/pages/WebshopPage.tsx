@@ -899,13 +899,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Collection & Stock Availability Indicator */}
-          <div className="flex items-center justify-between gap-1.5 text-[10.5px] uppercase tracking-wider mb-1.5">
-            <span className="font-semibold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded truncate max-w-[55%]">
-              {product.collection}
-            </span>
+          {/* Stock Availability Indicator */}
+          <div className="flex items-center justify-end text-[10.5px] uppercase tracking-wider mb-1.5">
             <span
-              className={`font-medium px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 text-[10px] sm:text-[11px] ${
+              className={`font-medium px-2 py-0.5 rounded flex items-center gap-1.5 shrink-0 text-[10px] sm:text-[11px] ${
                 availInfo.status === 'out_of_stock'
                   ? 'text-rose-700 bg-rose-50 border border-rose-200/60'
                   : availInfo.status === 'low_stock'
@@ -2043,9 +2040,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                         <span className={`inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${theme.badgeStyle}`}>
                           {renderBadgeIcon(theme.badgeIcon)}
                           <span>{theme.badgeLabel}</span>
-                        </span>
-                        <span className={`text-[11px] sm:text-xs font-medium ${theme.subtitleColor}`}>
-                          {theme.subtitle}
                         </span>
                       </div>
                       <h2 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight font-serif ${theme.titleColor}`}>
