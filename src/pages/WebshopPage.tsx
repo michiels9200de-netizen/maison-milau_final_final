@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SHOP_PRODUCTS } from '../data/shopData';
 import { CATALOG_ITEMS } from '../data/catalogData';
-import { Product } from '../types';
+import { Product, CoffeeCatalogItem } from '../types';
+import { CoffeeDossierModal } from '../components/coffee-guide/CoffeeDossierModal';
 import { useCart } from '../context/CartContext';
 import { useStock } from '../context/StockContext';
 import {
@@ -378,6 +379,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewCoffeeName, setReviewCoffeeName] = useState('Selection Daily');
   const [isTshirtLightboxOpen, setIsTshirtLightboxOpen] = useState(false);
+  const [selectedDossierCoffee, setSelectedDossierCoffee] = useState<CoffeeCatalogItem | null>(null);
 
   // Waiting list state for Capsules
   const [capsuleEmail, setCapsuleEmail] = useState('');
@@ -1254,11 +1256,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             {matchingCatalogCoffee ? (
               <button
                 type="button"
-                onClick={() =>
-                  navigate(
-                    `/koffies?coffee=${matchingCatalogCoffee.id}&dossier=true#${matchingCatalogCoffee.id}`
-                  )
-                }
+                onClick={() => setSelectedDossierCoffee(matchingCatalogCoffee)}
                 className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                 title={`Bekijk alle specificaties van ${product.name}`}
               >
@@ -1268,11 +1266,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             ) : product.catalogSlug ? (
               <button
                 type="button"
-                onClick={() =>
-                  navigate(
-                    `/koffies?coffee=${product.catalogSlug}&dossier=true#${product.catalogSlug}`
-                  )
-                }
+                onClick={() => {
+                  const found = CATALOG_ITEMS.find(
+                    (c) => c.id === product.catalogSlug || (c as any).catalogSlug === product.catalogSlug
+                  );
+                  if (found) {
+                    setSelectedDossierCoffee(found);
+                  } else {
+                    setReviewCoffeeName(product.name);
+                    setIsReviewModalOpen(true);
+                  }
+                }}
                 className="h-9 px-3 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 active:scale-[0.98] border border-stone-200 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
               >
                 <Info className="w-3.5 h-3.5 text-amber-800 shrink-0" />
@@ -2237,6 +2241,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         coffeeName={reviewCoffeeName}
+      />
+
+      {/* Coffee Information Dossier Modal (Webshop Direct Access) */}
+      <CoffeeDossierModal
+        coffee={selectedDossierCoffee}
+        onClose={() => setSelectedDossierCoffee(null)}
+        navigate={navigate}
       />
 
       {/* T-Shirt Image Lightbox Modal - Only applied to the T-Shirt product */}

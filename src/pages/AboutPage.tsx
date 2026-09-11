@@ -61,7 +61,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
           <div className="max-w-3xl">
             <div className="text-[11px] font-semibold uppercase tracking-widest text-amber-400 mb-1.5 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span>Branderij & Ambacht</span>
+              <span>Ons Verhaal · Familie & Traditie</span>
             </div>
             {/* H1: ~25% reduced */}
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2 drop-shadow-xs font-serif">
@@ -69,62 +69,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
             </h1>
             {/* Body */}
             <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
-              Artisanale micro-roastery in Oudegem (Dendermonde). Met zorg en passie gebrande specialty koffies, kantoor- en horeca-oplossingen en machine-verhuur voor evenementen.
+              Artisanale micro-roastery in Oudegem (Dendermonde). Een warme familietraditie van gastvrijheid, passie voor ambacht en met zorg gebrande specialty koffies.
             </p>
           </div>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 sm:space-y-10">
-        {/* Branderij en Ambacht */}
-        <section className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
-          <div className="max-w-3xl mb-5">
-            {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 mb-1.5 font-serif">
-              Branderij en Ambacht
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500">
-              Kwaliteit ontstaat door geduld, precisie en respect voor de boon.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
-            <div className="p-4 bg-stone-50 rounded-xl border border-stone-200/80">
-              <div className="font-semibold text-stone-900 text-sm mb-1">Ambachtelijk Roasten</div>
-              <p className="text-stone-600 leading-relaxed">
-                Kleine batches met constante curvecontrole. Maximale zoetheid en terroir-expressie in elk kopje.
-              </p>
-            </div>
-
-            <div className="p-4 bg-stone-50 rounded-xl border border-stone-200/80">
-              <div className="font-semibold text-stone-900 text-sm mb-1">Klimaatbeheersing</div>
-              <p className="text-stone-600 leading-relaxed">
-                Groene bonen worden opgeslagen bij constante 18°C en 55% relatieve vochtigheid voor ultieme smaakstabiliteit.
-              </p>
-            </div>
-
-            <div className="p-4 bg-stone-50 rounded-xl border border-stone-200/80">
-              <div className="font-semibold text-stone-900 text-sm mb-1">Kleine Batches</div>
-              <p className="text-stone-600 leading-relaxed">
-                Roasts van 6 tot 12 kg voor millimeter-nauwkeurige sturing van de smaakontwikkeling.
-              </p>
-            </div>
-
-            <div className="p-4 bg-stone-50 rounded-xl border border-stone-200/80 md:col-span-2 lg:col-span-3">
-              <div className="font-semibold text-stone-900 text-sm mb-1">
-                Strikte Cupping & Smaakprofiel-garantie
-              </div>
-              <p className="text-stone-600 leading-relaxed mb-2.5">
-                Elke batch die onze branderij verlaat, wordt beoordeeld volgens het officiële SCA cupping protocol. We controleren extractieopbrengst, brix-waarde en aromaprofiel om te garanderen dat je kop koffie altijd voldoet aan onze hoogste standaard.
-              </p>
-              <div className="flex flex-wrap gap-4 text-stone-700 font-medium pt-2 border-t border-stone-200 text-xs">
-                <span>✓ Vers gebrand: uitlevering binnen 1-2 weken na branden</span>
-                <span>✓ Duurzame verpakkingen met éénrichtingsventiel</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Ons Verhaal */}
         <section className="bg-stone-900 text-stone-100 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
           <div className="max-w-4xl relative z-10">

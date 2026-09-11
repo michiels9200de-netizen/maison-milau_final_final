@@ -127,14 +127,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             >
               {t('nav.home')}
             </button>
-            <button
-              onClick={() => handleNavClick('/koffies')}
-              className={`hover:text-stone-900 transition-colors ${
-                currentPath === '/koffies' ? 'text-amber-900 font-semibold underline underline-offset-4' : ''
-              }`}
-            >
-              {t('nav.our_coffees')}
-            </button>
 
           {/* Webshop with Hover/Click dropdown */}
           <div
@@ -561,15 +553,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
             >
               <span>{t('nav.webshop')}</span>
               <ChevronRight className="w-5 h-5 text-amber-800" />
-            </button>
-
-            {/* Catalogus (Product Information System) */}
-            <button
-              onClick={() => handleNavClick('/koffies')}
-              className="w-full text-left py-2 text-base font-semibold text-stone-900 flex items-center justify-between border-b border-stone-200"
-            >
-              <span>{t('nav.our_coffees')}</span>
-              <Coffee className="w-5 h-5 text-stone-500" />
             </button>
 
             {/* Kantoor en Horeca */}

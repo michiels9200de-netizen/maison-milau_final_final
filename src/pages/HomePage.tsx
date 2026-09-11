@@ -7,6 +7,7 @@ import {
   Sparkles,
   Compass,
   ShoppingBag,
+  Calendar,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
@@ -355,18 +356,6 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
                 {/* 4 Natural Exploration Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 shrink-0">
-                  {/* Koffiegids */}
-                  <button
-                    id="cta-beloften-koffiegids"
-                    onClick={() => navigate('/koffies')}
-                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
-                    title="Vind je smaak in de interactieve koffiegids"
-                  >
-                    <Compass className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-semibold leading-tight">Koffiegids</span>
-                    <span className="text-[10px] text-stone-400 mt-0.5">Vind je smaak</span>
-                  </button>
-
                   {/* Webshop */}
                   <button
                     id="cta-beloften-webshop"
@@ -379,6 +368,30 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                     <span className="text-[10px] text-amber-200 mt-0.5">Blends & Bonen</span>
                   </button>
 
+                  {/* Kantoor & Horeca */}
+                  <button
+                    id="cta-beloften-b2b"
+                    onClick={() => navigate('/kantoor-en-horeca')}
+                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
+                    title="Kantoor- en horecaformules met volumekortingen"
+                  >
+                    <Building2 className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold leading-tight">B2B & Horeca</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">Formules op maat</span>
+                  </button>
+
+                  {/* Events & Barista */}
+                  <button
+                    id="cta-beloften-events"
+                    onClick={() => navigate('/events')}
+                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
+                    title="Evenementen, mobiele barista en verhuur"
+                  >
+                    <Calendar className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold leading-tight">Events & Barista</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">Mobiele Bar & Verhuur</span>
+                  </button>
+
                   {/* Over Ons */}
                   <button
                     id="cta-beloften-over-ons"
@@ -389,18 +402,6 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                     <Award className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-semibold leading-tight">Over Ons</span>
                     <span className="text-[10px] text-stone-400 mt-0.5">Ons Verhaal</span>
-                  </button>
-
-                  {/* Meer Info / B2B */}
-                  <button
-                    id="cta-beloften-b2b"
-                    onClick={() => navigate('/kantoor-en-horeca')}
-                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
-                    title="Kantoor- en horecaformules met volumekortingen"
-                  >
-                    <Building2 className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-semibold leading-tight">B2B & Horeca</span>
-                    <span className="text-[10px] text-stone-400 mt-0.5">Formules op maat</span>
                   </button>
                 </div>
               </div>
@@ -433,10 +434,10 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               Plan een Atelier Bezoek
             </button>
             <button
-              onClick={() => navigate('/koffies')}
+              onClick={() => navigate('/webshop')}
               className="bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors"
             >
-              Ontdek de Koffiegids
+              Naar de Webshop
             </button>
           </div>
         </div>

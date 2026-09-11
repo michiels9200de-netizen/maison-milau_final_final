@@ -25,7 +25,7 @@ export const SITEMAP: RouteDefinition[] = [
     path: '/koffies',
     title: 'Koffiegids · Maison Milau Artisanale Koffies & Terroir',
     description: 'Premium koffiegids met smaakprofielen, oorsprong, interactieve koffiefinder en smaakvergelijker.',
-    inNavigation: true,
+    inNavigation: false,
     navLabel: 'Koffiegids',
   },
   {
