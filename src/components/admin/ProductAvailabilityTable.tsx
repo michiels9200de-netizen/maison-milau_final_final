@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SHOP_PRODUCTS } from '../../data/shopData';
-import { ProductAvailabilityStatus, ManualStatusOverride } from '../../types';
+import { ProductAvailabilityStatus, ManualStatusOverride, normalizeAvailabilityStatus } from '../../types';
 import { useStock } from '../../context/StockContext';
 import {
   Layers,
@@ -158,19 +158,12 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
   };
 
   const statusOptions: Array<{
-    value: ManualStatusOverride;
+    value: ProductAvailabilityStatus;
     label: string;
     badge: string;
     dotClass: string;
     badgeClass: string;
   }> = [
-    {
-      value: 'auto',
-      label: 'Automatisch (op voorraad kg)',
-      badge: 'Auto (berekend)',
-      dotClass: 'bg-stone-400',
-      badgeClass: 'bg-stone-100 text-stone-700 border-stone-300',
-    },
     {
       value: 'available',
       label: 'Beschikbaar',
@@ -179,22 +172,15 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
       badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 font-bold',
     },
     {
-      value: 'low_stock',
-      label: 'Lage voorraad',
-      badge: '🟠 Lage Voorraad',
+      value: 'freshly_roasted',
+      label: 'Net Gebrand',
+      badge: '🟠 Net Gebrand',
       dotClass: 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.5)]',
       badgeClass: 'bg-amber-50 text-amber-950 border-amber-300 font-bold',
     },
     {
-      value: 'coming_soon',
-      label: 'Binnenkort beschikbaar',
-      badge: '🟡 Binnenkort Beschikbaar',
-      dotClass: 'bg-amber-400 animate-pulse',
-      badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 font-bold',
-    },
-    {
       value: 'out_of_stock',
-      label: 'Niet beschikbaar',
+      label: 'Niet Beschikbaar',
       badge: '🔴 Niet Beschikbaar',
       dotClass: 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.5)]',
       badgeClass: 'bg-rose-50 text-rose-900 border-rose-200 font-bold',
@@ -352,10 +338,10 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                 const liveKg = getStockKg(prod.id, 0);
                 const draftKg =
                   editingKgState[prod.id] !== undefined ? editingKgState[prod.id] : liveKg;
-                const activeManual =
+                const activeManual: ProductAvailabilityStatus =
                   editingStatusState[prod.id] !== undefined
                     ? editingStatusState[prod.id]
-                    : record?.manualStatus || 'auto';
+                    : normalizeAvailabilityStatus(record?.manualStatus || (liveKg > 0 ? 'available' : 'out_of_stock'));
                 const availInfo = getAvailabilityInfo(prod);
 
                 const hasRowChanges =
@@ -366,11 +352,6 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-bold text-stone-900">{prod.name}</span>
-                        {record?.isConfigured === false && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
-                            Niet ingesteld
-                          </span>
-                        )}
                       </div>
                       <div className="text-[10px] text-stone-500 font-mono">
                         {prod.sku} · {prod.collection || prod.category}
@@ -390,9 +371,6 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                         <span className={`w-2 h-2 rounded-full ${availInfo.dotClass}`} />
                         <span>{availInfo.badge}</span>
                       </span>
-                      <div className="text-[10px] text-stone-500 mt-1 font-mono">
-                        {availInfo.detailText}
-                      </div>
                     </td>
 
                     {/* Admin Status Dropdown */}
@@ -402,7 +380,7 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                         onChange={(e) =>
                           handleStatusChange(
                             prod.id,
-                            e.target.value as ManualStatusOverride
+                            e.target.value as ProductAvailabilityStatus
                           )
                         }
                         className="text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-stone-300 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-900"
@@ -413,11 +391,6 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                           </option>
                         ))}
                       </select>
-                      {record?.manualStatus && record.manualStatus !== 'auto' && (
-                        <div className="text-[9px] text-amber-800 font-semibold mt-0.5">
-                          * Handmatige override actief
-                        </div>
-                      )}
                     </td>
 
                     {/* Stock KG Input */}

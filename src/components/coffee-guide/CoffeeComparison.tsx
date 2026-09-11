@@ -457,22 +457,12 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                           <span>Meer Info</span>
                         </button>
 
-                        {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
-                          <button
-                            type="button"
-                            disabled
-                            className="w-full py-2 px-2.5 rounded-xl bg-stone-100 text-stone-500 border border-stone-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-85 select-none"
-                            title="Binnenkort beschikbaar - momenteel niet bestelbaar"
-                          >
-                            <Clock className="w-3 h-3 text-stone-400" />
-                            <span>Binnenkort Beschikbaar</span>
-                          </button>
-                        ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+                        {!availInfo.isPurchasable || availInfo.status === 'out_of_stock' ? (
                           <button
                             type="button"
                             disabled
                             className="w-full py-2 px-2.5 rounded-xl bg-stone-100 text-stone-400 border border-stone-200 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-80 select-none"
-                            title="Momenteel niet beschikbaar"
+                            title="Niet Beschikbaar"
                           >
                             <AlertCircle className="w-3 h-3 text-stone-400" />
                             <span>Niet Beschikbaar</span>
@@ -481,7 +471,7 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                           <button
                             type="button"
                             onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
-                            className="w-full py-2 px-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                            className="w-full py-2 px-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                           >
                             <span>Bestellen</span>
                             <ExternalLink className="w-3 h-3" />

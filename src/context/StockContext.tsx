@@ -3,6 +3,7 @@ import {
   Product,
   ProductAvailabilityStatus,
   ManualStatusOverride,
+  normalizeAvailabilityStatus,
   RoasteryInventoryItem,
   GreenCoffeeItem,
   BlendRecipe,
@@ -13,19 +14,16 @@ import {
 
 export type AvailabilityStatus =
   | 'available'
-  | 'in_stock'
-  | 'low_stock'
-  | 'coming_soon'
-  | 'binnenkort'
+  | 'freshly_roasted'
   | 'out_of_stock';
 
 export interface AvailabilityInfo {
-  status: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
-  statusCode: 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
-  label: 'Beschikbaar' | 'Lage voorraad' | 'Binnenkort beschikbaar' | 'Niet beschikbaar' | 'Voorraad Niet Geconfigureerd';
-  badge: string;
+  status: ProductAvailabilityStatus;
+  statusCode: ProductAvailabilityStatus;
+  label: 'Beschikbaar' | 'Net Gebrand' | 'Niet Beschikbaar';
+  badge: '✅ Beschikbaar' | '🟠 Net Gebrand' | '🔴 Niet Beschikbaar';
   detailText: string;
-  color: 'green' | 'orange' | 'yellow' | 'red' | 'amber';
+  color: 'green' | 'orange' | 'red';
   badgeClass: string;
   dotClass: string;
   stockKg: number;
@@ -235,13 +233,11 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
           let effStatus: ProductAvailabilityStatus = 'available';
           if (chosenStatus && chosenStatus !== 'auto') {
-            effStatus = chosenStatus;
-          } else if (tid.includes('capsule') || tid.includes('capsules-placeholder')) {
-            effStatus = 'coming_soon';
+            effStatus = normalizeAvailabilityStatus(chosenStatus);
           } else if (avail <= 0) {
             effStatus = 'out_of_stock';
-          } else if (avail <= 5) {
-            effStatus = 'low_stock';
+          } else {
+            effStatus = 'available';
           }
 
           next[tid] = {
@@ -254,7 +250,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             manualStatus: chosenStatus,
             effectiveStatus: effStatus,
             isConfigured: true,
-            inStock: effStatus === 'available' || effStatus === 'low_stock',
+            inStock: effStatus === 'available' || effStatus === 'freshly_roasted',
             lastUpdated: now,
           };
         });
@@ -463,166 +459,88 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // 1. Manual Admin Override takes top priority if explicitly set
       if (manual && manual !== 'auto') {
-        if (manual === 'available') {
-          const formattedKg = Number.isInteger(currentStockKg)
-            ? `${currentStockKg} kg`
-            : `${currentStockKg.toFixed(1)} kg`;
+        const normalized = normalizeAvailabilityStatus(manual);
+        if (normalized === 'available') {
           return {
             status: 'available',
             statusCode: 'available',
             label: 'Beschikbaar',
             badge: '✅ Beschikbaar',
-            detailText: currentStockKg > 0 ? `Ruime voorraad (${formattedKg})` : 'Direct leverbaar',
+            detailText: 'Beschikbaar',
             color: 'green',
             badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs',
             dotClass: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]',
             stockKg: currentStockKg,
             isPurchasable: true,
             manualStatus: manual,
+            isConfigured: record?.isConfigured ?? true,
           };
         }
 
-        if (manual === 'low_stock') {
-          const formattedKg = Number.isInteger(currentStockKg)
-            ? `${currentStockKg} kg`
-            : `${currentStockKg.toFixed(1)} kg`;
+        if (normalized === 'freshly_roasted') {
           return {
-            status: 'low_stock',
-            statusCode: 'low_stock',
-            label: 'Lage voorraad',
-            badge: '🟠 Lage voorraad',
-            detailText: currentStockKg > 0 ? `Nog slechts ${formattedKg}` : 'Beperkte voorraad',
+            status: 'freshly_roasted',
+            statusCode: 'freshly_roasted',
+            label: 'Net Gebrand',
+            badge: '🟠 Net Gebrand',
+            detailText: 'Net Gebrand',
             color: 'orange',
             badgeClass: 'bg-amber-50 text-amber-950 border-amber-300 shadow-2xs',
             dotClass: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]',
             stockKg: currentStockKg,
-            isPurchasable: true,
+            isPurchasable: true, // Order button enabled (preorder status)
             manualStatus: manual,
+            isConfigured: record?.isConfigured ?? true,
           };
         }
 
-        if (manual === 'coming_soon') {
-          return {
-            status: 'coming_soon',
-            statusCode: 'coming_soon',
-            label: 'Binnenkort beschikbaar',
-            badge: '🟡 Binnenkort beschikbaar',
-            detailText: 'Binnenkort beschikbaar',
-            color: 'yellow',
-            badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 shadow-2xs',
-            dotClass: 'bg-amber-400 animate-pulse',
-            stockKg: 0,
-            isPurchasable: false,
-            manualStatus: manual,
-          };
-        }
-
-        if (manual === 'out_of_stock') {
-          return {
-            status: 'out_of_stock',
-            statusCode: 'out_of_stock',
-            label: 'Niet beschikbaar',
-            badge: '🔴 Niet beschikbaar',
-            detailText: 'Momenteel uitverkocht',
-            color: 'red',
-            badgeClass: 'bg-rose-50 text-rose-900 border-rose-200 shadow-2xs',
-            dotClass: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]',
-            stockKg: 0,
-            isPurchasable: false,
-            manualStatus: manual,
-          };
-        }
-      }
-
-      // 2. Default for capsules: Binnenkort beschikbaar (unless admin explicitly overrides)
-      if (isCapsule) {
         return {
-          status: 'coming_soon',
-          statusCode: 'coming_soon',
-          label: 'Binnenkort beschikbaar',
-          badge: '🟡 Binnenkort beschikbaar',
-          detailText: 'Binnenkort beschikbaar',
-          color: 'yellow',
-          badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 shadow-2xs',
-          dotClass: 'bg-amber-400 animate-pulse',
+          status: 'out_of_stock',
+          statusCode: 'out_of_stock',
+          label: 'Niet Beschikbaar',
+          badge: '🔴 Niet Beschikbaar',
+          detailText: 'Niet Beschikbaar',
+          color: 'red',
+          badgeClass: 'bg-rose-50 text-rose-900 border-rose-200 shadow-2xs',
+          dotClass: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]',
           stockKg: 0,
           isPurchasable: false,
-          manualStatus: 'auto',
-          isConfigured: record?.isConfigured,
+          manualStatus: manual,
+          isConfigured: record?.isConfigured ?? false,
         };
       }
 
-      // 3. Unconfigured Inventory: Do NOT automatically mark products as available
-      // If stock has not been explicitly entered by an administrator, display 'Binnenkort beschikbaar'
-      if (!record || record.isConfigured === false) {
-        return {
-          status: 'coming_soon',
-          statusCode: 'not_configured',
-          label: 'Binnenkort beschikbaar',
-          badge: '🟡 Binnenkort beschikbaar',
-          detailText: 'Binnenkort beschikbaar',
-          color: 'yellow',
-          badgeClass: 'bg-amber-100/70 text-amber-900 border-amber-300 shadow-2xs',
-          dotClass: 'bg-amber-400 animate-pulse',
-          stockKg: 0,
-          isPurchasable: false,
-          manualStatus: 'auto',
-          isConfigured: false,
-        };
-      }
-
-      // 4. Dynamic Calculation Based on Live Database Available kg entered by administrator
+      // 2. Dynamic Calculation Based on Live Database Available kg
       if (currentStockKg <= 0) {
         return {
           status: 'out_of_stock',
           statusCode: 'out_of_stock',
-          label: 'Niet beschikbaar',
-          badge: '🔴 Niet beschikbaar',
-          detailText: 'Momenteel uitverkocht',
+          label: 'Niet Beschikbaar',
+          badge: '🔴 Niet Beschikbaar',
+          detailText: 'Niet Beschikbaar',
           color: 'red',
           badgeClass: 'bg-rose-50 text-rose-900 border-rose-200 shadow-2xs',
           dotClass: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]',
           stockKg: 0,
           isPurchasable: false,
           manualStatus: 'auto',
+          isConfigured: record?.isConfigured ?? false,
         };
       }
-
-      if (currentStockKg <= 5) {
-        const formattedKg = Number.isInteger(currentStockKg)
-          ? `${currentStockKg} kg`
-          : `${currentStockKg.toFixed(1)} kg`;
-        return {
-          status: 'low_stock',
-          statusCode: 'low_stock',
-          label: 'Lage voorraad',
-          badge: '🟠 Lage voorraad',
-          detailText: `Nog ${formattedKg} beschikbaar`,
-          color: 'orange',
-          badgeClass: 'bg-amber-50 text-amber-950 border-amber-300 shadow-2xs',
-          dotClass: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]',
-          stockKg: currentStockKg,
-          isPurchasable: true,
-          manualStatus: 'auto',
-        };
-      }
-
-      const formattedKg = Number.isInteger(currentStockKg)
-        ? `${currentStockKg} kg`
-        : `${currentStockKg.toFixed(1)} kg`;
 
       return {
         status: 'available',
         statusCode: 'available',
         label: 'Beschikbaar',
         badge: '✅ Beschikbaar',
-        detailText: `Direct leverbaar (${formattedKg})`,
+        detailText: 'Beschikbaar',
         color: 'green',
         badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs',
         dotClass: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]',
         stockKg: currentStockKg,
         isPurchasable: true,
         manualStatus: 'auto',
+        isConfigured: record?.isConfigured ?? true,
       };
     },
     [getProductRecord]

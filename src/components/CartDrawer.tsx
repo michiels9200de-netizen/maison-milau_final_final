@@ -149,11 +149,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                       {isUnavailable && (
                         <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-rose-700">
                           <AlertCircle className="w-3 h-3 text-rose-600 shrink-0" />
-                          <span>
-                            {avail.status === 'coming_soon'
-                              ? 'Binnenkort Beschikbaar'
-                              : 'Niet Beschikbaar'}
-                          </span>
+                          <span>{avail.badge || '🔴 Niet Beschikbaar'}</span>
                         </div>
                       )}
 

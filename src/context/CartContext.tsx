@@ -62,8 +62,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addItem = (itemToAdd: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     // CRITICAL AVAILABILITY CHECK:
-    // Only products with status 'available' or 'low_stock' may be added to cart.
-    // 'coming_soon' and 'out_of_stock' must be strictly rejected.
+    // Only products with status 'available' or 'freshly_roasted' may be added to cart.
+    // 'out_of_stock' must be strictly rejected.
     const avail = getAvailabilityInfo({ id: itemToAdd.productId });
     if (!avail.isPurchasable) {
       alert(`Dit product (${itemToAdd.productName}) is momenteel ${avail.label.toLowerCase()} en kan niet worden besteld.`);

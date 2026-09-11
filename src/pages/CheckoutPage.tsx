@@ -491,7 +491,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       const avail = getItemAvailability(it.productId);
                       return (
                         <li key={i}>
-                          {it.productName} ({avail.status === 'coming_soon' ? 'Binnenkort Beschikbaar' : 'Niet Beschikbaar'})
+                          {it.productName} ({avail.badge || '🔴 Niet Beschikbaar'})
                         </li>
                       );
                     })}
@@ -821,11 +821,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             {isItemUnavailable && (
                               <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-rose-700">
                                 <AlertCircle className="w-2.5 h-2.5 text-rose-600 shrink-0" />
-                                <span>
-                                  {avail.status === 'coming_soon'
-                                    ? 'Binnenkort Beschikbaar'
-                                    : 'Niet Beschikbaar'}
-                                </span>
+                                <span>{avail.badge || '🔴 Niet Beschikbaar'}</span>
                               </div>
                             )}
                             <div className="text-stone-500 text-[11px] leading-relaxed">

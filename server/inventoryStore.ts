@@ -4,8 +4,16 @@ import path from 'path';
 
 const { Pool } = pg;
 
-export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
-export type ManualStatusOverride = ProductAvailabilityStatus | 'auto';
+export type ProductAvailabilityStatus = 'available' | 'freshly_roasted' | 'out_of_stock';
+export type ManualStatusOverride = ProductAvailabilityStatus | 'auto' | 'low_stock' | 'coming_soon' | 'not_configured';
+
+export function normalizeAvailabilityStatus(status?: string | null): ProductAvailabilityStatus {
+  if (!status) return 'available';
+  if (status === 'available' || status === 'low_stock') return 'available';
+  if (status === 'freshly_roasted' || status === 'net_gebrand' || status === 'coming_soon' || status === 'in_batchplanning') return 'freshly_roasted';
+  if (status === 'out_of_stock' || status === 'unavailable' || status === 'not_configured') return 'out_of_stock';
+  return 'available';
+}
 
 export interface InventoryItem {
   productId: string;
@@ -94,10 +102,11 @@ export interface FullRoasteryData {
     totalRoastedStockKg: number;
     totalGreenCoffeeKg: number;
     totalReservedKg: number;
-    lowStockProductCount: number;
-    outOfStockProductCount: number;
-    comingSoonProductCount: number;
     availableProductCount: number;
+    freshlyRoastedProductCount: number;
+    outOfStockProductCount: number;
+    lowStockProductCount?: number;
+    comingSoonProductCount?: number;
   };
 }
 
@@ -112,28 +121,28 @@ export const ALL_SHOP_PRODUCTS_PRESETS: Record<string, { stockKg: number; reserv
   'prod-budget-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-budget-omni': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-budget-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
-  'prod-budget-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
+  'prod-budget-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'out_of_stock', isConfigured: false },
 
   'prod-value-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-value-omni': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-value-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
-  'prod-value-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
+  'prod-value-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'out_of_stock', isConfigured: false },
 
   'prod-selection-daily': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-selection-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-selection-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
-  'prod-selection-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
+  'prod-selection-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'out_of_stock', isConfigured: false },
 
   'prod-premium-daily': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-premium-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-premium-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
-  'prod-premium-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
+  'prod-premium-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'out_of_stock', isConfigured: false },
 
   'prod-prestige-daily': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-prestige-espresso': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
   'prod-prestige-filter': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
-  'prod-prestige-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
-  'prod-nespresso-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'coming_soon', isConfigured: false },
+  'prod-prestige-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'out_of_stock', isConfigured: false },
+  'prod-nespresso-capsules-placeholder': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, manualStatus: 'out_of_stock', isConfigured: false },
 
   // Barrel Aged
   'prod-barrel-moscatel': { stockKg: 0, reservedKg: 0, subAllocatedKg: 0, isConfigured: false },
@@ -396,30 +405,12 @@ class InventoryStore {
   ): ProductAvailabilityStatus {
     // 1. Explicit manual status takes top priority if set (and not 'auto')
     if (manualStatus && manualStatus !== 'auto') {
-      return manualStatus;
+      return normalizeAvailabilityStatus(manualStatus);
     }
 
-    // 2. Capsules default to 'coming_soon' until official launch unless set otherwise
-    const isCapsule =
-      productId.includes('capsules-placeholder') ||
-      productId === 'prod-nespresso-capsules-placeholder' ||
-      productId.includes('capsule');
-
-    if (isCapsule) {
-      return 'coming_soon';
-    }
-
-    // 3. If inventory has not been manually entered by an administrator, return 'not_configured'
-    if (!isConfigured) {
-      return 'not_configured';
-    }
-
-    // 4. Dynamic availability based strictly on live available stock entered by admin
+    // 2. Dynamic availability based strictly on live available stock
     if (availableKg <= 0) {
       return 'out_of_stock';
-    }
-    if (availableKg <= 5) {
-      return 'low_stock';
     }
     return 'available';
   }
@@ -449,7 +440,7 @@ class InventoryStore {
             manualStatus,
             effectiveStatus,
             isConfigured,
-            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'low_stock'),
+            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'freshly_roasted'),
             lastUpdated: rec.lastUpdated || new Date().toISOString(),
           };
         });
@@ -646,7 +637,7 @@ class InventoryStore {
             manualStatus: manual,
             effectiveStatus,
             isConfigured,
-            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'low_stock'),
+            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'freshly_roasted'),
             lastUpdated: row.last_updated ? new Date(row.last_updated).toISOString() : new Date().toISOString(),
           };
         }
@@ -793,17 +784,15 @@ class InventoryStore {
     // Calculate aggregate totals
     let totalRoastedStockKg = 0;
     let totalReservedKg = 0;
-    let lowStockCount = 0;
-    let outOfStockCount = 0;
-    let comingSoonCount = 0;
     let availableCount = 0;
+    let freshlyRoastedCount = 0;
+    let outOfStockCount = 0;
 
     Object.values(this.productsCache).forEach((p) => {
       totalRoastedStockKg += p.availableKg;
       totalReservedKg += p.reservedKg + p.subscriptionAllocatedKg;
       if (p.effectiveStatus === 'available') availableCount++;
-      else if (p.effectiveStatus === 'low_stock') lowStockCount++;
-      else if (p.effectiveStatus === 'coming_soon') comingSoonCount++;
+      else if (p.effectiveStatus === 'freshly_roasted') freshlyRoastedCount++;
       else if (p.effectiveStatus === 'out_of_stock') outOfStockCount++;
     });
 
@@ -822,10 +811,11 @@ class InventoryStore {
         totalRoastedStockKg: Math.round(totalRoastedStockKg * 10) / 10,
         totalGreenCoffeeKg: Math.round(totalGreenCoffeeKg * 10) / 10,
         totalReservedKg: Math.round(totalReservedKg * 10) / 10,
-        lowStockProductCount: lowStockCount,
-        outOfStockProductCount: outOfStockCount,
-        comingSoonProductCount: comingSoonCount,
         availableProductCount: availableCount,
+        freshlyRoastedProductCount: freshlyRoastedCount,
+        outOfStockProductCount: outOfStockCount,
+        lowStockProductCount: 0,
+        comingSoonProductCount: freshlyRoastedCount,
       },
     };
   }
@@ -895,7 +885,7 @@ class InventoryStore {
         manualStatus: chosenManualStatus,
         effectiveStatus,
         isConfigured,
-        inStock: effectiveStatus === 'available' || effectiveStatus === 'low_stock',
+        inStock: effectiveStatus === 'available' || effectiveStatus === 'freshly_roasted',
         lastUpdated: now,
       };
 
@@ -1197,34 +1187,23 @@ class InventoryStore {
     }
 
     if (!matchedId || !this.productsCache[matchedId]) {
-      if (cleanInput.toLowerCase().includes('capsule')) {
-        return {
-          orderable: false,
-          status: 'coming_soon',
-          label: 'Binnenkort beschikbaar',
-          productName: cleanInput,
-          productId: cleanInput,
-        };
-      }
       return {
         orderable: false,
-        status: 'not_configured',
-        label: 'Binnenkort beschikbaar',
+        status: 'out_of_stock',
+        label: 'Niet Beschikbaar',
         productName: cleanInput,
         productId: cleanInput,
       };
     }
 
     const item = this.productsCache[matchedId];
-    const isOrderable = item.effectiveStatus === 'available' || item.effectiveStatus === 'low_stock';
+    const isOrderable = item.effectiveStatus === 'available' || item.effectiveStatus === 'freshly_roasted';
     const label =
       item.effectiveStatus === 'available'
         ? 'Beschikbaar'
-        : item.effectiveStatus === 'low_stock'
-        ? 'Lage voorraad'
-        : item.effectiveStatus === 'out_of_stock'
-        ? 'Niet beschikbaar'
-        : 'Binnenkort beschikbaar';
+        : item.effectiveStatus === 'freshly_roasted'
+        ? 'Net Gebrand'
+        : 'Niet Beschikbaar';
 
     return {
       orderable: isOrderable,

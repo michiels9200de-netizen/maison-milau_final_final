@@ -646,20 +646,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   const stockFilterOptions = [
     { id: 'all', label: 'Alle' },
     { id: 'available', label: 'Beschikbaar', dot: 'bg-emerald-400' },
-    { id: 'low_stock', label: 'Lage voorraad', dot: 'bg-amber-500' },
-    { id: 'coming_soon', label: 'Binnenkort beschikbaar', dot: 'bg-amber-300' },
-    { id: 'out_of_stock', label: 'Niet beschikbaar', dot: 'bg-rose-500' },
+    { id: 'freshly_roasted', label: 'Net Gebrand', dot: 'bg-amber-500' },
+    { id: 'out_of_stock', label: 'Niet Beschikbaar', dot: 'bg-rose-500' },
   ];
 
   const filteredProducts = SHOP_PRODUCTS.filter((prod) => {
     // 1. Stock availability filter (authoritative single source of truth)
     if (selectedStockFilter !== 'all') {
       const avail = getAvailabilityInfo(prod);
-      const code = avail.statusCode || (avail.status as string);
-      if (selectedStockFilter === 'available' && code !== 'available' && code !== 'in_stock') return false;
-      if (selectedStockFilter === 'low_stock' && code !== 'low_stock') return false;
-      if (selectedStockFilter === 'coming_soon' && code !== 'coming_soon' && code !== 'binnenkort') return false;
-      if (selectedStockFilter === 'out_of_stock' && code !== 'out_of_stock') return false;
+      if (selectedStockFilter === 'available' && avail.status !== 'available') return false;
+      if (selectedStockFilter === 'freshly_roasted' && avail.status !== 'freshly_roasted') return false;
+      if (selectedStockFilter === 'out_of_stock' && avail.status !== 'out_of_stock') return false;
     }
 
     if (selectedCategory === 'all') return true;
@@ -909,31 +906,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Stock Availability Indicator */}
-          <div className="flex items-center justify-end text-[10.5px] uppercase tracking-wider mb-1.5">
+          {/* Stock Availability Indicator - Only the 3 status badges */}
+          <div className="flex items-center justify-end text-[10.5px] mb-1.5">
             <span
-              className={`font-medium px-2 py-0.5 rounded flex items-center gap-1.5 shrink-0 text-[10px] sm:text-[11px] ${
-                availInfo.status === 'out_of_stock'
-                  ? 'text-rose-700 bg-rose-50 border border-rose-200/60'
-                  : availInfo.status === 'low_stock'
-                  ? 'text-amber-800 bg-amber-50 border border-amber-200/60'
-                  : availInfo.status === 'coming_soon'
-                  ? 'text-amber-800 bg-amber-50 border border-amber-200/60'
-                  : 'text-emerald-700 bg-emerald-50'
-              }`}
+              className={`font-semibold px-2 py-0.5 rounded-full flex items-center gap-1.5 shrink-0 text-[10px] sm:text-[11px] border ${availInfo.badgeClass}`}
             >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  availInfo.status === 'out_of_stock'
-                    ? 'bg-rose-500'
-                    : availInfo.status === 'low_stock'
-                    ? 'bg-amber-500'
-                    : availInfo.status === 'coming_soon'
-                    ? 'bg-amber-400 animate-pulse'
-                    : 'bg-emerald-500'
-                }`}
-              />
-              <span>{availInfo.label}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${availInfo.dotClass}`} />
+              <span>{availInfo.badge}</span>
             </span>
           </div>
 
@@ -1345,22 +1324,12 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
 
-          {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
-            <button
-              id={`btn-order-${product.sku}`}
-              disabled
-              className="flex-1 min-w-0 bg-stone-100 text-stone-500 border border-stone-300 py-2 px-1.5 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5 opacity-85 select-none"
-              title="Binnenkort beschikbaar - momenteel niet bestelbaar"
-            >
-              <Clock className="w-3.5 h-3.5 shrink-0 text-stone-400" />
-              <span className="truncate">Binnenkort Beschikbaar</span>
-            </button>
-          ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+          {!availInfo.isPurchasable || availInfo.status === 'out_of_stock' ? (
             <button
               id={`btn-order-${product.sku}`}
               disabled
               className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-1.5 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5 opacity-80 select-none"
-              title="Niet beschikbaar - kan niet besteld worden"
+              title="Niet Beschikbaar"
             >
               <AlertCircle className="w-3.5 h-3.5 shrink-0 text-stone-400" />
               <span className="truncate">Niet Beschikbaar</span>

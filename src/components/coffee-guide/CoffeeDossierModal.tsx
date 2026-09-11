@@ -679,22 +679,12 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Sluit Dossier
             </button>
 
-            {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
-              <button
-                type="button"
-                disabled
-                className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-stone-100 text-stone-500 border border-stone-300 flex items-center justify-center gap-2 cursor-not-allowed opacity-85 select-none"
-                title="Binnenkort beschikbaar - momenteel niet bestelbaar"
-              >
-                <Clock className="w-3.5 h-3.5 text-stone-400" />
-                <span>Binnenkort Beschikbaar</span>
-              </button>
-            ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+            {!availInfo.isPurchasable || availInfo.status === 'out_of_stock' ? (
               <button
                 type="button"
                 disabled
                 className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-stone-100 text-stone-400 border border-stone-200 flex items-center justify-center gap-2 cursor-not-allowed opacity-80 select-none"
-                title="Momenteel niet beschikbaar"
+                title="Niet Beschikbaar"
               >
                 <AlertCircle className="w-3.5 h-3.5 text-stone-400" />
                 <span>Niet Beschikbaar</span>

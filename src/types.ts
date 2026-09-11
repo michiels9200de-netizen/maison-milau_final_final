@@ -310,8 +310,20 @@ export interface EmailNotification {
 // ROASTING, INVENTORY & AVAILABILITY MANAGEMENT TYPES
 // ==================================================
 
-export type ProductAvailabilityStatus = 'available' | 'low_stock' | 'coming_soon' | 'out_of_stock' | 'not_configured';
-export type ManualStatusOverride = ProductAvailabilityStatus | 'auto';
+// Unified 3-status availability system for Webshop & Admin:
+// 1. 'available' (Beschikbaar) - Reeds gebrand, fysiek op voorraad, klaar voor verzending. Order: Enabled
+// 2. 'freshly_roasted' (Net Gebrand) - Nieuwe batch gepland of in verwerking, leverbaar binnen ~2 weken. Order: Enabled (Pre-order)
+// 3. 'out_of_stock' (Niet Beschikbaar) - Momenteel niet leverbaar, geen actieve batch beschikbaar. Order: Disabled
+export type ProductAvailabilityStatus = 'available' | 'freshly_roasted' | 'out_of_stock';
+export type ManualStatusOverride = ProductAvailabilityStatus | 'auto' | 'low_stock' | 'coming_soon' | 'not_configured';
+
+export function normalizeAvailabilityStatus(status?: string | null): ProductAvailabilityStatus {
+  if (!status) return 'available';
+  if (status === 'available' || status === 'low_stock') return 'available';
+  if (status === 'freshly_roasted' || status === 'net_gebrand' || status === 'coming_soon' || status === 'in_batchplanning') return 'freshly_roasted';
+  if (status === 'out_of_stock' || status === 'unavailable' || status === 'not_configured') return 'out_of_stock';
+  return 'available';
+}
 
 export interface RoasteryInventoryItem {
   productId: string;
@@ -399,10 +411,11 @@ export interface RoasteryInventoryData {
     totalRoastedStockKg: number;
     totalGreenCoffeeKg: number;
     totalReservedKg: number;
-    lowStockProductCount: number;
-    outOfStockProductCount: number;
-    comingSoonProductCount: number;
     availableProductCount: number;
+    freshlyRoastedProductCount: number;
+    outOfStockProductCount: number;
+    lowStockProductCount?: number;
+    comingSoonProductCount?: number;
   };
 }
 

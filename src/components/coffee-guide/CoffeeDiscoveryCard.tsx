@@ -97,17 +97,15 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
         <span id={coffee.webshopProductId} className="absolute -top-28 pointer-events-none" />
       )}
       <div>
-        {/* Top Badges: Collection, Discovery Tag & Roast Indicator */}
+        {/* Top Badges: Collection, Status & Roast Indicator */}
         <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
           <div className="flex items-center gap-1">
             <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 text-[10px] font-semibold tracking-wider uppercase">
               {coffee.collection}
             </span>
-            {specs.discoveryTag && (
-              <span className="px-1.5 py-0.5 rounded-sm bg-amber-50 text-amber-900 text-[10px] font-semibold tracking-wider uppercase border border-amber-800/15">
-                {specs.discoveryTag}
-              </span>
-            )}
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${availInfo.badgeClass}`}>
+              {availInfo.badge}
+            </span>
           </div>
 
           {renderRoastIndicator(specs.roastLevel)}
@@ -240,22 +238,12 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             <span>Meer Info</span>
           </button>
 
-          {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
-            <button
-              type="button"
-              disabled
-              className="py-2 px-2 rounded-lg text-[11px] font-bold bg-stone-100 text-stone-500 border border-stone-300 flex items-center justify-center gap-1 cursor-not-allowed opacity-85 select-none"
-              title="Binnenkort beschikbaar - momenteel niet bestelbaar"
-            >
-              <Clock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-              <span className="truncate">Binnenkort</span>
-            </button>
-          ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+          {!availInfo.isPurchasable || availInfo.status === 'out_of_stock' ? (
             <button
               type="button"
               disabled
               className="py-2 px-2 rounded-lg text-[11px] font-bold bg-stone-100 text-stone-400 border border-stone-200 flex items-center justify-center gap-1 cursor-not-allowed opacity-80 select-none"
-              title="Momenteel niet beschikbaar"
+              title="Niet Beschikbaar"
             >
               <AlertCircle className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               <span className="truncate">Niet Beschikbaar</span>
@@ -264,7 +252,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             <button
               type="button"
               onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
-              className="py-2 px-2.5 rounded-lg text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-xs group"
+              className="py-2 px-2.5 rounded-lg text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-xs group cursor-pointer"
               title={`Bestel ${coffee.name} direct in de webshop`}
             >
               <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
