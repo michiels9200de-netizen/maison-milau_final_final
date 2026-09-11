@@ -406,11 +406,6 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({ navigate, searchParams
                       {theme.description}
                     </p>
                   </div>
-                  <div className={`self-start sm:self-end flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg ${theme.countBadgeStyle} shrink-0`}>
-                    <span>
-                      {`${collectionItems.length} ${collectionItems.length === 1 ? 'koffieprofiel' : 'koffieprofielen'}`}
-                    </span>
-                  </div>
                 </div>
               </div>
 

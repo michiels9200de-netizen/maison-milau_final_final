@@ -2027,7 +2027,7 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
               <section
                 key={collectionKey}
                 id={`collection-${collectionKey.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-                className={`relative py-6 sm:py-8 lg:py-10 border-t ${theme.borderColor} ${theme.containerBg} transition-colors duration-300`}
+                className={`relative py-5 sm:py-6 lg:py-8 border-t ${theme.borderColor} ${theme.containerBg} transition-colors duration-300`}
               >
                 {/* Subtle ambient packaging aura matching color palette */}
                 <div
@@ -2036,10 +2036,10 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                 />
 
                 {/* Collection Header Bar */}
-                <div className="relative z-10 max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 mb-3.5 sm:mb-5">
-                  <div className={`flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b ${theme.dividerColor}`}>
+                <div className="relative z-10 max-w-[1760px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 mb-2.5 sm:mb-4">
+                  <div className={`pb-2.5 border-b ${theme.dividerColor}`}>
                     <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         <span className={`inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${theme.badgeStyle}`}>
                           {renderBadgeIcon(theme.badgeIcon)}
                           <span>{theme.badgeLabel}</span>
@@ -2054,10 +2054,6 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                       <p className={`text-xs sm:text-sm mt-0.5 max-w-3xl leading-relaxed ${theme.descColor}`}>
                         {theme.description}
                       </p>
-                    </div>
-                    {/* Product count indicator */}
-                    <div className={`self-start sm:self-end flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg ${theme.countBadgeStyle} shrink-0`}>
-                      <span>{collectionProducts.length} {collectionProducts.length === 1 ? 'koffie' : 'producten'}</span>
                     </div>
                   </div>
                 </div>

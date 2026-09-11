@@ -1,5 +1,19 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, Coffee, Building2, CalendarCheck, Clock, ShieldCheck, Truck, Award } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle2,
+  Coffee,
+  Building2,
+  CalendarCheck,
+  Clock,
+  ShieldCheck,
+  Truck,
+  Award,
+  Flame,
+  Sparkles,
+  Compass,
+  ShoppingBag,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MediaPlaceholder } from '../components/MediaPlaceholder';
 import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
@@ -139,76 +153,248 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      {/* Maison Milau Beloften - Soft Natural Visual Transition Bridge from Hero */}
-      <section className="relative py-8 sm:py-10 bg-gradient-to-b from-[#F6F2EA] via-[#FAF7F2] to-[#FAF7F2] border-b border-stone-200/70">
+      {/* Maison Milau Beloften - Premium Artisan Brand Statement & Customer Reassurance */}
+      <section className="relative py-12 sm:py-16 bg-gradient-to-b from-[#F6F1E7] via-[#FAF7F2] to-[#FAF7F2] border-b border-[#E5DDD0]">
         {/* Subtle warm ambient feathering at top of section for smooth continuous flow */}
-        <div className="absolute top-0 inset-x-0 h-4 bg-gradient-to-b from-amber-950/5 to-transparent pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-6 bg-gradient-to-b from-amber-950/5 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="max-w-3xl mb-6">
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-stone-500 mb-1.5">
-              {t('promises.badge')}
+          <div className="max-w-3xl mb-8 sm:mb-10">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-amber-900 bg-amber-100/80 border border-amber-900/15 px-3 py-0.5 rounded-full mb-2.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-800" />
+              <span>{t('promises.badge')}</span>
             </div>
-            {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
+            {/* H2 */}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 font-serif">
               {t('promises.title')}
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-stone-600 mt-1.5 leading-relaxed">
               {t('promises.subtitle')}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                <Clock className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {/* Promise 1 */}
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-[#E6DDD0] shadow-[0_2px_12px_-2px_rgba(40,24,14,0.05),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_12px_32px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-50 via-[#F8EFE3] to-amber-100/70 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-700/40 group-hover:shadow-md transition-all duration-300">
+                    <Flame className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900 group-hover:text-amber-800 transition-colors" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50/90 border border-amber-900/15 px-2.5 py-1 rounded-full">
+                    Versheid & Aroma
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
+                  Altijd vers gebrand voor maximale smaak
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+                  Geen stoffige winkelvoorraden. Elke koffie wordt wekelijks artisanaal in kleine batches geroosterd in ons atelier in Oudegem en stipt binnen 14 dagen na branding vers bij u geleverd voor een ongeëvenaarde cremalaag en geurbeleving.
+                </p>
               </div>
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
-                Altijd vers gebrande koffie, geleverd binnen 2 weken na branding.
-              </div>
-            </div>
-
-            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
-              </div>
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
-                Zeer democratische prijzen en gegarandeerd beter dan koffie uit de supermarktrekkerij.
-              </div>
-            </div>
-
-            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                <Coffee className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
-              </div>
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
-                Kortingen, flexibele abonnementen (-10%) en persoonlijke klantenservice direct bereikbaar.
+              <div className="mt-5 pt-3.5 border-t border-stone-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950/85">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Gegarandeerd binnen 14 dagen na branding geleverd</span>
               </div>
             </div>
 
-            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                <Award className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+            {/* Promise 2 */}
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-[#E6DDD0] shadow-[0_2px_12px_-2px_rgba(40,24,14,0.05),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_12px_32px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-50 via-[#F8EFE3] to-amber-100/70 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-700/40 group-hover:shadow-md transition-all duration-300">
+                    <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900 group-hover:text-amber-800 transition-colors" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50/90 border border-amber-900/15 px-2.5 py-1 rounded-full">
+                    Kwaliteit & Eerlijkheid
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
+                  Eerlijke luxe & superieure boonkwaliteit
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+                  Uitsluitend traceerbare specialty grade bonen (SCA 84+ score) met diepe smaaklagen. Rechtstreekse samenwerking met koffieboeren garandeert een kwaliteit die ver boven de supermarktrekkerij uitstijgt tegen democratische prijzen.
+                </p>
               </div>
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
-                Bezoek ons en ontwikkel je eigen custom koffieblend en huismerk in ons atelier in Oudegem.
+              <div className="mt-5 pt-3.5 border-t border-stone-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950/85">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>SCA 84+ score · Aantoonbaar superieur aan supermarktkoffie</span>
               </div>
             </div>
 
-            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                <CalendarCheck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+            {/* Promise 3 */}
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-[#E6DDD0] shadow-[0_2px_12px_-2px_rgba(40,24,14,0.05),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_12px_32px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-50 via-[#F8EFE3] to-amber-100/70 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-700/40 group-hover:shadow-md transition-all duration-300">
+                    <Coffee className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900 group-hover:text-amber-800 transition-colors" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50/90 border border-amber-900/15 px-2.5 py-1 rounded-full">
+                    Voordeel & Gemak
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
+                  Zorgeloos genieten met 10% vast voordeel
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+                  Nooit meer zonder uw favoriete koffie. Geniet van 10% vaste korting met onze flexibele, opzegbare koffie-abonnementen afgestemd op uw verbruik, plus direct en warm persoonlijk advies van onze meesterbrander.
+                </p>
               </div>
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
-                Voorzie je trouwfeest, verjaardag of receptie met een complete barista bar setup.
+              <div className="mt-5 pt-3.5 border-t border-stone-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950/85">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>10% korting · Geen verplichting, altijd pauzeren</span>
               </div>
             </div>
 
-            <div className="group bg-white p-4.5 sm:p-5 rounded-2xl border border-[#E5DDD0] shadow-[0_2px_8px_-1px_rgba(40,24,14,0.06),0_1px_3px_0_rgba(40,24,14,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/40 transition-all duration-300 flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/60 to-stone-100 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
-                <Truck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900" strokeWidth={1.75} />
+            {/* Promise 4 */}
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-[#E6DDD0] shadow-[0_2px_12px_-2px_rgba(40,24,14,0.05),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_12px_32px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-50 via-[#F8EFE3] to-amber-100/70 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-700/40 group-hover:shadow-md transition-all duration-300">
+                    <Award className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900 group-hover:text-amber-800 transition-colors" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50/90 border border-amber-900/15 px-2.5 py-1 rounded-full">
+                    Atelier & Signatuur
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
+                  Uw eigen signatuurblend & private label
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+                  Bezoek ons atelier in Oudegem en ontwikkel samen met ons uw eigen huiskoffie of merklabel. Perfect afgestemd op de smaakvoorkeuren van uw horecagasten, kantoormedewerkers of als luxueus relatiegeschenk.
+                </p>
               </div>
-              <div className="text-xs sm:text-sm font-medium text-stone-800 leading-relaxed flex-1">
-                Vind ons op de wekelijkse markten in Dendermonde (ma), Wetteren (do) en Aalst (za).
+              <div className="mt-5 pt-3.5 border-t border-stone-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950/85">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Private label co-creatie & cuppingsessie in Oudegem</span>
+              </div>
+            </div>
+
+            {/* Promise 5 */}
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-[#E6DDD0] shadow-[0_2px_12px_-2px_rgba(40,24,14,0.05),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_12px_32px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-50 via-[#F8EFE3] to-amber-100/70 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-700/40 group-hover:shadow-md transition-all duration-300">
+                    <CalendarCheck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900 group-hover:text-amber-800 transition-colors" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50/90 border border-amber-900/15 px-2.5 py-1 rounded-full">
+                    Events & Beleving
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
+                  Een complete barista-bar beleving op uw feest
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+                  Breng de ultieme koffiehuisbeleving naar uw trouwfeest, verjaardag of bedrijfsreceptie. Wij voorzien een stijlvolle mobiele espressobar met professionele machines en meesterlijk gezette koffiecreaties.
+                </p>
+              </div>
+              <div className="mt-5 pt-3.5 border-t border-stone-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950/85">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Mobiele barista bar, apparatuurverhuur & service</span>
+              </div>
+            </div>
+
+            {/* Promise 6 */}
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-[#E6DDD0] shadow-[0_2px_12px_-2px_rgba(40,24,14,0.05),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_12px_32px_-4px_rgba(40,24,14,0.12)] hover:border-amber-700/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-50 via-[#F8EFE3] to-amber-100/70 border border-amber-900/15 text-amber-900 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-700/40 group-hover:shadow-md transition-all duration-300">
+                    <Truck className="w-7 h-7 sm:w-8 sm:h-8 text-amber-900 group-hover:text-amber-800 transition-colors" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50/90 border border-amber-900/15 px-2.5 py-1 rounded-full">
+                    Lokaal Verankerd
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
+                  Lokaal verankerd & wekelijks ontmoeten
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+                  Proef, ruik en ontmoet onze brander persoonlijk op de markten in Dendermonde (ma), Wetteren (do) en Aalst (za), of plan een afspraak in ons atelier in Oudegem voor een exclusieve kennismaking.
+                </p>
+              </div>
+              <div className="mt-5 pt-3.5 border-t border-stone-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950/85">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Markten Dendermonde, Wetteren & Aalst · Atelierbezoek</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Natural Exploration Call to Action (Inspiring & Non-Aggressive) */}
+          <div className="mt-10 sm:mt-14 pt-8 sm:pt-10 border-t border-stone-200/80">
+            <div className="bg-gradient-to-br from-[#1C1009] via-[#24140B] to-[#1C1009] rounded-2xl p-6 sm:p-8 text-stone-100 shadow-xl border border-amber-900/30 relative overflow-hidden">
+              {/* Subtle ambient roasting warmth glow */}
+              <div
+                className="absolute top-0 right-0 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"
+                aria-hidden="true"
+              />
+              <div
+                className="absolute bottom-0 left-1/4 w-72 h-72 bg-amber-700/10 rounded-full blur-3xl pointer-events-none"
+                aria-hidden="true"
+              />
+
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="max-w-xl">
+                  <div className="inline-flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-widest text-amber-400 bg-amber-950/80 border border-amber-700/50 px-3 py-0.5 rounded-full mb-2.5">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    <span>Ontdek Maison Milau</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight leading-snug">
+                    Klaar om het verschil van ambachtelijke branding te proeven?
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-300 mt-1.5 leading-relaxed">
+                    Kies uw gewenste vertrekpunt: ontdek uw persoonlijke smaakmatch, verken onze artisanale blends, bekijk zakelijke oplossingen of ontmoet ons atelier.
+                  </p>
+                </div>
+
+                {/* 4 Natural Exploration Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 shrink-0">
+                  {/* Koffiegids */}
+                  <button
+                    id="cta-beloften-koffiegids"
+                    onClick={() => navigate('/koffies')}
+                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
+                    title="Vind je smaak in de interactieve koffiegids"
+                  >
+                    <Compass className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold leading-tight">Koffiegids</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">Vind je smaak</span>
+                  </button>
+
+                  {/* Webshop */}
+                  <button
+                    id="cta-beloften-webshop"
+                    onClick={() => navigate('/webshop')}
+                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-gradient-to-b from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 border border-amber-600/60 text-white transition-all text-center group shadow-md cursor-pointer"
+                    title="Bezoek de artisanale webshop"
+                  >
+                    <ShoppingBag className="w-5 h-5 text-amber-200 mb-1.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold leading-tight">Webshop</span>
+                    <span className="text-[10px] text-amber-200 mt-0.5">Blends & Bonen</span>
+                  </button>
+
+                  {/* Over Ons */}
+                  <button
+                    id="cta-beloften-over-ons"
+                    onClick={() => navigate('/over-ons')}
+                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
+                    title="Ontdek ons verhaal en brandfilosofie"
+                  >
+                    <Award className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold leading-tight">Over Ons</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">Ons Verhaal</span>
+                  </button>
+
+                  {/* Meer Info / B2B */}
+                  <button
+                    id="cta-beloften-b2b"
+                    onClick={() => navigate('/kantoor-en-horeca')}
+                    className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-stone-100 hover:text-white transition-all text-center group cursor-pointer"
+                    title="Kantoor- en horecaformules met volumekortingen"
+                  >
+                    <Building2 className="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold leading-tight">B2B & Horeca</span>
+                    <span className="text-[10px] text-stone-400 mt-0.5">Formules op maat</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
