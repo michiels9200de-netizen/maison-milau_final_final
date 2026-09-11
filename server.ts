@@ -1155,6 +1155,14 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     }
   }
 
+  // CRITICAL AVAILABILITY ENFORCEMENT:
+  // Reject ordering of 'out_of_stock', 'coming_soon', or 'not_configured' items
+  const orderValidation = await inventoryStore.validateOrderItems(items);
+  if (!orderValidation.valid) {
+    console.warn('[ORDER REJECTED - UNAVAILABLE ITEMS]', orderValidation.error);
+    throw new Error(orderValidation.error);
+  }
+
   const customerName = payload.customerName || payload.orderData?.customerName || 'Klant';
   const customerEmail = payload.customerEmail || payload.orderData?.customerEmail || 'klant@voorbeeld.be';
   const customerPhone = payload.customerPhone || payload.orderData?.customerPhone || '';
@@ -2081,6 +2089,15 @@ app.post('/api/subscriptions', async (req: Request, res: Response) => {
 
   if (!customerEmail || !productName) {
     return res.status(400).json({ success: false, error: 'Gelieve klant e-mail en gewenste koffie op te geven.' });
+  }
+
+  // CRITICAL: Reject subscription creation for unorderable coffees
+  const subCheck = await inventoryStore.isProductOrderable(productName);
+  if (!subCheck.orderable) {
+    return res.status(400).json({
+      success: false,
+      error: `Abonnement kan niet worden gestart: "${subCheck.productName || productName}" is momenteel niet bestelbaar (${subCheck.label}).`,
+    });
   }
 
   const calc = calculateSubscriptionPricing(productName, weight || '1kg');

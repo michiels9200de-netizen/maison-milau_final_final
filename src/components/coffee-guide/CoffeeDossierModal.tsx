@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Quote,
   ShoppingBag,
+  AlertCircle,
 } from 'lucide-react';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { CountryFlag } from '../CountryFlag';
@@ -55,7 +56,13 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
 
   const specs = getEnrichedSpecs(coffee);
   const dossier = getCoffeeDossier(coffee.id);
-  const availInfo = getAvailabilityInfo({ id: coffee.webshopProductId });
+  const availInfo = getAvailabilityInfo({
+    id: coffee.webshopProductId || coffee.id,
+    sku: coffee.id,
+    stockStatus: coffee.stockStatus,
+    batchStatus: coffee.batchStatus,
+    inStock: coffee.inStock,
+  });
 
   const renderRoastBadge = (level: RoastLevel) => {
     const roastColors: Record<RoastLevel, { bg: string; text: string; dots: number }> = {
@@ -672,18 +679,40 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               Sluit Dossier
             </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`);
-              }}
-              className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-all shadow-sm flex items-center justify-center gap-2 group"
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Bestellen</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
+              <button
+                type="button"
+                disabled
+                className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-stone-100 text-stone-500 border border-stone-300 flex items-center justify-center gap-2 cursor-not-allowed opacity-85 select-none"
+                title="Binnenkort beschikbaar - momenteel niet bestelbaar"
+              >
+                <Clock className="w-3.5 h-3.5 text-stone-400" />
+                <span>Binnenkort Beschikbaar</span>
+              </button>
+            ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+              <button
+                type="button"
+                disabled
+                className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-stone-100 text-stone-400 border border-stone-200 flex items-center justify-center gap-2 cursor-not-allowed opacity-80 select-none"
+                title="Momenteel niet beschikbaar"
+              >
+                <AlertCircle className="w-3.5 h-3.5 text-stone-400" />
+                <span>Niet Beschikbaar</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`);
+                }}
+                className="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-all shadow-sm flex items-center justify-center gap-2 group cursor-pointer"
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>Bestellen</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            )}
           </div>
         </div>
       </div>

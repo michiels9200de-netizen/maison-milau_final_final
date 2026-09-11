@@ -1,9 +1,10 @@
 import React from 'react';
 import { CoffeeCatalogItem } from '../../types';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
-import { Award, BookOpen, ShoppingBag } from 'lucide-react';
+import { Award, BookOpen, ShoppingBag, Clock, AlertCircle } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
+import { useStock } from '../../context/StockContext';
 
 interface CoffeeDiscoveryCardProps {
   coffee: CoffeeCatalogItem;
@@ -23,6 +24,14 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
   isDarkTheme = false,
 }) => {
   const specs = getEnrichedSpecs(coffee);
+  const { getAvailabilityInfo } = useStock();
+  const availInfo = getAvailabilityInfo({
+    id: coffee.webshopProductId || coffee.id,
+    sku: coffee.id,
+    stockStatus: coffee.stockStatus,
+    batchStatus: coffee.batchStatus,
+    inStock: coffee.inStock,
+  });
 
   const renderRoastIndicator = (level: RoastLevel) => {
     const config: Record<RoastLevel, { label: string; activeCount: number; badgeColor: string }> = {
@@ -231,15 +240,37 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             <span>Meer Info</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
-            className="py-2 px-2.5 rounded-lg text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-xs group"
-            title={`Bestel ${coffee.name} direct in de webshop`}
-          >
-            <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            <span>Bestellen</span>
-          </button>
+          {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
+            <button
+              type="button"
+              disabled
+              className="py-2 px-2 rounded-lg text-[11px] font-bold bg-stone-100 text-stone-500 border border-stone-300 flex items-center justify-center gap-1 cursor-not-allowed opacity-85 select-none"
+              title="Binnenkort beschikbaar - momenteel niet bestelbaar"
+            >
+              <Clock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              <span className="truncate">Binnenkort</span>
+            </button>
+          ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+            <button
+              type="button"
+              disabled
+              className="py-2 px-2 rounded-lg text-[11px] font-bold bg-stone-100 text-stone-400 border border-stone-200 flex items-center justify-center gap-1 cursor-not-allowed opacity-80 select-none"
+              title="Momenteel niet beschikbaar"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              <span className="truncate">Niet Beschikbaar</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
+              className="py-2 px-2.5 rounded-lg text-xs font-bold bg-amber-900 hover:bg-amber-800 text-white transition-colors flex items-center justify-center gap-1 shadow-xs group"
+              title={`Bestel ${coffee.name} direct in de webshop`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+              <span>Bestellen</span>
+            </button>
+          )}
         </div>
       </div>
     </article>

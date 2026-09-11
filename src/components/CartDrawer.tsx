@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, ArrowRight, ArrowLeft, ShieldCheck, Truck, Building2 } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ArrowRight, ArrowLeft, ShieldCheck, Truck, Building2, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,6 +17,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
     subtotal,
     shippingCost,
     total,
+    hasUnavailableItems,
+    getItemAvailability,
   } = useCart();
   const { accountType } = useAuth();
   const isB2B = accountType === 'professioneel';
@@ -28,6 +30,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
   const progressPct = Math.min(100, (subtotal / freeShippingThreshold) * 100);
 
   const handleCheckout = () => {
+    if (hasUnavailableItems) return;
     setIsCartOpen(false);
     navigate('/checkout');
   };
@@ -104,107 +107,146 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                 </button>
               </div>
             ) : (
-              items.map((item, idx) => (
-                <div
-                  key={`${item.productId}-${item.variantWeight}-${item.grindOption}-${item.selectedColor || ''}-${item.selectedSize || ''}-${idx}`}
-                  className="py-3 flex gap-3 items-start"
-                >
-                  <div className="w-14 h-14 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.productName}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="p-1 flex flex-col justify-center items-center text-center">
-                        <span className="text-[11px] font-bold uppercase text-amber-900 line-clamp-1">
-                          {item.collection}
-                        </span>
-                        <span className="text-xs font-mono font-semibold text-stone-800">
-                          {item.variantWeight}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+              items.map((item, idx) => {
+                const avail = getItemAvailability(item.productId);
+                const isUnavailable = !avail.isPurchasable;
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xs font-semibold text-stone-900 leading-snug break-words">
-                      {item.productName}
-                    </h3>
-                    {item.selectedColor && (
-                      <div className="text-[11px] text-stone-600 mt-0.5">
-                        Kleur: <span className="font-medium text-stone-800">{item.selectedColor}</span>
-                        {item.selectedSize && <span> · Maat: <span className="font-medium text-stone-800">{item.selectedSize}</span></span>}
-                      </div>
-                    )}
-                    {item.selectedBeans && item.selectedBeans.length > 0 && (
-                      <div className="text-[11px] text-stone-600 mt-0.5 leading-snug break-words">
-                        Bonen: <span className="font-medium text-stone-800">{item.selectedBeans.join(', ')}</span>
-                      </div>
-                    )}
-                    {!item.selectedColor && (
-                      <div className="text-[11px] text-stone-500 mt-0.5">
-                        Maalgraad: <span className="text-stone-700">{item.grindOption}</span>
-                      </div>
-                    )}
-                    <div className="text-[11px] font-medium text-amber-900 mt-0.5">
-                      €{item.unitPrice.toFixed(2)} per stuk
+                return (
+                  <div
+                    key={`${item.productId}-${item.variantWeight}-${item.grindOption}-${item.selectedColor || ''}-${item.selectedSize || ''}-${idx}`}
+                    className={`py-3 px-2 rounded-lg flex gap-3 items-start transition-colors ${
+                      isUnavailable ? 'bg-rose-50/60 border border-rose-200' : ''
+                    }`}
+                  >
+                    <div className="w-14 h-14 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.productName}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="p-1 flex flex-col justify-center items-center text-center">
+                          <span className="text-[11px] font-bold uppercase text-amber-900 line-clamp-1">
+                            {item.collection}
+                          </span>
+                          <span className="text-xs font-mono font-semibold text-stone-800">
+                            {item.variantWeight}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Quantity Controls */}
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center border border-stone-200 rounded-md">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.productId, item.variantWeight, item.grindOption, -1, item.selectedColor, item.selectedSize)
-                          }
-                          className="p-1 hover:bg-stone-100 text-stone-600"
-                          aria-label="Aantal verlagen"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="px-2 text-xs font-medium text-stone-800">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.productId, item.variantWeight, item.grindOption, 1, item.selectedColor, item.selectedSize)
-                          }
-                          className="p-1 hover:bg-stone-100 text-stone-600"
-                          aria-label="Aantal verhogen"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xs font-semibold text-stone-900 leading-snug break-words">
+                        {item.productName}
+                      </h3>
+
+                      {/* Availability status tag if unavailable */}
+                      {isUnavailable && (
+                        <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-rose-700">
+                          <AlertCircle className="w-3 h-3 text-rose-600 shrink-0" />
+                          <span>
+                            {avail.status === 'coming_soon'
+                              ? 'Binnenkort Beschikbaar'
+                              : 'Niet Beschikbaar'}
+                          </span>
+                        </div>
+                      )}
+
+                      {item.selectedColor && (
+                        <div className="text-[11px] text-stone-600 mt-0.5">
+                          Kleur: <span className="font-medium text-stone-800">{item.selectedColor}</span>
+                          {item.selectedSize && <span> · Maat: <span className="font-medium text-stone-800">{item.selectedSize}</span></span>}
+                        </div>
+                      )}
+                      {item.selectedBeans && item.selectedBeans.length > 0 && (
+                        <div className="text-[11px] text-stone-600 mt-0.5 leading-snug break-words">
+                          Bonen: <span className="font-medium text-stone-800">{item.selectedBeans.join(', ')}</span>
+                        </div>
+                      )}
+                      {!item.selectedColor && (
+                        <div className="text-[11px] text-stone-500 mt-0.5">
+                          Maalgraad: <span className="text-stone-700">{item.grindOption}</span>
+                        </div>
+                      )}
+                      <div className="text-[11px] font-medium text-amber-900 mt-0.5">
+                        €{item.unitPrice.toFixed(2)} per stuk
                       </div>
 
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-xs font-semibold text-stone-900">
-                          €{(item.unitPrice * item.quantity).toFixed(2)}
-                        </span>
-                        <button
-                          onClick={() =>
-                            removeItem(item.productId, item.variantWeight, item.grindOption, item.selectedColor, item.selectedSize)
-                          }
-                          className="text-stone-400 hover:text-red-600 p-0.5 transition-colors"
-                          aria-label="Verwijderen"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                      {/* Quantity Controls */}
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center border border-stone-200 rounded-md bg-white">
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.productId, item.variantWeight, item.grindOption, -1, item.selectedColor, item.selectedSize)
+                            }
+                            className="p-1 hover:bg-stone-100 text-stone-600 cursor-pointer"
+                            aria-label="Aantal verlagen"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="px-2 text-xs font-medium text-stone-800">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.productId, item.variantWeight, item.grindOption, 1, item.selectedColor, item.selectedSize)
+                            }
+                            disabled={isUnavailable}
+                            className={`p-1 text-stone-600 ${
+                              isUnavailable
+                                ? 'opacity-30 cursor-not-allowed'
+                                : 'hover:bg-stone-100 cursor-pointer'
+                            }`}
+                            aria-label="Aantal verhogen"
+                            title={isUnavailable ? 'Dit product is niet beschikbaar' : undefined}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-xs font-semibold text-stone-900">
+                            €{(item.unitPrice * item.quantity).toFixed(2)}
+                          </span>
+                          <button
+                            onClick={() =>
+                              removeItem(item.productId, item.variantWeight, item.grindOption, item.selectedColor, item.selectedSize)
+                            }
+                            className="text-stone-400 hover:text-red-600 p-0.5 transition-colors cursor-pointer"
+                            aria-label="Verwijderen"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
           {/* Footer & Checkout Call to action */}
           {items.length > 0 && (
             <div className="p-4 sm:p-5 border-t border-stone-200 bg-stone-50 space-y-2.5">
+              {/* Unavailable Items Warning Banner */}
+              {hasUnavailableItems && (
+                <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-800 flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold block">Niet-beschikbare artikelen in mand</span>
+                    <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
+                      Verwijder artikelen gemarkeerd als &apos;Niet Beschikbaar&apos; of &apos;Binnenkort Beschikbaar&apos; om door te gaan naar afrekenen.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-1 text-xs text-stone-600">
                 {isB2B && (
                   <div className="flex items-center gap-1.5 p-1.5 rounded bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-semibold mb-1">
@@ -246,10 +288,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
               <button
                 id="btn-drawer-checkout"
                 onClick={handleCheckout}
-                className="w-full bg-amber-900 hover:bg-amber-800 text-white py-2.5 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                disabled={hasUnavailableItems}
+                className={`w-full py-2.5 rounded-xl font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors ${
+                  hasUnavailableItems
+                    ? 'bg-stone-200 text-stone-500 border border-stone-300 cursor-not-allowed opacity-80'
+                    : 'bg-amber-900 hover:bg-amber-800 text-white cursor-pointer'
+                }`}
               >
-                <span>Afrekenen met Mollie</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>{hasUnavailableItems ? 'Verwijder niet-beschikbare artikelen' : 'Afrekenen met Mollie'}</span>
+                {!hasUnavailableItems && <ArrowRight className="w-4 h-4" />}
               </button>
 
               <button

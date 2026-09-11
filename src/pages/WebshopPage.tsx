@@ -34,6 +34,8 @@ import {
   Gem,
   Coins,
   Building2,
+  Clock,
+  AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { CoffeeBeanIcon } from '../components/CoffeeBeanIcon';
@@ -755,6 +757,12 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
   };
 
   const handleAddToCart = (product: Product) => {
+    const availInfo = getAvailabilityInfo(product);
+    if (!availInfo.isPurchasable) {
+      alert(`"${product.name}" kan momenteel niet worden besteld (${availInfo.label}).`);
+      return;
+    }
+
     const currentWeight = selectedWeight[product.id] || product.variants[0].weight;
     const currentVariant = product.variants.find((v) => v.weight === currentWeight) || product.variants[0];
     const currentGrind = selectedGrind[product.id] || product.defaultGrind;
@@ -1057,10 +1065,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                   <select
                     id={`format-select-${product.id}`}
                     value={currentWeight}
+                    disabled={!availInfo.isPurchasable}
                     onChange={(e) =>
                       setSelectedWeight({ ...selectedWeight, [product.id]: e.target.value })
                     }
-                    className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-semibold py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
+                    className={`w-full text-xs font-semibold py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 transition-colors appearance-none shadow-2xs ${
+                      !availInfo.isPurchasable
+                        ? 'bg-stone-100 text-stone-400 cursor-not-allowed opacity-75'
+                        : 'bg-stone-50 hover:bg-stone-100 text-stone-800 focus:outline-none focus:ring-1.5 focus:ring-amber-900 cursor-pointer'
+                    }`}
                   >
                     {product.variants.map((v) => {
                       const vPrice = isB2B ? Math.round((v.price / (1 + vatRate)) * 100) / 100 : v.price;
@@ -1085,10 +1098,15 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
                     <select
                       id={`grind-select-${product.id}`}
                       value={currentGrind}
+                      disabled={!availInfo.isPurchasable}
                       onChange={(e) =>
                         setSelectedGrind({ ...selectedGrind, [product.id]: e.target.value as any })
                       }
-                      className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-medium py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 focus:outline-none focus:ring-1.5 focus:ring-amber-900 transition-colors cursor-pointer appearance-none shadow-2xs"
+                      className={`w-full text-xs font-medium py-1.5 pl-2 pr-6 rounded-lg border border-stone-200 transition-colors appearance-none shadow-2xs ${
+                        !availInfo.isPurchasable
+                          ? 'bg-stone-100 text-stone-400 cursor-not-allowed opacity-75'
+                          : 'bg-stone-50 hover:bg-stone-100 text-stone-800 focus:outline-none focus:ring-1.5 focus:ring-amber-900 cursor-pointer'
+                      }`}
                     >
                       {product.grindOptions.map((g) => (
                         <option key={g} value={g}>
@@ -1323,26 +1341,25 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           </div>
 
-          {(availInfo.statusCode === 'coming_soon') || (isCapsule && availInfo.statusCode !== 'available' && availInfo.statusCode !== 'low_stock') ? (
+          {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
             <button
-              type="button"
-              onClick={() => {
-                setSelectedCategory('new_products');
-                window.scrollTo({ top: 400, behavior: 'smooth' });
-              }}
-              className="flex-1 min-w-0 bg-amber-900 hover:bg-amber-800 active:scale-[0.98] text-white py-2 px-2 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-              title="Blijf op de hoogte van de lancering"
-            >
-              <Bell className="w-3.5 h-3.5 shrink-0 text-amber-300" />
-              <span className="truncate">Binnenkort</span>
-            </button>
-          ) : availInfo.statusCode === 'out_of_stock' ? (
-            <button
+              id={`btn-order-${product.sku}`}
               disabled
-              className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-2 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5"
-              title="Momenteel niet beschikbaar"
+              className="flex-1 min-w-0 bg-stone-100 text-stone-500 border border-stone-300 py-2 px-1.5 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5 opacity-85 select-none"
+              title="Binnenkort beschikbaar - momenteel niet bestelbaar"
             >
-              <span>Niet beschikbaar</span>
+              <Clock className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+              <span className="truncate">Binnenkort Beschikbaar</span>
+            </button>
+          ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+            <button
+              id={`btn-order-${product.sku}`}
+              disabled
+              className="flex-1 min-w-0 bg-stone-100 text-stone-400 border border-stone-200 py-2 px-1.5 rounded-lg text-[11px] sm:text-xs font-semibold tracking-wide uppercase cursor-not-allowed flex items-center justify-center gap-1.5 opacity-80 select-none"
+              title="Niet beschikbaar - kan niet besteld worden"
+            >
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+              <span className="truncate">Niet Beschikbaar</span>
             </button>
           ) : (
             <button

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem } from '../types';
+import { useStock, AvailabilityInfo } from './StockContext';
 
 interface CartContextType {
   items: CartItem[];
@@ -27,11 +28,15 @@ interface CartContextType {
   total: number;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  hasUnavailableItems: boolean;
+  unavailableItems: CartItem[];
+  getItemAvailability: (productId: string) => AvailabilityInfo;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { getAvailabilityInfo } = useStock();
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem('maison_milau_cart');
@@ -51,7 +56,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [items]);
 
+  const getItemAvailability = (productId: string): AvailabilityInfo => {
+    return getAvailabilityInfo({ id: productId });
+  };
+
   const addItem = (itemToAdd: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
+    // CRITICAL AVAILABILITY CHECK:
+    // Only products with status 'available' or 'low_stock' may be added to cart.
+    // 'coming_soon' and 'out_of_stock' must be strictly rejected.
+    const avail = getAvailabilityInfo({ id: itemToAdd.productId });
+    if (!avail.isPurchasable) {
+      alert(`Dit product (${itemToAdd.productName}) is momenteel ${avail.label.toLowerCase()} en kan niet worden besteld.`);
+      return;
+    }
+
     const qty = itemToAdd.quantity || 1;
     setItems((prev) => {
       const index = prev.findIndex(
@@ -81,6 +99,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectedColor?: string,
     selectedSize?: string
   ) => {
+    // Disallow increasing quantity for unavailable products
+    if (delta > 0) {
+      const avail = getAvailabilityInfo({ id: productId });
+      if (!avail.isPurchasable) {
+        alert(`Het aantal van dit artikel kan niet worden verhoogd omdat het momenteel ${avail.label.toLowerCase()} is.`);
+        return;
+      }
+    }
+
     setItems((prev) => {
       return prev
         .map((item) => {
@@ -133,6 +160,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const vatAmount = subtotal * 0.06;
   const total = subtotal + shippingCost;
 
+  const unavailableItems = items.filter((item) => {
+    const avail = getAvailabilityInfo({ id: item.productId });
+    return !avail.isPurchasable;
+  });
+  const hasUnavailableItems = unavailableItems.length > 0;
+
   return (
     <CartContext.Provider
       value={{
@@ -148,6 +181,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         total,
         isCartOpen,
         setIsCartOpen,
+        hasUnavailableItems,
+        unavailableItems,
+        getItemAvailability,
       }}
     >
       {children}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
+import { useStock } from '../context/StockContext';
 import {
   Sparkles,
   ShoppingBag,
@@ -13,6 +14,7 @@ import {
   ArrowRight,
   Clock,
   Flame,
+  AlertCircle,
 } from 'lucide-react';
 
 interface SubscriptionConfiguratorProps {
@@ -35,11 +37,13 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
   allProducts,
   onAddToCart,
 }) => {
-  // Filter eligible coffees (exclude non-coffee or non-purchasable placeholder products)
+  const { getAvailabilityInfo } = useStock();
+
+  // Filter eligible coffees (exclude non-coffee, placeholder products, or unavailable/coming-soon products)
   const eligibleCoffees = allProducts.filter(
     (p) =>
       ['blends', 'single_origins', 'barrel_aged', 'infused'].includes(p.category) &&
-      p.inStock &&
+      getAvailabilityInfo(p).isPurchasable &&
       !p.id.includes('capsules-placeholder')
   );
 
@@ -72,8 +76,10 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
       ? (discountAmount * 1.33).toFixed(2)
       : discountAmount.toFixed(2);
 
+  const isEligible = Boolean(selectedCoffee && getAvailabilityInfo(selectedCoffee).isPurchasable);
+
   const handleSubscribe = () => {
-    if (!selectedCoffee) return;
+    if (!selectedCoffee || !isEligible) return;
 
     onAddToCart({
       productId: selectedCoffee.id,
@@ -423,12 +429,22 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
               <button
                 type="button"
                 onClick={handleSubscribe}
-                className="w-full bg-amber-900 hover:bg-amber-800 active:scale-[0.99] text-white py-3 px-4 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                disabled={!isEligible}
+                className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 ${
+                  !isEligible
+                    ? 'bg-stone-300 text-stone-500 cursor-not-allowed opacity-90'
+                    : 'bg-amber-900 hover:bg-amber-800 active:scale-[0.99] text-white cursor-pointer'
+                }`}
               >
                 {addedSuccess ? (
                   <>
                     <Check className="w-4 h-4 text-amber-300" />
                     <span>Toegevoegd aan winkelwagen!</span>
+                  </>
+                ) : !isEligible ? (
+                  <>
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Niet Beschikbaar voor Abonnement</span>
                   </>
                 ) : (
                   <>

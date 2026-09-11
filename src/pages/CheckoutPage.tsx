@@ -19,7 +19,7 @@ interface MollieStatus {
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
-  const { items, subtotal, shippingCost, total, clearCart } = useCart();
+  const { items, subtotal, shippingCost, total, clearCart, hasUnavailableItems, unavailableItems, getItemAvailability } = useCart();
   const { currentUser, accountType } = useAuth();
   const isB2B = accountType === 'professioneel' || currentUser?.accountType === 'professioneel';
 
@@ -171,6 +171,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   const handleProcessOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
+
+    if (hasUnavailableItems) {
+      const msg = 'Uw bestelling bevat artikelen die momenteel niet beschikbaar zijn of binnenkort worden verwacht. Verwijder deze artikelen om door te gaan.';
+      setErrorMessage(msg);
+      alert(msg);
+      return;
+    }
 
     setIsProcessing(true);
     setErrorMessage(null);
@@ -468,6 +475,38 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
           </div>
         ) : (
           <form onSubmit={handleProcessOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+            {/* Top Warning Banner for Unavailable Items */}
+            {hasUnavailableItems && (
+              <div className="lg:col-span-12 bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-2xs">
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm sm:text-base font-bold text-rose-900">
+                    Bestelling kan niet worden geplaatst: niet-beschikbare artikelen
+                  </h3>
+                  <p className="text-xs sm:text-sm text-rose-700 mt-1">
+                    Uw winkelwagen bevat artikelen die momenteel gemarkeerd zijn als &apos;Niet Beschikbaar&apos; of &apos;Binnenkort Beschikbaar&apos;. Verwijder deze artikelen om te kunnen afrekenen via Mollie:
+                  </p>
+                  <ul className="list-disc list-inside text-xs text-rose-900 font-semibold mt-2 space-y-1">
+                    {unavailableItems.map((it, i) => {
+                      const avail = getItemAvailability(it.productId);
+                      return (
+                        <li key={i}>
+                          {it.productName} ({avail.status === 'coming_soon' ? 'Binnenkort Beschikbaar' : 'Niet Beschikbaar'})
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/webshop')}
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 hover:text-amber-950 underline cursor-pointer"
+                  >
+                    ← Naar assortiment / beheer mandje
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Left Column: Form details */}
             <div className="lg:col-span-7 space-y-4">
               {/* Delivery Method Selection */}
@@ -755,43 +794,60 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 </h2>
 
                 <div className="divide-y divide-stone-100 max-h-72 overflow-y-auto text-xs">
-                  {items.map((it, idx) => (
-                    <div
-                      key={`${it.productId}-${it.variantWeight}-${it.grindOption}-${it.selectedColor || ''}-${it.selectedSize || ''}-${idx}`}
-                      className="py-3 flex justify-between items-start gap-3"
-                    >
-                      <div className="flex items-start gap-2.5 min-w-0">
-                        {it.imageUrl && (
-                          <img
-                            src={it.imageUrl}
-                            alt={it.productName}
-                            className="w-9 h-9 object-cover rounded-md border border-stone-200 shrink-0 mt-0.5"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold text-stone-900 leading-snug break-words">{it.productName}</div>
-                          <div className="text-stone-500 text-[11px] leading-relaxed">
-                            {it.selectedColor ? (
-                              <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
-                            ) : (
-                              <span>{it.variantWeight} · {it.grindOption} × {it.quantity}</span>
+                  {items.map((it, idx) => {
+                    const avail = getItemAvailability(it.productId);
+                    const isItemUnavailable = !avail.isPurchasable;
+
+                    return (
+                      <div
+                        key={`${it.productId}-${it.variantWeight}-${it.grindOption}-${it.selectedColor || ''}-${it.selectedSize || ''}-${idx}`}
+                        className={`py-3 flex justify-between items-start gap-3 rounded-lg px-1.5 ${
+                          isItemUnavailable ? 'bg-rose-50/70 border border-rose-200' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          {it.imageUrl && (
+                            <img
+                              src={it.imageUrl}
+                              alt={it.productName}
+                              className="w-9 h-9 object-cover rounded-md border border-stone-200 shrink-0 mt-0.5"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="font-semibold text-stone-900 leading-snug break-words">{it.productName}</div>
+                            {isItemUnavailable && (
+                              <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-rose-700">
+                                <AlertCircle className="w-2.5 h-2.5 text-rose-600 shrink-0" />
+                                <span>
+                                  {avail.status === 'coming_soon'
+                                    ? 'Binnenkort Beschikbaar'
+                                    : 'Niet Beschikbaar'}
+                                </span>
+                              </div>
+                            )}
+                            <div className="text-stone-500 text-[11px] leading-relaxed">
+                              {it.selectedColor ? (
+                                <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
+                              ) : (
+                                <span>{it.variantWeight} · {it.grindOption} × {it.quantity}</span>
+                              )}
+                            </div>
+                            {it.selectedBeans && it.selectedBeans.length > 0 && (
+                              <div className="text-[10px] text-amber-900 leading-snug mt-0.5 break-words">
+                                Bonen: {it.selectedBeans.join(', ')}
+                              </div>
                             )}
                           </div>
-                          {it.selectedBeans && it.selectedBeans.length > 0 && (
-                            <div className="text-[10px] text-amber-900 leading-snug mt-0.5 break-words">
-                              Bonen: {it.selectedBeans.join(', ')}
-                            </div>
-                          )}
+                        </div>
+                        <div className="font-semibold text-stone-900 shrink-0">
+                          €{(it.unitPrice * it.quantity).toFixed(2)}
                         </div>
                       </div>
-                      <div className="font-semibold text-stone-900 shrink-0">
-                        €{(it.unitPrice * it.quantity).toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="pt-3 border-t border-stone-200 text-xs space-y-2 text-stone-600">
@@ -827,13 +883,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 <button
                   id="btn-pay-now"
                   type="submit"
-                  disabled={isProcessing}
-                  className="w-full bg-amber-900 hover:bg-amber-800 disabled:bg-stone-400 disabled:cursor-not-allowed text-white py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-colors"
+                  disabled={isProcessing || hasUnavailableItems}
+                  className={`w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-colors ${
+                    hasUnavailableItems
+                      ? 'bg-stone-300 text-stone-500 cursor-not-allowed opacity-90'
+                      : 'bg-amber-900 hover:bg-amber-800 disabled:bg-stone-400 disabled:cursor-not-allowed text-white cursor-pointer'
+                  }`}
                 >
                   {isProcessing ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin text-amber-200" />
                       <span>Bezig met doorsturen naar Mollie...</span>
+                    </>
+                  ) : hasUnavailableItems ? (
+                    <>
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Niet-beschikbare artikelen in mand</span>
                     </>
                   ) : (
                     <>

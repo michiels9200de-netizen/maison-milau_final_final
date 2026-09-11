@@ -9,6 +9,7 @@ export type ManualStatusOverride = ProductAvailabilityStatus | 'auto';
 
 export interface InventoryItem {
   productId: string;
+  name?: string;
   stockKg: number;
   rawStockKg: number;
   reservedKg: number;
@@ -1026,6 +1027,177 @@ class InventoryStore {
       batch: newBatch,
       message: `Roast batch ${batchNumber} succesvol voltooid! ${greenKg} kg groen verwerkt -> +${roastedKgProduced} kg gebrand geboekt op ${recipe.blendName}.`,
     };
+  }
+
+  /**
+   * Check whether a specific product is currently orderable.
+   * Only products with effectiveStatus 'available' or 'low_stock' may be ordered.
+   * 'coming_soon', 'not_configured', or 'out_of_stock' are strictly non-orderable.
+   */
+  public async isProductOrderable(productIdOrName: string): Promise<{
+    orderable: boolean;
+    status: ProductAvailabilityStatus;
+    label: string;
+    productName: string;
+    productId: string;
+  }> {
+    await this.ensureSchemaAndSeed();
+
+    const cleanInput = (productIdOrName || '').trim();
+    if (!cleanInput) {
+      return {
+        orderable: false,
+        status: 'out_of_stock',
+        label: 'Niet beschikbaar',
+        productName: 'Onbekend product',
+        productId: '',
+      };
+    }
+
+    const aliasMap: Record<string, string[]> = {
+      'prod-so-gesha': ['prod-origin-ethiopia', 'prod-origin-geisha'],
+      'prod-origin-ethiopia': ['prod-so-gesha', 'prod-origin-geisha'],
+      'prod-origin-geisha': ['prod-so-gesha', 'prod-origin-ethiopia'],
+      'prod-so-pink-bourbon': ['prod-origin-colombia'],
+      'prod-origin-colombia': ['prod-so-pink-bourbon'],
+    };
+
+    // 1. Direct match by productId
+    let matchedId = Object.keys(this.productsCache).find((pid) => pid === cleanInput);
+
+    // 2. Alias match
+    if (!matchedId) {
+      matchedId = Object.keys(this.productsCache).find((pid) => {
+        const aliases = aliasMap[cleanInput] || [];
+        return aliases.includes(pid);
+      });
+    }
+
+    // 3. Name or partial match
+    if (!matchedId) {
+      const lower = cleanInput.toLowerCase();
+      matchedId = Object.keys(this.productsCache).find((pid) => {
+        const item = this.productsCache[pid];
+        if (pid.toLowerCase() === lower) return true;
+        if (item.name && item.name.toLowerCase() === lower) return true;
+        if (lower.includes('budget') && pid.includes('budget-espresso')) return true;
+        if (lower.includes('value') && pid.includes('value-espresso')) return true;
+        if (lower.includes('selection') && pid.includes('selection-daily')) return true;
+        if (lower.includes('premium') && pid.includes('premium-espresso')) return true;
+        if (lower.includes('prestige') && pid.includes('prestige-espresso')) return true;
+        if (lower.includes('ethiopia') || lower.includes('geisha') || lower.includes('gesha')) {
+          if (pid.includes('origin-ethiopia') || pid.includes('origin-geisha') || pid.includes('so-gesha')) return true;
+        }
+        if (lower.includes('pink bourbon') || lower.includes('colombia')) {
+          if (pid.includes('so-pink-bourbon') || pid.includes('origin-colombia')) return true;
+        }
+        if (lower.includes('brazil') && pid.includes('origin-brazil')) return true;
+        if (lower.includes('guatemala') && pid.includes('origin-guatemala')) return true;
+        if (lower.includes('kenya') && pid.includes('origin-kenya')) return true;
+        if (lower.includes('indonesia') && pid.includes('origin-indonesia')) return true;
+        if (lower.includes('moscatel') && pid.includes('barrel-moscatel')) return true;
+        if (lower.includes('bourbon') && pid.includes('barrel-bourbon')) return true;
+        if (lower.includes('rum') && pid.includes('barrel-rum')) return true;
+        if (lower.includes('whisky') && pid.includes('barrel-whisky')) return true;
+        if (lower.includes('cognac') && pid.includes('barrel-cognac')) return true;
+        if (lower.includes('px') && pid.includes('barrel-px')) return true;
+        if (lower.includes('vanilla') && pid.includes('infused-vanilla')) return true;
+        if (lower.includes('cinnamon') && pid.includes('infused-cinnamon')) return true;
+        if (lower.includes('almond') && pid.includes('infused-almond')) return true;
+        if (lower.includes('hazelnut') && pid.includes('infused-hazelnut')) return true;
+        if (lower.includes('capsule') && pid.includes('capsule')) return true;
+        return false;
+      });
+    }
+
+    if (!matchedId || !this.productsCache[matchedId]) {
+      if (cleanInput.toLowerCase().includes('capsule')) {
+        return {
+          orderable: false,
+          status: 'coming_soon',
+          label: 'Binnenkort beschikbaar',
+          productName: cleanInput,
+          productId: cleanInput,
+        };
+      }
+      return {
+        orderable: false,
+        status: 'not_configured',
+        label: 'Binnenkort beschikbaar',
+        productName: cleanInput,
+        productId: cleanInput,
+      };
+    }
+
+    const item = this.productsCache[matchedId];
+    const isOrderable = item.effectiveStatus === 'available' || item.effectiveStatus === 'low_stock';
+    const label =
+      item.effectiveStatus === 'available'
+        ? 'Beschikbaar'
+        : item.effectiveStatus === 'low_stock'
+        ? 'Lage voorraad'
+        : item.effectiveStatus === 'out_of_stock'
+        ? 'Niet beschikbaar'
+        : 'Binnenkort beschikbaar';
+
+    return {
+      orderable: isOrderable,
+      status: item.effectiveStatus,
+      label,
+      productName: item.name || cleanInput,
+      productId: matchedId,
+    };
+  }
+
+  /**
+   * Validate entire cart items payload before order / payment creation.
+   * Rejects if any product is 'out_of_stock', 'coming_soon', or 'not_configured'.
+   */
+  public async validateOrderItems(items: Array<any>): Promise<{
+    valid: boolean;
+    error?: string;
+    unorderableItems: Array<{ productId: string; productName: string; status: string; label: string }>;
+  }> {
+    await this.ensureSchemaAndSeed();
+
+    if (!items || items.length === 0) {
+      return { valid: false, error: 'Uw winkelwagen is leeg.', unorderableItems: [] };
+    }
+
+    const unorderableItems: Array<{ productId: string; productName: string; status: string; label: string }> = [];
+
+    for (const item of items) {
+      const pid = item.productId || item.id || '';
+      const name = item.productName || item.name || pid;
+      // Skip synthetic payment tokens if any, but validate all real items
+      if (pid === 'item-direct' && (!name || name === 'Maison Milau Koffie & Producten')) {
+        continue;
+      }
+
+      const check = await this.isProductOrderable(pid || name);
+      if (!check.orderable) {
+        unorderableItems.push({
+          productId: check.productId || pid,
+          productName: check.productName || name,
+          status: check.status,
+          label: check.label,
+        });
+      }
+    }
+
+    if (unorderableItems.length > 0) {
+      const itemsList = unorderableItems
+        .map((it) => `"${it.productName}" (${it.label})`)
+        .join(', ');
+      const errorMsg = `Bestelling kan niet worden geplaatst: het volgende artikel is momenteel niet bestelbaar: ${itemsList}. Verwijder dit artikel uit uw winkelwagen om door te gaan.`;
+      return {
+        valid: false,
+        error: errorMsg,
+        unorderableItems,
+      };
+    }
+
+    return { valid: true, unorderableItems: [] };
   }
 
   /**

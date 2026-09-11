@@ -75,7 +75,7 @@ interface StockContextType {
   bulkUpdateStock: (
     updates: Array<{ productId: string; stockKg: number; manualStatus?: ManualStatusOverride }>
   ) => Promise<boolean>;
-  getAvailabilityInfo: (product: Product | { id: string; category?: string; batchStatus?: string }) => AvailabilityInfo;
+  getAvailabilityInfo: (product: Product | { id: string; category?: string; batchStatus?: string; [key: string]: any }) => AvailabilityInfo;
   isLoading: boolean;
   refreshStock: () => Promise<void>;
 }
@@ -532,7 +532,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
    * 🔴 Niet Beschikbaar
    */
   const getAvailabilityInfo = useCallback(
-    (product: Product | { id: string; category?: string; batchStatus?: string }): AvailabilityInfo => {
+    (product: Product | { id: string; category?: string; batchStatus?: string; [key: string]: any }): AvailabilityInfo => {
       const pid = product.id;
       const record = getProductRecord(pid);
       const currentStockKg = record ? record.availableKg : 0;

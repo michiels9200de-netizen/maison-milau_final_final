@@ -1,9 +1,10 @@
 import React from 'react';
 import { CoffeeCatalogItem } from '../../types';
 import { getEnrichedSpecs, RoastLevel } from '../../data/coffeeDiscoveryHelpers';
-import { Scale, X, Plus, ExternalLink, Award, Coffee, BookOpen } from 'lucide-react';
+import { Scale, X, Plus, ExternalLink, Award, Coffee, BookOpen, Clock, AlertCircle } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CountryFlag } from '../CountryFlag';
+import { useStock } from '../../context/StockContext';
 
 interface CoffeeComparisonProps {
   allCoffees: CoffeeCatalogItem[];
@@ -24,6 +25,7 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
   onOpenDossier,
   navigate,
 }) => {
+  const { getAvailabilityInfo } = useStock();
   const availableToAdd = allCoffees.filter(
     (c) => !selectedCoffees.some((sc) => sc.id === c.id)
   );
@@ -435,29 +437,60 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                 <td className="py-4 px-4 bg-stone-50/40 font-bold text-stone-700">
                   Acties
                 </td>
-                {selectedCoffees.map((coffee) => (
-                  <td key={coffee.id} className="py-4 px-4 border-l border-stone-100">
-                    <div className="flex flex-col gap-2">
-                      <button
-                        type="button"
-                        onClick={() => onOpenDossier(coffee)}
-                        className="w-full py-2 px-2.5 rounded-xl border border-amber-900/30 bg-amber-50 text-amber-950 text-xs font-bold hover:bg-amber-100 transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <BookOpen className="w-3 h-3 text-amber-800" />
-                        <span>Meer Info</span>
-                      </button>
+                {selectedCoffees.map((coffee) => {
+                  const availInfo = getAvailabilityInfo({
+                    id: coffee.webshopProductId || coffee.id,
+                    sku: coffee.id,
+                    stockStatus: coffee.stockStatus,
+                    batchStatus: coffee.batchStatus,
+                    inStock: coffee.inStock,
+                  });
+                  return (
+                    <td key={coffee.id} className="py-4 px-4 border-l border-stone-100">
+                      <div className="flex flex-col gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onOpenDossier(coffee)}
+                          className="w-full py-2 px-2.5 rounded-xl border border-amber-900/30 bg-amber-50 text-amber-950 text-xs font-bold hover:bg-amber-100 transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <BookOpen className="w-3 h-3 text-amber-800" />
+                          <span>Meer Info</span>
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
-                        className="w-full py-2 px-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-                      >
-                        <span>Bestellen</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </td>
-                ))}
+                        {availInfo.status === 'coming_soon' || availInfo.statusCode === 'coming_soon' ? (
+                          <button
+                            type="button"
+                            disabled
+                            className="w-full py-2 px-2.5 rounded-xl bg-stone-100 text-stone-500 border border-stone-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-85 select-none"
+                            title="Binnenkort beschikbaar - momenteel niet bestelbaar"
+                          >
+                            <Clock className="w-3 h-3 text-stone-400" />
+                            <span>Binnenkort Beschikbaar</span>
+                          </button>
+                        ) : !availInfo.isPurchasable || availInfo.status === 'out_of_stock' || availInfo.statusCode === 'out_of_stock' ? (
+                          <button
+                            type="button"
+                            disabled
+                            className="w-full py-2 px-2.5 rounded-xl bg-stone-100 text-stone-400 border border-stone-200 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed opacity-80 select-none"
+                            title="Momenteel niet beschikbaar"
+                          >
+                            <AlertCircle className="w-3 h-3 text-stone-400" />
+                            <span>Niet Beschikbaar</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/webshop?product=${coffee.webshopProductId}#${coffee.webshopProductId}`)}
+                            className="w-full py-2 px-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                          >
+                            <span>Bestellen</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
               </tr>
             </tbody>
           </table>

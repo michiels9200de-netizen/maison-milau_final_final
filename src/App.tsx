@@ -127,8 +127,8 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <CartProvider>
-        <StockProvider>
+      <StockProvider>
+        <CartProvider>
           <div
             className="min-h-screen flex flex-col text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950"
             style={{
@@ -149,8 +149,8 @@ export default function App() {
             <CartDrawer navigate={navigate} />
             <CookieBanner />
           </div>
-        </StockProvider>
-      </CartProvider>
+        </CartProvider>
+      </StockProvider>
     </AuthProvider>
   );
 }
