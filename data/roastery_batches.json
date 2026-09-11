@@ -8,31 +8,7 @@
     "greenKgUsed": 10,
     "roastedKgProduced": 8.5,
     "roaster": "Hoofdbrander Laurent",
-    "roastDate": "2026-09-10T18:38:23.255Z",
+    "roastDate": "2026-09-10T18:38:23.259Z",
     "notes": "Perfecte branding"
-  },
-  {
-    "id": "batch-001",
-    "batchNumber": "MM-BATCH-2026-088",
-    "blendId": "blend-value-espresso",
-    "blendName": "Value Espresso",
-    "targetProductId": "prod-value-espresso",
-    "greenKgUsed": 20,
-    "roastedKgProduced": 17,
-    "roaster": "Laurent Michiels (Master Roaster)",
-    "roastDate": "2026-09-08T10:15:00.000Z",
-    "notes": "Drum roaster Giesen W15, eerste knak bij 198°C, ontwikkeltijd 15.5%. Uitstekend aromatisch profiel."
-  },
-  {
-    "id": "batch-002",
-    "batchNumber": "MM-BATCH-2026-089",
-    "blendId": "blend-selection-daily",
-    "blendName": "Selection Daily",
-    "targetProductId": "prod-selection-daily",
-    "greenKgUsed": 15,
-    "roastedKgProduced": 12.8,
-    "roaster": "Laurent Michiels (Master Roaster)",
-    "roastDate": "2026-09-09T08:45:00.000Z",
-    "notes": "Medium roast profiel voor omni/filter. Bloemig boeket van de Chelbesa component prachtig behouden."
   }
 ]

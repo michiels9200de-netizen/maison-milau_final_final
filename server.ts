@@ -1175,7 +1175,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     postalCode: '9200',
     country: 'België',
   };
-  const paymentMethod = payload.paymentMethod || payload.orderData?.paymentMethod || 'bancontact';
+  const paymentMethod = payload.paymentMethod || payload.orderData?.paymentMethod || 'mollie';
   const subtotal = Number(payload.subtotal || payload.orderData?.subtotal || items.reduce((sum: number, it: any) => sum + (it.price * (it.quantity || 1)), 0));
   const shippingCost = Number(payload.shippingCost || payload.orderData?.shippingCost || 0);
   const total = Number(payload.total || payload.orderData?.total || (subtotal + shippingCost));
@@ -1272,7 +1272,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     shippingCost,
     total,
     status: realMolliePayment ? 'open' : 'payment_successful',
-    paymentMethod: paymentMethod || 'Bancontact (Mollie)',
+    paymentMethod: paymentMethod === 'mollie' ? 'Mollie' : (paymentMethod || 'Mollie'),
     molliePaymentId,
     molliePaymentUrl: checkoutUrl,
     trackingCode: `BPOST-${Math.floor(100000000 + Math.random() * 900000000)}BE`,

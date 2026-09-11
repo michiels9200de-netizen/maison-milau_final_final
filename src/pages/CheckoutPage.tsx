@@ -33,7 +33,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
     houseNumber: '1',
     postalCode: currentUser?.addresses?.[0]?.postalCode || '',
     city: currentUser?.addresses?.[0]?.city || '',
-    paymentMethod: 'bancontact',
+    paymentMethod: 'mollie',
   });
 
   useEffect(() => {
@@ -699,90 +699,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   </div>
                 </div>
               </div>
-
-              {/* Payment Methods (Mollie Integration) */}
-              <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-2xs text-xs space-y-4">
-                <div className="flex items-center justify-between">
-                  {/* H2: 32-40px / 20-24px, font-weight 600 */}
-                  <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900">
-                    3. Betaalmethode (via Mollie)
-                  </h2>
-                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    Mollie PSP Beveiligd
-                  </span>
-                </div>
-
-                {/* Mollie Gateway Verification Card */}
-                {mollieStatus && (
-                  <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-start gap-2.5 text-stone-700">
-                    <Info className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-stone-900 text-xs">
-                        Mollie Gateway Status: {mollieStatus.mode === 'live' ? 'Productie (Live)' : mollieStatus.mode === 'test' ? 'Testmodus' : 'Simulatie / Sandbox'}
-                      </div>
-                      <div className="text-[11px] text-stone-500 mt-0.5">
-                        {mollieStatus.message}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-3 gap-3">
-                  <label
-                    className={`p-3 rounded-xl border text-center cursor-pointer transition-colors ${
-                      formData.paymentMethod === 'bancontact'
-                        ? 'border-amber-900 bg-amber-50 font-semibold'
-                        : 'border-stone-200 hover:bg-stone-50'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymethod"
-                      className="sr-only"
-                      checked={formData.paymentMethod === 'bancontact'}
-                      onChange={() => setFormData({ ...formData, paymentMethod: 'bancontact' })}
-                    />
-                    <CreditCard className="w-5 h-5 mx-auto mb-1 text-amber-900" />
-                    <span>Bancontact</span>
-                  </label>
-
-                  <label
-                    className={`p-3 rounded-xl border text-center cursor-pointer transition-colors ${
-                      formData.paymentMethod === 'ideal'
-                        ? 'border-amber-900 bg-amber-50 font-semibold'
-                        : 'border-stone-200 hover:bg-stone-50'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymethod"
-                      className="sr-only"
-                      checked={formData.paymentMethod === 'ideal'}
-                      onChange={() => setFormData({ ...formData, paymentMethod: 'ideal' })}
-                    />
-                    <CreditCard className="w-5 h-5 mx-auto mb-1 text-amber-900" />
-                    <span>iDEAL</span>
-                  </label>
-
-                  <label
-                    className={`p-3 rounded-xl border text-center cursor-pointer transition-colors ${
-                      formData.paymentMethod === 'creditcard'
-                        ? 'border-amber-900 bg-amber-50 font-semibold'
-                        : 'border-stone-200 hover:bg-stone-50'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymethod"
-                      className="sr-only"
-                      checked={formData.paymentMethod === 'creditcard'}
-                      onChange={() => setFormData({ ...formData, paymentMethod: 'creditcard' })}
-                    />
-                    <CreditCard className="w-5 h-5 mx-auto mb-1 text-amber-900" />
-                    <span>Kredietkaart</span>
-                  </label>
-                </div>
-              </div>
             </div>
 
             {/* Right: Order Summary */}
@@ -899,14 +815,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   ) : (
                     <>
                       <Lock className="w-4 h-4" />
-                      <span>Betaal nu</span>
+                      <span>Afrekenen met Mollie</span>
                     </>
                   )}
                 </button>
 
                 <div className="flex items-center justify-center gap-2 text-[11px] text-stone-500 pt-1">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>256-bit SSL beveiligde checkout · Mollie Payments (€{grandTotal.toFixed(2)})</span>
+                  <span>256-bit SSL beveiligde checkout · Bancontact, iDEAL & Kredietkaart via Mollie</span>
                 </div>
 
                 {/* Secondary Option: Return to Shop while keeping cart */}

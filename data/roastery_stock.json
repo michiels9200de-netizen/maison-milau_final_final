@@ -1,15 +1,16 @@
 {
   "prod-budget-espresso": {
     "productId": "prod-budget-espresso",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 5.5,
+    "rawStockKg": 5.5,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:16.286Z"
+    "availableKg": 5.5,
+    "manualStatus": "available",
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
+    "lastUpdated": "2026-09-11T23:45:57.403Z"
   },
   "prod-budget-omni": {
     "productId": "prod-budget-omni",
@@ -18,10 +19,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:19.957Z"
+    "lastUpdated": "2026-09-11T22:49:22.459Z"
   },
   "prod-budget-filter": {
     "productId": "prod-budget-filter",
@@ -30,10 +32,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:22.090Z"
+    "lastUpdated": "2026-09-11T22:49:22.546Z"
   },
   "prod-budget-capsules-placeholder": {
     "productId": "prod-budget-capsules-placeholder",
@@ -42,10 +45,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "coming_soon",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T18:19:47.961Z"
+    "lastUpdated": "2026-09-11T23:17:40.884Z"
   },
   "prod-value-espresso": {
     "productId": "prod-value-espresso",
@@ -54,10 +58,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:23.260Z"
+    "lastUpdated": "2026-09-11T22:49:22.634Z"
   },
   "prod-value-omni": {
     "productId": "prod-value-omni",
@@ -66,10 +71,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:24.074Z"
+    "lastUpdated": "2026-09-11T22:49:22.721Z"
   },
   "prod-value-filter": {
     "productId": "prod-value-filter",
@@ -78,10 +84,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:25.426Z"
+    "lastUpdated": "2026-09-11T22:49:25.863Z"
   },
   "prod-value-capsules-placeholder": {
     "productId": "prod-value-capsules-placeholder",
@@ -90,22 +97,24 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "coming_soon",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T18:19:58.894Z"
+    "lastUpdated": "2026-09-11T22:49:22.808Z"
   },
   "prod-selection-daily": {
     "productId": "prod-selection-daily",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 8.5,
+    "rawStockKg": 8.5,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "availableKg": 8.5,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T18:38:23.242Z"
+    "lastUpdated": "2026-09-11T22:49:22.895Z"
   },
   "prod-selection-espresso": {
     "productId": "prod-selection-espresso",
@@ -114,10 +123,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:27.466Z"
+    "lastUpdated": "2026-09-11T22:49:22.983Z"
   },
   "prod-selection-filter": {
     "productId": "prod-selection-filter",
@@ -126,10 +136,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:28.219Z"
+    "lastUpdated": "2026-09-11T22:49:23.071Z"
   },
   "prod-selection-capsules-placeholder": {
     "productId": "prod-selection-capsules-placeholder",
@@ -138,10 +149,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "coming_soon",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-09T23:01:07.961Z"
+    "lastUpdated": "2026-09-11T22:49:25.775Z"
   },
   "prod-premium-daily": {
     "productId": "prod-premium-daily",
@@ -150,10 +162,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:29.408Z"
+    "lastUpdated": "2026-09-11T22:49:23.158Z"
   },
   "prod-premium-espresso": {
     "productId": "prod-premium-espresso",
@@ -162,10 +175,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:30.040Z"
+    "lastUpdated": "2026-09-11T22:49:23.246Z"
   },
   "prod-premium-filter": {
     "productId": "prod-premium-filter",
@@ -174,10 +188,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:30.738Z"
+    "lastUpdated": "2026-09-11T22:49:23.333Z"
   },
   "prod-premium-capsules-placeholder": {
     "productId": "prod-premium-capsules-placeholder",
@@ -186,10 +201,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "coming_soon",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-09T23:01:07.961Z"
+    "lastUpdated": "2026-09-11T22:49:25.688Z"
   },
   "prod-prestige-daily": {
     "productId": "prod-prestige-daily",
@@ -198,10 +214,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:32.334Z"
+    "lastUpdated": "2026-09-11T22:49:23.420Z"
   },
   "prod-prestige-espresso": {
     "productId": "prod-prestige-espresso",
@@ -210,10 +227,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:32.883Z"
+    "lastUpdated": "2026-09-11T22:49:23.508Z"
   },
   "prod-prestige-filter": {
     "productId": "prod-prestige-filter",
@@ -222,10 +240,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:33.477Z"
+    "lastUpdated": "2026-09-11T22:49:23.595Z"
   },
   "prod-prestige-capsules-placeholder": {
     "productId": "prod-prestige-capsules-placeholder",
@@ -234,10 +253,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "coming_soon",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-09T23:01:07.961Z"
+    "lastUpdated": "2026-09-11T22:49:25.600Z"
   },
   "prod-barrel-moscatel": {
     "productId": "prod-barrel-moscatel",
@@ -246,10 +266,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:35.753Z"
+    "lastUpdated": "2026-09-11T22:49:23.682Z"
   },
   "prod-barrel-px": {
     "productId": "prod-barrel-px",
@@ -258,10 +279,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:36.823Z"
+    "lastUpdated": "2026-09-11T22:49:23.770Z"
   },
   "prod-barrel-bourbon": {
     "productId": "prod-barrel-bourbon",
@@ -270,10 +292,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:37.731Z"
+    "lastUpdated": "2026-09-11T22:49:23.857Z"
   },
   "prod-infused-vanilla": {
     "productId": "prod-infused-vanilla",
@@ -282,10 +305,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:38.927Z"
+    "lastUpdated": "2026-09-11T22:49:23.944Z"
   },
   "prod-infused-cinnamon": {
     "productId": "prod-infused-cinnamon",
@@ -294,10 +318,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:39.629Z"
+    "lastUpdated": "2026-09-11T22:49:24.032Z"
   },
   "prod-infused-almond": {
     "productId": "prod-infused-almond",
@@ -306,10 +331,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:40.755Z"
+    "lastUpdated": "2026-09-11T22:49:24.119Z"
   },
   "prod-so-gesha": {
     "productId": "prod-so-gesha",
@@ -318,10 +344,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:41.361Z"
+    "lastUpdated": "2026-09-11T22:49:24.206Z"
   },
   "prod-so-pink-bourbon": {
     "productId": "prod-so-pink-bourbon",
@@ -330,10 +357,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:42.786Z"
+    "lastUpdated": "2026-09-11T22:49:24.467Z"
   },
   "prod-gift-duo": {
     "productId": "prod-gift-duo",
@@ -342,10 +370,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:43.444Z"
+    "lastUpdated": "2026-09-11T22:49:24.641Z"
   },
   "prod-gift-trio": {
     "productId": "prod-gift-trio",
@@ -354,10 +383,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:43.895Z"
+    "lastUpdated": "2026-09-11T22:49:24.728Z"
   },
   "prod-gift-quattro": {
     "productId": "prod-gift-quattro",
@@ -366,10 +396,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:44.490Z"
+    "lastUpdated": "2026-09-11T22:49:24.815Z"
   },
   "prod-acc-mok": {
     "productId": "prod-acc-mok",
@@ -378,10 +409,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:45.806Z"
+    "lastUpdated": "2026-09-11T22:49:24.902Z"
   },
   "prod-acc-cups": {
     "productId": "prod-acc-cups",
@@ -390,10 +422,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:46.262Z"
+    "lastUpdated": "2026-09-11T22:49:24.989Z"
   },
   "prod-acc-coldbrew": {
     "productId": "prod-acc-coldbrew",
@@ -402,10 +435,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:46.668Z"
+    "lastUpdated": "2026-09-11T22:49:25.077Z"
   },
   "prod-acc-recycled": {
     "productId": "prod-acc-recycled",
@@ -414,10 +448,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:48.327Z"
+    "lastUpdated": "2026-09-11T22:49:25.164Z"
   },
   "prod-acc-tshirt": {
     "productId": "prod-acc-tshirt",
@@ -426,93 +461,97 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:48.763Z"
+    "lastUpdated": "2026-09-11T22:49:25.251Z"
   },
   "prod-sub-flexibel": {
     "productId": "prod-sub-flexibel",
     "stockKg": 0,
     "rawStockKg": 0,
     "reservedKg": 0,
-    "subscriptionAllocatedKg": 0,
+    "subscriptionAllocatedKg": 5,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:49.251Z"
+    "lastUpdated": "2026-09-11T22:49:25.338Z"
   },
   "prod-sub-cotm": {
     "productId": "prod-sub-cotm",
     "stockKg": 0,
     "rawStockKg": 0,
     "reservedKg": 0,
-    "subscriptionAllocatedKg": 0,
+    "subscriptionAllocatedKg": 4,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:50.188Z"
+    "lastUpdated": "2026-09-11T22:49:25.426Z"
   },
   "prod-sub-cadeau": {
     "productId": "prod-sub-cadeau",
     "stockKg": 0,
     "rawStockKg": 0,
     "reservedKg": 0,
-    "subscriptionAllocatedKg": 0,
+    "subscriptionAllocatedKg": 2,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:50.903Z"
+    "lastUpdated": "2026-09-11T22:49:25.513Z"
   },
   "prod-barrel-cognac": {
     "productId": "prod-barrel-cognac",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 4,
+    "rawStockKg": 4,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 4,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-barrel-rum": {
     "productId": "prod-barrel-rum",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 5,
+    "rawStockKg": 5,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 5,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-barrel-whisky": {
     "productId": "prod-barrel-whisky",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 7,
+    "rawStockKg": 7,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 7,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-infused-hazelnut": {
     "productId": "prod-infused-hazelnut",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 5,
+    "rawStockKg": 5,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 5,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-nespresso-capsules-placeholder": {
@@ -522,21 +561,21 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "coming_soon",
+    "effectiveStatus": "out_of_stock",
     "isConfigured": false,
     "inStock": false,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-origin-brazil": {
     "productId": "prod-origin-brazil",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 15,
+    "rawStockKg": 15,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 15,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-origin-colombia": {
@@ -546,10 +585,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:42.872Z"
+    "lastUpdated": "2026-09-11T22:49:24.553Z"
   },
   "prod-origin-ethiopia": {
     "productId": "prod-origin-ethiopia",
@@ -558,10 +598,11 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:41.447Z"
+    "lastUpdated": "2026-09-11T22:49:24.293Z"
   },
   "prod-origin-geisha": {
     "productId": "prod-origin-geisha",
@@ -570,69 +611,70 @@
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
     "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
+    "manualStatus": "out_of_stock",
+    "effectiveStatus": "out_of_stock",
+    "isConfigured": true,
     "inStock": false,
-    "lastUpdated": "2026-09-10T09:21:41.535Z"
+    "lastUpdated": "2026-09-11T22:49:24.380Z"
   },
   "prod-origin-guatemala": {
     "productId": "prod-origin-guatemala",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 8,
+    "rawStockKg": 8,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 8,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-origin-indonesia": {
     "productId": "prod-origin-indonesia",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 6,
+    "rawStockKg": 6,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 6,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-origin-kenya": {
     "productId": "prod-origin-kenya",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 2.5,
+    "rawStockKg": 2.5,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 2.5,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-premium-omni": {
     "productId": "prod-premium-omni",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 8,
+    "rawStockKg": 8,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 8,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   },
   "prod-selection-omni": {
     "productId": "prod-selection-omni",
-    "stockKg": 0,
-    "rawStockKg": 0,
+    "stockKg": 12,
+    "rawStockKg": 12,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 0,
-    "effectiveStatus": "not_configured",
-    "isConfigured": false,
-    "inStock": false,
+    "availableKg": 12,
+    "effectiveStatus": "available",
+    "isConfigured": true,
+    "inStock": true,
     "lastUpdated": "2026-09-09T23:01:07.961Z"
   }
 }
