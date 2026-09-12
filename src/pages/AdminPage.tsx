@@ -34,6 +34,7 @@ import { GreenCoffeeManagement } from '../components/admin/GreenCoffeeManagement
 import { BlendCapacityView } from '../components/admin/BlendCapacityView';
 import { RoastBatchModal } from '../components/admin/RoastBatchModal';
 import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
+import { CoffeeDossiersManagement } from '../components/admin/CoffeeDossiersManagement';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -47,7 +48,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [pinError, setPinError] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<
-    'roastery' | 'stock' | 'orders' | 'customers' | 'emails' | 'inquiries'
+    'roastery' | 'stock' | 'dossiers' | 'orders' | 'customers' | 'emails' | 'inquiries'
   >('roastery');
   const [stockSubTab, setStockSubTab] = useState<'products' | 'green' | 'capacities'>('products');
   const [isRoastModalOpen, setIsRoastModalOpen] = useState<boolean>(false);
@@ -298,6 +299,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           {[
             { id: 'roastery', label: 'Roastery Orders', icon: Flame },
             { id: 'stock', label: 'Voorraad & Stock Beheer', icon: Layers },
+            { id: 'dossiers', label: 'Koffiedossiers', icon: FileText },
             { id: 'orders', label: 'Alle Bestellingen', icon: Package },
             { id: 'customers', label: 'Klanten & Accounts', icon: Users },
             { id: 'emails', label: 'E-mail Notificaties', icon: Mail },
@@ -812,6 +814,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
               />
             )}
           </div>
+        )}
+
+        {/* Tab: Centralized Coffee Dossier Management (Single Source of Truth) */}
+        {activeTab === 'dossiers' && (
+          <CoffeeDossiersManagement
+            onOpenPublicDossier={(dossierId) => {
+              navigate(`/koffie-ontdekken?dossier=${dossierId}`);
+            }}
+          />
         )}
       </main>
 

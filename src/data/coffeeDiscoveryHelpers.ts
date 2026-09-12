@@ -1,4 +1,4 @@
-import { CoffeeCatalogItem } from '../types';
+import { CoffeeCatalogItem, CoffeeDossier } from '../types';
 import { COFFEE_DOSSIERS, CoffeeDossierData } from './coffeeDossiers';
 
 export type RoastLevel = 'Light' | 'Medium' | 'Medium-Dark' | 'Dark';
@@ -643,11 +643,65 @@ export function getEnrichedSpecs(coffee: CoffeeCatalogItem): EnrichedCoffeeSpecs
   };
 }
 
-export function getCoffeeDossier(coffeeId: string): CoffeeDossierData | undefined {
-  if (COFFEE_DOSSIERS[coffeeId]) {
-    return COFFEE_DOSSIERS[coffeeId];
+let liveDossiersCache: Record<string, CoffeeDossier> = {};
+
+export function updateLiveDossiersCache(dossiers: CoffeeDossier[]) {
+  const map: Record<string, CoffeeDossier> = {};
+  for (const d of dossiers) {
+    if (!d || !d.id) continue;
+    map[d.id] = d;
+    if (d.slug) map[d.slug] = d;
+    if (d.webshopProductId) map[d.webshopProductId] = d;
+    if (Array.isArray(d.aliases)) {
+      for (const a of d.aliases) {
+        map[a] = d;
+      }
+    }
   }
-  // Map aliases
+  liveDossiersCache = map;
+}
+
+export async function fetchLiveDossier(id: string): Promise<CoffeeDossier | null> {
+  try {
+    const res = await fetch(`/api/dossiers/${encodeURIComponent(id)}`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        const item: CoffeeDossier = json.data;
+        liveDossiersCache[item.id] = item;
+        if (item.slug) liveDossiersCache[item.slug] = item;
+        if (item.webshopProductId) liveDossiersCache[item.webshopProductId] = item;
+        return item;
+      }
+    }
+  } catch (err) {
+    console.warn('[coffeeDiscoveryHelpers] Error fetching dossier from API:', err);
+  }
+  return null;
+}
+
+export async function fetchAllDossiers(): Promise<CoffeeDossier[]> {
+  try {
+    const res = await fetch('/api/dossiers');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        updateLiveDossiersCache(json.data);
+        return json.data;
+      }
+    }
+  } catch (err) {
+    console.warn('[coffeeDiscoveryHelpers] Error fetching all dossiers from API:', err);
+  }
+  return [];
+}
+
+// Auto-hydrate initial cache in browser
+if (typeof window !== 'undefined') {
+  fetchAllDossiers().catch(() => {});
+}
+
+export function getCoffeeDossier(coffeeId: string): CoffeeDossierData | undefined {
   const aliasMap: Record<string, string> = {
     'casknolia-moscatel': 'barrel-moscatel',
     'casknolia-px': 'barrel-pedro-ximenez',
@@ -657,8 +711,45 @@ export function getCoffeeDossier(coffeeId: string): CoffeeDossierData | undefine
     'milau-almond': 'infused-almond',
     'so-gesha': 'so-gesha-bench-maji',
   };
-  if (aliasMap[coffeeId] && COFFEE_DOSSIERS[aliasMap[coffeeId]]) {
-    return COFFEE_DOSSIERS[aliasMap[coffeeId]];
+
+  const resolvedId = aliasMap[coffeeId] || coffeeId;
+
+  // 1. Check live dossiers cache (Single Source of Truth from Admin Panel / API)
+  const live = liveDossiersCache[coffeeId] || liveDossiersCache[resolvedId] || liveDossiersCache[resolvedId.replace(/^prod-/, '')];
+  if (live) {
+    return {
+      id: live.id,
+      discoveryTag: live.discoveryTag || `${live.collection || 'Maison Milau'} Dossier`,
+      secondaryTag: live.secondaryTag,
+      story: live.coffeeStory || '',
+      originStory: `${live.origin || ''}${live.region ? ` - ${live.region}` : ''}${live.farmProducer ? ` (${live.farmProducer})` : ''}`,
+      varietyInfo: live.varietal || 'Specialty Arabica selectie',
+      whySelected: live.traceabilityInfo || 'Geselecteerd door meesterbrander Maison Milau voor uitmuntende balans en cupping score.',
+      idealCustomer: live.idealFor || [],
+      lessSuitableFor: live.lessSuitableFor || [],
+      brewingAdvice: {
+        recommendedMethod: live.recommendedBrewingMethod || (live.brewingMethods?.[0] ?? 'Espresso'),
+        grind: live.brewingParameters?.grindSize || 'Medium-Fine',
+        ratio: live.brewingParameters?.ratio || '1:2 (Espresso) / 1:16 (Filter)',
+        temperature: live.brewingParameters?.waterTemperature || '92-94°C',
+        bloomTime: live.brewingParameters?.bloomTime || '30 sec',
+        tips: live.brewingParameters?.extractionNotes || 'Gebruik gefilterd water met een lage TDS voor maximale aroma-extractie.',
+      },
+      signatureCharacteristics: live.signatureCharacteristics && live.signatureCharacteristics.length > 0 
+        ? live.signatureCharacteristics 
+        : (live.flavourNotes || []),
+      specialStory: live.specialStory,
+    };
   }
+
+  // 2. Fallback to static catalog dossiers
+  if (COFFEE_DOSSIERS[coffeeId]) {
+    return COFFEE_DOSSIERS[coffeeId];
+  }
+
+  if (COFFEE_DOSSIERS[resolvedId]) {
+    return COFFEE_DOSSIERS[resolvedId];
+  }
+
   return undefined;
 }

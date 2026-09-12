@@ -545,3 +545,65 @@ export interface SourcingDashboardMetrics {
   mostUsedCoffees: Array<{ beanName: string; blendUsageCount: number; totalAssignedKg: number }>;
 }
 
+// ============================================================================
+// CENTRALIZED COFFEE DOSSIER SYSTEM
+// Single Source of Truth for all Maison Milau Coffee Products
+// ============================================================================
+export interface CoffeeDossier {
+  id: string; // unique ID (e.g. 'budget-espresso', 'selection-daily')
+  slug?: string;
+  productName: string; // Product Name
+  shortIntro: string; // Short Introduction
+  coffeeStory: string; // Coffee Story
+  origin: string; // Origin (Land van herkomst)
+  region: string; // Region (Regio)
+  farmProducer: string; // Farm / Producer (Boerderij / Producent)
+  varietal: string; // Varietal (Botanische Variëteit)
+  processingMethod: string; // Processing Method (Verwerkingsmethode)
+  roastProfile: string; // Roast Profile (Brandprofiel)
+  flavourNotes: string[]; // Flavour Notes (Smaaktonen)
+  body: number; // Body (1 to 5)
+  bodyDescription?: string;
+  acidity: number; // Acidity (1 to 5)
+  acidityDescription?: string;
+  sweetness: number; // Sweetness (1 to 5)
+  sweetnessDescription?: string;
+  brewingMethods: string[]; // Recommended Brewing Methods
+  foodPairings: string; // Food Pairings
+  traceabilityInfo: string; // Traceability Information
+  sustainabilityInfo: string; // Sustainability Information
+  additionalNotes: string; // Additional Notes
+  internalNotes: string; // Internal Notes (Admin Only)
+
+  // Auxiliary fields for unified cross-system display
+  collection?: string; // 'Budget' | 'Value' | 'Selection' | 'Premium' | 'Prestige' | 'Barrel Aged' | 'Infused' | 'Single Origins' | string
+  type?: string; // 'Espresso' | 'Daily' | 'Omni' | 'Filter' | 'Specialty'
+  scaScore?: string;
+  imageUrl?: string;
+  webshopProductId?: string;
+  discoveryTag?: string;
+  secondaryTag?: string;
+  idealFor?: string[];
+  lessSuitableFor?: string[];
+  recommendedBrewingMethod?: string;
+  brewingParameters?: {
+    grindSize?: string;
+    ratio?: string;
+    waterTemperature?: string;
+    bloomTime?: string;
+    extractionNotes?: string;
+  };
+  signatureCharacteristics?: string[];
+  specialStory?: {
+    title: string;
+    badge: string;
+    paragraphs: string[];
+    calloutQuote?: string;
+    sections?: { heading: string; body: string }[];
+  };
+  aliases?: string[]; // e.g. ['budget-omni', 'budget-daily']
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+

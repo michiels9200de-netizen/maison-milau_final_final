@@ -5,6 +5,7 @@ import { Award, BookOpen, ShoppingBag, Clock, AlertCircle } from 'lucide-react';
 import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { useStock } from '../../context/StockContext';
+import { useDossier } from '../../context/DossierContext';
 
 interface CoffeeDiscoveryCardProps {
   coffee: CoffeeCatalogItem;
@@ -24,6 +25,8 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
   isDarkTheme = false,
 }) => {
   const specs = getEnrichedSpecs(coffee);
+  const { getDossier } = useDossier();
+  const centralDossier = getDossier(coffee.id) || getDossier(coffee.webshopProductId);
   const { getAvailabilityInfo } = useStock();
   const availInfo = getAvailabilityInfo({
     id: coffee.webshopProductId || coffee.id,
@@ -147,27 +150,27 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
 
         {/* Coffee Name & Origin Terroir */}
         <div className="cursor-pointer mb-2" onClick={() => onOpenDossier(coffee)}>
-          <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-amber-950 transition-colors mb-0.5 line-clamp-2" title={coffee.name}>
-            {coffee.name}
+          <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-amber-950 transition-colors mb-0.5 line-clamp-2" title={centralDossier?.productName || coffee.name}>
+            {centralDossier?.productName || coffee.name}
           </h3>
 
           <div className="text-[11px] text-stone-500 font-medium truncate">
             <span>Oorsprong: </span>
             <strong className="text-stone-800">
-              {coffee.origins?.map((o) => o.country).join(', ') || 'Specialty micro-lot'}
+              {centralDossier?.origin || coffee.origins?.map((o) => o.country).join(', ') || 'Specialty micro-lot'}
             </strong>
           </div>
         </div>
 
         {/* Short Introduction / Storytelling */}
         <p className="text-xs text-stone-600 leading-relaxed font-normal mb-2.5 line-clamp-3">
-          {specs.shortIntro}
+          {centralDossier?.shortIntro || specs.shortIntro}
         </p>
 
         {/* Bean Composition */}
         <div className="text-[11px] text-stone-600 bg-stone-50/80 p-2 rounded-lg border border-stone-200/70 mb-2.5">
           <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold block mb-0.5">Samenstelling & Variëteit</span>
-          <span>{coffee.beanSelection}</span>
+          <span>{centralDossier?.varietal || coffee.beanSelection}</span>
         </div>
 
         {/* Flavour Profile (Tags) */}
@@ -176,7 +179,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             Smaakprofiel
           </div>
           <div className="flex flex-wrap gap-1">
-            {coffee.flavors.map((flavor, i) => (
+            {(centralDossier?.flavourNotes || coffee.flavors).map((flavor, i) => (
               <span
                 key={i}
                 className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md text-[11px] font-normal"
@@ -193,10 +196,10 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             Sensorische Cupping-Meters
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-            {renderSensoryBar('Intensiteit', specs.intensity, 'bg-stone-900')}
-            {renderSensoryBar('Aciditeit (Fris)', specs.acidity, 'bg-amber-700')}
-            {renderSensoryBar('Body', specs.body, 'bg-amber-900')}
-            {renderSensoryBar('Zoetheid', specs.sweetness, 'bg-amber-800')}
+            {renderSensoryBar('Intensiteit', centralDossier?.body ?? specs.intensity, 'bg-stone-900')}
+            {renderSensoryBar('Aciditeit (Fris)', centralDossier?.acidity ?? specs.acidity, 'bg-amber-700')}
+            {renderSensoryBar('Body', centralDossier?.body ?? specs.body, 'bg-amber-900')}
+            {renderSensoryBar('Zoetheid', centralDossier?.sweetness ?? specs.sweetness, 'bg-amber-800')}
           </div>
         </div>
 
@@ -206,7 +209,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             Aanbevolen zetmethodes
           </div>
           <div className="flex flex-wrap gap-1">
-            {specs.brewingMethods.map((method, idx) => (
+            {(centralDossier?.brewingMethods || specs.brewingMethods).map((method, idx) => (
               <span
                 key={idx}
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 text-[11px] font-medium"

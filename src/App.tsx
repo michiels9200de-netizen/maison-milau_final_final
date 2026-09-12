@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { StockProvider } from './context/StockContext';
+import { DossierProvider } from './context/DossierContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
@@ -81,6 +82,11 @@ export default function App() {
   }, []);
 
   const renderCurrentPage = () => {
+    if (currentPath.startsWith('/dossier/')) {
+      const dossierId = currentPath.replace('/dossier/', '');
+      return <CatalogPage navigate={navigate} searchParams={new URLSearchParams(`dossier=${dossierId}`)} />;
+    }
+
     switch (currentPath) {
       case '/':
         return <HomePage navigate={navigate} />;
@@ -128,28 +134,30 @@ export default function App() {
   return (
     <AuthProvider>
       <StockProvider>
-        <CartProvider>
-          <div
-            className="min-h-screen flex flex-col text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950"
-            style={{
-              backgroundColor: '#F8F6F2',
-              backgroundImage:
-                'radial-gradient(circle at top left, #EFE7DB 0%, transparent 40%), radial-gradient(circle at bottom right, #E8DDCF 0%, transparent 35%)',
-              backgroundAttachment: 'fixed',
-            }}
-          >
-            <Header currentPath={currentPath} navigate={navigate} />
+        <DossierProvider>
+          <CartProvider>
+            <div
+              className="min-h-screen flex flex-col text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-950"
+              style={{
+                backgroundColor: '#F8F6F2',
+                backgroundImage:
+                  'radial-gradient(circle at top left, #EFE7DB 0%, transparent 40%), radial-gradient(circle at bottom right, #E8DDCF 0%, transparent 35%)',
+                backgroundAttachment: 'fixed',
+              }}
+            >
+              <Header currentPath={currentPath} navigate={navigate} />
 
-            <main className="flex-1">
-              {renderCurrentPage()}
-            </main>
+              <main className="flex-1">
+                {renderCurrentPage()}
+              </main>
 
-            <Footer navigate={navigate} />
+              <Footer navigate={navigate} />
 
-            <CartDrawer navigate={navigate} />
-            <CookieBanner />
-          </div>
-        </CartProvider>
+              <CartDrawer navigate={navigate} />
+              <CookieBanner />
+            </div>
+          </CartProvider>
+        </DossierProvider>
       </StockProvider>
     </AuthProvider>
   );

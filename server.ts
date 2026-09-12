@@ -37,6 +37,8 @@ import { getSupabaseClient } from './server/supabaseClient.js';
 import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.js';
 import { inventoryStore } from './server/inventoryStore.js';
 import { procurementStore } from './server/procurementStore.js';
+import { dossierStore } from './server/dossierStore.js';
+import { generateCoffeeDossierPdf } from './server/dossierPdfService.js';
 
 dotenv.config({ override: true });
 
@@ -3820,6 +3822,116 @@ app.get('/api/procurement/export/excel', (req: Request, res: Response) => {
     res.send(csvContent);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err?.message || 'Excel export error' });
+  }
+});
+
+// ============================================================================
+// CENTRALIZED COFFEE DOSSIER API (Single Source of Truth)
+// ============================================================================
+
+// 1. Get all coffee dossiers (Public access for Meer Info, Catalog, Webshop, QR)
+app.get('/api/dossiers', (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  try {
+    const dossiers = dossierStore.getAll();
+    res.json({
+      success: true,
+      count: dossiers.length,
+      data: dossiers,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Error fetching coffee dossiers' });
+  }
+});
+
+// 2. Get single coffee dossier by ID or slug
+app.get('/api/dossiers/:id', (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  try {
+    const dossier = dossierStore.getById(req.params.id);
+    if (!dossier) {
+      return res.status(404).json({ success: false, error: `Koffiedossier '${req.params.id}' niet gevonden` });
+    }
+    res.json({
+      success: true,
+      data: dossier,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Error fetching dossier' });
+  }
+});
+
+// 3. Admin: Create or update coffee dossier (Single Source of Truth)
+app.post('/api/admin/dossiers', (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  try {
+    const dossierData = req.body;
+    if (!dossierData || !dossierData.productName) {
+      return res.status(400).json({ success: false, error: 'Productnaam is verplicht voor het dossier' });
+    }
+
+    const saved = dossierStore.save(dossierData);
+    res.json({
+      success: true,
+      data: saved,
+      message: `Koffiedossier '${saved.productName}' succesvol opgeslagen en gesynchroniseerd met alle gekoppelde pagina's.`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Fout bij opslaan van koffiedossier' });
+  }
+});
+
+app.put('/api/admin/dossiers/:id', (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  try {
+    const id = req.params.id;
+    const dossierData = { ...req.body, id };
+    const saved = dossierStore.save(dossierData);
+    res.json({
+      success: true,
+      data: saved,
+      message: `Koffiedossier '${saved.productName}' succesvol bijgewerkt in de centrale database.`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Fout bij bijwerken van koffiedossier' });
+  }
+});
+
+// 4. Admin: Delete coffee dossier
+app.delete('/api/admin/dossiers/:id', (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  try {
+    const success = dossierStore.delete(req.params.id);
+    if (!success) {
+      return res.status(404).json({ success: false, error: 'Koffiedossier niet gevonden' });
+    }
+    res.json({
+      success: true,
+      message: `Koffiedossier '${req.params.id}' succesvol verwijderd.`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Fout bij verwijderen van dossier' });
+  }
+});
+
+// 5. Download Official Coffee Dossier PDF Leaflet
+app.get('/api/dossiers/:id/pdf', (req: Request, res: Response) => {
+  try {
+    const dossier = dossierStore.getById(req.params.id);
+    if (!dossier) {
+      return res.status(404).send('Koffiedossier niet gevonden');
+    }
+
+    const pdfDoc = generateCoffeeDossierPdf(dossier);
+    const filename = `Maison_Milau_Koffiedossier_${dossier.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+    pdfDoc.pipe(res);
+    pdfDoc.end();
+  } catch (err: any) {
+    console.error('[PDF Route] Error generating dossier PDF:', err);
+    res.status(500).send('Fout bij genereren van PDF dossier');
   }
 });
 

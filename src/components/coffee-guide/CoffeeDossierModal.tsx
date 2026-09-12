@@ -15,7 +15,10 @@ import {
   ShoppingBag,
   AlertCircle,
   Info,
+  Download,
+  QrCode,
 } from 'lucide-react';
+import { useDossier } from '../../context/DossierContext';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { CountryFlag } from '../CountryFlag';
 import { MediaPlaceholder } from '../MediaPlaceholder';
@@ -36,6 +39,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
   onToggleCompare,
 }) => {
   const { getAvailabilityInfo } = useStock();
+  const { getDossier, downloadDossierPdf } = useDossier();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -55,6 +59,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
 
   if (!coffee) return null;
 
+  const centralDossier = getDossier(coffee.id) || getDossier(coffee.webshopProductId);
   const specs = getEnrichedSpecs(coffee);
   const dossier = getCoffeeDossier(coffee.id);
   const availInfo = getAvailabilityInfo({
@@ -250,14 +255,26 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Sluit dossier"
-            className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => downloadDossierPdf(centralDossier?.id || coffee.id)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-900 text-xs font-semibold transition-colors border border-stone-200"
+              title="Download officieel PDF Koffiedossier"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-800" />
+              <span className="hidden sm:inline">PDF Leaflet</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Sluit dossier"
+              className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Dossier Content: Strictly Follows the 10-Step Order */}
@@ -269,14 +286,14 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 {renderRoastBadge(specs.roastLevel)}
-                {coffee.scaScore && (
+                {(centralDossier?.scaScore || coffee.scaScore) && (
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-100/90 border border-amber-300/70 px-3 py-1 rounded-full shadow-2xs">
                     <Award className="w-3.5 h-3.5 text-amber-800" />
-                    <span>SCA Score: {coffee.scaScore}</span>
+                    <span>SCA Score: {centralDossier?.scaScore || coffee.scaScore}</span>
                   </span>
                 )}
                 <span className="text-xs font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full">
-                  {coffee.type} · {coffee.collection}
+                  {coffee.type} · {centralDossier?.collection || coffee.collection}
                 </span>
                 <span
                   title={
@@ -300,11 +317,11 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 tracking-tight font-serif">
-              {coffee.name}
+              {centralDossier?.productName || coffee.name}
             </h1>
 
             <p className="text-stone-700 text-sm sm:text-base leading-relaxed italic border-l-2 border-amber-800 pl-3 font-serif">
-              "{specs.shortIntro}"
+              "{centralDossier?.shortIntro || specs.shortIntro}"
             </p>
 
             {/* Flavor Tags */}
@@ -312,7 +329,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               <span className="text-[11px] uppercase tracking-wider font-bold text-stone-400 mr-1">
                 Smaaknotities:
               </span>
-              {coffee.flavors.map((flavor, fIdx) => (
+              {(centralDossier?.flavourNotes || coffee.flavors).map((flavor, fIdx) => (
                 <span
                   key={fIdx}
                   className="px-3 py-1 rounded-lg bg-stone-100/80 text-stone-800 text-xs font-medium border border-stone-200/60"
@@ -414,10 +431,10 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-stone-200/80">
-              {renderSensoryMeter('Intensiteit', specs.intensity, 'bg-stone-900', 'Kracht & mondgevoel')}
-              {renderSensoryMeter('Aciditeit (Frisheid)', specs.acidity, 'bg-amber-700', 'Levendigheid & frisheid')}
-              {renderSensoryMeter('Body', specs.body, 'bg-amber-900', 'Volheid & textuur')}
-              {renderSensoryMeter('Zoetheid', specs.sweetness, 'bg-amber-800', 'Karamel- & suikertoetsen')}
+              {renderSensoryMeter('Intensiteit', centralDossier?.body ?? specs.intensity, 'bg-stone-900', 'Kracht & mondgevoel')}
+              {renderSensoryMeter('Aciditeit (Frisheid)', centralDossier?.acidity ?? specs.acidity, 'bg-amber-700', centralDossier?.acidityDescription || 'Levendigheid & frisheid')}
+              {renderSensoryMeter('Body', centralDossier?.body ?? specs.body, 'bg-amber-900', centralDossier?.bodyDescription || 'Volheid & textuur')}
+              {renderSensoryMeter('Zoetheid', centralDossier?.sweetness ?? specs.sweetness, 'bg-amber-800', centralDossier?.sweetnessDescription || 'Karamel- & suikertoetsen')}
             </div>
           </div>
 
@@ -490,7 +507,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
             </div>
 
             <p className="text-stone-800 text-sm sm:text-base leading-relaxed font-serif">
-              {dossier?.story || coffee.character}
+              {centralDossier?.coffeeStory || dossier?.story || coffee.character}
             </p>
           </div>
 
@@ -694,6 +711,16 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
           )}
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => downloadDossierPdf(centralDossier?.id || coffee.id)}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold border border-amber-800/30 bg-amber-50 text-amber-900 hover:bg-amber-100 transition-colors inline-flex items-center justify-center gap-1.5"
+              title="Download PDF Koffiedossier"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>PDF Leaflet</span>
+            </button>
+
             <button
               type="button"
               onClick={onClose}
