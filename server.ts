@@ -38,7 +38,7 @@ import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.j
 import { inventoryStore } from './server/inventoryStore.js';
 import { procurementStore } from './server/procurementStore.js';
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const __dirname = path.resolve();
 
@@ -156,7 +156,7 @@ let orders: any[] = [
     total: 36.90,
     status: 'payment_successful',
     paymentMethod: 'Bancontact',
-    molliePaymentId: 'tr_test_1001_bancontact',
+    molliePaymentId: 'tr_live_hist_1001_bancontact',
     trackingCode: 'BPOST-329482910BE',
     invoiceId: 'INV-2026-0042',
     createdAt: '2026-09-02T10:14:00.000Z',
@@ -203,7 +203,7 @@ let orders: any[] = [
     total: 296.80,
     status: 'payment_successful',
     paymentMethod: 'Factuur 30 dagen',
-    molliePaymentId: 'tr_test_b2b_inv_1002',
+    molliePaymentId: 'tr_live_hist_b2b_inv_1002',
     trackingCode: 'ROASTERY-DELIVERY-AALST',
     invoiceId: 'INV-2026-0043',
     createdAt: '2026-09-03T14:20:00.000Z',
@@ -250,7 +250,7 @@ let orders: any[] = [
     total: 110.16,
     status: 'payment_successful',
     paymentMethod: 'Bancontact',
-    molliePaymentId: 'tr_test_1003_bancontact',
+    molliePaymentId: 'tr_live_hist_1003_bancontact',
     trackingCode: 'BPOST-991823712BE',
     invoiceId: 'INV-2026-0044',
     createdAt: '2026-09-04T11:00:00.000Z',
@@ -269,7 +269,7 @@ let invoices: any[] = [
     totalAmount: 36.90,
     vatAmount: 1.92,
     status: 'paid',
-    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_test_1001_bancontact',
+    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_live_hist_1001_bancontact',
     mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0042',
     pdfDownloadUrl: '/api/invoices/INV-2026-0042/pdf',
   },
@@ -286,7 +286,7 @@ let invoices: any[] = [
     totalAmount: 296.80,
     vatAmount: 16.80,
     status: 'open',
-    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_test_b2b_inv_1002',
+    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_live_hist_b2b_inv_1002',
     mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0043',
     pdfDownloadUrl: '/api/invoices/INV-2026-0043/pdf',
   },
@@ -303,7 +303,7 @@ let invoices: any[] = [
     totalAmount: 110.16,
     vatAmount: 6.89,
     status: 'paid',
-    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_test_1003_bancontact',
+    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_live_hist_1003_bancontact',
     mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0044',
     pdfDownloadUrl: '/api/invoices/INV-2026-0044/pdf',
   },
@@ -1211,7 +1211,13 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
       else if (paymentMethod === 'belfius') mollieMethod = 'belfius';
 
       if (mollieClient) {
+        const detectedMode = apiKey.startsWith('live_') ? 'LIVE' : apiKey.startsWith('test_') ? 'TEST' : 'SIMULATION';
+        console.log(`\n========================================`);
+        console.log(`Mollie Mode:\n${detectedMode}`);
+        console.log(`API Key Prefix: ${apiKey.slice(0, 8)}... (len: ${apiKey.length})`);
         console.log(`[Mollie SDK] Creating payment for ${orderNumber}, amount: €${total.toFixed(2)}`);
+        console.log(`========================================\n`);
+
         const paymentParams: any = {
           amount: {
             currency: 'EUR',
@@ -1244,7 +1250,8 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
         if (url) {
           checkoutUrl = url;
         }
-        console.log(`[Mollie SDK] Payment created successfully: ${molliePaymentId}, checkoutUrl: ${checkoutUrl}`);
+        console.log(`[Mollie SDK] Payment created successfully: ${molliePaymentId} in ${payment.mode.toUpperCase()} mode!`);
+        console.log(`[Mollie SDK] Checkout URL: ${checkoutUrl}`);
       }
     } catch (mollieErr: any) {
       console.error('[Mollie SDK Payment Error]', mollieErr.message);
