@@ -28,6 +28,7 @@ import {
   Scale,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
+import { PrintReceiptButton } from '../components/admin/PrintReceiptButton';
 import { useStock } from '../context/StockContext';
 import { SHOP_PRODUCTS } from '../data/shopData';
 import { GreenCoffeeManagement } from '../components/admin/GreenCoffeeManagement';
@@ -458,17 +459,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                             </span>
                           </td>
                           <td className="p-3">
-                            <select
-                              value={(order as any).roasteryStatus || 'In brandplanning'}
-                              onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
-                              disabled={updatingOrderId === order.id}
-                              className="text-[11px] p-1.5 rounded-lg border border-stone-300 bg-white focus:ring-1 focus:ring-amber-900"
-                            >
-                              <option value="In brandplanning">In brandplanning</option>
-                              <option value="gebrand">Gebrand & Verpakt</option>
-                              <option value="verzonden">Onderweg / Verzonden</option>
-                              <option value="afgehaald">Afgehaald Atelier</option>
-                            </select>
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={(order as any).roasteryStatus || 'In brandplanning'}
+                                onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                                disabled={updatingOrderId === order.id}
+                                className="text-[11px] p-1.5 rounded-lg border border-stone-300 bg-white focus:ring-1 focus:ring-amber-900"
+                              >
+                                <option value="In brandplanning">In brandplanning</option>
+                                <option value="gebrand">Gebrand & Verpakt</option>
+                                <option value="verzonden">Onderweg / Verzonden</option>
+                                <option value="afgehaald">Afgehaald Atelier</option>
+                              </select>
+                              <PrintReceiptButton order={order} />
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -505,6 +509,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                     <th className="p-3">Bedrag</th>
                     <th className="p-3">Mollie Betaalstatus</th>
                     <th className="p-3">Factuur</th>
+                    <th className="p-3 text-right">Bon-Etiket</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -547,6 +552,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                             <span>Download</span>
                           </a>
                         </div>
+                      </td>
+                      <td className="p-3 text-right">
+                        <PrintReceiptButton order={o} />
                       </td>
                     </tr>
                   ))}
