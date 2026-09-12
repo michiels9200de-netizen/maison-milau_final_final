@@ -20,6 +20,9 @@ export interface UserRecord {
   vatNumber?: string;
   addresses?: any[];
   loyaltyPoints: number;
+  totalOrders?: number;
+  totalSpent?: number;
+  lastOrderDate?: string | null;
   verificationToken?: string | null;
   verificationTokenExpiry?: number | null;
   previousVerificationTokens?: string[];
@@ -146,6 +149,7 @@ class AuthStore {
 
       // Populate memory cache and initial seed
       await this.syncAllUsersToCache();
+      await this.syncAllSessionsToCache();
 
       // Check if seed is needed
       if (this.memoryCache.size === 0) {
@@ -204,12 +208,19 @@ class AuthStore {
           verified_at TIMESTAMPTZ,
           created_at TIMESTAMPTZ DEFAULT NOW(),
           updated_at TIMESTAMPTZ,
-          last_verification_token VARCHAR(255)
+          last_verification_token VARCHAR(255),
+          total_orders INTEGER DEFAULT 0,
+          total_spent NUMERIC(10,2) DEFAULT 0,
+          last_order_date TIMESTAMPTZ DEFAULT NULL
         );
 
         CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
         CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users (verification_token);
         CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users (reset_token);
+
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS total_orders INTEGER DEFAULT 0;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS total_spent NUMERIC(10,2) DEFAULT 0;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS last_order_date TIMESTAMPTZ DEFAULT NULL;
 
         CREATE TABLE IF NOT EXISTS sessions (
           token VARCHAR(255) PRIMARY KEY,
@@ -308,6 +319,44 @@ class AuthStore {
         const u = this.mapSqliteRowToUser(row);
         this.memoryCache.set(u.id, u);
       }
+    }
+  }
+
+  public async syncAllSessionsToCache(): Promise<void> {
+    try {
+      const now = Date.now();
+      if (this.mode === 'postgres' && this.pgPool) {
+        const res = await this.pgPool.query('SELECT * FROM sessions WHERE expires_at > $1', [now]);
+        for (const row of res.rows) {
+          this.sessionCache.set(row.token, {
+            token: row.token,
+            userId: row.user_id,
+            email: row.email,
+            role: row.role,
+            accountType: row.account_type,
+            companyName: row.company_name,
+            expiresAt: Number(row.expires_at),
+            createdAt: row.created_at,
+          });
+        }
+      } else if (this.mode === 'sqlite' && this.sqliteDb) {
+        const stmt = this.sqliteDb.prepare('SELECT * FROM sessions WHERE expires_at > ?');
+        const rows = stmt.all(now) as any[];
+        for (const row of rows) {
+          this.sessionCache.set(row.token, {
+            token: row.token,
+            userId: row.user_id,
+            email: row.email,
+            role: row.role,
+            accountType: row.account_type,
+            companyName: row.company_name,
+            expiresAt: Number(row.expires_at),
+            createdAt: row.created_at,
+          });
+        }
+      }
+    } catch (e: any) {
+      console.warn('[AUTH_STORE] Warning syncing sessions to cache:', e?.message || e);
     }
   }
 
@@ -476,6 +525,9 @@ class AuthStore {
       createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
       updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null,
       lastVerificationToken: row.last_verification_token,
+      totalOrders: Number(row.total_orders) || 0,
+      totalSpent: Number(row.total_spent) || 0,
+      lastOrderDate: row.last_order_date ? new Date(row.last_order_date).toISOString() : null,
     };
   }
 
@@ -649,8 +701,9 @@ class AuthStore {
             addresses = $10, loyalty_points = $11, verification_token = $12,
             verification_token_expiry = $13, previous_verification_tokens = $14,
             is_email_verified = $15, is_active = $16, status = $17, reset_token = $18,
-            reset_token_expiry = $19, verified_at = $20, updated_at = $21, last_verification_token = $22
-          WHERE id = $23`,
+            reset_token_expiry = $19, verified_at = $20, updated_at = $21, last_verification_token = $22,
+            total_orders = $23, total_spent = $24, last_order_date = $25
+          WHERE id = $26`,
           [
             updatedUser.email.trim().toLowerCase(),
             updatedUser.username ? updatedUser.username.trim().toLowerCase() : null,
@@ -674,6 +727,9 @@ class AuthStore {
             updatedUser.verifiedAt || null,
             updatedUser.updatedAt,
             updatedUser.lastVerificationToken || null,
+            updatedUser.totalOrders || 0,
+            updatedUser.totalSpent || 0,
+            updatedUser.lastOrderDate || null,
             userId,
           ]
         );
@@ -907,8 +963,42 @@ class AuthStore {
     return Array.from(this.memoryCache.values());
   }
 
+  public getUserByIdSync(id: string): UserRecord | null {
+    if (!id) return null;
+    return this.memoryCache.get(id) || null;
+  }
+
+  public getUserByEmailSync(email: string): UserRecord | null {
+    if (!email) return null;
+    const clean = email.trim().toLowerCase();
+    for (const u of this.memoryCache.values()) {
+      if (u.email.toLowerCase() === clean) return u;
+    }
+    return null;
+  }
+
   public async getAllUsers(): Promise<UserRecord[]> {
+    await this.syncAllUsersToCache();
     return Array.from(this.memoryCache.values());
+  }
+
+  public async deleteUser(userId: string): Promise<boolean> {
+    if (!userId) return false;
+    this.memoryCache.delete(userId);
+    await this.deleteUserSessions(userId);
+
+    try {
+      if (this.mode === 'postgres' && this.pgPool) {
+        await this.pgPool.query('DELETE FROM users WHERE id = $1', [userId]);
+      } else if (this.mode === 'sqlite' && this.sqliteDb) {
+        this.sqliteDb.prepare('DELETE FROM users WHERE id = ?').run(userId);
+      }
+      console.log(`[AUTH_STORE] User deleted from database: ${userId}`);
+      return true;
+    } catch (err: any) {
+      console.error(`[AUTH_STORE] Failed to delete user ${userId}:`, err?.message || err);
+      return false;
+    }
   }
 
   // Session Management (Stateless Cryptographic Tokens + Database Persistence)
@@ -970,7 +1060,7 @@ class AuthStore {
       }
     }
 
-    // Check legacy tokens in cache / db
+    // Check legacy tokens in cache
     const cached = this.sessionCache.get(token);
     if (cached && cached.expiresAt > Date.now()) {
       return {
@@ -987,6 +1077,60 @@ class AuthStore {
     }
 
     return { valid: false };
+  }
+
+  public async verifySessionTokenAsync(token: string): Promise<{ valid: boolean; payload?: any }> {
+    const syncResult = this.verifySessionToken(token);
+    if (syncResult.valid) return syncResult;
+
+    if (this.mode === 'postgres' && this.pgPool) {
+      try {
+        const res = await this.pgPool.query(
+          'SELECT token, user_id, email, role, account_type, company_name, expires_at, created_at FROM sessions WHERE token = $1',
+          [token]
+        );
+        if (res.rows.length > 0) {
+          const row = res.rows[0];
+          const cached = {
+            token: row.token,
+            userId: row.user_id,
+            email: row.email,
+            role: row.role,
+            accountType: row.account_type,
+            companyName: row.company_name,
+            expiresAt: Number(row.expires_at),
+            createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
+          };
+          this.sessionCache.set(token, cached);
+          if (cached.expiresAt > Date.now()) {
+            return {
+              valid: true,
+              payload: {
+                uid: cached.userId,
+                em: cached.email,
+                rl: cached.role,
+                at: cached.accountType,
+                cn: cached.companyName,
+                exp: cached.expiresAt,
+              },
+            };
+          }
+        }
+      } catch (err: any) {
+        console.warn('[AUTH_STORE] Fallback session lookup failed:', err?.message || err);
+      }
+    }
+
+    return { valid: false };
+  }
+
+  public getSession(token: string): ActiveSessionRecord | null {
+    if (!token) return null;
+    const sess = this.sessionCache.get(token);
+    if (sess && sess.expiresAt > Date.now()) {
+      return sess;
+    }
+    return null;
   }
 
   public async saveSessionRecord(sess: ActiveSessionRecord): Promise<void> {
@@ -1060,6 +1204,11 @@ class AuthStore {
     } catch (err: any) {
       console.warn('[AUTH_STORE] Error deleting user sessions from database:', err?.message || err);
     }
+  }
+
+  public getAllSessions(): ActiveSessionRecord[] {
+    const now = Date.now();
+    return Array.from(this.sessionCache.values()).filter((s) => s.expiresAt > now);
   }
 }
 

@@ -38,6 +38,7 @@ import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.j
 import { inventoryStore } from './server/inventoryStore.js';
 import { procurementStore } from './server/procurementStore.js';
 import { dossierStore } from './server/dossierStore.js';
+import { orderStore, OrderRecord, InvoiceRecord } from './server/orderStore.js';
 import { generateCoffeeDossierPdf } from './server/dossierPdfService.js';
 
 dotenv.config({ override: true });
@@ -116,200 +117,18 @@ if (isVercel) {
   });
 }
 
-// In-memory persistent state for development/demonstration
-let orders: any[] = [
-  {
-    id: 'ord-1001',
-    orderNumber: 'MM-2026-1001',
-    customerEmail: 'klant@voorbeeld.be',
-    customerName: 'Laurent Michiels',
-    customerType: 'particulier',
-    shippingAddress: {
-      id: 'addr-1',
-      label: 'Thuis',
-      street: 'Kerkstraat 12',
-      city: 'Dendermonde',
-      postalCode: '9200',
-      country: 'België',
-    },
-    billingAddress: {
-      id: 'addr-1',
-      label: 'Thuis',
-      street: 'Kerkstraat 12',
-      city: 'Dendermonde',
-      postalCode: '9200',
-      country: 'België',
-    },
-    items: [
-      {
-        productId: 'prod-selection-daily',
-        productName: 'Selection Daily',
-        collection: 'Selection',
-        variantWeight: '1kg',
-        grindOption: 'Volle bonen',
-        unitPrice: 31.95,
-        quantity: 1,
-      },
-    ],
-    subtotal: 31.95,
-    discountAmount: 0,
-    vatAmount: 1.92,
-    shippingCost: 4.95,
-    total: 36.90,
-    status: 'payment_successful',
-    paymentMethod: 'Bancontact',
-    molliePaymentId: 'tr_live_hist_1001_bancontact',
-    trackingCode: 'BPOST-329482910BE',
-    invoiceId: 'INV-2026-0042',
-    createdAt: '2026-09-02T10:14:00.000Z',
-  },
-  {
-    id: 'ord-1002',
-    orderNumber: 'MM-2026-1002',
-    customerEmail: 'info@brasserie-delangetafel.be',
-    customerName: 'Brasserie De Lange Tafel',
-    customerType: 'professioneel',
-    companyName: 'De Lange Tafel BV',
-    vatNumber: 'BE 0823.491.204',
-    shippingAddress: {
-      id: 'addr-b2b',
-      label: 'Hoofdkantoor',
-      street: 'Grote Markt 4',
-      city: 'Aalst',
-      postalCode: '9300',
-      country: 'België',
-    },
-    billingAddress: {
-      id: 'addr-b2b',
-      label: 'Hoofdkantoor',
-      street: 'Grote Markt 4',
-      city: 'Aalst',
-      postalCode: '9300',
-      country: 'België',
-    },
-    items: [
-      {
-        productId: 'prod-selection-espresso',
-        productName: 'Selection Espresso',
-        collection: 'Selection',
-        variantWeight: '1kg',
-        grindOption: 'Volle bonen',
-        unitPrice: 28.00,
-        quantity: 10,
-      },
-    ],
-    subtotal: 280.00,
-    discountAmount: 49.50,
-    vatAmount: 16.80,
-    shippingCost: 0,
-    total: 296.80,
-    status: 'payment_successful',
-    paymentMethod: 'Factuur 30 dagen',
-    molliePaymentId: 'tr_live_hist_b2b_inv_1002',
-    trackingCode: 'ROASTERY-DELIVERY-AALST',
-    invoiceId: 'INV-2026-0043',
-    createdAt: '2026-09-03T14:20:00.000Z',
-  },
-  {
-    id: 'ord-1003',
-    orderNumber: 'MM-2026-1003',
-    customerEmail: 'koffiebar.gent@telenet.be',
-    customerName: 'Koffiebar Gent',
-    customerType: 'professioneel',
-    companyName: 'Koffiebar Gent BV',
-    vatNumber: 'BE 0774.912.833',
-    shippingAddress: {
-      id: 'addr-gent',
-      label: 'Koffiebar',
-      street: 'Vrijdagmarkt 18',
-      city: 'Gent',
-      postalCode: '9000',
-      country: 'België',
-    },
-    billingAddress: {
-      id: 'addr-gent',
-      label: 'Koffiebar',
-      street: 'Vrijdagmarkt 18',
-      city: 'Gent',
-      postalCode: '9000',
-      country: 'België',
-    },
-    items: [
-      {
-        productId: 'prod-value-espresso',
-        productName: 'Value Espresso',
-        collection: 'Value',
-        variantWeight: '1kg',
-        grindOption: 'Volle bonen',
-        unitPrice: 22.95,
-        quantity: 5,
-      },
-    ],
-    subtotal: 114.75,
-    discountAmount: 11.48,
-    vatAmount: 6.89,
-    shippingCost: 0,
-    total: 110.16,
-    status: 'payment_successful',
-    paymentMethod: 'Bancontact',
-    molliePaymentId: 'tr_live_hist_1003_bancontact',
-    trackingCode: 'BPOST-991823712BE',
-    invoiceId: 'INV-2026-0044',
-    createdAt: '2026-09-04T11:00:00.000Z',
-  },
-];
+// Production persistent state for orders and invoices (backed by PostgreSQL / SQLite orderStore)
+let orders: any[] = orderStore.getAllOrdersSync();
+let invoices: any[] = orderStore.getAllInvoicesSync();
 
-let invoices: any[] = [
-  {
-    id: 'inv-42',
-    invoiceNumber: 'INV-2026-0042',
-    orderId: 'ord-1001',
-    customerName: 'Laurent Michiels',
-    customerEmail: 'klant@voorbeeld.be',
-    issueDate: '2026-09-02',
-    dueDate: '2026-09-16',
-    totalAmount: 36.90,
-    vatAmount: 1.92,
-    status: 'paid',
-    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_live_hist_1001_bancontact',
-    mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0042',
-    pdfDownloadUrl: '/api/invoices/INV-2026-0042/pdf',
-  },
-  {
-    id: 'inv-43',
-    invoiceNumber: 'INV-2026-0043',
-    orderId: 'ord-1002',
-    customerName: 'De Lange Tafel BV',
-    customerEmail: 'info@brasserie-delangetafel.be',
-    companyName: 'De Lange Tafel BV',
-    vatNumber: 'BE 0823.491.204',
-    issueDate: '2026-09-03',
-    dueDate: '2026-10-03',
-    totalAmount: 296.80,
-    vatAmount: 16.80,
-    status: 'open',
-    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_live_hist_b2b_inv_1002',
-    mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0043',
-    pdfDownloadUrl: '/api/invoices/INV-2026-0043/pdf',
-  },
-  {
-    id: 'inv-44',
-    invoiceNumber: 'INV-2026-0044',
-    orderId: 'ord-1003',
-    customerName: 'Koffiebar Gent BV',
-    customerEmail: 'koffiebar.gent@telenet.be',
-    companyName: 'Koffiebar Gent BV',
-    vatNumber: 'BE 0774.912.833',
-    issueDate: '2026-09-04',
-    dueDate: '2026-10-04',
-    totalAmount: 110.16,
-    vatAmount: 6.89,
-    status: 'paid',
-    molliePaymentLink: 'https://www.mollie.com/payscreen/order/tr_live_hist_1003_bancontact',
-    mollieQrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://maisonmilau.be/pay/INV-2026-0044',
-    pdfDownloadUrl: '/api/invoices/INV-2026-0044/pdf',
-  },
-];
+export function syncOrdersAndInvoicesFromStore(): void {
+  try {
+    orders = orderStore.getAllOrdersSync();
+    invoices = orderStore.getAllInvoicesSync();
+  } catch (err) {
+    console.warn('[ORDER_STORE] Sync warning:', err);
+  }
+}
 
 let subscriptions: any[] = [
   {
@@ -514,6 +333,14 @@ authStore.init().then(() => {
   console.error('[AUTH FATAL] Datastore initialization failed:', err);
 });
 
+// Initialise order datastore immediately and populate active orders and invoices
+orderStore.init().then(() => {
+  syncOrdersAndInvoicesFromStore();
+  console.log(`[ORDER_STORE] Production orders datastore initialized with ${orders.length} orders and ${invoices.length} invoices.`);
+}).catch((err) => {
+  console.error('[ORDER_STORE FATAL] Orders datastore initialization failed:', err);
+});
+
 // Rate limiting for login protection against brute-force attacks
 interface RateLimitRecord {
   attempts: number;
@@ -591,7 +418,23 @@ export function saveSessionsToDisk(): void {
 }
 
 export function loadSessionsFromDisk(): void {
-  // Session states are seamlessly verified against signed HMAC tokens and AuthStore cache
+  try {
+    const sessions = authStore.getAllSessions();
+    for (const s of sessions) {
+      if (!activeSessions.has(s.token)) {
+        activeSessions.set(s.token, {
+          userId: s.userId,
+          email: s.email,
+          role: s.role,
+          accountType: s.accountType,
+          companyName: s.companyName,
+          expiresAt: s.expiresAt,
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('[AUTH] Error loading sessions from store:', e);
+  }
 }
 
 // Load sessions on startup
@@ -644,7 +487,13 @@ export function getAuthenticatedUser(req: Request): any | null {
     if (activeSessions.has(token)) {
       const sess = activeSessions.get(token)!;
       if (sess.expiresAt > Date.now()) {
-        const user = registeredUsers.find((u) => u.id === sess.userId || u.email.toLowerCase() === sess.email.toLowerCase());
+        let user = registeredUsers.find((u) => u.id === sess.userId || u.email.toLowerCase() === sess.email.toLowerCase());
+        if (!user) {
+          user = authStore.getUserByIdSync(sess.userId) || authStore.getUserByEmailSync(sess.email) || undefined;
+          if (user && !registeredUsers.some((u) => u.id === user!.id)) {
+            registeredUsers.push(user);
+          }
+        }
         if (user) {
           if (!user.isEmailVerified && user.role !== 'store_admin') {
             console.warn(`[AUTH] Session rejected: User ${user.email} is not email verified`);
@@ -664,7 +513,13 @@ export function getAuthenticatedUser(req: Request): any | null {
     const verified = authStore.verifySessionToken(token);
     if (verified.valid && verified.payload) {
       const p = verified.payload;
-      const user = registeredUsers.find((u) => u.id === p.uid || u.email.toLowerCase() === (p.em || '').toLowerCase());
+      let user = registeredUsers.find((u) => u.id === p.uid || u.email.toLowerCase() === (p.em || '').toLowerCase());
+      if (!user) {
+        user = authStore.getUserByIdSync(p.uid) || authStore.getUserByEmailSync(p.em) || undefined;
+        if (user && !registeredUsers.some((u) => u.id === user!.id)) {
+          registeredUsers.push(user);
+        }
+      }
       if (user) {
         if (!user.isEmailVerified && user.role !== 'store_admin') {
           console.warn(`[AUTH] Verified token rejected: User ${user.email} is not email verified`);
@@ -1287,10 +1142,12 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     trackingCode: `BPOST-${Math.floor(100000000 + Math.random() * 900000000)}BE`,
     invoiceNumber,
     invoiceId: invoiceNumber,
+    confirmationEmailSent: false,
     createdAt: new Date().toISOString(),
   };
 
-  orders.unshift(newOrder);
+  // Persist order in production PostgreSQL / SQLite orderStore
+  await orderStore.createOrder(newOrder);
 
   // Real-time PostgreSQL stock deduction for the order (Single Source of Truth)
   try {
@@ -1316,8 +1173,52 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     molliePaymentLink: checkoutUrl,
     mollieQrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(checkoutUrl)}`,
     pdfDownloadUrl: `/api/invoices/${invoiceNumber}/pdf`,
+    createdAt: new Date().toISOString(),
   };
-  invoices.unshift(newInvoice);
+
+  await orderStore.createInvoice(newInvoice);
+  syncOrdersAndInvoicesFromStore();
+
+  // If order is paid immediately (e.g. non-Mollie or instant confirmation), update customer profile stats
+  if (!realMolliePayment || newOrder.status === 'payment_successful') {
+    try {
+      const customer = await authStore.getUserByEmail(newOrder.customerEmail);
+      if (customer) {
+        const currentOrders = (customer.totalOrders || 0) + 1;
+        const currentSpent = (customer.totalSpent || 0) + (newOrder.total || 0);
+        const earnedPoints = Math.floor(newOrder.total || 0);
+        const newPoints = (customer.loyaltyPoints || 0) + earnedPoints;
+
+        let updatedAddresses = Array.isArray(customer.addresses) ? [...customer.addresses] : [];
+        if (newOrder.shippingAddress && newOrder.shippingAddress.street) {
+          const hasStreet = updatedAddresses.some((a) => a.street?.toLowerCase() === newOrder.shippingAddress.street?.toLowerCase());
+          if (!hasStreet) {
+            updatedAddresses.push({
+              id: `addr-${Date.now()}`,
+              label: updatedAddresses.length === 0 ? 'Standaard' : 'Afleveradres',
+              street: newOrder.shippingAddress.street,
+              city: newOrder.shippingAddress.city,
+              postalCode: newOrder.shippingAddress.postalCode,
+              country: newOrder.shippingAddress.country || 'België',
+              isDefault: updatedAddresses.length === 0,
+            });
+          }
+        }
+
+        await authStore.updateUser(customer.id, {
+          totalOrders: currentOrders,
+          totalSpent: currentSpent,
+          loyaltyPoints: newPoints,
+          addresses: updatedAddresses,
+          lastOrderDate: new Date().toISOString(),
+        });
+        loadUsersFromDisk(true);
+        console.log(`[CUSTOMER UPDATE] Customer ${customer.email} updated upon order: ${currentOrders} orders, €${currentSpent.toFixed(2)}`);
+      }
+    } catch (custErr) {
+      console.error('[CUSTOMER UPDATE ERROR]', custErr);
+    }
+  }
 
   // Generate and log order confirmation email with selected coffees
   const emailItemLines = newOrder.items.map((it: any) => {
@@ -1326,19 +1227,20 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     return `• ${it.quantity}x ${it.productName} (${details}) - €${((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}${beanSelection}`;
   }).join('\n');
 
-  console.log(`\n========================================\n[ORDER CONFIRMATION EMAIL SENT]\nBestemmeling: ${newOrder.customerEmail}\nOrder: ${newOrder.orderNumber} (Factuur: ${newOrder.invoiceNumber})\nTotaal: €${newOrder.total.toFixed(2)}\nArtikelen:\n${emailItemLines}\nLeveringsmethode: ${newOrder.deliveryMethod}\n========================================\n`);
+  console.log(`\n========================================\n[ORDER DISPATCHING]\nBestemmeling: ${newOrder.customerEmail}\nOrder: ${newOrder.orderNumber} (Factuur: ${newOrder.invoiceNumber})\nTotaal: €${newOrder.total.toFixed(2)}\nArtikelen:\n${emailItemLines}\nLeveringsmethode: ${newOrder.deliveryMethod}\n========================================\n`);
 
-  // Generate real PDF invoice buffer and dispatch live order emails with PDF attached
-  (async () => {
-    let pdfBuffer: Buffer | undefined;
-    try {
-      const fullInvoiceData = buildFullInvoiceData(newInvoice, newOrder);
-      pdfBuffer = await generateInvoicePdfBuffer(fullInvoiceData);
-    } catch (pdfErr) {
-      console.error('[PDF ERROR] Failed to generate invoice buffer for order confirmation email:', pdfErr);
-    }
+  // Generate real PDF invoice buffer and dispatch live order confirmation emails with PDF attached
+  try {
+    const fullInvoiceData = buildFullInvoiceData(newInvoice, newOrder);
+    const pdfBuffer = await generateInvoicePdfBuffer(fullInvoiceData);
     await sendOrderEmails(newOrder, pdfBuffer);
-  })().catch((err) => console.error('[EMAIL ERROR] Order email dispatch failed:', err));
+    newOrder.confirmationEmailSent = true;
+    await orderStore.updateOrder(newOrder.id, { confirmationEmailSent: true });
+    syncOrdersAndInvoicesFromStore();
+    console.log(`[EMAIL SUCCESS] Order confirmation email and PDF sent to ${newOrder.customerEmail} and admin.`);
+  } catch (emailErr) {
+    console.error('[EMAIL ERROR] Failed to send order emails upon creation:', emailErr);
+  }
 
   // If order contains a subscription item, register subscription and send subscription email
   const subItem = (newOrder.items || []).find((it: any) => it.isSubscription || it.subscriptionFrequency || it.frequency);
@@ -1477,12 +1379,90 @@ app.post('/api/create-payment', async (req: Request, res: Response) => {
   }
 });
 
+// Process successful payment, persist order/invoice, update customer metrics, and ensure emails are sent
+async function processSuccessfulPayment(order: any, paymentId?: string): Promise<void> {
+  if (!order) return;
+  order.status = 'payment_successful';
+  if (paymentId && !order.molliePaymentId) {
+    order.molliePaymentId = paymentId;
+  }
+  await orderStore.updateOrder(order.id, {
+    status: 'payment_successful',
+    molliePaymentId: order.molliePaymentId,
+  });
+
+  const invoice = invoices.find((inv) => inv.orderId === order.id || inv.invoiceNumber === order.invoiceNumber);
+  if (invoice) {
+    invoice.status = 'paid';
+    await orderStore.updateInvoice(invoice.id, { status: 'paid' });
+  }
+  syncOrdersAndInvoicesFromStore();
+
+  // 1. Update customer record in datastore (totalOrders, totalSpent, loyaltyPoints, addresses)
+  try {
+    const customer = await authStore.getUserByEmail(order.customerEmail);
+    if (customer) {
+      const currentOrders = (customer.totalOrders || 0) + 1;
+      const currentSpent = (customer.totalSpent || 0) + (order.total || 0);
+      const earnedPoints = Math.floor(order.total || 0);
+      const newPoints = (customer.loyaltyPoints || 0) + earnedPoints;
+
+      let updatedAddresses = Array.isArray(customer.addresses) ? [...customer.addresses] : [];
+      if (order.shippingAddress && order.shippingAddress.street) {
+        const hasStreet = updatedAddresses.some((a) => a.street?.toLowerCase() === order.shippingAddress.street?.toLowerCase());
+        if (!hasStreet) {
+          updatedAddresses.push({
+            id: `addr-${Date.now()}`,
+            label: updatedAddresses.length === 0 ? 'Standaard' : 'Afleveradres',
+            street: order.shippingAddress.street,
+            city: order.shippingAddress.city,
+            postalCode: order.shippingAddress.postalCode,
+            country: order.shippingAddress.country || 'België',
+            isDefault: updatedAddresses.length === 0,
+          });
+        }
+      }
+
+      await authStore.updateUser(customer.id, {
+        totalOrders: currentOrders,
+        totalSpent: currentSpent,
+        loyaltyPoints: newPoints,
+        addresses: updatedAddresses,
+        lastOrderDate: new Date().toISOString(),
+      });
+      loadUsersFromDisk(true);
+      console.log(`[CUSTOMER UPDATE] Customer ${customer.email} updated upon payment: ${currentOrders} orders, €${currentSpent.toFixed(2)}, ${newPoints} pts`);
+    }
+  } catch (custErr) {
+    console.error('[CUSTOMER UPDATE ERROR]', custErr);
+  }
+
+  // 2. Dispatch order confirmation email and PDF if not yet sent
+  if (!order.confirmationEmailSent) {
+    try {
+      const invRecord = (await orderStore.getInvoiceByOrderId(order.id)) || invoice;
+      const fullInvoiceData = buildFullInvoiceData(invRecord, order);
+      const pdfBuffer = await generateInvoicePdfBuffer(fullInvoiceData);
+      await sendOrderEmails(order, pdfBuffer);
+      order.confirmationEmailSent = true;
+      await orderStore.updateOrder(order.id, { confirmationEmailSent: true });
+      syncOrdersAndInvoicesFromStore();
+      console.log(`[EMAIL SUCCESS] Order confirmation email and PDF sent upon payment confirmation for #${order.orderNumber}`);
+    } catch (emailErr) {
+      console.error('[EMAIL ERROR] Payment confirmation email dispatch failed:', emailErr);
+    }
+  }
+}
+
 // Check payment status directly from Mollie API
 app.get('/api/mollie/payment-status/:paymentId', async (req: Request, res: Response) => {
   const paymentId = req.params.paymentId;
   const apiKey = process.env.MOLLIE_API_KEY || '';
 
-  const order = orders.find((o) => o.molliePaymentId === paymentId);
+  let order = orders.find((o) => o.molliePaymentId === paymentId);
+  if (!order) {
+    order = (await orderStore.getOrderByMolliePaymentId(paymentId)) || undefined;
+  }
 
   if (apiKey && (apiKey.startsWith('live_') || apiKey.startsWith('test_')) && paymentId.startsWith('tr_')) {
     try {
@@ -1495,19 +1475,21 @@ app.get('/api/mollie/payment-status/:paymentId', async (req: Request, res: Respo
 
         if (order) {
           if (isPaid) {
-            order.status = 'payment_successful';
-            const invoice = invoices.find((inv) => inv.orderId === order.id);
-            if (invoice) invoice.status = 'paid';
+            await processSuccessfulPayment(order, paymentId);
           } else if (paymentData.status === 'canceled') {
             order.status = 'payment_cancelled';
+            await orderStore.updateOrder(order.id, { status: 'payment_cancelled' });
             sendFailedPaymentEmail(order, 'Betaling geannuleerd in checkout').catch((e) => console.error(e));
           } else if (paymentData.status === 'expired') {
             order.status = 'payment_expired';
+            await orderStore.updateOrder(order.id, { status: 'payment_expired' });
             sendFailedPaymentEmail(order, 'Betalingssessie verlopen').catch((e) => console.error(e));
           } else if (paymentData.status === 'failed') {
             order.status = 'payment_failed';
+            await orderStore.updateOrder(order.id, { status: 'payment_failed' });
             sendFailedPaymentEmail(order, 'Betaling geweigerd door bank/kaartuitgever').catch((e) => console.error(e));
           }
+          syncOrdersAndInvoicesFromStore();
         }
 
         return res.json({
@@ -1526,6 +1508,10 @@ app.get('/api/mollie/payment-status/:paymentId', async (req: Request, res: Respo
   }
 
   // Fallback for simulation
+  if (order && order.status === 'open' && req.query.simulate === 'paid') {
+    await processSuccessfulPayment(order, paymentId);
+  }
+
   return res.json({
     success: true,
     status: order?.status === 'payment_successful' ? 'paid' : 'open',
@@ -1552,22 +1538,28 @@ app.post('/api/mollie/webhook', async (req: Request, res: Response) => {
       if (mollieRes.ok) {
         const payment = await mollieRes.json();
         console.log(`[Mollie Webhook] Payment ${paymentId} status: ${payment.status}`);
-        const order = orders.find((o) => o.molliePaymentId === paymentId);
+        let order = orders.find((o) => o.molliePaymentId === paymentId);
+        if (!order) {
+          order = (await orderStore.getOrderByMolliePaymentId(paymentId)) || undefined;
+        }
+
         if (order) {
           if (payment.status === 'paid') {
-            order.status = 'payment_successful';
-            const invoice = invoices.find((inv) => inv.orderId === order.id);
-            if (invoice) invoice.status = 'paid';
+            await processSuccessfulPayment(order, paymentId);
           } else if (payment.status === 'canceled') {
             order.status = 'payment_cancelled';
+            await orderStore.updateOrder(order.id, { status: 'payment_cancelled' });
             sendFailedPaymentEmail(order, 'Betaling geannuleerd').catch((e) => console.error(e));
           } else if (payment.status === 'expired') {
             order.status = 'payment_expired';
+            await orderStore.updateOrder(order.id, { status: 'payment_expired' });
             sendFailedPaymentEmail(order, 'Betalingssessie verlopen').catch((e) => console.error(e));
           } else if (payment.status === 'failed') {
             order.status = 'payment_failed';
+            await orderStore.updateOrder(order.id, { status: 'payment_failed' });
             sendFailedPaymentEmail(order, 'Betaling geweigerd door bank').catch((e) => console.error(e));
           }
+          syncOrdersAndInvoicesFromStore();
         }
       }
     } catch (err: any) {

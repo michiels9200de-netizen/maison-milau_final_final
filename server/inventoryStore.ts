@@ -692,6 +692,45 @@ class InventoryStore {
     }
   }
 
+  public async refreshFromDatabase(): Promise<void> {
+    if (!this.pgPool) return;
+    try {
+      const invRes = await this.pgPool.query(`
+        SELECT product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, manual_status, in_stock, is_configured, last_updated
+        FROM public.inventory;
+      `);
+      if (invRes.rows.length > 0) {
+        for (const row of invRes.rows) {
+          const pid = row.product_id;
+          const rawStock = Number(row.stock_kg || 0);
+          const resKg = Number(row.reserved_kg || 0);
+          const subKg = Number(row.subscription_allocated_kg || 0);
+          const availKg = Number(row.available_kg !== null && row.available_kg !== undefined ? row.available_kg : Math.max(0, rawStock - resKg - subKg));
+          const manual = (row.manual_status as ManualStatusOverride) || undefined;
+          const isConfigured = row.is_configured === true || rawStock > 0 || (!!manual && manual !== 'auto');
+          const effectiveStatus = this.computeEffectiveStatus(pid, availKg, manual, isConfigured);
+
+          this.productsCache[pid] = {
+            productId: pid,
+            stockKg: availKg,
+            rawStockKg: rawStock,
+            reservedKg: resKg,
+            subscriptionAllocatedKg: subKg,
+            availableKg: availKg,
+            manualStatus: manual,
+            effectiveStatus,
+            isConfigured,
+            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'freshly_roasted'),
+            lastUpdated: row.last_updated ? new Date(row.last_updated).toISOString() : new Date().toISOString(),
+          };
+        }
+      }
+      this.saveToDisk();
+    } catch (err: any) {
+      console.warn('[INVENTORY_STORE] refreshFromDatabase warning:', err?.message || err);
+    }
+  }
+
   /**
    * Calculates maximum producible quantity for all blends based on available green coffee
    */
@@ -1229,7 +1268,7 @@ class InventoryStore {
       return { valid: false, error: 'Uw winkelwagen is leeg.', unorderableItems: [] };
     }
 
-    const unorderableItems: Array<{ productId: string; productName: string; status: string; label: string }> = [];
+    let unorderableItems: Array<{ productId: string; productName: string; status: string; label: string }> = [];
 
     for (const item of items) {
       const pid = item.productId || item.id || '';
@@ -1247,6 +1286,28 @@ class InventoryStore {
           status: check.status,
           label: check.label,
         });
+      }
+    }
+
+    // If any items appeared unorderable, refresh cache from DB once and re-check to avoid stale cache rejection
+    if (unorderableItems.length > 0) {
+      await this.refreshFromDatabase();
+      unorderableItems = [];
+      for (const item of items) {
+        const pid = item.productId || item.id || '';
+        const name = item.productName || item.name || pid;
+        if (pid === 'item-direct' && (!name || name === 'Maison Milau Koffie & Producten')) {
+          continue;
+        }
+        const check = await this.isProductOrderable(pid || name);
+        if (!check.orderable) {
+          unorderableItems.push({
+            productId: check.productId || pid,
+            productName: check.productName || name,
+            status: check.status,
+            label: check.label,
+          });
+        }
       }
     }
 
