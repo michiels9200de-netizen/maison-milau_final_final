@@ -184,9 +184,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
     setPaymentCancelled(false);
 
     try {
-      const isRegisteredDomain = typeof window !== 'undefined' && window.location.hostname.includes('maison-milau.be');
-      const baseOrigin = isRegisteredDomain ? window.location.origin : 'https://www.maison-milau.be';
-
       const orderPayload = {
         userId: currentUser?.id || 'guest',
         customerName: formData.name,
@@ -213,8 +210,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
         subtotal,
         shippingCost: effectiveShipping,
         total: grandTotal,
-        redirectUrl: `${baseOrigin}/checkout?status=success`,
-        cancelUrl: `${baseOrigin}/checkout?status=cancelled`,
+        redirectUrl: `${window.location.origin}/checkout?status=success`,
+        cancelUrl: `${window.location.origin}/checkout?status=cancelled`,
       };
 
       const authToken = localStorage.getItem('mm_auth_token');

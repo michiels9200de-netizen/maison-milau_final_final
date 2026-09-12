@@ -918,25 +918,6 @@ async function getMollieProfileInfo(apiKey: string) {
   }
 }
 
-// Helper: Ensure redirectUrl and cancelUrl conform to Mollie Live domain requirements
-function sanitizeMollieLiveUrl(inputUrl: string | undefined, registeredDomain: string, fallbackPath: string): string {
-  const cleanDomain = (registeredDomain || 'https://www.maison-milau.be').replace(/\/$/, '');
-  const normalizedFallback = `${cleanDomain}${fallbackPath.startsWith('/') ? fallbackPath : `/${fallbackPath}`}`;
-  if (!inputUrl) return normalizedFallback;
-  try {
-    const parsed = new URL(inputUrl);
-    const reg = new URL(cleanDomain);
-    const inputHost = parsed.hostname.toLowerCase();
-    const regHost = reg.hostname.toLowerCase().replace(/^www\./, '');
-    if (inputHost === regHost || inputHost.endsWith('.' + regHost)) {
-      return inputUrl;
-    }
-  } catch {
-    // If parsing fails, fall back to registered domain
-  }
-  return normalizedFallback;
-}
-
 // Helper: Fetch Mollie Activated Methods
 async function getMollieActivatedMethods(apiKey: string) {
   if (!apiKey || apiKey.includes('your_mollie')) return [];
@@ -1217,7 +1198,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
       const mollieClient = getMollieClient(apiKey);
       const profile = await getMollieProfileInfo(apiKey);
       const registeredDomain = profile?.website?.replace(/\/$/, '') || 'https://www.maison-milau.be';
-      const redirectUrl = sanitizeMollieLiveUrl(payload.redirectUrl, registeredDomain, `/checkout?orderId=${orderId}&status=success`);
+      const redirectUrl = payload.redirectUrl || `${registeredDomain}/checkout?orderId=${orderId}&status=success`;
       const webhookUrl = payload.webhookUrl || `${registeredDomain}/api/mollie/webhook`;
 
       // Map method to Mollie API method if specified
@@ -1255,7 +1236,7 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
         };
 
         if (payload.cancelUrl) {
-          paymentParams.cancelUrl = sanitizeMollieLiveUrl(payload.cancelUrl, registeredDomain, `/checkout?orderId=${orderId}&status=cancelled`);
+          paymentParams.cancelUrl = payload.cancelUrl;
         }
 
         if (mollieMethod) {
