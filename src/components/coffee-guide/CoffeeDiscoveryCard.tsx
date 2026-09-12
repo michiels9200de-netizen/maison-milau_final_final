@@ -103,7 +103,14 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
             <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 text-[10px] font-semibold tracking-wider uppercase">
               {coffee.collection}
             </span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${availInfo.badgeClass}`}>
+            <span
+              title={
+                availInfo.status === 'freshly_roasted'
+                  ? 'Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken.'
+                  : undefined
+              }
+              className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${availInfo.badgeClass}`}
+            >
               {availInfo.badge}
             </span>
           </div>

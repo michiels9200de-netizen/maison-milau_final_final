@@ -483,7 +483,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             statusCode: 'freshly_roasted',
             label: 'Net Gebrand',
             badge: '🟠 Net Gebrand',
-            detailText: 'Net Gebrand',
+            detailText: 'Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken.',
             color: 'orange',
             badgeClass: 'bg-amber-50 text-amber-950 border-amber-300 shadow-2xs',
             dotClass: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]',

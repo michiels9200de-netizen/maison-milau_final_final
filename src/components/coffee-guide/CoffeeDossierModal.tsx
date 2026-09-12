@@ -14,6 +14,7 @@ import {
   Quote,
   ShoppingBag,
   AlertCircle,
+  Info,
 } from 'lucide-react';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { CountryFlag } from '../CountryFlag';
@@ -277,8 +278,18 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 <span className="text-xs font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full">
                   {coffee.type} · {coffee.collection}
                 </span>
-                <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full border ${availInfo.badgeClass}`}>
+                <span
+                  title={
+                    availInfo.status === 'freshly_roasted'
+                      ? 'Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken.'
+                      : undefined
+                  }
+                  className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border ${availInfo.badgeClass}`}
+                >
                   <span>{availInfo.badge}</span>
+                  {availInfo.status === 'freshly_roasted' && (
+                    <Info className="w-3.5 h-3.5 text-amber-800/90 shrink-0" />
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -310,6 +321,19 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 </span>
               ))}
             </div>
+
+            {/* Freshly Roasted / Degassing Notification */}
+            {availInfo.status === 'freshly_roasted' && (
+              <div className="mt-2.5 p-3 rounded-xl bg-amber-50/90 border border-amber-300/80 text-amber-950 text-xs flex items-start gap-2.5 shadow-2xs">
+                <Info className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <div className="font-bold text-amber-950">Ontgassingsfase & Levering</div>
+                  <p className="text-stone-700 leading-relaxed font-normal">
+                    Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ==================================================

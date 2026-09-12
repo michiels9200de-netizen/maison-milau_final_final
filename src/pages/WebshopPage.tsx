@@ -908,11 +908,35 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
 
           {/* Stock Availability Indicator - Only the 3 status badges */}
           <div className="flex items-center justify-end text-[10.5px] mb-1.5">
-            <span
-              className={`font-semibold px-2 py-0.5 rounded-full inline-flex items-center shrink-0 text-[10px] sm:text-[11px] border ${availInfo.badgeClass}`}
-            >
-              <span>{availInfo.badge}</span>
-            </span>
+            {availInfo.status === 'freshly_roasted' ? (
+              <div className="relative group/roast inline-flex items-center">
+                <span
+                  tabIndex={0}
+                  role="note"
+                  title="Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken."
+                  aria-label="Net Gebrand: Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken."
+                  className={`font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0 text-[10px] sm:text-[11px] border cursor-help ${availInfo.badgeClass}`}
+                >
+                  <span>{availInfo.badge}</span>
+                  <Info className="w-3 h-3 text-amber-800/80 group-hover/roast:text-amber-950 transition-colors shrink-0" />
+                </span>
+                {/* Floating tooltip on hover / focus */}
+                <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-50 w-64 p-2.5 rounded-xl bg-stone-900 text-stone-100 text-[11px] leading-relaxed shadow-xl border border-amber-500/30 backdrop-blur-xs opacity-0 invisible group-hover/roast:opacity-100 group-hover/roast:visible group-focus-within/roast:opacity-100 group-focus-within/roast:visible transition-all duration-200">
+                  <div className="font-bold text-amber-300 text-[11px] mb-0.5 flex items-center gap-1">
+                    <span>Vers Gebrand & Ontgassing</span>
+                  </div>
+                  <p className="text-stone-200 font-normal">
+                    Deze batch werd recent gebrand en bevindt zich momenteel in de ontgassingsfase. Levering volgt doorgaans binnen 2 weken.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <span
+                className={`font-semibold px-2 py-0.5 rounded-full inline-flex items-center shrink-0 text-[10px] sm:text-[11px] border ${availInfo.badgeClass}`}
+              >
+                <span>{availInfo.badge}</span>
+              </span>
+            )}
           </div>
 
           {/* Product Visual Area - Complete Packaging Preservation (Zero Cropping) */}
