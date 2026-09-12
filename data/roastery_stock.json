@@ -1,16 +1,16 @@
 {
   "prod-budget-espresso": {
     "productId": "prod-budget-espresso",
-    "stockKg": 4,
-    "rawStockKg": 4,
+    "stockKg": 3.25,
+    "rawStockKg": 3.25,
     "reservedKg": 0,
     "subscriptionAllocatedKg": 0,
-    "availableKg": 4,
+    "availableKg": 3.25,
     "manualStatus": "freshly_roasted",
     "effectiveStatus": "freshly_roasted",
     "isConfigured": true,
     "inStock": true,
-    "lastUpdated": "2026-09-12T01:28:52.415Z"
+    "lastUpdated": "2026-09-12T01:38:54.801Z"
   },
   "prod-budget-omni": {
     "productId": "prod-budget-omni",

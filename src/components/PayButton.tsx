@@ -49,8 +49,9 @@ export const PayButton: React.FC<PayButtonProps> = ({
     setErrorMessage(null);
 
     try {
-      // Determine origin for redirect/cancel URLs
-      const origin = window.location.origin;
+      // Determine origin for redirect/cancel URLs (ensures Mollie live profile domain match)
+      const isRegisteredDomain = typeof window !== 'undefined' && window.location.hostname.includes('maison-milau.be');
+      const origin = isRegisteredDomain ? window.location.origin : 'https://www.maison-milau.be';
       const effectiveRedirect = redirectUrl || `${origin}/checkout?status=success`;
       const effectiveCancel = cancelUrl || `${origin}/checkout?status=cancelled`;
 
