@@ -21,7 +21,7 @@ export interface AvailabilityInfo {
   status: ProductAvailabilityStatus;
   statusCode: ProductAvailabilityStatus;
   label: 'Beschikbaar' | 'Net Gebrand' | 'Niet Beschikbaar';
-  badge: '✅ Beschikbaar' | '🟠 Net Gebrand' | '🔴 Niet Beschikbaar';
+  badge: '🟢 Beschikbaar' | '🟠 Net Gebrand' | '🔴 Niet Beschikbaar';
   detailText: string;
   color: 'green' | 'orange' | 'red';
   badgeClass: string;
@@ -465,7 +465,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             status: 'available',
             statusCode: 'available',
             label: 'Beschikbaar',
-            badge: '✅ Beschikbaar',
+            badge: '🟢 Beschikbaar',
             detailText: 'Beschikbaar',
             color: 'green',
             badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs',
@@ -532,7 +532,7 @@ export const StockProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         status: 'available',
         statusCode: 'available',
         label: 'Beschikbaar',
-        badge: '✅ Beschikbaar',
+        badge: '🟢 Beschikbaar',
         detailText: 'Beschikbaar',
         color: 'green',
         badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs',

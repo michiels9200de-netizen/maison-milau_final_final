@@ -909,9 +909,8 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           {/* Stock Availability Indicator - Only the 3 status badges */}
           <div className="flex items-center justify-end text-[10.5px] mb-1.5">
             <span
-              className={`font-semibold px-2 py-0.5 rounded-full flex items-center gap-1.5 shrink-0 text-[10px] sm:text-[11px] border ${availInfo.badgeClass}`}
+              className={`font-semibold px-2 py-0.5 rounded-full inline-flex items-center shrink-0 text-[10px] sm:text-[11px] border ${availInfo.badgeClass}`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${availInfo.dotClass}`} />
               <span>{availInfo.badge}</span>
             </span>
           </div>

@@ -167,7 +167,7 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
     {
       value: 'available',
       label: 'Beschikbaar',
-      badge: '✅ Beschikbaar',
+      badge: '🟢 Beschikbaar',
       dotClass: 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]',
       badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-300 font-bold',
     },
@@ -366,9 +366,8 @@ export const ProductAvailabilityTable: React.FC<ProductAvailabilityTableProps> =
                     {/* Live Webshop Status Indicator */}
                     <td className="py-3 px-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${availInfo.badgeClass}`}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${availInfo.badgeClass}`}
                       >
-                        <span className={`w-2 h-2 rounded-full ${availInfo.dotClass}`} />
                         <span>{availInfo.badge}</span>
                       </span>
                     </td>

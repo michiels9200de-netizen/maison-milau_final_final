@@ -277,8 +277,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 <span className="text-xs font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full">
                   {coffee.type} · {coffee.collection}
                 </span>
-                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border ${availInfo.badgeClass}`}>
-                  <span className={`w-2 h-2 rounded-full ${availInfo.dotClass}`} />
+                <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full border ${availInfo.badgeClass}`}>
                   <span>{availInfo.badge}</span>
                 </span>
               </div>

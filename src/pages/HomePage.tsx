@@ -225,10 +225,10 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
               <div className="flex flex-col items-center">
                 <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-indigo-950 bg-indigo-50 border border-indigo-200/90 px-3 py-1 rounded-full shadow-2xs mb-2.5">
-                  Voordeel & Gemak
+                  Abonnement & Voordeel
                 </span>
                 <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-indigo-950 transition-colors">
-                  Zorgeloos genieten met 10% voordeel
+                  Koffie-abonnement met 10% voordeel
                 </h3>
                 <div className="my-5 sm:my-6 flex items-center justify-center">
                   <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-indigo-50 via-violet-50/70 to-indigo-100/90 border border-indigo-300/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-indigo-500 group-hover:shadow-md transition-all duration-300">
@@ -238,7 +238,7 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
               </div>
               <div className="mt-auto pt-3.5 border-t border-indigo-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-indigo-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>10% vaste korting · Altijd flexibel pauzeren of opzeggen</span>
+                <span>10% korting op elke levering binnen uw abonnement</span>
               </div>
             </div>
 
