@@ -37,7 +37,6 @@ import { getSupabaseClient } from './server/supabaseClient.js';
 import { authStore, UserRecord, ActiveSessionRecord } from './server/authStore.js';
 import { inventoryStore } from './server/inventoryStore.js';
 import { procurementStore } from './server/procurementStore.js';
-import { dossierStore } from './server/dossierStore.js';
 
 dotenv.config({ override: true });
 
@@ -3821,59 +3820,6 @@ app.get('/api/procurement/export/excel', (req: Request, res: Response) => {
     res.send(csvContent);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err?.message || 'Excel export error' });
-  }
-});
-
-// ============================================================================
-// 16. CENTRALIZED COFFEE DOSSIERS API (Single Source of Truth)
-// ============================================================================
-app.get('/api/dossiers', (_req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  try {
-    const dossiers = dossierStore.getAll();
-    res.json({ success: true, dossiers });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Fout bij ophalen koffiedossiers' });
-  }
-});
-
-app.get('/api/dossiers/:id', (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  try {
-    const dossier = dossierStore.getById(req.params.id);
-    if (!dossier) {
-      return res.status(404).json({ success: false, error: 'Dossier niet gevonden' });
-    }
-    res.json({ success: true, dossier });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Fout bij ophalen dossier' });
-  }
-});
-
-app.put('/api/dossiers/:id', (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  try {
-    const data = req.body;
-    if (!data || !data.productName) {
-      return res.status(400).json({ success: false, error: 'Ongeldige dossiergegevens' });
-    }
-    const saved = dossierStore.save({ ...data, id: req.params.id });
-    res.json({ success: true, dossier: saved });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Fout bij opslaan dossier' });
-  }
-});
-
-app.post('/api/dossiers/batch', (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  try {
-    const { dossiers } = req.body || {};
-    if (Array.isArray(dossiers)) {
-      dossiers.forEach(d => dossierStore.save(d));
-    }
-    res.json({ success: true, count: dossiers?.length || 0 });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Fout bij batch opslaan dossiers' });
   }
 });
 
