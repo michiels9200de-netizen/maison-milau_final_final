@@ -5,7 +5,6 @@ import {
   Flame,
   Package,
   Users,
-  BarChart3,
   Mail,
   Download,
   CheckCircle2,
@@ -35,7 +34,6 @@ import { GreenCoffeeManagement } from '../components/admin/GreenCoffeeManagement
 import { BlendCapacityView } from '../components/admin/BlendCapacityView';
 import { RoastBatchModal } from '../components/admin/RoastBatchModal';
 import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
-import { ProcurementSourcingHub } from '../components/admin/procurement/ProcurementSourcingHub';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -49,7 +47,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [pinError, setPinError] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<
-    'roastery' | 'kg_stats' | 'orders' | 'customers' | 'emails' | 'inquiries' | 'stock'
+    'roastery' | 'stock' | 'orders' | 'customers' | 'emails' | 'inquiries'
   >('roastery');
   const [stockSubTab, setStockSubTab] = useState<'products' | 'green' | 'capacities'>('products');
   const [isRoastModalOpen, setIsRoastModalOpen] = useState<boolean>(false);
@@ -300,7 +298,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           {[
             { id: 'roastery', label: 'Roastery Orders', icon: Flame },
             { id: 'stock', label: 'Voorraad & Stock Beheer', icon: Layers },
-            { id: 'kg_stats', label: 'Sourcing & Inkoop (Kilogrammen)', icon: BarChart3 },
             { id: 'orders', label: 'Alle Bestellingen', icon: Package },
             { id: 'customers', label: 'Klanten & Accounts', icon: Users },
             { id: 'emails', label: 'E-mail Notificaties', icon: Mail },
@@ -481,14 +478,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           </div>
         )}
 
-        {/* Tab 2: Procurement & Sourcing Management System */}
-        {activeTab === 'kg_stats' && (
-          <div className="space-y-6">
-            <ProcurementSourcingHub />
-          </div>
-        )}
-
-        {/* Tab 3: Alle Bestellingen */}
+        {/* Alle Bestellingen */}
         {activeTab === 'orders' && (
           <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs space-y-4">
             <div className="flex justify-between items-center">

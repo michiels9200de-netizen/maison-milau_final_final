@@ -177,150 +177,132 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {/* Promise 1: Versheid & Aroma */}
-            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-amber-200/80 shadow-[0_4px_20px_-4px_rgba(217,119,6,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(217,119,6,0.18)] hover:border-amber-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-amber-200/80 shadow-[0_4px_20px_-4px_rgba(217,119,6,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(217,119,6,0.18)] hover:border-amber-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden text-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50/70 to-amber-100/80 border border-amber-300/80 p-1 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-500 group-hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-orange-950 bg-orange-50 border border-orange-200/90 px-3 py-1 rounded-full shadow-2xs mb-2.5">
+                  Versheid & Aroma
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-amber-950 transition-colors">
+                  Altijd vers gebrand
+                </h3>
+                <div className="my-5 sm:my-6 flex items-center justify-center">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50/70 to-amber-100/90 border border-amber-300/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-amber-500 group-hover:shadow-md transition-all duration-300">
                     <FreshRoastIllustration className="w-full h-full" />
                   </div>
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-orange-950 bg-orange-50 border border-orange-200/90 px-3 py-1 rounded-full shadow-2xs">
-                    Versheid & Aroma
-                  </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
-                  Altijd vers gebrand voor maximale smaak
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Geen stoffige winkelvoorraden. Elke koffie wordt wekelijks artisanaal in kleine batches geroosterd in ons atelier in Oudegem en stipt binnen 14 dagen na branding vers bij u geleverd voor een ongeëvenaarde cremalaag en geurbeleving.
-                </p>
               </div>
-              <div className="mt-5 pt-3.5 border-t border-amber-100/80 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950">
+              <div className="mt-auto pt-3.5 border-t border-amber-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-amber-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>Gegarandeerd binnen 14 dagen na branding geleverd</span>
               </div>
             </div>
 
             {/* Promise 2: Kwaliteit & Eerlijkheid */}
-            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-emerald-200/80 shadow-[0_4px_20px_-4px_rgba(5,150,105,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(5,150,105,0.18)] hover:border-emerald-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-emerald-200/80 shadow-[0_4px_20px_-4px_rgba(5,150,105,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(5,150,105,0.18)] hover:border-emerald-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden text-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50/70 to-emerald-100/80 border border-emerald-300/80 p-1 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-emerald-500 group-hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-emerald-950 bg-emerald-50 border border-emerald-200/90 px-3 py-1 rounded-full shadow-2xs mb-2.5">
+                  Kwaliteit & Eerlijkheid
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-emerald-950 transition-colors">
+                  Eerlijke luxe & topkwaliteit
+                </h3>
+                <div className="my-5 sm:my-6 flex items-center justify-center">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50/70 to-emerald-100/90 border border-emerald-300/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-emerald-500 group-hover:shadow-md transition-all duration-300">
                     <SpecialtyGradeIllustration className="w-full h-full" />
                   </div>
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-950 bg-emerald-50 border border-emerald-200/90 px-3 py-1 rounded-full shadow-2xs">
-                    Kwaliteit & Eerlijkheid
-                  </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-emerald-950 transition-colors">
-                  Eerlijke luxe & superieure boonkwaliteit
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Uitsluitend traceerbare specialty grade bonen (SCA 84+ score) met diepe smaaklagen. Rechtstreekse samenwerking met koffieboeren garandeert een kwaliteit die ver boven de supermarktrekkerij uitstijgt tegen democratische prijzen.
-                </p>
               </div>
-              <div className="mt-5 pt-3.5 border-t border-emerald-100/80 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-emerald-950">
+              <div className="mt-auto pt-3.5 border-t border-emerald-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-emerald-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>SCA 84+ score · Aantoonbaar superieur aan supermarktkoffie</span>
               </div>
             </div>
 
             {/* Promise 3: Voordeel & Gemak */}
-            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-indigo-200/80 shadow-[0_4px_20px_-4px_rgba(79,70,229,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(79,70,229,0.18)] hover:border-indigo-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-indigo-200/80 shadow-[0_4px_20px_-4px_rgba(79,70,229,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(79,70,229,0.18)] hover:border-indigo-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden text-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-50 via-violet-50/70 to-indigo-100/80 border border-indigo-300/80 p-1 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-indigo-500 group-hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-indigo-950 bg-indigo-50 border border-indigo-200/90 px-3 py-1 rounded-full shadow-2xs mb-2.5">
+                  Voordeel & Gemak
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-indigo-950 transition-colors">
+                  Zorgeloos genieten met 10% voordeel
+                </h3>
+                <div className="my-5 sm:my-6 flex items-center justify-center">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-indigo-50 via-violet-50/70 to-indigo-100/90 border border-indigo-300/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-indigo-500 group-hover:shadow-md transition-all duration-300">
                     <SubscriptionAdvantageIllustration className="w-full h-full" />
                   </div>
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-950 bg-indigo-50 border border-indigo-200/90 px-3 py-1 rounded-full shadow-2xs">
-                    Voordeel & Gemak
-                  </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-indigo-950 transition-colors">
-                  Zorgeloos genieten met 10% vast voordeel
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Nooit meer zonder uw favoriete koffie. Geniet van 10% vaste korting met onze flexibele, opzegbare koffie-abonnementen afgestemd op uw verbruik, plus direct en warm persoonlijk advies van onze meesterbrander.
-                </p>
               </div>
-              <div className="mt-5 pt-3.5 border-t border-indigo-100/80 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-indigo-950">
+              <div className="mt-auto pt-3.5 border-t border-indigo-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-indigo-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>10% korting · Geen verplichting, altijd flexibel pauzeren</span>
+                <span>10% vaste korting · Altijd flexibel pauzeren of opzeggen</span>
               </div>
             </div>
 
             {/* Promise 4: Atelier & Signatuur */}
-            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-rose-200/80 shadow-[0_4px_20px_-4px_rgba(225,29,72,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(225,29,72,0.18)] hover:border-rose-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-rose-200/80 shadow-[0_4px_20px_-4px_rgba(225,29,72,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(225,29,72,0.18)] hover:border-rose-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden text-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-rose-50 via-amber-50/70 to-rose-100/80 border border-rose-300/80 p-1 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-rose-500 group-hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-rose-950 bg-rose-50 border border-rose-200/90 px-3 py-1 rounded-full shadow-2xs mb-2.5">
+                  Atelier & Signatuur
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-rose-950 transition-colors">
+                  Eigen signatuurblend & private label
+                </h3>
+                <div className="my-5 sm:my-6 flex items-center justify-center">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-rose-50 via-amber-50/70 to-rose-100/90 border border-rose-300/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-rose-500 group-hover:shadow-md transition-all duration-300">
                     <MasterRoasterIllustration className="w-full h-full" />
                   </div>
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-rose-950 bg-rose-50 border border-rose-200/90 px-3 py-1 rounded-full shadow-2xs">
-                    Atelier & Signatuur
-                  </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-rose-950 transition-colors">
-                  Uw eigen signatuurblend & private label
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Bezoek ons atelier in Oudegem en ontwikkel samen met ons uw eigen huiskoffie of merklabel. Perfect afgestemd op de smaakvoorkeuren van uw horecagasten, kantoormedewerkers of als luxueus relatiegeschenk.
-                </p>
               </div>
-              <div className="mt-5 pt-3.5 border-t border-rose-100/80 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-rose-950">
+              <div className="mt-auto pt-3.5 border-t border-rose-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-rose-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-rose-600 shrink-0" />
                 <span>Private label co-creatie & cuppingsessie in ons atelier</span>
               </div>
             </div>
 
             {/* Promise 5: Events & Beleving */}
-            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-amber-300/80 shadow-[0_4px_20px_-4px_rgba(245,158,11,0.1),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(245,158,11,0.22)] hover:border-amber-600 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-amber-300/80 shadow-[0_4px_20px_-4px_rgba(245,158,11,0.1),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(245,158,11,0.22)] hover:border-amber-600 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden text-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-50 via-yellow-50/70 to-amber-100/90 border border-amber-400/80 p-1 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-amber-600 group-hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-amber-950 bg-amber-100/90 border border-amber-300 px-3 py-1 rounded-full shadow-2xs mb-2.5">
+                  Events & Beleving
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-amber-950 transition-colors">
+                  Barista-bar beleving op uw feest
+                </h3>
+                <div className="my-5 sm:my-6 flex items-center justify-center">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-amber-50 via-yellow-50/70 to-amber-100/90 border border-amber-400/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-amber-600 group-hover:shadow-md transition-all duration-300">
                     <BaristaEventIllustration className="w-full h-full" />
                   </div>
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-950 bg-amber-100/90 border border-amber-300 px-3 py-1 rounded-full shadow-2xs">
-                    Events & Beleving
-                  </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-amber-950 transition-colors">
-                  Een complete barista-bar beleving op uw feest
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Breng de ultieme koffiehuisbeleving naar uw trouwfeest, verjaardag of bedrijfsreceptie. Wij voorzien een stijlvolle mobiele espressobar met professionele machines en meesterlijk gezette koffiecreaties.
-                </p>
               </div>
-              <div className="mt-5 pt-3.5 border-t border-amber-100 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-amber-950">
+              <div className="mt-auto pt-3.5 border-t border-amber-100 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-amber-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-amber-700 shrink-0" />
-                <span>Mobiele barista bar, apparatuurverhuur & service</span>
+                <span>Mobiele barista bar, apparatuurverhuur & service op maat</span>
               </div>
             </div>
 
             {/* Promise 6: Lokaal Verankerd */}
-            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-sky-200/80 shadow-[0_4px_20px_-4px_rgba(2,132,199,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(2,132,199,0.18)] hover:border-sky-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white rounded-2xl p-6 sm:p-7 border border-sky-200/80 shadow-[0_4px_20px_-4px_rgba(2,132,199,0.08),0_1px_4px_-1px_rgba(40,24,14,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(2,132,199,0.18)] hover:border-sky-500 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden text-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 rounded-full blur-2xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-sky-50 via-blue-50/70 to-sky-100/80 border border-sky-300/80 p-1 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:border-sky-500 group-hover:shadow-md transition-all duration-300">
-                    <LocalMarketsIllustration className="w-full h-full" />
-                  </div>
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-sky-950 bg-sky-50 border border-sky-200/90 px-3 py-1 rounded-full shadow-2xs">
-                    Lokaal Verankerd
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight mb-2 group-hover:text-sky-950 transition-colors">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-sky-950 bg-sky-50 border border-sky-200/90 px-3 py-1 rounded-full shadow-2xs mb-2.5">
+                  Lokaal Verankerd
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900 font-serif leading-snug tracking-tight group-hover:text-sky-950 transition-colors">
                   Lokaal verankerd & wekelijks ontmoeten
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
-                  Proef, ruik en ontmoet onze brander persoonlijk op de markten in Dendermonde (ma), Wetteren (do) en Aalst (za), of plan een afspraak in ons atelier in Oudegem voor een exclusieve kennismaking.
-                </p>
+                <div className="my-5 sm:my-6 flex items-center justify-center">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-2xl bg-gradient-to-br from-sky-50 via-blue-50/70 to-sky-100/90 border border-sky-300/80 p-2 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-108 group-hover:border-sky-500 group-hover:shadow-md transition-all duration-300">
+                    <LocalMarketsIllustration className="w-full h-full" />
+                  </div>
+                </div>
               </div>
-              <div className="mt-5 pt-3.5 border-t border-sky-100/80 flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-sky-950">
+              <div className="mt-auto pt-3.5 border-t border-sky-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-sky-950 text-center">
                 <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />
                 <span>Markten Dendermonde, Wetteren & Aalst · Atelierbezoek</span>
               </div>
