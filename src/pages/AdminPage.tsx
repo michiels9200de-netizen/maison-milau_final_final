@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   Wheat,
   Scale,
+  BookOpen,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
 import { useStock } from '../context/StockContext';
@@ -34,6 +35,7 @@ import { GreenCoffeeManagement } from '../components/admin/GreenCoffeeManagement
 import { BlendCapacityView } from '../components/admin/BlendCapacityView';
 import { RoastBatchModal } from '../components/admin/RoastBatchModal';
 import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
+import { CoffeeDossierManager } from '../components/admin/CoffeeDossierManager';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -47,7 +49,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [pinError, setPinError] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<
-    'roastery' | 'stock' | 'orders' | 'customers' | 'emails' | 'inquiries'
+    'roastery' | 'stock' | 'orders' | 'customers' | 'emails' | 'inquiries' | 'dossiers'
   >('roastery');
   const [stockSubTab, setStockSubTab] = useState<'products' | 'green' | 'capacities'>('products');
   const [isRoastModalOpen, setIsRoastModalOpen] = useState<boolean>(false);
@@ -298,6 +300,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           {[
             { id: 'roastery', label: 'Roastery Orders', icon: Flame },
             { id: 'stock', label: 'Voorraad & Stock Beheer', icon: Layers },
+            { id: 'dossiers', label: 'Koffiedossiers', icon: BookOpen },
             { id: 'orders', label: 'Alle Bestellingen', icon: Package },
             { id: 'customers', label: 'Klanten & Accounts', icon: Users },
             { id: 'emails', label: 'E-mail Notificaties', icon: Mail },
@@ -813,6 +816,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
             )}
           </div>
         )}
+
+        {/* Tab: Centralized Coffee Dossier Management */}
+        {activeTab === 'dossiers' && <CoffeeDossierManager navigate={navigate} />}
       </main>
 
       {/* Roasting Batch Registration Modal */}
