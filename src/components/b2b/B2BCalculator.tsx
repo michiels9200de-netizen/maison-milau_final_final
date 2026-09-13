@@ -78,7 +78,7 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
       setServerStatus('loading');
       try {
         const headers = getAuthHeaders();
-        const res = await fetch('/api/b2b/calculator/status', {
+        const res = await fetch('/api/b2b/calculator', {
           method: 'GET',
           headers,
         });
@@ -142,7 +142,7 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
 
       try {
         const headers = getAuthHeaders();
-        const res = await fetch('/api/b2b/calculate', {
+        const res = await fetch('/api/b2b/calculator', {
           method: 'POST',
           headers,
           body: JSON.stringify({

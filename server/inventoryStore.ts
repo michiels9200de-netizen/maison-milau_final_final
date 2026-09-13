@@ -1,6 +1,7 @@
 import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
+import { getSupabaseClient } from './supabaseClient.js';
 
 const { Pool } = pg;
 
@@ -110,9 +111,193 @@ export interface FullRoasteryData {
   };
 }
 
+export const isVercelRuntime = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.LAMBDA_TASK_ROOT ||
+  (process.env.NEXT_RUNTIME === 'nodejs' && process.env.NODE_ENV === 'production')
+);
+
+// Fallback paths used ONLY in local development environments (never accessed on Vercel)
 const STOCK_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_stock.json');
 const GREEN_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_green.json');
 const BATCHES_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_batches.json');
+
+// --- RUNTIME INVENTORY CACHE (15-Minute TTL & Vercel / Serverless Safe) ---
+export interface InventoryCacheEntry<T = any> {
+  payload: T;
+  expiresAt: number;
+  updatedAt: string;
+}
+
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes TTL
+const memoryCache = new Map<string, InventoryCacheEntry<any>>();
+
+/**
+ * Retrieves cached inventory payload by key with 15-minute TTL.
+ * Checks fast in-memory cache first, then Supabase table, then PostgreSQL.
+ */
+export async function getCachedInventory<T = any>(cacheKey: string = 'full_roastery_data'): Promise<T | null> {
+  try {
+    const now = Date.now();
+    // 1. In-memory check
+    const mem = memoryCache.get(cacheKey);
+    if (mem && mem.expiresAt > now) {
+      return mem.payload as T;
+    }
+
+    // 2. Supabase check
+    try {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('inventory_cache')
+          .select('payload, updated_at')
+          .eq('cache_key', cacheKey)
+          .maybeSingle();
+
+        if (!error && data && data.payload) {
+          const updatedAtTime = new Date(data.updated_at).getTime();
+          if (now - updatedAtTime < CACHE_TTL_MS) {
+            memoryCache.set(cacheKey, {
+              payload: data.payload,
+              expiresAt: updatedAtTime + CACHE_TTL_MS,
+              updatedAt: data.updated_at,
+            });
+            return data.payload as T;
+          }
+        }
+      }
+    } catch (sbErr) {
+      console.warn(`[INVENTORY_CACHE] Supabase cache read warning for "${cacheKey}":`, sbErr);
+    }
+
+    // 3. PostgreSQL pool check
+    if (typeof inventoryStore !== 'undefined' && inventoryStore.getPgPool()) {
+      const pool = inventoryStore.getPgPool();
+      try {
+        const res = await pool!.query(
+          `SELECT payload, updated_at FROM public.inventory_cache WHERE cache_key = $1 LIMIT 1;`,
+          [cacheKey]
+        );
+        if (res.rows.length > 0) {
+          const row = res.rows[0];
+          const updatedAtTime = new Date(row.updated_at).getTime();
+          if (now - updatedAtTime < CACHE_TTL_MS) {
+            const payload = typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload;
+            memoryCache.set(cacheKey, {
+              payload,
+              expiresAt: updatedAtTime + CACHE_TTL_MS,
+              updatedAt: new Date(row.updated_at).toISOString(),
+            });
+            return payload as T;
+          }
+        }
+      } catch (pgErr) {
+        console.warn(`[INVENTORY_CACHE] PostgreSQL cache read warning for "${cacheKey}":`, pgErr);
+      }
+    }
+  } catch (error) {
+    console.error(`[INVENTORY_CACHE] Error reading cache for "${cacheKey}":`, error);
+  }
+  return null;
+}
+
+/**
+ * Stores payload into the inventory cache with a 15-minute TTL.
+ * Updates in-memory runtime cache, and persists to Supabase / PostgreSQL.
+ * NEVER writes to local disk.
+ */
+export async function setCachedInventory<T = any>(
+  keyOrPayload: string | T,
+  payloadOrTtl?: T | number,
+  optionalTtl?: number
+): Promise<void> {
+  let cacheKey = 'full_roastery_data';
+  let payload: T;
+  let ttlMs = CACHE_TTL_MS;
+
+  if (typeof keyOrPayload === 'string') {
+    cacheKey = keyOrPayload;
+    payload = payloadOrTtl as T;
+    if (typeof optionalTtl === 'number') {
+      ttlMs = optionalTtl;
+    }
+  } else {
+    payload = keyOrPayload as T;
+    if (typeof payloadOrTtl === 'number') {
+      ttlMs = payloadOrTtl;
+    }
+  }
+
+  try {
+    const now = Date.now();
+    const isoNow = new Date(now).toISOString();
+
+    // 1. In-memory cache update
+    memoryCache.set(cacheKey, {
+      payload,
+      expiresAt: now + ttlMs,
+      updatedAt: isoNow,
+    });
+
+    // 2. Supabase table persistence
+    try {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        const { error } = await supabase.from('inventory_cache').upsert(
+          {
+            id: `cache_${cacheKey}`,
+            cache_key: cacheKey,
+            payload,
+            updated_at: isoNow,
+          },
+          { onConflict: 'cache_key' }
+        );
+        if (error) {
+          console.warn('[INVENTORY_CACHE] Supabase upsert notice:', error.message);
+        }
+      }
+    } catch (sbErr) {
+      console.warn('[INVENTORY_CACHE] Supabase cache write warning:', sbErr);
+    }
+
+    // 3. PostgreSQL pool persistence
+    if (typeof inventoryStore !== 'undefined' && inventoryStore?.getPgPool()) {
+      const pool = inventoryStore.getPgPool();
+      try {
+        await pool!.query(
+          `
+          INSERT INTO public.inventory_cache (id, cache_key, payload, updated_at)
+          VALUES ($1, $2, $3, NOW())
+          ON CONFLICT (cache_key) DO UPDATE
+          SET payload = EXCLUDED.payload, updated_at = NOW();
+        `,
+          [`cache_${cacheKey}`, cacheKey, JSON.stringify(payload)]
+        );
+      } catch (pgErr) {
+        console.warn('[INVENTORY_CACHE] PostgreSQL cache write warning:', pgErr);
+      }
+    }
+  } catch (error) {
+    console.error(`[INVENTORY_CACHE] Error setting cache for "${cacheKey}":`, error);
+  }
+}
+
+/**
+ * Invalidates the inventory cache.
+ */
+export function invalidateInventoryCache(cacheKey?: string): void {
+  try {
+    if (cacheKey) {
+      memoryCache.delete(cacheKey);
+    } else {
+      memoryCache.clear();
+    }
+  } catch (err) {
+    console.error('[INVENTORY_CACHE] Error invalidating cache:', err);
+  }
+}
 
 // Default initial catalog inventory presets for all Maison Milau products
 // ZERO quantities until entered explicitly by an administrator
@@ -369,10 +554,30 @@ class InventoryStore {
     this.loadFromDisk();
   }
 
+  public getPgPool(): pg.Pool | null {
+    return this.pgPool;
+  }
+
+  public async getCachedInventory<T = any>(cacheKey: string = 'full_roastery_data'): Promise<T | null> {
+    return getCachedInventory<T>(cacheKey);
+  }
+
+  public async setCachedInventory<T = any>(
+    keyOrPayload: string | T,
+    payloadOrTtl?: T | number,
+    optionalTtl?: number
+  ): Promise<void> {
+    return setCachedInventory(keyOrPayload as any, payloadOrTtl as any, optionalTtl);
+  }
+
+  public invalidateCache(cacheKey?: string): void {
+    invalidateInventoryCache(cacheKey);
+  }
+
   private initPool() {
     const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
     if (!dbUrl) {
-      console.warn('[INVENTORY_STORE] No DATABASE_URL provided, running in local file-backed persistence mode.');
+      console.warn('[INVENTORY_STORE] No DATABASE_URL provided, running in runtime-cache persistence mode.');
       return;
     }
 
@@ -415,13 +620,47 @@ class InventoryStore {
     return 'available';
   }
 
+  private populateInitialCatalogPresets() {
+    const now = new Date().toISOString();
+    Object.entries(ALL_SHOP_PRODUCTS_PRESETS).forEach(([pid, preset]) => {
+      if (!this.productsCache[pid]) {
+        const isConfigured = false;
+        const available = 0;
+        const manualStatus = preset.manualStatus;
+        const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus, isConfigured);
+
+        this.productsCache[pid] = {
+          productId: pid,
+          stockKg: 0,
+          rawStockKg: 0,
+          reservedKg: 0,
+          subscriptionAllocatedKg: 0,
+          availableKg: 0,
+          manualStatus,
+          effectiveStatus,
+          isConfigured: false,
+          inStock: false,
+          lastUpdated: now,
+        };
+      }
+    });
+  }
+
   private loadFromDisk() {
-    // 1. Load products
+    // In Vercel / serverless: NEVER read or write local json files to avoid read-only fs issues
+    if (isVercelRuntime) {
+      this.populateInitialCatalogPresets();
+      this.greenCoffeeCache = { ...INITIAL_GREEN_COFFEE };
+      this.blendRecipesCache = { ...INITIAL_BLEND_RECIPES };
+      this.roastBatchesCache = [...INITIAL_ROAST_BATCHES];
+      return;
+    }
+
+    // In local development: read from disk if files exist
     try {
       if (fs.existsSync(STOCK_FILE_PATH)) {
         const data = JSON.parse(fs.readFileSync(STOCK_FILE_PATH, 'utf-8'));
         Object.entries(data).forEach(([pid, rec]: [string, any]) => {
-          // Only true if explicitly verified / configured by administrator
           const isConfigured = rec.isConfigured === true;
           const rawStock = isConfigured ? Number(rec.rawStockKg ?? rec.stockKg ?? 0) : 0;
           const reserved = isConfigured ? Number(rec.reservedKg ?? 0) : 0;
@@ -450,29 +689,7 @@ class InventoryStore {
     }
 
     // Populate missing default products
-    const now = new Date().toISOString();
-    Object.entries(ALL_SHOP_PRODUCTS_PRESETS).forEach(([pid, preset]) => {
-      if (!this.productsCache[pid]) {
-        const isConfigured = false;
-        const available = 0;
-        const manualStatus = preset.manualStatus;
-        const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus, isConfigured);
-
-        this.productsCache[pid] = {
-          productId: pid,
-          stockKg: 0,
-          rawStockKg: 0,
-          reservedKg: 0,
-          subscriptionAllocatedKg: 0,
-          availableKg: 0,
-          manualStatus,
-          effectiveStatus,
-          isConfigured: false,
-          inStock: false,
-          lastUpdated: now,
-        };
-      }
-    });
+    this.populateInitialCatalogPresets();
 
     // 2. Load green coffee
     try {
@@ -518,10 +735,32 @@ class InventoryStore {
       this.roastBatchesCache = [...INITIAL_ROAST_BATCHES];
     }
 
-    this.saveToDisk();
+    // Never call saveToDisk() on startup!
   }
 
-  private saveToDisk() {
+  /**
+   * Safely persists inventory state to runtime cache and, if in local development, to disk.
+   * On Vercel / serverless: NEVER writes to disk (prevents EROFS).
+   */
+  public async saveToDisk(): Promise<void> {
+    // 1. Always update runtime in-memory & cloud cache
+    try {
+      await setCachedInventory('full_roastery_data', {
+        products: this.productsCache,
+        greenCoffee: this.greenCoffeeCache,
+        blendRecipes: this.blendRecipesCache,
+        roastBatches: this.roastBatchesCache,
+      });
+    } catch (cacheErr) {
+      console.error('[INVENTORY_STORE] Error saving to runtime cache:', cacheErr);
+    }
+
+    // 2. In Vercel / serverless environments: completely eliminate file writes
+    if (isVercelRuntime) {
+      return;
+    }
+
+    // 3. Local development fallback (wrapped in strict try/catch, never throws EROFS)
     try {
       const dir = path.dirname(STOCK_FILE_PATH);
       if (!fs.existsSync(dir)) {
@@ -530,8 +769,8 @@ class InventoryStore {
       fs.writeFileSync(STOCK_FILE_PATH, JSON.stringify(this.productsCache, null, 2), 'utf-8');
       fs.writeFileSync(GREEN_FILE_PATH, JSON.stringify(this.greenCoffeeCache, null, 2), 'utf-8');
       fs.writeFileSync(BATCHES_FILE_PATH, JSON.stringify(this.roastBatchesCache, null, 2), 'utf-8');
-    } catch (err) {
-      console.warn('[INVENTORY_STORE] Error saving roastery disk cache:', err);
+    } catch (err: any) {
+      console.warn('[INVENTORY_STORE] Local disk save warning (suppressed):', err?.message || err);
     }
   }
 
@@ -539,7 +778,21 @@ class InventoryStore {
     if (this.initialized) return;
     this.initialized = true;
 
-    if (!this.pgPool) return;
+    if (!this.pgPool) {
+      // If no PostgreSQL pool is available, try populating from runtime / Supabase cache
+      try {
+        const cached = await getCachedInventory<FullRoasteryData>('full_roastery_data');
+        if (cached && cached.products && Object.keys(cached.products).length > 0) {
+          this.productsCache = cached.products;
+          if (cached.greenCoffee) this.greenCoffeeCache = cached.greenCoffee;
+          if (cached.blendRecipes) this.blendRecipesCache = cached.blendRecipes;
+          if (cached.roastBatches) this.roastBatchesCache = cached.roastBatches;
+        }
+      } catch (cacheErr) {
+        console.error('[INVENTORY_STORE] Cache initialization error:', cacheErr);
+      }
+      return;
+    }
 
     try {
       // 1. Product inventory table
@@ -610,7 +863,18 @@ class InventoryStore {
         );
       `);
 
-      // 4. Authoritative load from PostgreSQL Single Source of Truth
+      // 4. Inventory Cache table for Vercel / Serverless persistence (Requirement 4)
+      await this.pgPool.query(`
+        CREATE TABLE IF NOT EXISTS public.inventory_cache (
+          id VARCHAR(100) PRIMARY KEY,
+          cache_key VARCHAR(100) UNIQUE NOT NULL,
+          payload JSONB NOT NULL,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_inventory_cache_key ON public.inventory_cache (cache_key);
+      `);
+
+      // 5. Authoritative load from PostgreSQL Single Source of Truth
       const invRes = await this.pgPool.query(`
         SELECT product_id, stock_kg, reserved_kg, subscription_allocated_kg, available_kg, manual_status, in_stock, is_configured, last_updated
         FROM public.inventory;
@@ -685,7 +949,14 @@ class InventoryStore {
         }));
       }
 
-      this.saveToDisk();
+      // Update runtime cache without touching disk
+      await setCachedInventory('full_roastery_data', {
+        products: this.productsCache,
+        greenCoffee: this.greenCoffeeCache,
+        blendRecipes: this.blendRecipesCache,
+        roastBatches: this.roastBatchesCache,
+      });
+
       console.log(`[INVENTORY_STORE] PostgreSQL synchronized as authoritative Single Source of Truth (${invRes.rows.length} products loaded).`);
     } catch (err: any) {
       console.error('[INVENTORY_STORE] Failed during ensureSchemaAndSeed:', err?.message || err);
@@ -725,7 +996,12 @@ class InventoryStore {
           };
         }
       }
-      this.saveToDisk();
+      await setCachedInventory('full_roastery_data', {
+        products: this.productsCache,
+        greenCoffee: this.greenCoffeeCache,
+        blendRecipes: this.blendRecipesCache,
+        roastBatches: this.roastBatchesCache,
+      });
     } catch (err: any) {
       console.warn('[INVENTORY_STORE] refreshFromDatabase warning:', err?.message || err);
     }
@@ -813,10 +1089,28 @@ class InventoryStore {
   }
 
   /**
-   * Returns complete roastery single-source-of-truth
+   * Returns complete roastery single-source-of-truth with 15-minute runtime cache
    */
   public async getFullRoasteryData(): Promise<FullRoasteryData> {
-    await this.ensureSchemaAndSeed();
+    // 1. Check runtime cache (15-min TTL)
+    try {
+      const cached = await getCachedInventory<FullRoasteryData>('full_roastery_data');
+      if (cached && cached.products && Object.keys(cached.products).length > 0) {
+        this.productsCache = cached.products;
+        if (cached.greenCoffee) this.greenCoffeeCache = cached.greenCoffee;
+        if (cached.blendRecipes) this.blendRecipesCache = cached.blendRecipes;
+        if (cached.roastBatches) this.roastBatchesCache = cached.roastBatches;
+        return cached;
+      }
+    } catch (cacheErr) {
+      console.error('[INVENTORY_STORE] Cache retrieval error in getFullRoasteryData:', cacheErr);
+    }
+
+    try {
+      await this.ensureSchemaAndSeed();
+    } catch (schemaErr) {
+      console.error('[INVENTORY_STORE] Schema sync error in getFullRoasteryData:', schemaErr);
+    }
 
     const capacities = this.calculateBlendCapacities();
 
@@ -840,7 +1134,7 @@ class InventoryStore {
       totalGreenCoffeeKg += g.availableKg;
     });
 
-    return {
+    const fullData: FullRoasteryData = {
       products: this.productsCache,
       greenCoffee: this.greenCoffeeCache,
       blendRecipes: this.blendRecipesCache,
@@ -857,6 +1151,15 @@ class InventoryStore {
         comingSoonProductCount: freshlyRoastedCount,
       },
     };
+
+    // Save into runtime cache with 15-minute TTL
+    try {
+      await setCachedInventory('full_roastery_data', fullData, CACHE_TTL_MS);
+    } catch (saveErr) {
+      console.error('[INVENTORY_STORE] Error saving full roastery data to cache:', saveErr);
+    }
+
+    return fullData;
   }
 
   public async getAllStock(): Promise<Record<string, InventoryItem>> {

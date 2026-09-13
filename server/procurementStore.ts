@@ -15,6 +15,13 @@ import {
   SEASONAL_HARVEST_CALENDAR,
 } from '../src/data/sourcingMasterData';
 
+const isVercelRuntime = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.LAMBDA_TASK_ROOT ||
+  (process.env.NEXT_RUNTIME === 'nodejs' && process.env.NODE_ENV === 'production')
+);
+
 const BEANS_FILE = path.join(process.cwd(), 'data', 'sourcing_beans.json');
 const SUPPLIERS_FILE = path.join(process.cwd(), 'data', 'sourcing_suppliers.json');
 const POS_FILE = path.join(process.cwd(), 'data', 'sourcing_pos.json');
@@ -32,6 +39,21 @@ class ProcurementStore {
   }
 
   private loadFromDisk() {
+    // In Vercel / serverless: initialize strictly in-memory without filesystem I/O
+    if (isVercelRuntime) {
+      INITIAL_SUPPLIERS.forEach((s) => {
+        this.suppliers[s.id] = { ...s };
+      });
+      INITIAL_GREEN_COFFEE_MASTER.forEach((b) => {
+        this.beans[b.id] = { ...b };
+      });
+      this.purchaseOrders = [...INITIAL_PURCHASE_ORDERS];
+      INITIAL_PROCUREMENT_BLENDS.forEach((b) => {
+        this.blends[b.id] = { ...b };
+      });
+      return;
+    }
+
     try {
       const dir = path.join(process.cwd(), 'data');
       if (!fs.existsSync(dir)) {
@@ -93,14 +115,13 @@ class ProcurementStore {
           this.blends[b.id] = { ...b };
         }
       });
-
-      this.saveToDisk();
     } catch (err) {
-      console.warn('[PROCUREMENT_STORE] Disk load error:', err);
+      console.warn('[PROCUREMENT_STORE] Disk load warning (suppressed):', err);
     }
   }
 
   private saveToDisk() {
+    if (isVercelRuntime) return;
     try {
       const dir = path.join(process.cwd(), 'data');
       if (!fs.existsSync(dir)) {
@@ -111,7 +132,7 @@ class ProcurementStore {
       fs.writeFileSync(POS_FILE, JSON.stringify(this.purchaseOrders, null, 2), 'utf-8');
       fs.writeFileSync(BLENDS_FILE, JSON.stringify(this.blends, null, 2), 'utf-8');
     } catch (err) {
-      console.warn('[PROCUREMENT_STORE] Disk save error:', err);
+      console.warn('[PROCUREMENT_STORE] Disk save warning (suppressed):', err);
     }
   }
 
