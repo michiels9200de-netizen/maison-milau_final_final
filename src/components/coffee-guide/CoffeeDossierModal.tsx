@@ -22,6 +22,7 @@ import { useDossier } from '../../context/DossierContext';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { CountryFlag } from '../CountryFlag';
 import { MediaPlaceholder } from '../MediaPlaceholder';
+import { FlavorNoteBadge, getFlavorConfig, getSensoryConfig } from '../common/FlavorNoteBadge';
 
 interface CoffeeDossierModalProps {
   coffee: CoffeeCatalogItem | null;
@@ -98,12 +99,18 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
     label: string,
     score: number,
     accentColor: string = 'bg-amber-900',
-    descriptor?: string
+    descriptor?: string,
+    overrideIcon?: React.ComponentType<{ className?: string; strokeWidth?: number }>
   ) => {
+    const sConf = getSensoryConfig(label + ' ' + (descriptor || ''));
+    const Icon = overrideIcon || sConf.Icon;
     return (
       <div className="space-y-1.5">
         <div className="flex justify-between items-center text-xs font-bold text-stone-700">
-          <span>{label}</span>
+          <span className="flex items-center gap-1.5">
+            <Icon className={`w-3.5 h-3.5 shrink-0 ${sConf.colorClass}`} strokeWidth={1.8} />
+            <span>{label}</span>
+          </span>
           <span className="text-stone-900 font-extrabold text-sm">{score} / 5</span>
         </div>
         <div className="flex gap-1.5 h-2.5 bg-stone-200/70 rounded-full overflow-hidden p-0.5 shadow-2xs">
@@ -117,7 +124,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
           ))}
         </div>
         {descriptor && (
-          <span className="text-[10px] text-stone-500 font-medium block">
+          <span className="text-[10px] text-stone-500 font-medium block truncate" title={descriptor}>
             {descriptor}
           </span>
         )}
@@ -330,12 +337,7 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 Smaaknotities:
               </span>
               {(centralDossier?.flavourNotes || coffee.flavors).map((flavor, fIdx) => (
-                <span
-                  key={fIdx}
-                  className="px-3 py-1 rounded-lg bg-stone-100/80 text-stone-800 text-xs font-medium border border-stone-200/60"
-                >
-                  {flavor}
-                </span>
+                <FlavorNoteBadge key={fIdx} flavor={flavor} size="md" />
               ))}
             </div>
 
@@ -391,27 +393,41 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
 
             {dossier?.signatureCharacteristics && dossier.signatureCharacteristics.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {dossier.signatureCharacteristics.map((char, cIdx) => (
-                  <div
-                    key={cIdx}
-                    className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70 text-xs text-stone-800 font-medium"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-800 shrink-0 mt-1.5" />
-                    <span>{char}</span>
-                  </div>
-                ))}
+                {dossier.signatureCharacteristics.map((char, cIdx) => {
+                  const fConf = getFlavorConfig(char);
+                  const sConf = getSensoryConfig(char);
+                  const IconComponent = fConf.category !== 'default' ? fConf.Icon : sConf.Icon;
+                  const colorClass = fConf.category !== 'default' ? fConf.colorClass : sConf.colorClass;
+                  return (
+                    <div
+                      key={cIdx}
+                      className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50/90 border border-stone-200/70 text-xs text-stone-800 font-medium hover:border-amber-300/80 transition-colors"
+                    >
+                      <div className="w-5 h-5 rounded-md bg-amber-100/70 border border-amber-200/60 flex items-center justify-center shrink-0 mt-0.5 text-amber-900 shadow-2xs">
+                        <IconComponent className={`w-3 h-3 ${colorClass}`} strokeWidth={1.8} />
+                      </div>
+                      <span className="leading-snug">{char}</span>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {coffee.flavors.map((flv, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70 text-xs text-stone-800 font-medium"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-800 shrink-0 mt-1.5" />
-                    <span>Dominante smaakexpressie van {flv.toLowerCase()} met harmonieuze afronding.</span>
-                  </div>
-                ))}
+                {coffee.flavors.map((flv, idx) => {
+                  const fConf = getFlavorConfig(flv);
+                  const IconComponent = fConf.Icon;
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50/90 border border-stone-200/70 text-xs text-stone-800 font-medium hover:border-amber-300/80 transition-colors"
+                    >
+                      <div className="w-5 h-5 rounded-md bg-amber-100/70 border border-amber-200/60 flex items-center justify-center shrink-0 mt-0.5 text-amber-900 shadow-2xs">
+                        <IconComponent className={`w-3 h-3 ${fConf.colorClass}`} strokeWidth={1.8} />
+                      </div>
+                      <span className="leading-snug">Dominante smaakexpressie van {flv.toLowerCase()} met harmonieuze afronding.</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

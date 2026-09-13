@@ -5,6 +5,7 @@ import { Scale, X, Plus, ExternalLink, Award, Coffee, BookOpen, Clock, AlertCirc
 import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CountryFlag } from '../CountryFlag';
 import { useStock } from '../../context/StockContext';
+import { FlavorNoteBadge, getSensoryConfig } from '../common/FlavorNoteBadge';
 
 interface CoffeeComparisonProps {
   allCoffees: CoffeeCatalogItem[];
@@ -304,12 +305,7 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
                   <td key={coffee.id} className="py-4 px-4 border-l border-stone-100">
                     <div className="flex flex-wrap gap-1">
                       {coffee.flavors.map((flavor, fIdx) => (
-                        <span
-                          key={fIdx}
-                          className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 font-medium text-[11px]"
-                        >
-                          {flavor}
-                        </span>
+                        <FlavorNoteBadge key={fIdx} flavor={flavor} size="sm" />
                       ))}
                     </div>
                   </td>
@@ -319,7 +315,14 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
               {/* INTENSITEIT */}
               <tr className="hover:bg-stone-50/50 transition-colors">
                 <td className="py-3 px-4 font-bold text-stone-800 bg-stone-50/40">
-                  Intensiteit
+                  <div className="flex items-center gap-1.5">
+                    {(() => {
+                      const s = getSensoryConfig('Intensiteit');
+                      const Icon = s.Icon;
+                      return <Icon className={`w-3.5 h-3.5 ${s.colorClass} shrink-0`} strokeWidth={1.8} />;
+                    })()}
+                    <span>Intensiteit</span>
+                  </div>
                 </td>
                 {selectedCoffees.map((coffee) => {
                   const specs = getEnrichedSpecs(coffee);
@@ -334,7 +337,14 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
               {/* ACIDITEIT */}
               <tr className="hover:bg-stone-50/50 transition-colors">
                 <td className="py-3 px-4 font-bold text-stone-800 bg-stone-50/40">
-                  Aciditeit (Frisheid)
+                  <div className="flex items-center gap-1.5">
+                    {(() => {
+                      const s = getSensoryConfig('Aciditeit (Frisheid)');
+                      const Icon = s.Icon;
+                      return <Icon className={`w-3.5 h-3.5 ${s.colorClass} shrink-0`} strokeWidth={1.8} />;
+                    })()}
+                    <span>Aciditeit (Frisheid)</span>
+                  </div>
                 </td>
                 {selectedCoffees.map((coffee) => {
                   const specs = getEnrichedSpecs(coffee);
@@ -349,7 +359,14 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
               {/* BODY */}
               <tr className="hover:bg-stone-50/50 transition-colors">
                 <td className="py-3 px-4 font-bold text-stone-800 bg-stone-50/40">
-                  Body (Mondgevoel)
+                  <div className="flex items-center gap-1.5">
+                    {(() => {
+                      const s = getSensoryConfig('Body');
+                      const Icon = s.Icon;
+                      return <Icon className={`w-3.5 h-3.5 ${s.colorClass} shrink-0`} strokeWidth={1.8} />;
+                    })()}
+                    <span>Body (Mondgevoel)</span>
+                  </div>
                 </td>
                 {selectedCoffees.map((coffee) => {
                   const specs = getEnrichedSpecs(coffee);
@@ -364,7 +381,14 @@ export const CoffeeComparison: React.FC<CoffeeComparisonProps> = ({
               {/* ZOETHEID */}
               <tr className="hover:bg-stone-50/50 transition-colors">
                 <td className="py-3 px-4 font-bold text-stone-800 bg-stone-50/40">
-                  Zoetheid
+                  <div className="flex items-center gap-1.5">
+                    {(() => {
+                      const s = getSensoryConfig('Zoetheid');
+                      const Icon = s.Icon;
+                      return <Icon className={`w-3.5 h-3.5 ${s.colorClass} shrink-0`} strokeWidth={1.8} />;
+                    })()}
+                    <span>Zoetheid</span>
+                  </div>
                 </td>
                 {selectedCoffees.map((coffee) => {
                   const specs = getEnrichedSpecs(coffee);

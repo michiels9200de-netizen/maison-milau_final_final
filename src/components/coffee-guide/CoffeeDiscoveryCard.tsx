@@ -6,6 +6,7 @@ import { MediaPlaceholder } from '../MediaPlaceholder';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
 import { useStock } from '../../context/StockContext';
 import { useDossier } from '../../context/DossierContext';
+import { FlavorNoteBadge, getSensoryConfig } from '../common/FlavorNoteBadge';
 
 interface CoffeeDiscoveryCardProps {
   coffee: CoffeeCatalogItem;
@@ -63,10 +64,15 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
   };
 
   const renderSensoryBar = (label: string, value: number, activeClass: string = 'bg-amber-900') => {
+    const sConf = getSensoryConfig(label);
+    const Icon = sConf.Icon;
     return (
       <div>
         <div className="flex justify-between items-center text-[10px] text-stone-500 font-medium mb-1">
-          <span>{label}</span>
+          <span className="flex items-center gap-1">
+            <Icon className={`w-2.5 h-2.5 ${sConf.colorClass} shrink-0`} strokeWidth={1.8} />
+            <span>{label}</span>
+          </span>
           <span className="font-semibold text-stone-700">{value}/5</span>
         </div>
         <div className="flex gap-1 h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
@@ -180,12 +186,7 @@ export const CoffeeDiscoveryCard: React.FC<CoffeeDiscoveryCardProps> = ({
           </div>
           <div className="flex flex-wrap gap-1">
             {(centralDossier?.flavourNotes || coffee.flavors).map((flavor, i) => (
-              <span
-                key={i}
-                className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md text-[11px] font-normal"
-              >
-                {flavor}
-              </span>
+              <FlavorNoteBadge key={i} flavor={flavor} size="sm" />
             ))}
           </div>
         </div>

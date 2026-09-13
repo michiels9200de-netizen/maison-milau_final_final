@@ -1,5 +1,6 @@
 import React from 'react';
 import { CharacterProfile } from '../types';
+import { getSensoryConfig } from './common/FlavorNoteBadge';
 
 interface CoffeeCharacterCardProps {
   profile?: CharacterProfile;
@@ -26,22 +27,27 @@ export const CoffeeCharacterCard: React.FC<CoffeeCharacterCardProps> = ({
   const acidity = profile?.acidity ?? 2;
   const sweetness = profile?.sweetness ?? 3;
 
-  const renderMeter = (label: string, value: number) => (
-    <div className="flex items-center gap-1 text-[10px] sm:text-xs text-stone-700 font-medium">
-      <span className="text-stone-500">{label}:</span>
-      <div className="flex gap-0.5 items-center">
-        {[1, 2, 3, 4, 5].map((step) => (
-          <span
-            key={step}
-            className={`w-1.5 sm:w-2 h-1 rounded-xs ${
-              step <= value ? 'bg-amber-900' : 'bg-stone-200'
-            }`}
-          />
-        ))}
+  const renderMeter = (label: string, value: number) => {
+    const sConf = getSensoryConfig(label);
+    const Icon = sConf.Icon;
+    return (
+      <div className="flex items-center gap-1 text-[10px] sm:text-xs text-stone-700 font-medium">
+        <Icon className={`w-3 h-3 ${sConf.colorClass} shrink-0`} strokeWidth={1.8} />
+        <span className="text-stone-500">{label}:</span>
+        <div className="flex gap-0.5 items-center">
+          {[1, 2, 3, 4, 5].map((step) => (
+            <span
+              key={step}
+              className={`w-1.5 sm:w-2 h-1 rounded-xs ${
+                step <= value ? 'bg-amber-900' : 'bg-stone-200'
+              }`}
+            />
+          ))}
+        </div>
+        <span className="text-[9px] sm:text-[10px] text-stone-400 tabular-nums">({value}/5)</span>
       </div>
-      <span className="text-[9px] sm:text-[10px] text-stone-400 tabular-nums">({value}/5)</span>
-    </div>
-  );
+    );
+  };
 
   if (compact) {
     return (

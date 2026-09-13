@@ -29,6 +29,7 @@ import {
 import { CoffeeDossier } from '../../types';
 import { useDossier } from '../../context/DossierContext';
 import { generateQrSvgUrl, getDossierPublicUrl } from '../../utils/qrCode';
+import { FlavorNoteBadge, getFlavorConfig, getSensoryConfig } from '../common/FlavorNoteBadge';
 
 const COLLECTION_OPTIONS = [
   'Alle',
@@ -341,12 +342,7 @@ export const CoffeeDossiersManagement: React.FC<{
                       {Array.isArray(dossier.flavourNotes) && dossier.flavourNotes.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {dossier.flavourNotes.slice(0, 3).map((note, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[10px] px-2 py-0.5 rounded bg-stone-100 text-stone-600"
-                            >
-                              {note}
-                            </span>
+                            <FlavorNoteBadge key={idx} flavor={note} size="sm" />
                           ))}
                           {dossier.flavourNotes.length > 3 && (
                             <span className="text-[10px] text-stone-400">
@@ -698,21 +694,27 @@ export const CoffeeDossiersManagement: React.FC<{
                       <label className="text-xs font-semibold text-stone-700">Flavour Notes (Smaaktonen) *</label>
                       <div className="flex flex-wrap gap-2 p-3 bg-stone-50 rounded-xl border border-stone-200 min-h-[48px] items-center">
                         {Array.isArray(currentEdit.flavourNotes) &&
-                          currentEdit.flavourNotes.map((note, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-medium"
-                            >
-                              {note}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveTag(index)}
-                                className="text-amber-700 hover:text-amber-950 font-bold ml-1"
+                          currentEdit.flavourNotes.map((note, index) => {
+                            const fConf = getFlavorConfig(note);
+                            const IconComponent = fConf.Icon;
+                            return (
+                              <span
+                                key={index}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-950 text-xs font-medium border border-amber-200/80"
                               >
-                                ×
-                              </button>
-                            </span>
-                          ))}
+                                <IconComponent className={`w-3 h-3 ${fConf.colorClass} shrink-0`} strokeWidth={1.8} />
+                                <span>{note}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveTag(index)}
+                                  className="text-amber-800 hover:text-amber-950 font-bold ml-0.5"
+                                  title="Verwijderen"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            );
+                          })}
                         <div className="flex items-center gap-1.5">
                           <input
                             type="text"
@@ -1000,12 +1002,7 @@ export const CoffeeDossiersManagement: React.FC<{
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {currentEdit.flavourNotes?.map((n, i) => (
-                            <span
-                              key={i}
-                              className="px-2.5 py-1 rounded-full bg-amber-100/70 text-amber-900 font-medium text-xs border border-amber-200"
-                            >
-                              {n}
-                            </span>
+                            <FlavorNoteBadge key={i} flavor={n} size="sm" />
                           ))}
                         </div>
                       </div>
@@ -1013,17 +1010,38 @@ export const CoffeeDossiersManagement: React.FC<{
                       {/* Sensorische Meters */}
                       <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-stone-50 border border-stone-100 text-center">
                         <div>
-                          <span className="text-[10px] text-stone-500 font-bold block uppercase">Body</span>
+                          <div className="flex items-center justify-center gap-1 text-[10px] text-stone-500 font-bold uppercase mb-0.5">
+                            {(() => {
+                              const s = getSensoryConfig('Body');
+                              const Icon = s.Icon;
+                              return <Icon className={`w-3 h-3 ${s.colorClass}`} strokeWidth={1.8} />;
+                            })()}
+                            <span>Body</span>
+                          </div>
                           <span className="font-bold text-stone-900 text-sm">{currentEdit.body} / 5</span>
                           <span className="text-[10px] text-stone-500 block truncate">{currentEdit.bodyDescription}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-stone-500 font-bold block uppercase">Aciditeit</span>
+                          <div className="flex items-center justify-center gap-1 text-[10px] text-stone-500 font-bold uppercase mb-0.5">
+                            {(() => {
+                              const s = getSensoryConfig('Aciditeit');
+                              const Icon = s.Icon;
+                              return <Icon className={`w-3 h-3 ${s.colorClass}`} strokeWidth={1.8} />;
+                            })()}
+                            <span>Aciditeit</span>
+                          </div>
                           <span className="font-bold text-stone-900 text-sm">{currentEdit.acidity} / 5</span>
                           <span className="text-[10px] text-stone-500 block truncate">{currentEdit.acidityDescription}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-stone-500 font-bold block uppercase">Zoetheid</span>
+                          <div className="flex items-center justify-center gap-1 text-[10px] text-stone-500 font-bold uppercase mb-0.5">
+                            {(() => {
+                              const s = getSensoryConfig('Zoetheid');
+                              const Icon = s.Icon;
+                              return <Icon className={`w-3 h-3 ${s.colorClass}`} strokeWidth={1.8} />;
+                            })()}
+                            <span>Zoetheid</span>
+                          </div>
                           <span className="font-bold text-stone-900 text-sm">{currentEdit.sweetness} / 5</span>
                           <span className="text-[10px] text-stone-500 block truncate">{currentEdit.sweetnessDescription}</span>
                         </div>
