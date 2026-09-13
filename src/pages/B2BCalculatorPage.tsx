@@ -31,18 +31,12 @@ export const B2BCalculatorPage: React.FC<B2BCalculatorPageProps> = ({ navigate }
 
           <div className="flex items-center gap-3">
             <button
+              id="btn-b2b-calc-page-auth"
               type="button"
-              onClick={() => navigate('/b2b/register')}
-              className="px-4 py-2 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-100 text-xs font-semibold transition-colors cursor-pointer"
+              onClick={() => navigate('/account?type=b2b')}
+              className="px-4 py-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer flex items-center gap-2"
             >
-              B2B Registratie
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/account')}
-              className="px-4 py-2 rounded-xl bg-amber-900 hover:bg-amber-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
-            >
-              Mijn B2B Profiel
+              <span>Log in / Registreer als B2B</span>
             </button>
           </div>
         </div>

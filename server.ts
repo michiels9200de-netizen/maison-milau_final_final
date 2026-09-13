@@ -2382,10 +2382,11 @@ app.post('/api/subscriptions', async (req: Request, res: Response) => {
 
 // 6. B2B Quotes
 app.post('/api/b2b-quote', async (req: Request, res: Response) => {
-  const { companyName, vatNumber, contactPerson, email, phone, sector, machineNeed, monthlyVolumeKg, notes } = req.body;
+  const { companyName, vatNumber, contactPerson, email, phone, sector, requestType, machineNeed, monthlyVolumeKg, notes } = req.body;
   if (!companyName || !contactPerson || !email || !phone) {
     return res.status(400).json({ success: false, error: 'Gelieve alle verplichte velden (*) in te vullen.' });
   }
+  const resolvedRequestType = requestType || machineNeed || 'Koffiebonen leveren';
   const quote = {
     id: `quote-${Date.now()}`,
     companyName,
@@ -2393,8 +2394,9 @@ app.post('/api/b2b-quote', async (req: Request, res: Response) => {
     contactPerson,
     email,
     phone,
-    sector: sector || 'Kantoor',
-    machineNeed: machineNeed || 'Enkel verse specialty koffiebonen',
+    sector: sector || 'Horeca',
+    requestType: resolvedRequestType,
+    machineNeed: resolvedRequestType,
     monthlyVolumeKg: Number(monthlyVolumeKg) || 10,
     notes: notes || '',
     status: 'nieuw',

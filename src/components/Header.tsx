@@ -372,12 +372,18 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
 
                 <div className="py-1">
                   <button
-                    onClick={() => handleNavClick('/account')}
+                    onClick={() => handleNavClick(accountType === 'professioneel' && !user ? '/account?type=b2b' : '/account')}
                     className="w-full text-left px-3.5 py-2 text-xs text-stone-700 hover:bg-stone-50 hover:text-stone-950 flex items-center justify-between transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <User className="w-3.5 h-3.5 text-stone-500" />
-                      <span>{user ? 'Klantendashboard & Bestellingen' : 'Inloggen / Registreren'}</span>
+                      <span>
+                        {user
+                          ? 'Klantendashboard & Bestellingen'
+                          : accountType === 'professioneel'
+                          ? 'Log in / Registreer als B2B'
+                          : 'Inloggen / Registreren'}
+                      </span>
                     </div>
                     <ChevronRight className="w-3 h-3 text-stone-400" />
                   </button>
@@ -532,13 +538,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, navigate }) => {
                 id="btn-mobile-login"
                 onClick={() => {
                   setIsMenuOpen(false);
-                  handleNavClick('/account');
+                  handleNavClick(accountType === 'professioneel' ? '/account?type=b2b' : '/account');
                 }}
                 className="w-full text-left py-2.5 px-3 rounded-lg text-sm font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 flex items-center justify-between border border-amber-200 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-amber-800" />
-                  <span>Inloggen / Registreren</span>
+                  <span>{accountType === 'professioneel' ? 'Log in / Registreer als B2B' : 'Inloggen / Registreren'}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-amber-800" />
               </button>

@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Lock,
   ArrowRight,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { CoffeeBeanAtmosphere } from '../common/CoffeeBeanAtmosphere';
@@ -192,13 +193,8 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
     }
   };
 
-  const handleB2BRegisterRequest = () => {
-    const formEl = document.getElementById('b2b-form');
-    if (formEl) {
-      formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      handleNavigate('/b2b/register');
-    }
+  const handleB2BAuth = () => {
+    handleNavigate('/account?type=b2b');
   };
 
   // --------------------------------------------------------------------------
@@ -222,11 +218,7 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
   }
 
   // --------------------------------------------------------------------------
-  // STATE 2: STRICT TOEGANGSBEPERKING
-  // Voor anonieme bezoekers en particuliere klanten:
-  // - Calculator volledig verbergen
-  // - Geen invoervelden tonen
-  // - Geen B2B-berekeningen tonen
+  // STATE 2: TOEGANGSBEPERKING MET VRIENDELIJKE B2B ONBOARDING
   // --------------------------------------------------------------------------
   if (serverStatus !== 'approved') {
     return (
@@ -237,7 +229,7 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
         <CoffeeBeanAtmosphere variant="section" />
         <div className="relative z-10 max-w-2xl mx-auto text-center space-y-6 py-4">
           <div className="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-700/60 text-amber-400 flex items-center justify-center mx-auto shadow-inner">
-            <Lock className="w-7 h-7 text-amber-400" />
+            <Calculator className="w-7 h-7 text-amber-400" />
           </div>
 
           <div className="space-y-3">
@@ -247,93 +239,90 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
               ) : serverStatus === 'pending' ? (
                 <span>Aanvraag In Behandeling</span>
               ) : serverStatus === 'rejected' ? (
-                <span>Toegang Geweigerd</span>
+                <span>Aanvraag Status</span>
               ) : (
-                <span>Exclusief voor B2B</span>
+                <span>Zakelijke B2B Calculator</span>
               )}
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">
-              Deze calculator is uitsluitend beschikbaar voor geregistreerde B2B-klanten.
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-serif text-white tracking-tight">
+              {serverStatus === 'pending'
+                ? 'Welkom bij Maison Milau B2B'
+                : serverStatus === 'b2c'
+                ? 'Wilt u zakelijke groothandelstarieven berekenen?'
+                : 'Bereken eenvoudig uw zakelijke koffieformule'}
             </h2>
 
             <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-lg mx-auto">
               {serverStatus === 'b2c'
-                ? `U bent momenteel aangemeld als particuliere klant (${user?.email || 'particulier'}). Deze calculator en bijhorende groothandelstarieven zijn voorbehouden aan geverifieerde ondernemingen en zakelijke partners.`
+                ? `U bent momenteel aangemeld als particuliere klant (${user?.email || 'particulier'}). Met een zakelijk B2B-account geniet uw onderneming van automatische staffelkortingen tot 25%, flexibele leveringen op factuur en machine-opties op maat.`
                 : serverStatus === 'pending'
-                ? `Uw B2B-aanvraag (${user?.companyName || user?.email || 'uw onderneming'}) wordt momenteel geëvalueerd door onze binnendienst. Zodra uw onderneming en btw-nummer geverifieerd zijn, wordt deze calculator automatisch ontgrendeld.`
+                ? `Hartelijk dank voor uw registratie! Uw B2B-aanvraag voor ${user?.companyName || 'uw onderneming'} wordt momenteel gecontroleerd door onze binnendienst. Zodra uw btw-nummer geverifieerd is, heeft u direct toegang tot alle calculatortarieven en bestelmogelijkheden.`
                 : serverStatus === 'rejected'
-                ? 'Uw zakelijke aanvraag werd helaas niet goedgekeurd. Neem contact op met onze klantenservice voor verdere toelichting.'
-                : 'De B2B Calculator, groothandelstarieven en staffelkortingen zijn exclusief toegankelijk voor geverifieerde zakelijke partners (horeca, kantoor & handelszaken). Log in met uw zakelijk account of vraag hieronder direct een B2B-account aan.'}
+                ? 'Uw zakelijke aanvraag kon niet automatisch worden verwerkt. Neem gerust contact op met onze binnendienst via info@maison-milau.be voor persoonlijk advies.'
+                : 'Met onze interactieve B2B calculator ontdekt u in een handomdraai het ideale koffievolume, aantrekkelijke staffelkortingen en machine-opties voor uw kantoor, horecazaak of onderneming. Log in met uw zakelijk account of registreer u direct als B2B-klant om uw berekening te starten.'}
             </p>
           </div>
 
-          {/* Action buttons strictly tailored to the user's role */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          {/* Single primary account access point */}
+          <div className="pt-2 flex flex-col items-center justify-center gap-3">
             {serverStatus === 'unauthenticated' && (
               <>
                 <button
-                  id="btn-b2b-calc-register"
+                  id="btn-b2b-calc-auth"
                   type="button"
-                  onClick={handleB2BRegisterRequest}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
+                  onClick={handleB2BAuth}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
                 >
-                  <span>B2B-account aanvragen</span>
+                  <Building2 className="w-4 h-4" />
+                  <span>Log in / Registreer als B2B</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-                <button
-                  id="btn-b2b-calc-login"
-                  type="button"
-                  onClick={() => handleNavigate('/account')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
-                >
-                  Inloggen
-                </button>
+                <div className="pt-2">
+                  <a
+                    href="#b2b-form"
+                    className="text-xs text-stone-400 hover:text-amber-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Liever eerst een vrijblijvend voorstel of proefpakket? Ga naar het B2B Aanvraagformulier</span>
+                    <ChevronRight className="w-3 h-3 rotate-90" />
+                  </a>
+                </div>
               </>
             )}
 
             {serverStatus === 'b2c' && (
               <>
                 <button
-                  id="btn-b2b-calc-register-b2c"
+                  id="btn-b2b-calc-auth-b2c"
                   type="button"
-                  onClick={handleB2BRegisterRequest}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
+                  onClick={handleB2BAuth}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
                 >
-                  <span>B2B-account aanvragen</span>
+                  <Building2 className="w-4 h-4" />
+                  <span>Log in / Registreer als B2B</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   id="btn-b2b-calc-webshop"
                   type="button"
                   onClick={() => handleNavigate('/webshop')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                  className="text-xs text-stone-400 hover:text-amber-300 underline cursor-pointer mt-1"
                 >
-                  Naar de Koffiewebshop
+                  Terug naar de particuliere webshop
                 </button>
               </>
             )}
 
             {serverStatus === 'pending' && (
-              <>
-                <button
-                  id="btn-b2b-calc-account"
-                  type="button"
-                  onClick={() => handleNavigate('/account')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
-                >
-                  <span>Mijn Account Bekijken</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  id="btn-b2b-calc-faq"
-                  type="button"
-                  onClick={() => handleNavigate('/faq')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
-                >
-                  Contact opnemen
-                </button>
-              </>
+              <button
+                id="btn-b2b-calc-account"
+                type="button"
+                onClick={() => handleNavigate('/account')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
+              >
+                <span>Mijn B2B Accountstatus Bekijken</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             )}
 
             {serverStatus === 'rejected' && (
@@ -388,13 +377,13 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-700/60 text-xs font-bold uppercase tracking-wider text-amber-300 mb-2 backdrop-blur-xs">
             <Calculator className="w-3.5 h-3.5 text-amber-400" />
-            <span>B2B Calculator & Staffelkortingen</span>
+            <span>B2B Calculator · Volume & Staffels</span>
           </div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white drop-shadow-xs font-serif">
-            Bereken uw B2B Groothandelsprijs
+            Bereken uw zakelijke koffieformule op maat
           </h2>
           <p className="text-xs sm:text-sm text-stone-300 mt-1 font-normal leading-relaxed">
-            Directe volumeberekening, automatische staffelkortingen en lease-opties voor uw onderneming.
+            Stel eenvoudig uw ideale koffieoplossing samen. Ontdek direct uw maandelijks verbruik, automatische staffelkortingen en transparante prijs per kop op maat van uw onderneming.
           </p>
         </div>
 

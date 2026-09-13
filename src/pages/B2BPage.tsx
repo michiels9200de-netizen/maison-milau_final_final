@@ -25,8 +25,8 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
     contactPerson: '',
     email: '',
     phone: '',
-    sector: 'Kantoor / Bedrijf',
-    machineNeed: 'Enkel verse specialty koffiebonen (wij hebben al een machine)',
+    sector: 'Horeca',
+    requestType: 'Koffiebonen leveren',
     notes: '',
   });
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -40,7 +40,15 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          companyName: formData.companyName,
+          vatNumber: formData.vatNumber,
+          contactPerson: formData.contactPerson,
+          email: formData.email,
+          phone: formData.phone,
+          sector: formData.sector,
+          requestType: formData.requestType,
+          machineNeed: formData.requestType,
+          notes: formData.notes,
           monthlyVolumeKg: 10,
         }),
       });
@@ -81,6 +89,27 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 Flexibele maandabonnementen, aantrekkelijke volumetarieven en unieke custom roasting & white label branding voor horeca en bedrijven.
               </p>
 
+              {/* Primary Call to Action: Single B2B Account Entry + B2B Request Form link */}
+              <div className="flex flex-wrap items-center gap-3 my-4">
+                <button
+                  id="btn-b2b-hero-auth"
+                  type="button"
+                  onClick={() => navigate('/account?type=b2b')}
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-all shadow-lg shadow-amber-950/60 flex items-center gap-2 cursor-pointer"
+                >
+                  <Building2 className="w-4 h-4" />
+                  <span>Log in / Registreer als B2B</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <a
+                  href="#b2b-form"
+                  className="px-4 py-2.5 rounded-xl bg-stone-900/90 hover:bg-stone-800 border border-stone-700 text-stone-300 text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>B2B Aanvraagformulier</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
               {/* Premium Line-Art Sector Pills in Hero */}
               <div className="p-3.5 sm:p-4 bg-stone-900/90 backdrop-blur-xs rounded-2xl border border-stone-700/80 text-xs text-stone-300 space-y-2.5 shadow-xl ring-1 ring-amber-900/20">
                 <div className="flex items-center justify-between">
@@ -100,11 +129,11 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 {/* 5 Sectors with Custom Line-Art Icons */}
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-0.5">
                   {[
-                    { id: 'horeca', label: 'Horeca & Bar', sub: 'Wekelijks vers', Icon: HorecaIllustration },
-                    { id: 'kantoor', label: 'Kantoor & B2B', sub: 'Maandfactuur', Icon: KantoorIllustration },
-                    { id: 'residentieel', label: 'Residentieel', sub: 'Milde blends', Icon: ResidentieleZorgIllustration },
-                    { id: 'handelszaken', label: 'Handelszaken', sub: 'Hospitality', Icon: HandelszakenIllustration },
-                    { id: 'kapsalon', label: 'Kapsalon & Spa', sub: 'VIP verwennerij', Icon: KapsalonIllustration },
+                    { id: 'horeca', label: 'Horeca', sub: 'Wekelijks vers', Icon: HorecaIllustration },
+                    { id: 'kantoor', label: 'Kantoor', sub: 'Maandfactuur', Icon: KantoorIllustration },
+                    { id: 'residentieel', label: 'Residentiële Zorg', sub: 'Milde blends', Icon: ResidentieleZorgIllustration },
+                    { id: 'handelszaken', label: 'Handelszaak', sub: 'Hospitality', Icon: HandelszakenIllustration },
+                    { id: 'kapsalon', label: 'Kapperszaak', sub: 'VIP verwennerij', Icon: KapsalonIllustration },
                   ].map((sec) => (
                     <button
                       key={sec.id}
@@ -239,15 +268,39 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
         </section>
 
         {/* B2B Contact & Quote Request Form */}
-        <section id="b2b-form" className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
-          <div className="max-w-3xl mb-5">
-            {/* H2: ~25% reduced */}
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 font-serif">
-              Vraag een B2B Voorstel of Gratis Proefpakket aan
+        <section id="b2b-form" className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 shadow-xs">
+          <div className="max-w-3xl mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-2 border border-amber-200">
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Zakelijke Aanvraag · Vrijblijvend</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 font-serif">
+              B2B Aanvraagformulier
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              Vul onderstaand formulier in en we bezorgen u binnen 24u een voorstel op maat van uw onderneming.
+            <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
+              Vraag vrijblijvend een offerte op maat, proefpakket, apparatuuradvies of cupping sessie aan voor uw onderneming. Wij bezorgen u binnen 24 uur een passend voorstel.
             </p>
+          </div>
+
+          {/* Account vs Request Form Distinction Notice */}
+          <div className="mb-6 p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="font-semibold text-amber-950">
+                Wilt u direct bestellen met uw zakelijk account of registreren als B2B-klant?
+              </div>
+              <div className="text-stone-600 mt-0.5">
+                Gebruik bovenaan de knop &quot;Log in / Registreer als B2B&quot;. Dit formulier is uitsluitend bestemd voor zakelijke aanvragen en offertes.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/account?type=b2b')}
+              className="self-start sm:self-auto shrink-0 px-3.5 py-2 rounded-lg bg-amber-900 hover:bg-amber-800 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Log in / Registreer als B2B</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {formStatus === 'success' ? (
@@ -256,7 +309,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
               <p>{formFeedback}</p>
               <button
                 onClick={() => setFormStatus('idle')}
-                className="mt-4 px-4 py-2 bg-emerald-800 text-white rounded-lg text-xs font-semibold"
+                className="mt-4 px-4 py-2 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
               >
                 Nieuwe aanvraag indienen
               </button>
@@ -269,7 +322,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
                     Bedrijfsnaam *
@@ -279,7 +332,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     required
                     value={formData.companyName}
                     onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                     placeholder="Mijn Bedrijf BV"
                   />
                 </div>
@@ -293,7 +346,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     required
                     value={formData.vatNumber}
                     onChange={(e) => setFormData({ ...formData, vatNumber: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                     placeholder="BE 0123.456.789"
                   />
                 </div>
@@ -307,7 +360,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     required
                     value={formData.contactPerson}
                     onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                     placeholder="Voornaam + Achternaam"
                   />
                 </div>
@@ -321,7 +374,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                     placeholder="info@uwbedrijf.be"
                   />
                 </div>
@@ -335,63 +388,75 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                     placeholder="+32 ..."
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Sector / Type onderneming
+                    Sector *
                   </label>
                   <select
                     value={formData.sector}
                     onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                   >
-                    <option>Horeca / Restaurant / Café / Koffiebar</option>
-                    <option>Kantoor / Bedrijfsruimte (10 - 50 medewerkers)</option>
-                    <option>Grote onderneming (50+ medewerkers)</option>
-                    <option>Winkel / Concept store / Traiteur</option>
-                    <option>Evenementenlocatie / Zaalverhuur</option>
+                    <option value="Horeca">Horeca</option>
+                    <option value="Restaurant">Restaurant</option>
+                    <option value="Hotel">Hotel</option>
+                    <option value="Café">Café</option>
+                    <option value="Kantoor">Kantoor</option>
+                    <option value="Coworking Space">Coworking Space</option>
+                    <option value="Kapperszaak">Kapperszaak</option>
+                    <option value="Handelszaak">Handelszaak</option>
+                    <option value="Delicatessenwinkel">Delicatessenwinkel</option>
+                    <option value="Residentiële Zorg">Residentiële Zorg</option>
+                    <option value="Bed & Breakfast">Bed & Breakfast</option>
+                    <option value="Retail">Retail</option>
+                    <option value="Overige">Overige</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Apparatuurbehoefte
+                  Waarmee kunnen wij helpen? *
                 </label>
                 <select
-                  value={formData.machineNeed}
-                  onChange={(e) => setFormData({ ...formData, machineNeed: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                  value={formData.requestType}
+                  onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
                 >
-                  <option>Enkel verse specialty koffiebonen (wij hebben al een machine)</option>
-                  <option>Bonen + Professionele volautomaat gewenst</option>
-                  <option>Bonen + Traditionele pistonmachine (horeca) gewenst</option>
-                  <option>Ik wil graag een gratis proefpakket ontvangen</option>
-                  <option>Interesse in White Label / Eigen blend</option>
+                  <option value="Koffiebonen leveren">Koffiebonen leveren</option>
+                  <option value="Koffiebonen + machine">Koffiebonen + machine</option>
+                  <option value="Enkel koffiemachine">Enkel koffiemachine</option>
+                  <option value="Cupping sessie">Cupping sessie</option>
+                  <option value="Advies op locatie">Advies op locatie</option>
+                  <option value="Bezoek ter plaatse">Bezoek ter plaatse</option>
+                  <option value="Proefpakket aanvragen">Proefpakket aanvragen</option>
+                  <option value="Offerte aanvragen">Offerte aanvragen</option>
+                  <option value="Overige">Overige</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Specifieke wensen of opmerkingen
+                  Extra informatie
                 </label>
                 <textarea
-                  rows={3}
+                  rows={4}
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
-                  placeholder="Bijvoorbeeld: geschatte consumptie per dag, voorkeur voor smaakprofiel of aanvraag bezoek ter plaatse..."
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-800 focus:outline-none"
+                  placeholder="Bijvoorbeeld geschat maandelijks koffieverbruik, voorkeuren voor apparatuur of branding, huidige situatie of specifieke vragen..."
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={formStatus === 'submitting'}
-                className="bg-amber-900 hover:bg-amber-800 text-white px-6 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-2 shadow-xs"
+                className="bg-amber-900 hover:bg-amber-800 text-white px-6 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 <span>{formStatus === 'submitting' ? 'Verzenden...' : 'Verstuur B2B Aanvraag'}</span>

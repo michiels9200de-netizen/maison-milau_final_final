@@ -1649,7 +1649,8 @@ Laurent Michiels · Maison Milau`;
  */
 export async function sendB2BQuoteEmails(quote: any) {
   const adminSubject = `[Maison Milau B2B] Nieuwe offerteaanvraag van ${quote.companyName}`;
-  const adminText = `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${quote.companyName}\nBTW: ${quote.vatNumber || 'Niet opgegeven'}\nContactpersoon: ${quote.contactPerson}\nE-mail: ${quote.email}\nTelefoon: ${quote.phone}\nSector: ${quote.sector || 'Kantoor'}\nBehoefte: ${quote.machineNeed || 'Verse bonen'}\nGeschat volume: ${quote.monthlyVolumeKg} kg/maand\nOpmerkingen: ${quote.notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`;
+  const requestKind = quote.requestType || quote.machineNeed || 'Koffiebonen leveren';
+  const adminText = `Beste Laurent,\n\nEr is een nieuwe B2B aanvraag binnengekomen:\n\nBedrijf: ${quote.companyName}\nBTW: ${quote.vatNumber || 'Niet opgegeven'}\nContactpersoon: ${quote.contactPerson}\nE-mail: ${quote.email}\nTelefoon: ${quote.phone}\nSector: ${quote.sector || 'Horeca'}\nType aanvraag: ${requestKind}\nGeschat volume: ${quote.monthlyVolumeKg} kg/maand\nExtra informatie: ${quote.notes || 'Geen'}\n\nDatum: ${new Date().toLocaleString('nl-BE')}`;
   const adminHtml = buildHtmlWrapper(
     adminSubject,
     `Offerteaanvraag van ${quote.companyName} (${quote.monthlyVolumeKg} kg/mnd)`,
@@ -1662,10 +1663,10 @@ export async function sendB2BQuoteEmails(quote: any) {
         <tr><td style="padding:4px 0;font-weight:600;">Contactpersoon:</td><td>${quote.contactPerson}</td></tr>
         <tr><td style="padding:4px 0;font-weight:600;">E-mail:</td><td><a href="mailto:${quote.email}">${quote.email}</a></td></tr>
         <tr><td style="padding:4px 0;font-weight:600;">Telefoon:</td><td><a href="tel:${quote.phone}">${quote.phone}</a></td></tr>
-        <tr><td style="padding:4px 0;font-weight:600;">Sector:</td><td>${quote.sector || 'Kantoor'}</td></tr>
-        <tr><td style="padding:4px 0;font-weight:600;">Behoefte:</td><td>${quote.machineNeed || 'Verse bonen'}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Sector:</td><td>${quote.sector || 'Horeca'}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Type aanvraag:</td><td>${requestKind}</td></tr>
         <tr><td style="padding:4px 0;font-weight:600;">Maandvolume:</td><td><strong>${quote.monthlyVolumeKg} kg / maand</strong></td></tr>
-        <tr><td style="padding:4px 0;font-weight:600;">Opmerkingen:</td><td>${quote.notes || 'Geen'}</td></tr>
+        <tr><td style="padding:4px 0;font-weight:600;">Extra informatie:</td><td>${quote.notes || 'Geen'}</td></tr>
       </table>
     </div>`
   );
@@ -1679,7 +1680,7 @@ export async function sendB2BQuoteEmails(quote: any) {
     <p>Hartelijk dank voor uw interesse in de ambachtelijke koffie en espressomachines van Maison Milau voor <strong>${quote.companyName}</strong>.</p>
     <div class="box">
       <p style="margin:0 0 6px 0;font-weight:600;">Overzicht van uw aanvraag:</p>
-      <p style="margin:0;font-size:14px;">Sector: ${quote.sector || 'Kantoor'}<br>Geschat verbruik: ${quote.monthlyVolumeKg} kg per maand<br>Behoefte: ${quote.machineNeed || 'Verse specialty koffiebonen'}</p>
+      <p style="margin:0;font-size:14px;">Sector: ${quote.sector || 'Horeca'}<br>Type aanvraag: ${requestKind}<br>Geschat verbruik: ${quote.monthlyVolumeKg} kg per maand</p>
     </div>
     <p>Onze koffie-expert analyseert uw aanvraag en bezorgt u binnen 24 uur een passend staffel- en servicevoorstel.</p>
     <p style="font-size:14px;color:#78716c;margin-top:20px;">Heeft u dringende vragen? U kunt ons altijd rechtstreeks bereiken op <a href="mailto:${WEBOWNER_EMAIL}" style="color:#78350f;">${WEBOWNER_EMAIL}</a>.</p>`
