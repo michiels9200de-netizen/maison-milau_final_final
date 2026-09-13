@@ -74,6 +74,10 @@ import {
   RealisticCrema,
   RealisticWineSweetness,
   RealisticWarmSweetness,
+  RealisticRaspberry,
+  RealisticMango,
+  RealisticPassionFruit,
+  RealisticLime,
   FlavorIllustrationProps,
 } from './RealisticFlavorIllustrations';
 
@@ -145,6 +149,10 @@ export {
   RealisticCrema,
   RealisticWineSweetness,
   RealisticWarmSweetness,
+  RealisticRaspberry,
+  RealisticMango,
+  RealisticPassionFruit,
+  RealisticLime,
 };
 
 // Legacy alias exports mapped to premium realistic illustrations
@@ -200,6 +208,34 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     category: 'stone-fruit',
   },
   'peach': {
+    Icon: RealisticPeach,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'stone-fruit',
+  },
+  'steenvrucht': {
+    Icon: RealisticPeach,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'stone-fruit',
+  },
+  'steenvruchten': {
+    Icon: RealisticPeach,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'stone-fruit',
+  },
+  'stone fruit': {
+    Icon: RealisticPeach,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'stone-fruit',
+  },
+  'steenvrucht / perzik': {
     Icon: RealisticPeach,
     colorClass: 'text-orange-950',
     bgClass: 'bg-orange-50/90',
@@ -383,6 +419,27 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     borderClass: 'border-lime-200/90',
     category: 'herbal',
   },
+  'limoen': {
+    Icon: RealisticLime,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'citrus',
+  },
+  'lime': {
+    Icon: RealisticLime,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'citrus',
+  },
+  'bergamot & citrus': {
+    Icon: RealisticBergamot,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'citrus',
+  },
 
   // --- Grapes & Berries ---
   'groene druif': {
@@ -525,6 +582,48 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     borderClass: 'border-rose-200/90',
     category: 'berry',
   },
+  'framboos': {
+    Icon: RealisticRaspberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'frambozen': {
+    Icon: RealisticRaspberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'raspberry': {
+    Icon: RealisticRaspberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'raspberries': {
+    Icon: RealisticRaspberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'rood fruit': {
+    Icon: RealisticStrawberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'red fruit': {
+    Icon: RealisticStrawberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
   'bessen': {
     Icon: RealisticBlackcurrant,
     colorClass: 'text-purple-950',
@@ -541,6 +640,34 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
   },
 
   // --- Tropical & Dried Fruits ---
+  'mango': {
+    Icon: RealisticMango,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tropical',
+  },
+  'passievrucht': {
+    Icon: RealisticPassionFruit,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'tropical',
+  },
+  'passion fruit': {
+    Icon: RealisticPassionFruit,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'tropical',
+  },
+  'maracuja': {
+    Icon: RealisticPassionFruit,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'tropical',
+  },
   'ananas': {
     Icon: RealisticPineapple,
     colorClass: 'text-amber-950',
@@ -684,6 +811,20 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     category: 'chocolate',
   },
   'donkere chocolade': {
+    Icon: RealisticDarkChocolate,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'chocolate',
+  },
+  'pure chocolade': {
+    Icon: RealisticDarkChocolate,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'chocolate',
+  },
+  'pure chocolate': {
     Icon: RealisticDarkChocolate,
     colorClass: 'text-stone-950',
     bgClass: 'bg-stone-100/90',
@@ -967,6 +1108,27 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     borderClass: 'border-amber-300/90',
     category: 'nutty',
   },
+  'noten': {
+    Icon: RealisticRoastedNuts,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'zachte noten': {
+    Icon: RealisticRoastedNuts,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'nuts': {
+    Icon: RealisticRoastedNuts,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
 
   // --- Florals ---
   'jasmijn': {
@@ -977,6 +1139,20 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     category: 'floral',
   },
   'jasmine': {
+    Icon: RealisticJasmine,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/80',
+    borderClass: 'border-emerald-200/80',
+    category: 'floral',
+  },
+  'bloemig': {
+    Icon: RealisticFloral,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/80',
+    borderClass: 'border-rose-200/80',
+    category: 'floral',
+  },
+  'bloemig / jasmijn': {
     Icon: RealisticJasmine,
     colorClass: 'text-emerald-950',
     bgClass: 'bg-emerald-50/80',
@@ -1077,6 +1253,20 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     category: 'spices',
   },
   'specerijen': {
+    Icon: RealisticWarmSpices,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'specerijen / kaneel': {
+    Icon: RealisticCinnamon,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'kruidig': {
     Icon: RealisticWarmSpices,
     colorClass: 'text-amber-950',
     bgClass: 'bg-amber-50/90',
@@ -1234,6 +1424,27 @@ const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
     borderClass: 'border-rose-200/90',
     category: 'wine',
   },
+  'wijnachtig': {
+    Icon: RealisticWineSweetness,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'wine',
+  },
+  'wijnachtig / moscatel': {
+    Icon: RealisticWineSweetness,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'wine',
+  },
+  'moscatel': {
+    Icon: RealisticWineSweetness,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'wine',
+  },
   'winey': {
     Icon: RealisticWineSweetness,
     colorClass: 'text-rose-950',
@@ -1319,13 +1530,16 @@ export const getFlavorConfig = (flavor: string): FlavorConfig => {
   if (norm.includes('grapefruit')) {
     return EXACT_FLAVOR_MAP['grapefruit'];
   }
+  if (norm.includes('limoen') || norm.includes('lime')) {
+    return EXACT_FLAVOR_MAP['limoen'];
+  }
   if (norm.includes('citroen') || norm.includes('lemon')) {
     return EXACT_FLAVOR_MAP['citroen'];
   }
   if (norm.includes('bergamot')) {
     return EXACT_FLAVOR_MAP['bergamot'];
   }
-  if (norm.includes('citrus') || norm.includes('lime') || norm.includes('limoen')) {
+  if (norm.includes('citrus')) {
     return EXACT_FLAVOR_MAP['citrus'];
   }
 
@@ -1341,6 +1555,9 @@ export const getFlavorConfig = (flavor: string): FlavorConfig => {
   }
 
   // Stone Fruits: Peach, Apricot, Plum, Pear
+  if (norm.includes('steenvrucht') || norm.includes('stone fruit')) {
+    return EXACT_FLAVOR_MAP['steenvrucht'];
+  }
   if (norm.includes('abrikoos') || norm.includes('apricot')) {
     return EXACT_FLAVOR_MAP['abrikoos'];
   }
@@ -1366,6 +1583,12 @@ export const getFlavorConfig = (flavor: string): FlavorConfig => {
   }
 
   // Berries
+  if (norm.includes('framboos') || norm.includes('frambozen') || norm.includes('raspberry') || norm.includes('raspberries')) {
+    return EXACT_FLAVOR_MAP['framboos'];
+  }
+  if (norm.includes('rood fruit') || norm.includes('red fruit')) {
+    return EXACT_FLAVOR_MAP['rood fruit'];
+  }
   if (norm.includes('kers') || norm.includes('cherry')) {
     return EXACT_FLAVOR_MAP['kers'];
   }
@@ -1389,6 +1612,12 @@ export const getFlavorConfig = (flavor: string): FlavorConfig => {
   }
 
   // Tropical & Melons
+  if (norm.includes('mango')) {
+    return EXACT_FLAVOR_MAP['mango'];
+  }
+  if (norm.includes('passie') || norm.includes('passion') || norm.includes('maracuja')) {
+    return EXACT_FLAVOR_MAP['passievrucht'];
+  }
   if (norm.includes('watermeloen') || norm.includes('watermelon')) {
     return EXACT_FLAVOR_MAP['watermeloen'];
   }
@@ -1534,7 +1763,7 @@ export const getFlavorConfig = (flavor: string): FlavorConfig => {
   if (norm.includes('eik') || norm.includes('oak') || norm.includes('hout')) {
     return EXACT_FLAVOR_MAP['eik'];
   }
-  if (norm.includes('wijn') || norm.includes('wine')) {
+  if (norm.includes('wijn') || norm.includes('wine') || norm.includes('moscatel')) {
     return EXACT_FLAVOR_MAP['wijnachtige zoetheid'];
   }
   if (norm.includes('zoetheid') || norm.includes('sweetness')) {

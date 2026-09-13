@@ -6,6 +6,8 @@ import {
   ChevronDown,
   Building2,
   RefreshCw,
+  Lock,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { CoffeeBeanAtmosphere } from '../common/CoffeeBeanAtmosphere';
@@ -41,8 +43,10 @@ interface CalculationData {
   };
 }
 
+type B2BCalcStatus = 'loading' | 'approved' | 'unauthenticated' | 'b2c' | 'pending' | 'rejected';
+
 export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, className = '' }) => {
-  const { user, token, getAuthHeaders } = useAuth();
+  const { user, token, getAuthHeaders, isVerifiedB2B, b2bAccessStatus } = useAuth();
 
   // Calculation parameters
   const [settingType, setSettingType] = useState<
@@ -54,8 +58,17 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
   const [machineOption, setMachineOption] = useState<'beans_only' | 'volautomaat' | 'heavy' | 'piston'>('beans_only');
   const [showMachineDetails, setShowMachineDetails] = useState<boolean>(false);
 
-  // Server state
-  const [serverStatus, setServerStatus] = useState<'loading' | 'approved' | 'unauthenticated'>('loading');
+  // Server state - initially determined synchronously from auth context to prevent any flash of B2B content
+  const [serverStatus, setServerStatus] = useState<B2BCalcStatus>(() => {
+    if (!user) return 'unauthenticated';
+    if (user.accountType === 'particulier' || user.role === 'b2c_customer' || user.role === 'b2c') {
+      return 'b2c';
+    }
+    if (!isVerifiedB2B) {
+      return (b2bAccessStatus as B2BCalcStatus) || 'b2c';
+    }
+    return 'loading';
+  });
   const [calculation, setCalculation] = useState<CalculationData | null>(null);
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [calculationError, setCalculationError] = useState<string>('');
@@ -67,11 +80,26 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
     let isMounted = true;
 
     async function checkServerAccess() {
+      // 1. Anonymous visitor -> strictly unauthenticated
       if (!user) {
         setServerStatus('unauthenticated');
         return;
       }
 
+      // 2. Particuliere klant -> strictly b2c
+      if (user.accountType === 'particulier' || user.role === 'b2c_customer' || user.role === 'b2c') {
+        setServerStatus('b2c');
+        return;
+      }
+
+      // 3. Not verified B2B -> pending, rejected, or b2c
+      if (!isVerifiedB2B) {
+        const fallback = b2bAccessStatus === 'approved' ? 'pending' : (b2bAccessStatus || 'b2c');
+        setServerStatus(fallback as B2BCalcStatus);
+        return;
+      }
+
+      // 4. Verified B2B -> verify with server-side endpoint
       setServerStatus('loading');
       try {
         const headers = getAuthHeaders();
@@ -83,19 +111,17 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
 
         if (!isMounted) return;
 
-        if (res.ok && data.authorized) {
-          setServerStatus('approved');
-        } else if (user) {
+        if (res.ok && data.authorized && data.status === 'approved') {
           setServerStatus('approved');
         } else {
-          setServerStatus('unauthenticated');
+          setServerStatus((data.status as B2BCalcStatus) || 'b2c');
         }
       } catch (err) {
         if (!isMounted) return;
-        if (user) {
+        if (isVerifiedB2B) {
           setServerStatus('approved');
         } else {
-          setServerStatus('unauthenticated');
+          setServerStatus('b2c');
         }
       }
     }
@@ -105,7 +131,7 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
     return () => {
       isMounted = false;
     };
-  }, [user, token]);
+  }, [user, token, isVerifiedB2B, b2bAccessStatus]);
 
   // 2. Fetch calculation from server whenever inputs change (only if approved)
   useEffect(() => {
@@ -166,8 +192,17 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
     }
   };
 
+  const handleB2BRegisterRequest = () => {
+    const formEl = document.getElementById('b2b-form');
+    if (formEl) {
+      formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      handleNavigate('/b2b/register');
+    }
+  };
+
   // --------------------------------------------------------------------------
-  // STATE 1: LOADING
+  // STATE 1: LOADING (Only shown briefly for verified B2B checking server)
   // --------------------------------------------------------------------------
   if (serverStatus === 'loading') {
     return (
@@ -179,7 +214,7 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
         <div className="relative z-10 flex flex-col items-center justify-center py-12 text-center space-y-4">
           <div className="w-12 h-12 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
           <div className="text-sm font-semibold text-amber-200">
-            Calculator laden...
+            Toegang B2B Calculator verifiëren...
           </div>
         </div>
       </section>
@@ -187,9 +222,13 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
   }
 
   // --------------------------------------------------------------------------
-  // STATE 2: NIET INGELOGD (Toegankelijk en neutraal voor alle zakelijke gebruikers)
+  // STATE 2: STRICT TOEGANGSBEPERKING
+  // Voor anonieme bezoekers en particuliere klanten:
+  // - Calculator volledig verbergen
+  // - Geen invoervelden tonen
+  // - Geen B2B-berekeningen tonen
   // --------------------------------------------------------------------------
-  if (serverStatus === 'unauthenticated' || !user) {
+  if (serverStatus !== 'approved') {
     return (
       <section
         id="b2b-calculator"
@@ -197,49 +236,117 @@ export const B2BCalculator: React.FC<B2BCalculatorProps> = ({ navigate, classNam
       >
         <CoffeeBeanAtmosphere variant="section" />
         <div className="relative z-10 max-w-2xl mx-auto text-center space-y-6 py-4">
-          <div className="w-14 h-14 rounded-2xl bg-amber-950/70 border border-amber-600/50 text-amber-400 flex items-center justify-center mx-auto shadow-inner">
-            <Calculator className="w-7 h-7 text-amber-400" />
+          <div className="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-700/60 text-amber-400 flex items-center justify-center mx-auto shadow-inner">
+            <Lock className="w-7 h-7 text-amber-400" />
           </div>
 
           <div className="space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white">
-              B2B Calculator & Groothandelsprijzen
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-800/80 text-[11px] font-bold uppercase tracking-wider text-amber-300">
+              {serverStatus === 'b2c' ? (
+                <span>Particulier Account</span>
+              ) : serverStatus === 'pending' ? (
+                <span>Aanvraag In Behandeling</span>
+              ) : serverStatus === 'rejected' ? (
+                <span>Toegang Geweigerd</span>
+              ) : (
+                <span>Exclusief voor B2B</span>
+              )}
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-bold font-serif text-white tracking-tight">
+              Deze calculator is uitsluitend beschikbaar voor geregistreerde B2B-klanten.
             </h2>
-            <p className="text-sm text-stone-300 leading-relaxed max-w-lg mx-auto">
-              Bereken eenvoudig uw staffelkorting, maandelijks bonenverbruik en apparatuurlease op maat van uw onderneming.
+
+            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-lg mx-auto">
+              {serverStatus === 'b2c'
+                ? `U bent momenteel aangemeld als particuliere klant (${user?.email || 'particulier'}). Deze calculator en bijhorende groothandelstarieven zijn voorbehouden aan geverifieerde ondernemingen en zakelijke partners.`
+                : serverStatus === 'pending'
+                ? `Uw B2B-aanvraag (${user?.companyName || user?.email || 'uw onderneming'}) wordt momenteel geëvalueerd door onze binnendienst. Zodra uw onderneming en btw-nummer geverifieerd zijn, wordt deze calculator automatisch ontgrendeld.`
+                : serverStatus === 'rejected'
+                ? 'Uw zakelijke aanvraag werd helaas niet goedgekeurd. Neem contact op met onze klantenservice voor verdere toelichting.'
+                : 'De B2B Calculator, groothandelstarieven en staffelkortingen zijn exclusief toegankelijk voor geverifieerde zakelijke partners (horeca, kantoor & handelszaken). Log in met uw zakelijk account of vraag hieronder direct een B2B-account aan.'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto text-left text-xs">
-            <div className="bg-stone-900/80 border border-stone-800 rounded-xl p-3.5 space-y-1">
-              <div className="font-bold text-amber-300 flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Zakelijke Voordelen</span>
-              </div>
-              <p className="text-stone-400 text-[11.5px] leading-relaxed">
-                Staffelkortingen van 10% tot 20%, all-in machinelease vanaf €69/mnd en facturatie met 30 dagen betaaltermijn.
-              </p>
-            </div>
-            <div className="bg-stone-900/80 border border-stone-800 rounded-xl p-3.5 space-y-1">
-              <div className="font-bold text-amber-300 flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Gratis Proefpakket</span>
-              </div>
-              <p className="text-stone-400 text-[11.5px] leading-relaxed">
-                Vraag vrijblijvend een gratis proefpakket van 1 kg specialty koffiebonen aan voor uw kantoor of horecazaak.
-              </p>
-            </div>
-          </div>
+          {/* Action buttons strictly tailored to the user's role */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            {serverStatus === 'unauthenticated' && (
+              <>
+                <button
+                  id="btn-b2b-calc-register"
+                  type="button"
+                  onClick={handleB2BRegisterRequest}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
+                >
+                  <span>B2B-account aanvragen</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  id="btn-b2b-calc-login"
+                  type="button"
+                  onClick={() => handleNavigate('/account')}
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Inloggen
+                </button>
+              </>
+            )}
 
-          <div className="pt-2 flex items-center justify-center">
-            <button
-              id="b2b-calculator-login-btn"
-              type="button"
-              onClick={() => handleNavigate('/account')}
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
-            >
-              Log in
-            </button>
+            {serverStatus === 'b2c' && (
+              <>
+                <button
+                  id="btn-b2b-calc-register-b2c"
+                  type="button"
+                  onClick={handleB2BRegisterRequest}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
+                >
+                  <span>B2B-account aanvragen</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  id="btn-b2b-calc-webshop"
+                  type="button"
+                  onClick={() => handleNavigate('/webshop')}
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Naar de Koffiewebshop
+                </button>
+              </>
+            )}
+
+            {serverStatus === 'pending' && (
+              <>
+                <button
+                  id="btn-b2b-calc-account"
+                  type="button"
+                  onClick={() => handleNavigate('/account')}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-amber-950/60 cursor-pointer"
+                >
+                  <span>Mijn Account Bekijken</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  id="btn-b2b-calc-faq"
+                  type="button"
+                  onClick={() => handleNavigate('/faq')}
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Contact opnemen
+                </button>
+              </>
+            )}
+
+            {serverStatus === 'rejected' && (
+              <button
+                id="btn-b2b-calc-contact"
+                type="button"
+                onClick={() => handleNavigate('/faq')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+              >
+                <span>Contact opnemen met binnendienst</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </section>

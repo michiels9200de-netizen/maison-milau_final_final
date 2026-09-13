@@ -45,6 +45,7 @@ import {
   calculateB2BPricingServerSide,
   getB2BAccessStatus,
   B2BCalculatorInput,
+  UserProfilePricingContext,
 } from './server/b2bCalculatorService.js';
 
 dotenv.config({ override: true });
@@ -2304,11 +2305,14 @@ app.get('/api/b2b-quotes', (req: Request, res: Response) => {
 
 const handleB2BCalculate = (req: Request, res: Response) => {
   const user = getAuthenticatedUser(req);
-  const userProfile = user ? {
-    role: user.b2bRole || (user.role === 'b2b_admin' || user.role === 'b2b' ? 'b2b' : (user.role === 'store_admin' || user.role === 'admin' ? 'admin' : 'b2c')),
+  const isAdmin = user && (user.role === 'admin' || user.role === 'store_admin');
+  const isParticulier = user && (user.accountType === 'particulier' || user.role === 'b2c_customer' || user.role === 'b2c');
+  const userProfile: UserProfilePricingContext | null = user ? {
+    accountType: user.accountType,
+    role: isAdmin ? 'admin' : (isParticulier ? 'b2c' : (user.b2bRole || (user.role?.includes('b2b') ? 'b2b' : 'b2c'))),
     status: user.b2bStatus || (user.status === 'active' || user.status === 'approved' ? 'approved' : user.status),
-    b2bRole: user.b2bRole,
-    b2bStatus: user.b2bStatus,
+    b2bRole: isParticulier ? 'b2c' : user.b2bRole,
+    b2bStatus: isParticulier ? undefined : user.b2bStatus,
   } : null;
 
   const access = getB2BAccessStatus(userProfile);
@@ -2338,11 +2342,14 @@ app.post('/api/b2b/calculator', handleB2BCalculate);
 
 const handleB2BStatusCheck = (req: Request, res: Response) => {
   const user = getAuthenticatedUser(req);
-  const userProfile = user ? {
-    role: user.b2bRole || (user.role === 'b2b_admin' || user.role === 'b2b' ? 'b2b' : (user.role === 'store_admin' || user.role === 'admin' ? 'admin' : 'b2c')),
+  const isAdmin = user && (user.role === 'admin' || user.role === 'store_admin');
+  const isParticulier = user && (user.accountType === 'particulier' || user.role === 'b2c_customer' || user.role === 'b2c');
+  const userProfile: UserProfilePricingContext | null = user ? {
+    accountType: user.accountType,
+    role: isAdmin ? 'admin' : (isParticulier ? 'b2c' : (user.b2bRole || (user.role?.includes('b2b') ? 'b2b' : 'b2c'))),
     status: user.b2bStatus || (user.status === 'active' || user.status === 'approved' ? 'approved' : user.status),
-    b2bRole: user.b2bRole,
-    b2bStatus: user.b2bStatus,
+    b2bRole: isParticulier ? 'b2c' : user.b2bRole,
+    b2bStatus: isParticulier ? undefined : user.b2bStatus,
   } : null;
 
   const access = getB2BAccessStatus(userProfile);

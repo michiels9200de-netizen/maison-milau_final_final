@@ -28,6 +28,8 @@ interface AuthContextType {
   wishlist: string[];
   toggleWishlist: (productId: string) => void;
   authProvider: string;
+  isVerifiedB2B: boolean;
+  b2bAccessStatus: 'approved' | 'pending' | 'rejected' | 'b2c' | 'unauthenticated';
 }
 
 const DEFAULT_B2C_USER: User = {
@@ -462,6 +464,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const isVerifiedB2B = Boolean(
+    user && (
+      user.role === 'admin' ||
+      user.role === 'store_admin' ||
+      (
+        user.accountType === 'professioneel' &&
+        user.role !== 'b2c_customer' &&
+        user.role !== 'b2c' &&
+        (user.b2bStatus === 'approved' || user.status === 'approved' || user.status === 'active')
+      )
+    )
+  );
+
+  const b2bAccessStatus: 'approved' | 'pending' | 'rejected' | 'b2c' | 'unauthenticated' = (() => {
+    if (!user) return 'unauthenticated';
+    if (user.role === 'admin' || user.role === 'store_admin') return 'approved';
+    if (user.accountType === 'particulier' || user.role === 'b2c_customer' || user.role === 'b2c') {
+      return 'b2c';
+    }
+    const status = String(user.b2bStatus || user.status || '').toLowerCase();
+    if (status === 'approved' || status === 'active') return 'approved';
+    if (status === 'pending') return 'pending';
+    if (status === 'rejected') return 'rejected';
+    return 'b2c';
+  })();
+
   return (
     <AuthContext.Provider
       value={{
@@ -490,6 +518,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         wishlist,
         toggleWishlist,
         authProvider: CONFIG.auth.provider,
+        isVerifiedB2B,
+        b2bAccessStatus,
       }}
     >
       {children}

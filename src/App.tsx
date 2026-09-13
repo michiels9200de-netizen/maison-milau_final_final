@@ -117,6 +117,7 @@ export default function App() {
       case '/account':
       case '/login':
       case '/register':
+      case '/b2b/register':
       case '/forgot-password':
       case '/reset-password':
       case '/verify-email':

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, Coffee, Star, MessageSquare, Plus, Check } from 'lucide-react';
 import { CATALOG_ITEMS } from '../data/catalogData';
+import { FlavorNoteBadge, getFlavorConfig } from './common/FlavorIcon';
 
 export interface CoffeeReviewItem {
   id: string;
@@ -369,12 +370,7 @@ export const CoffeeReviewModal: React.FC<CoffeeReviewModalProps> = ({
                         {/* Flavor notes and accuracy */}
                         <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-100">
                           {notes.map((note, i) => (
-                            <span
-                              key={i}
-                              className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-medium"
-                            >
-                              {note}
-                            </span>
+                            <FlavorNoteBadge key={i} flavor={note} size="xs" />
                           ))}
                           {rev.profileAccuracy && (
                             <span className="text-[10px] text-amber-900 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-md font-medium ml-auto">
@@ -510,18 +506,21 @@ export const CoffeeReviewModal: React.FC<CoffeeReviewModalProps> = ({
                     <div className="flex flex-wrap gap-1.5 max-w-full">
                       {availableNotes.map((note) => {
                         const isSelected = selectedNotes.includes(note);
+                        const fConf = getFlavorConfig(note);
+                        const IconComp = fConf.Icon;
                         return (
                           <button
                             key={note}
                             type="button"
                             onClick={() => toggleNote(note)}
-                            className={`text-[11px] px-2.5 py-1 rounded-full border transition-all ${
+                            className={`text-[11px] px-2.5 py-1 rounded-full border transition-all inline-flex items-center gap-1.5 cursor-pointer ${
                               isSelected
                                 ? 'bg-amber-900 border-amber-900 text-white font-medium shadow-2xs'
-                                : 'bg-stone-100 border-stone-200 text-stone-700 hover:bg-stone-200'
+                                : `${fConf.bgClass} ${fConf.borderClass} ${fConf.colorClass} hover:opacity-90`
                             }`}
                           >
-                            {note}
+                            <IconComp className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'brightness-125' : ''}`} />
+                            <span>{note}</span>
                           </button>
                         );
                       })}

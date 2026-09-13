@@ -2121,5 +2121,160 @@ export const RealisticToffee: React.FC<FlavorIllustrationProps> = ({ className, 
   </svg>
 );
 
+// 67. REALISTIC RASPBERRY (Framboos, ripe aggregate drupelets)
+export const RealisticRaspberry: React.FC<FlavorIllustrationProps> = ({ className, size, ...props }) => (
+  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} width={size} height={size} {...props}>
+    <defs>
+      <radialGradient id="rb-d1" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#FDA4AF" />
+        <stop offset="40%" stopColor="#E11D48" />
+        <stop offset="85%" stopColor="#9F1239" />
+        <stop offset="100%" stopColor="#4C0519" />
+      </radialGradient>
+      <radialGradient id="rb-d2" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#FB7185" />
+        <stop offset="45%" stopColor="#BE123C" />
+        <stop offset="90%" stopColor="#881337" />
+        <stop offset="100%" stopColor="#4C0519" />
+      </radialGradient>
+    </defs>
+    {/* Aggregate drupelet clusters */}
+    {/* Row 4 (Bottom tip) */}
+    <circle cx="16" cy="26" r="2.2" fill="url(#rb-d2)" />
+    {/* Row 3 */}
+    <circle cx="13" cy="22.5" r="2.4" fill="url(#rb-d1)" />
+    <circle cx="19" cy="22.5" r="2.4" fill="url(#rb-d2)" />
+    <circle cx="16" cy="21" r="2.5" fill="url(#rb-d1)" />
+    {/* Row 2 */}
+    <circle cx="9.8" cy="17" r="2.5" fill="url(#rb-d2)" />
+    <circle cx="14" cy="16.5" r="2.6" fill="url(#rb-d1)" />
+    <circle cx="18" cy="16.5" r="2.6" fill="url(#rb-d1)" />
+    <circle cx="22.2" cy="17" r="2.5" fill="url(#rb-d2)" />
+    {/* Row 1 (Top crown) */}
+    <circle cx="8" cy="12" r="2.4" fill="url(#rb-d2)" />
+    <circle cx="12" cy="11.5" r="2.5" fill="url(#rb-d1)" />
+    <circle cx="16" cy="11.2" r="2.5" fill="url(#rb-d1)" />
+    <circle cx="20" cy="11.5" r="2.5" fill="url(#rb-d1)" />
+    <circle cx="24" cy="12" r="2.4" fill="url(#rb-d2)" />
+    {/* Velvet highlights */}
+    <circle cx="12.5" cy="10.8" r="0.6" fill="#FFFFFF" fillOpacity="0.75" />
+    <circle cx="16.5" cy="10.5" r="0.6" fill="#FFFFFF" fillOpacity="0.75" />
+    <circle cx="14.5" cy="15.8" r="0.6" fill="#FFFFFF" fillOpacity="0.75" />
+    <circle cx="18.5" cy="15.8" r="0.6" fill="#FFFFFF" fillOpacity="0.75" />
+    <circle cx="16.5" cy="20.3" r="0.6" fill="#FFFFFF" fillOpacity="0.75" />
+    {/* Green Sepals and Stem */}
+    <path d="M16 9V4" stroke="#166534" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M16 9C13.5 7 10 7.5 9 9C11.5 9.5 14 9.5 16 9Z" fill="#16A34A" />
+    <path d="M16 9C18.5 7 22 7.5 23 9C20.5 9.5 18 9.5 16 9Z" fill="#16A34A" />
+    <path d="M16 9C15 11.5 14 12 13 13C14 11.5 15 10.5 16 9Z" fill="#15803D" />
+    <path d="M16 9C17 11.5 18 12 19 13C18 11.5 17 10.5 16 9Z" fill="#15803D" />
+  </svg>
+);
+
+// 68. REALISTIC MANGO (Rijpe mango, gouden tropische vrucht)
+export const RealisticMango: React.FC<FlavorIllustrationProps> = ({ className, size, ...props }) => (
+  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} width={size} height={size} {...props}>
+    <defs>
+      <radialGradient id="mng-body" cx="42%" cy="38%" r="62%">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="30%" stopColor="#FBBF24" />
+        <stop offset="60%" stopColor="#F97316" />
+        <stop offset="85%" stopColor="#E11D48" />
+        <stop offset="100%" stopColor="#9F1239" />
+      </radialGradient>
+      <linearGradient id="mng-leaf" x1="16" y1="5" x2="27" y2="10" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#4ADE80" />
+        <stop offset="100%" stopColor="#15803D" />
+      </linearGradient>
+    </defs>
+    {/* Mango Body - Characteristic curved teardrop kidney shape */}
+    <path
+      d="M16 7C22 5 27 10 27 17C27 24 21 28.5 16 28.5C10 28.5 5 23 5 16C5 10 11 8 16 7Z"
+      fill="url(#mng-body)"
+    />
+    {/* Natural glossy sheen */}
+    <ellipse cx="13" cy="14" rx="2.5" ry="5.5" transform="rotate(-25 13 14)" fill="#FFFFFF" fillOpacity="0.45" />
+    {/* Stem & Little Green Leaf */}
+    <path d="M16 7.5C16 5 15.5 3 14.5 2" stroke="#78350F" strokeWidth="1.4" strokeLinecap="round" />
+    <path d="M16 6C19.5 4.5 24 5.5 25 8C23 9.5 19 9 16 6Z" fill="url(#mng-leaf)" />
+    <path d="M16 6C19 7 22 7.8 24.5 8" stroke="#86EFAC" strokeWidth="0.5" strokeLinecap="round" />
+  </svg>
+);
+
+// 69. REALISTIC PASSION FRUIT (Passievrucht, maracuja)
+export const RealisticPassionFruit: React.FC<FlavorIllustrationProps> = ({ className, size, ...props }) => (
+  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} width={size} height={size} {...props}>
+    <defs>
+      <radialGradient id="pf-rind" cx="50%" cy="50%" r="50%">
+        <stop offset="70%" stopColor="#701A75" />
+        <stop offset="90%" stopColor="#4A044E" />
+        <stop offset="100%" stopColor="#2E0234" />
+      </radialGradient>
+      <radialGradient id="pf-pulp" cx="45%" cy="40%" r="55%">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="40%" stopColor="#FACC15" />
+        <stop offset="80%" stopColor="#EA580C" />
+        <stop offset="100%" stopColor="#C2410C" />
+      </radialGradient>
+    </defs>
+    {/* Outer Purple Shell */}
+    <circle cx="16" cy="16" r="13" fill="url(#pf-rind)" />
+    {/* White Inner Wall */}
+    <circle cx="16" cy="16" r="11" fill="#FEF3C7" />
+    {/* Glistening Golden-Orange Pulp Basin */}
+    <circle cx="16" cy="16" r="9.5" fill="url(#pf-pulp)" />
+    {/* Characteristic Black Passion Fruit Seeds with Gel Sacks */}
+    <ellipse cx="13" cy="12" rx="1.5" ry="2.2" transform="rotate(25 13 12)" fill="#18181B" />
+    <ellipse cx="19" cy="13" rx="1.6" ry="2.1" transform="rotate(-30 19 13)" fill="#18181B" />
+    <ellipse cx="12.5" cy="17.5" rx="1.5" ry="2.2" transform="rotate(-15 12.5 17.5)" fill="#18181B" />
+    <ellipse cx="18" cy="18" rx="1.6" ry="2.2" transform="rotate(35 18 18)" fill="#18181B" />
+    <ellipse cx="15.5" cy="21" rx="1.5" ry="2" transform="rotate(75 15.5 21)" fill="#18181B" />
+    <ellipse cx="16" cy="15" rx="1.4" ry="1.9" transform="rotate(5 16 15)" fill="#18181B" />
+    {/* Pulp Glisten Highlights */}
+    <circle cx="11.5" cy="11" r="0.6" fill="#FFFFFF" fillOpacity="0.8" />
+    <circle cx="17.5" cy="12" r="0.6" fill="#FFFFFF" fillOpacity="0.8" />
+    <circle cx="14" cy="15" r="0.6" fill="#FFFFFF" fillOpacity="0.8" />
+    <circle cx="17" cy="17" r="0.6" fill="#FFFFFF" fillOpacity="0.8" />
+    <circle cx="14" cy="20" r="0.6" fill="#FFFFFF" fillOpacity="0.8" />
+    {/* Shell Highlight */}
+    <ellipse cx="9" cy="8" rx="2.5" ry="1" transform="rotate(-40 9 8)" fill="#E879F9" fillOpacity="0.45" />
+  </svg>
+);
+
+// 70. REALISTIC LIME (Limoen, verse limoenschijf)
+export const RealisticLime: React.FC<FlavorIllustrationProps> = ({ className, size, ...props }) => (
+  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} width={size} height={size} {...props}>
+    <defs>
+      <linearGradient id="lme-rind" x1="4" y1="16" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#84CC16" />
+        <stop offset="50%" stopColor="#4D7C0F" />
+        <stop offset="100%" stopColor="#14532D" />
+      </linearGradient>
+      <radialGradient id="lme-pulp" cx="50%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#D9F99D" />
+        <stop offset="45%" stopColor="#A3E635" />
+        <stop offset="100%" stopColor="#65A30D" />
+      </radialGradient>
+    </defs>
+    {/* Outer Lime Rind */}
+    <path d="M4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16H4Z" fill="url(#lme-rind)" />
+    {/* Pale Lime Pith Margin */}
+    <path d="M5.5 16C5.5 21.799 10.201 26.5 16 26.5C21.799 26.5 26.5 21.799 26.5 16H5.5Z" fill="#F7FEE7" />
+    {/* 4 Crisp Lime Pulp Triangles */}
+    <path d="M7 17.2C7.5 20.5 9 22.5 10.5 24L15 17.5L7 17.2Z" fill="url(#lme-pulp)" />
+    <path d="M11.5 24.5C13 25.5 14.5 25.8 16 25.8L16 17.5L11.5 24.5Z" fill="url(#lme-pulp)" />
+    <path d="M16 25.8C17.5 25.8 19 25.5 20.5 24.5L16 17.5L16 25.8Z" fill="url(#lme-pulp)" />
+    <path d="M21.5 24C23 22.5 24.5 20.5 25 17.2L17 17.5L21.5 24Z" fill="url(#lme-pulp)" />
+    {/* Center Core */}
+    <circle cx="16" cy="16.8" r="1.1" fill="#F7FEE7" />
+    {/* Specular Glisten */}
+    <ellipse cx="10" cy="20" rx="1.2" ry="0.6" transform="rotate(30 10 20)" fill="#FFFFFF" fillOpacity="0.7" />
+    <ellipse cx="22" cy="20" rx="1.2" ry="0.6" transform="rotate(-30 22 20)" fill="#FFFFFF" fillOpacity="0.7" />
+    {/* Fresh Crisp Leaf */}
+    <path d="M16 15C16 11 20 8 24 8.5C23.5 12 20 14.5 16 15Z" fill="#15803D" />
+    <path d="M16 15C19 12.5 22 10 24 8.5" stroke="#BBF7D0" strokeWidth="0.5" />
+  </svg>
+);
+
 
 

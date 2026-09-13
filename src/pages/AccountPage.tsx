@@ -242,7 +242,17 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
     const verifyTokenParamUrl = params.get('verifyToken');
     const genericTokenParam = params.get('token');
 
-    if (tabParam === 'forgot' || pathname === '/forgot-password' || pathname === '/account/forgot-password') {
+    const typeParam = params.get('type');
+
+    if (
+      pathname === '/b2b/register' ||
+      (pathname === '/register' && (typeParam === 'b2b' || typeParam === 'professioneel')) ||
+      typeParam === 'b2b' ||
+      typeParam === 'professioneel'
+    ) {
+      setAuthTab('register');
+      setAuthAccountType('professioneel');
+    } else if (tabParam === 'forgot' || pathname === '/forgot-password' || pathname === '/account/forgot-password') {
       setAuthTab('forgot');
     } else if (tabParam === 'reset' || pathname === '/reset-password' || pathname === '/account/reset-password') {
       setAuthTab('reset');
