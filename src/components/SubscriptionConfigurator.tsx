@@ -78,7 +78,7 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
 
   // Monthly subscription consumption (kg/month) and free shipping qualification
   const monthlyKg = calculateSubscriptionMonthlyKg(currentVariant.weight, quantity, frequency);
-  const shippingBenefit = getSubscriptionShippingBenefit(monthlyKg);
+  const shippingBenefit = getSubscriptionShippingBenefit(monthlyKg, subscriptionPrice);
 
   // Monthly savings calculation based on delivery frequency
   const monthlySavings =
@@ -498,8 +498,8 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
                   <Truck className="w-3.5 h-3.5 text-amber-800 shrink-0" />
                   <span className={shippingBenefit.qualifiesForFreeShipping ? 'font-bold text-emerald-800' : ''}>
                     {shippingBenefit.qualifiesForFreeShipping
-                      ? 'Gratis verzending inbegrepen (vanaf 2kg/maand)'
-                      : 'Gratis verzending bij abonnement vanaf 2kg/maand'}
+                      ? 'Gratis verzending inbegrepen (vanaf 2kg/maand of €45)'
+                      : 'Gratis verzending bij abonnement vanaf 2kg/maand of €45'}
                   </span>
                 </li>
                 <li className="flex items-center gap-1.5">

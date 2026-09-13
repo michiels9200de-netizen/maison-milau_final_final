@@ -585,7 +585,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         <span>{shippingCost === 0 ? 'Gratis' : `€${shippingCost.toFixed(2)}`}</span>
                       </div>
                       <p className="text-stone-500 mt-0.5">
-                        Binnen 2-3 werkdagen bezorgd met trackingcode. Gratis vanaf €45 bestelwaarde.
+                        Binnen 2-3 werkdagen bezorgd met trackingcode. Gratis vanaf €45 of abonnement vanaf 2kg/maand.
                       </p>
                     </div>
                   </label>

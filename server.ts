@@ -657,10 +657,24 @@ export function calculateSubscriptionPricing(
   const deliveriesPerMonth = frequency === '2_weken' ? 2 : frequency === '3_weken' ? 1.3333 : 1;
   const monthlyKg = Math.round(kgPerUnit * Math.max(1, quantity) * deliveriesPerMonth * 100) / 100;
 
-  // Business Rule: 2kg/month or more receives FREE SHIPPING (€0)
-  const isFreeShipping = monthlyKg >= 2.0 || discountedPrice >= 45;
+  // Free shipping applies when: 2kg/month or more OR shipment value is €45 or more
+  const isFreeShipping = monthlyKg >= 2.0 || discountedPrice >= 45.0;
   const shippingCost = isFreeShipping ? 0 : 4.95;
   const totalRecurring = Math.round((discountedPrice + shippingCost) * 100) / 100;
+
+  const remValue = Math.max(0, Math.round((45.0 - discountedPrice) * 100) / 100);
+  const remKg = Math.max(0, Math.round((2.0 - monthlyKg) * 100) / 100);
+  const progressKg = monthlyKg / 2.0;
+  const progressValue = discountedPrice / 45.0;
+
+  let upsellMessage = '';
+  if (progressValue >= progressKg) {
+    const formattedVal = remValue % 1 === 0 ? remValue.toFixed(0) : remValue.toFixed(2).replace('.', ',');
+    upsellMessage = `Nog €${formattedVal} verwijderd van gratis verzending.`;
+  } else {
+    const formattedKg = remKg % 1 === 0 ? remKg.toString() : remKg.toFixed(1).replace('.', ',');
+    upsellMessage = `Nog ${formattedKg}kg verwijderd van gratis verzending.`;
+  }
 
   return {
     basePrice,
@@ -674,7 +688,7 @@ export function calculateSubscriptionPricing(
     freeShipping: isFreeShipping,
     shippingBenefit: isFreeShipping
       ? '✅ Gratis verzending inbegrepen'
-      : `Nog ${(2.0 - monthlyKg).toFixed(1).replace('.', ',')} kg verwijderd van gratis verzending.`,
+      : upsellMessage,
   };
 }
 

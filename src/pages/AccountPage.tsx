@@ -61,12 +61,21 @@ const SUBSCRIPTION_COFFEE_CATALOG: Record<string, { collection: string; prices: 
   'Sugarcane Decaf Colombia': { collection: 'Selection', prices: { '250g': 11.95, '500g': 22.95, '1kg': 44.95 } },
 };
 
-function calculateSubscriptionBreakdown(productName: string, weight: string) {
+function calculateSubscriptionBreakdown(productName: string, weight: string, frequency: string = '4_weken') {
   const catalogEntry = SUBSCRIPTION_COFFEE_CATALOG[productName] || SUBSCRIPTION_COFFEE_CATALOG['Selection Daily'];
   const basePrice = catalogEntry.prices[weight] || catalogEntry.prices['250g'] || 9.50;
   const discountPercent = 10;
   const discountedPrice = Math.round(basePrice * (1 - discountPercent / 100) * 100) / 100;
-  const shippingCost = discountedPrice >= 45 ? 0 : 4.95;
+  
+  let kgPerUnit = 0.25;
+  if (weight.includes('1kg') || weight.includes('1 kg')) kgPerUnit = 1.0;
+  else if (weight.includes('500g') || weight.includes('500 g')) kgPerUnit = 0.5;
+  else if (weight.includes('2kg') || weight.includes('2 kg')) kgPerUnit = 2.0;
+  const deliveriesPerMonth = frequency === '2_weken' ? 2 : frequency === '3_weken' ? 1.3333 : 1;
+  const monthlyKg = kgPerUnit * deliveriesPerMonth;
+
+  const isFreeShipping = monthlyKg >= 2.0 || discountedPrice >= 45.0;
+  const shippingCost = isFreeShipping ? 0 : 4.95;
   const totalRecurring = Math.round((discountedPrice + shippingCost) * 100) / 100;
 
   return {
@@ -76,6 +85,7 @@ function calculateSubscriptionBreakdown(productName: string, weight: string) {
     discountedPrice,
     shippingCost,
     totalRecurring,
+    freeShipping: isFreeShipping,
   };
 }
 

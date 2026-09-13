@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { CartItem, PromotionCoupon } from '../types';
 import { useStock, AvailabilityInfo } from './StockContext';
+import { calculateSubscriptionMonthlyKg } from '../utils/cartAndRoastHelpers';
 
 interface CartContextType {
   items: CartItem[];
@@ -196,9 +197,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return 0;
   }, [appliedCoupon, subtotal]);
 
-  // Shipping cost: free if subtotal >= 45, or cart empty, or free_shipping coupon applied
+  // Separate shipping rules:
+  // 1. Subscriptions: Free shipping applies when quantity is 2kg/month or more OR shipment value is €45 or more
+  // 2. Standard webshop orders: Free shipping from €45 per shipment; below €45 -> normal shipping applies (€4.95)
+  // Also free if cart is empty or free_shipping coupon applied.
+  const hasQualifyingSubscription = useMemo(() => {
+    return items.some((item) => {
+      if (item.purchaseType === 'abonnement') {
+        const monthlyKg = calculateSubscriptionMonthlyKg(
+          item.variantWeight,
+          item.quantity,
+          item.subscriptionFrequency || '4_weken'
+        );
+        const itemShipmentValue = item.unitPrice * item.quantity;
+        return monthlyKg >= 2.0 || itemShipmentValue >= 45.0;
+      }
+      return false;
+    });
+  }, [items]);
+
   const isFreeShipping =
-    subtotal >= 45 || items.length === 0 || appliedCoupon?.discountType === 'free_shipping';
+    subtotal >= 45 ||
+    hasQualifyingSubscription ||
+    items.length === 0 ||
+    appliedCoupon?.discountType === 'free_shipping';
   const shippingCost = isFreeShipping ? 0 : 4.95;
 
   // 6% VAT on coffee beans and food products

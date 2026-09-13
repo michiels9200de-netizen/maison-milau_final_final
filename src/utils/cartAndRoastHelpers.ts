@@ -215,38 +215,80 @@ export function calculateSubscriptionMonthlyKg(
 export interface SubscriptionShippingBenefit {
   qualifiesForFreeShipping: boolean;
   monthlyKg: number;
+  shipmentValue: number;
   remainingKg: number;
+  remainingValue: number;
   upsellMessage: string | null;
   badgeLabel: string;
 }
 
 /**
- * Evaluates the Free Shipping rule for Subscriptions:
- * - Subscriptions of 2kg per month or more receive FREE SHIPPING (shipping automatically becomes €0, "Gratis Verzending").
- * - When >= 2kg/month: immediately display "✅ Gratis verzending inbegrepen".
- * - Below 2kg/month: subtle upsell, e.g. "Nog 1 kg verwijderd van gratis verzending." or "Nog 0,5 kg verwijderd van gratis verzending."
+ * Evaluates the Free Shipping rules for Subscriptions:
+ * 
+ * Free shipping applies when:
+ * 1. Subscription quantity is 2kg/month or more
+ *    OR
+ * 2. Subscription value is €45 or more per shipment
+ * 
+ * When either is met:
+ * -> "✅ Gratis verzending inbegrepen"
+ * 
+ * If below both:
+ * -> Upsell message based on whichever threshold is reached first:
+ *    "Nog €4 verwijderd van gratis verzending." or "Nog 0,5kg verwijderd van gratis verzending."
  */
-export function getSubscriptionShippingBenefit(monthlyKg: number): SubscriptionShippingBenefit {
+export function getSubscriptionShippingBenefit(
+  monthlyKg: number,
+  shipmentValue: number = 0
+): SubscriptionShippingBenefit {
   const roundedMonthlyKg = Math.round(monthlyKg * 100) / 100;
-  if (roundedMonthlyKg >= 2.0) {
+  const roundedShipmentValue = Math.round(shipmentValue * 100) / 100;
+
+  const qualifiesForFreeShipping = roundedMonthlyKg >= 2.0 || roundedShipmentValue >= 45.0;
+
+  if (qualifiesForFreeShipping) {
     return {
       qualifiesForFreeShipping: true,
       monthlyKg: roundedMonthlyKg,
+      shipmentValue: roundedShipmentValue,
       remainingKg: 0,
+      remainingValue: 0,
       upsellMessage: null,
       badgeLabel: '✅ Gratis verzending inbegrepen',
     };
   }
 
   const remainingKg = Math.max(0, Math.round((2.0 - roundedMonthlyKg) * 100) / 100);
-  const formattedRemaining =
-    remainingKg % 1 === 0 ? remainingKg.toString() : remainingKg.toFixed(1).replace('.', ',');
+  const remainingValue = Math.max(0, Math.round((45.0 - roundedShipmentValue) * 100) / 100);
+
+  // Compare progress towards each threshold to determine whichever threshold is reached first
+  const progressKg = roundedMonthlyKg / 2.0;
+  const progressValue = roundedShipmentValue / 45.0;
+
+  let upsellMessage = '';
+  if (progressValue >= progressKg) {
+    // Reaching €45 per shipment is closer
+    const formattedValue =
+      remainingValue % 1 === 0
+        ? remainingValue.toFixed(0)
+        : remainingValue.toFixed(2).replace('.', ',');
+    upsellMessage = `Nog €${formattedValue} verwijderd van gratis verzending.`;
+  } else {
+    // Reaching 2kg/month is closer
+    const formattedKg =
+      remainingKg % 1 === 0
+        ? remainingKg.toString()
+        : remainingKg.toFixed(1).replace('.', ',');
+    upsellMessage = `Nog ${formattedKg}kg verwijderd van gratis verzending.`;
+  }
 
   return {
     qualifiesForFreeShipping: false,
     monthlyKg: roundedMonthlyKg,
+    shipmentValue: roundedShipmentValue,
     remainingKg,
-    upsellMessage: `Nog ${formattedRemaining} kg verwijderd van gratis verzending.`,
+    remainingValue,
+    upsellMessage,
     badgeLabel: 'Standaard verzending',
   };
 }

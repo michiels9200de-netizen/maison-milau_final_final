@@ -29,9 +29,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
 
   if (!isCartOpen) return null;
 
+  const isFree = shippingCost === 0 && items.length > 0;
   const freeShippingThreshold = 45;
-  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-  const progressPct = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const remainingForFreeShipping = isFree ? 0 : Math.max(0, freeShippingThreshold - subtotal);
+  const progressPct = isFree ? 100 : Math.min(100, (subtotal / freeShippingThreshold) * 100);
 
   const handleCheckout = () => {
     if (hasUnavailableItems) return;
@@ -72,16 +73,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
           <div className="px-4 sm:px-5 py-2.5 bg-amber-50/70 border-b border-amber-100 text-xs">
             <div className="flex items-center justify-between text-amber-950 font-medium mb-1">
               <span className="flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-amber-700" />
-                {remainingForFreeShipping > 0
-                  ? `Nog €${remainingForFreeShipping.toFixed(2)} voor gratis verzending`
-                  : 'Gefeliciteerd! Gratis levering binnen België'}
+                <Truck className={`w-3.5 h-3.5 ${isFree ? 'text-emerald-600' : 'text-amber-700'}`} />
+                {isFree
+                  ? '✅ Gratis verzending inbegrepen'
+                  : `Nog €${remainingForFreeShipping.toFixed(2).replace('.', ',')} voor gratis verzending`}
               </span>
-              <span>{Math.round(progressPct)}%</span>
+              <span className={isFree ? 'font-bold text-emerald-700' : ''}>{Math.round(progressPct)}%</span>
             </div>
-            <div className="w-full h-1.5 bg-amber-200/60 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-stone-200/80 rounded-full overflow-hidden">
               <div
-                className="h-full bg-amber-700 rounded-full transition-all duration-300"
+                className={`h-full rounded-full transition-all duration-300 ${
+                  isFree ? 'bg-emerald-600' : 'bg-amber-700'
+                }`}
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -265,11 +268,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                 </div>
               )}
 
-              {/* Promotional Discount Code Input */}
-              <div className="pt-1 pb-1.5 border-b border-stone-200/80">
-                <CouponInput compact={true} />
-              </div>
-
               <div className="space-y-1 text-xs text-stone-600">
                 {isB2B && (
                   <div className="flex items-center gap-1.5 p-1.5 rounded bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-semibold mb-1">
@@ -319,6 +317,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                     * Officiële Belgische B2B factuur met gespecificeerde BTW inbegrepen.
                   </div>
                 )}
+              </div>
+
+              {/* Compact Promotional Discount Code Row */}
+              <div className="py-1 border-t border-stone-100">
+                <CouponInput compact={true} />
               </div>
 
               <button
