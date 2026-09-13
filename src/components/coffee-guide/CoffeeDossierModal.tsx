@@ -396,17 +396,18 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                 {dossier.signatureCharacteristics.map((char, cIdx) => {
                   const fConf = getFlavorConfig(char);
                   const sConf = getSensoryConfig(char);
-                  const IconComponent = fConf.category !== 'default' ? fConf.Icon : sConf.Icon;
-                  const colorClass = fConf.category !== 'default' ? fConf.colorClass : sConf.colorClass;
+                  const isFlavor = fConf.category !== 'coffee';
+                  const IconComponent = isFlavor ? fConf.Icon : sConf.Icon;
+                  const colorClass = isFlavor ? '' : sConf.colorClass;
                   return (
                     <div
                       key={cIdx}
-                      className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50/90 border border-stone-200/70 text-xs text-stone-800 font-medium hover:border-amber-300/80 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-stone-50/90 border border-stone-200/80 text-xs text-stone-800 font-medium hover:border-amber-400/80 hover:bg-white transition-all shadow-2xs"
                     >
-                      <div className="w-5 h-5 rounded-md bg-amber-100/70 border border-amber-200/60 flex items-center justify-center shrink-0 mt-0.5 text-amber-900 shadow-2xs">
-                        <IconComponent className={`w-3 h-3 ${colorClass}`} strokeWidth={1.8} />
+                      <div className="w-8 h-8 rounded-lg bg-white border border-stone-200/90 flex items-center justify-center shrink-0 shadow-2xs">
+                        <IconComponent className={`w-5 h-5 ${colorClass} drop-shadow-xs`} strokeWidth={1.8} />
                       </div>
-                      <span className="leading-snug">{char}</span>
+                      <span className="leading-snug text-stone-900 font-medium">{char}</span>
                     </div>
                   );
                 })}
@@ -419,12 +420,14 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
                   return (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50/90 border border-stone-200/70 text-xs text-stone-800 font-medium hover:border-amber-300/80 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-stone-50/90 border border-stone-200/80 text-xs text-stone-800 font-medium hover:border-amber-400/80 hover:bg-white transition-all shadow-2xs"
                     >
-                      <div className="w-5 h-5 rounded-md bg-amber-100/70 border border-amber-200/60 flex items-center justify-center shrink-0 mt-0.5 text-amber-900 shadow-2xs">
-                        <IconComponent className={`w-3 h-3 ${fConf.colorClass}`} strokeWidth={1.8} />
+                      <div className="w-8 h-8 rounded-lg bg-white border border-stone-200/90 flex items-center justify-center shrink-0 shadow-2xs">
+                        <IconComponent className="w-5 h-5 drop-shadow-xs" />
                       </div>
-                      <span className="leading-snug">Dominante smaakexpressie van {flv.toLowerCase()} met harmonieuze afronding.</span>
+                      <span className="leading-snug text-stone-900 font-medium">
+                        Dominante smaakexpressie van <span className="font-semibold text-amber-950">{flv.toLowerCase()}</span> met harmonieuze afronding.
+                      </span>
                     </div>
                   );
                 })}

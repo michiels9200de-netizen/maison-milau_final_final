@@ -1,749 +1,171 @@
 import React from 'react';
 import {
-  Apple,
-  Grape,
-  Cherry,
-  Citrus,
-  Nut,
-  Flower2,
-  Wine,
-  Cookie,
-  Leaf,
   Waves,
   Scale,
   Layers,
   Sparkles,
-  Flame,
   Heart,
-  Coffee,
   Zap,
-  Droplets,
-  Sun,
-  FlameKindling,
 } from 'lucide-react';
 import {
   RealisticGreenApple,
+  RealisticRedApple,
   RealisticPurpleGrape,
   RealisticGreenGrape,
   RealisticPeach,
+  RealisticApricot,
   RealisticPlum,
+  RealisticPear,
+  RealisticFig,
+  RealisticDate,
+  RealisticRaisin,
+  RealisticDriedFruit,
   RealisticHoney,
   RealisticDarkChocolate,
   RealisticMilkChocolate,
+  RealisticBakersChocolate,
+  RealisticCacaoPod,
+  RealisticCacaoNibs,
   RealisticOrangeSlice,
+  RealisticMandarin,
+  RealisticGrapefruit,
   RealisticLemonSlice,
+  RealisticBergamot,
+  RealisticLemongrass,
   RealisticBlueberry,
   RealisticBlackberry,
-  RealisticCherry,
+  RealisticBlackcurrant,
   RealisticCranberry,
+  RealisticCherry,
+  RealisticStrawberry,
+  RealisticWatermelon,
+  RealisticPineapple,
+  RealisticCoconut,
   RealisticJasmine,
   RealisticFloral,
+  RealisticOrangeBlossom,
+  RealisticCoffeeBlossom,
   RealisticAlmond,
+  RealisticRoastedAlmond,
   RealisticHazelnut,
+  RealisticRoastedHazelnut,
   RealisticWalnut,
+  RealisticCashew,
+  RealisticPeanut,
+  RealisticRoastedNuts,
   RealisticCaramel,
+  RealisticDarkCaramel,
+  RealisticToffee,
+  RealisticBrownSugar,
+  RealisticSugar,
+  RealisticSugarCane,
+  RealisticMolasses,
   RealisticVanilla,
   RealisticCinnamon,
-  RealisticWatermelon,
+  RealisticStarAnise,
+  RealisticWarmSpices,
   RealisticTeaLeaf,
+  RealisticGreenTea,
+  RealisticBlackTea,
   RealisticWineOak,
-  RealisticSugar,
   RealisticBiscuit,
-  RealisticCoconut,
-  RealisticDriedFruit,
-  RealisticPineapple,
+  RealisticToast,
   RealisticCoffeeBean,
+  RealisticCrema,
+  RealisticWineSweetness,
+  RealisticWarmSweetness,
+  FlavorIllustrationProps,
 } from './RealisticFlavorIllustrations';
 
+// Export all realistic illustrations for direct use anywhere in the app
 export {
   RealisticGreenApple,
+  RealisticRedApple,
   RealisticPurpleGrape,
   RealisticGreenGrape,
   RealisticPeach,
+  RealisticApricot,
   RealisticPlum,
+  RealisticPear,
+  RealisticFig,
+  RealisticDate,
+  RealisticRaisin,
+  RealisticDriedFruit,
   RealisticHoney,
   RealisticDarkChocolate,
   RealisticMilkChocolate,
+  RealisticBakersChocolate,
+  RealisticCacaoPod,
+  RealisticCacaoNibs,
   RealisticOrangeSlice,
+  RealisticMandarin,
+  RealisticGrapefruit,
   RealisticLemonSlice,
+  RealisticBergamot,
+  RealisticLemongrass,
   RealisticBlueberry,
   RealisticBlackberry,
-  RealisticCherry,
+  RealisticBlackcurrant,
   RealisticCranberry,
+  RealisticCherry,
+  RealisticStrawberry,
+  RealisticWatermelon,
+  RealisticPineapple,
+  RealisticCoconut,
   RealisticJasmine,
   RealisticFloral,
+  RealisticOrangeBlossom,
+  RealisticCoffeeBlossom,
   RealisticAlmond,
+  RealisticRoastedAlmond,
   RealisticHazelnut,
+  RealisticRoastedHazelnut,
   RealisticWalnut,
+  RealisticCashew,
+  RealisticPeanut,
+  RealisticRoastedNuts,
   RealisticCaramel,
+  RealisticDarkCaramel,
+  RealisticToffee,
+  RealisticBrownSugar,
+  RealisticSugar,
+  RealisticSugarCane,
+  RealisticMolasses,
   RealisticVanilla,
   RealisticCinnamon,
-  RealisticWatermelon,
+  RealisticStarAnise,
+  RealisticWarmSpices,
   RealisticTeaLeaf,
+  RealisticGreenTea,
+  RealisticBlackTea,
   RealisticWineOak,
-  RealisticSugar,
   RealisticBiscuit,
-  RealisticCoconut,
-  RealisticDriedFruit,
-  RealisticPineapple,
+  RealisticToast,
   RealisticCoffeeBean,
+  RealisticCrema,
+  RealisticWineSweetness,
+  RealisticWarmSweetness,
 };
 
-
-/* =========================================================================
-   1. HIGH-PRECISION VECTOR PICTOGRAMS (Consistent 24x24 Lucide-matching style)
-   All icons adhere strictly to stroke-width 1.8, round linecap & join, no cartoon style.
-   ========================================================================= */
-
-// Chocolate piece (bar segments)
-export const ChocolateIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
-    <line x1="3.5" y1="12" x2="20.5" y2="12" />
-    <line x1="12" y1="4.5" x2="12" y2="19.5" />
-    <rect x="5.5" y="6.5" width="4.5" height="3.5" rx="0.5" strokeWidth="1.2" opacity="0.65" />
-    <rect x="14" y="6.5" width="4.5" height="3.5" rx="0.5" strokeWidth="1.2" opacity="0.65" />
-    <rect x="5.5" y="14" width="4.5" height="3.5" rx="0.5" strokeWidth="1.2" opacity="0.65" />
-    <rect x="14" y="14" width="4.5" height="3.5" rx="0.5" strokeWidth="1.2" opacity="0.65" />
-  </svg>
-);
-
-// Honey dipper / jar droplet
-export const HoneyIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <path d="M12 2v4" />
-    <ellipse cx="12" cy="11" rx="5.5" ry="5" />
-    <line x1="7" y1="9" x2="17" y2="9" />
-    <line x1="6.5" y1="11.5" x2="17.5" y2="11.5" />
-    <line x1="8" y1="13.5" x2="16" y2="13.5" />
-    <path d="M12 16v3a2 2 0 0 0 2 2" />
-    <circle cx="16" cy="20" r="1" fill="currentColor" />
-  </svg>
-);
-
-// Vanilla pod & blossom
-export const VanillaIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <path d="M4 21C7.5 15 13 9 21 5" />
-    <path d="M7 21C10.5 16 15 11 22 8" />
-    <circle cx="17.5" cy="6.5" r="2.2" />
-    <path d="m15.5 8.5-2.5 2.5" />
-  </svg>
-);
-
-// Peach / Stone Fruit
-export const PeachIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <path d="M12 4.5c-3.8-2-7.5.8-7.5 5.5a7.5 7.5 0 0 0 15 0c0-4.7-3.7-7.5-7.5-5.5Z" />
-    <path d="M12 4.5v6.5c0 3 1.5 5 4 6" />
-    <path d="M12 4.5c.5-1.5 2-2.5 4-2.5" />
-  </svg>
-);
-
-// Pineapple / Tropical
-export const PineappleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <rect x="7" y="9" width="10" height="12" rx="4.5" />
-    <line x1="8" y1="12" x2="16" y2="18" />
-    <line x1="16" y1="12" x2="8" y2="18" />
-    <path d="m12 9-2-6 2 2 2-2-2 6Z" />
-    <path d="m9 9-3-4 3 2" />
-    <path d="m15 9 3-4-3 2" />
-  </svg>
-);
-
-// Almond nut (sleek single seed)
-export const AlmondIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <path d="M12 3c-5 4-7 9-7 13a7 7 0 0 0 14 0c0-4-2-9-7-13Z" />
-    <path d="M12 6c-2.5 3.5-3.5 6.5-3.5 10" />
-  </svg>
-);
-
-// Caramel drop / confection
-export const CaramelIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <rect x="4" y="6.5" width="16" height="11" rx="2.5" />
-    <line x1="4" y1="12" x2="20" y2="12" />
-    <path d="M12 6.5c-2 2-2 3.5 0 5.5s2 3.5 0 5.5" />
-  </svg>
-);
-
-// Spices / Star anise quills
-export const SpiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <circle cx="12" cy="12" r="2.8" />
-    <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
-    <path d="m5.8 5.8 2.5 2.5M15.7 15.7l2.5 2.5M5.8 18.2l2.5-2.5M15.7 8.3l2.5-2.5" />
-  </svg>
-);
-
-// Berry cluster (Blueberry / Blackberry / Cranberry)
-export const BerryIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <circle cx="8.5" cy="14.5" r="4" />
-    <circle cx="15.5" cy="14.5" r="4" />
-    <circle cx="12" cy="8.5" r="3.8" />
-    <path d="M12 4.7V2" />
-    <path d="M10 2.5h4" />
-  </svg>
-);
-
-// Sugar crystal / cane
-export const SugarIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...props }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <path d="m12 3.5 7 4v8l-7 4-7-4v-8l7-4Z" />
-    <path d="m12 11.5 7-4" />
-    <path d="M12 11.5v8" />
-    <path d="m12 11.5-7-4" />
-  </svg>
-);
-
-/* =========================================================================
-   2. CONFIGURATION & CLASSIFICATION ENGINE
-   Accurately associates any coffee flavor note (NL/EN) with its dedicated icon,
-   harmonious Maison Milau color tone, and semantic family.
-   ========================================================================= */
+// Legacy alias exports mapped to premium realistic illustrations
+export const ChocolateIcon = RealisticDarkChocolate;
+export const HoneyIcon = RealisticHoney;
+export const VanillaIcon = RealisticVanilla;
+export const PeachIcon = RealisticPeach;
+export const PineappleIcon = RealisticPineapple;
+export const AlmondIcon = RealisticAlmond;
+export const CaramelIcon = RealisticCaramel;
+export const SpiceIcon = RealisticCinnamon;
+export const BerryIcon = RealisticBlackberry;
+export const SugarIcon = RealisticSugar;
 
 export interface FlavorConfig {
-  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  colorClass: string;      // Accent icon color
-  bgClass: string;         // Subtle pill background
-  borderClass: string;     // Pill border
+  Icon: React.FC<FlavorIllustrationProps>;
+  colorClass: string;
+  bgClass: string;
+  borderClass: string;
   category: string;
 }
-
-export const getFlavorConfig = (flavor: string): FlavorConfig => {
-  const norm = (flavor || '').toLowerCase().trim();
-
-  // 1. Apple (Groene appel, Granny Smith, crisp apple)
-  if (norm.includes('appel') || norm.includes('apple')) {
-    return {
-      Icon: RealisticGreenApple,
-      colorClass: 'text-lime-700',
-      bgClass: 'bg-lime-50/80',
-      borderClass: 'border-lime-200/90',
-      category: 'apple',
-    };
-  }
-
-  // 2. Grape
-  // White / Green grape
-  if (
-    (norm.includes('druif') || norm.includes('grape')) &&
-    (norm.includes('groen') || norm.includes('wit') || norm.includes('green') || norm.includes('white'))
-  ) {
-    return {
-      Icon: RealisticGreenGrape,
-      colorClass: 'text-emerald-700',
-      bgClass: 'bg-emerald-50/80',
-      borderClass: 'border-emerald-200/90',
-      category: 'green-grape',
-    };
-  }
-  // Purple / Red / Ripe Grape (Rijpe druif, rode druif, etc.)
-  if (norm.includes('druif') || norm.includes('grape')) {
-    return {
-      Icon: RealisticPurpleGrape,
-      colorClass: 'text-purple-700',
-      bgClass: 'bg-purple-50/80',
-      borderClass: 'border-purple-200/90',
-      category: 'grape',
-    };
-  }
-
-  // 3. Cherry (Kers, cherry, bing cherry)
-  if (norm.includes('kers') || norm.includes('cherry')) {
-    return {
-      Icon: RealisticCherry,
-      colorClass: 'text-rose-700',
-      bgClass: 'bg-rose-50/80',
-      borderClass: 'border-rose-200/90',
-      category: 'cherry',
-    };
-  }
-
-  // 4. Berries (Blueberry, braam, bessen, cranberry, zwarte bes, bosbes)
-  if (norm.includes('braam') || norm.includes('blackberry')) {
-    return {
-      Icon: RealisticBlackberry,
-      colorClass: 'text-purple-900',
-      bgClass: 'bg-purple-50/80',
-      borderClass: 'border-purple-200/90',
-      category: 'blackberry',
-    };
-  }
-  if (norm.includes('cranberry') || (norm.includes('rood') && norm.includes('fruit'))) {
-    return {
-      Icon: RealisticCranberry,
-      colorClass: 'text-rose-700',
-      bgClass: 'bg-rose-50/80',
-      borderClass: 'border-rose-200/90',
-      category: 'cranberry',
-    };
-  }
-  if (
-    norm.includes('bes') ||
-    norm.includes('berry') ||
-    norm.includes('bosbes') ||
-    norm.includes('blueberry')
-  ) {
-    return {
-      Icon: RealisticBlueberry,
-      colorClass: 'text-blue-700',
-      bgClass: 'bg-blue-50/80',
-      borderClass: 'border-blue-200/90',
-      category: 'berry',
-    };
-  }
-
-  // 5. Citrus (Orange, citroen, lemon, sinaasappel, mandarijn, bergamot, grapefruit, lichte citrus)
-  if (
-    norm.includes('sinaas') ||
-    norm.includes('orange') ||
-    norm.includes('mandarijn')
-  ) {
-    return {
-      Icon: RealisticOrangeSlice,
-      colorClass: 'text-orange-700',
-      bgClass: 'bg-orange-50/80',
-      borderClass: 'border-orange-200/90',
-      category: 'orange',
-    };
-  }
-  if (
-    norm.includes('citrus') ||
-    norm.includes('citroen') ||
-    norm.includes('lemon') ||
-    norm.includes('bergamot') ||
-    norm.includes('grapefruit')
-  ) {
-    return {
-      Icon: RealisticLemonSlice,
-      colorClass: 'text-amber-700',
-      bgClass: 'bg-amber-50/80',
-      borderClass: 'border-amber-200/90',
-      category: 'citrus',
-    };
-  }
-
-  // 6. Stone Fruit / Dried Fruit
-  if (norm.includes('pruim') || norm.includes('plum')) {
-    return {
-      Icon: RealisticPlum,
-      colorClass: 'text-fuchsia-700',
-      bgClass: 'bg-fuchsia-50/80',
-      borderClass: 'border-fuchsia-200/90',
-      category: 'plum',
-    };
-  }
-  if (
-    norm.includes('vijg') ||
-    norm.includes('fig') ||
-    norm.includes('dadel') ||
-    norm.includes('date') ||
-    norm.includes('rozijn') ||
-    norm.includes('gedroogd') ||
-    norm.includes('dried') ||
-    norm.includes('donkere vruchten')
-  ) {
-    return {
-      Icon: RealisticDriedFruit,
-      colorClass: 'text-purple-800',
-      bgClass: 'bg-purple-50/80',
-      borderClass: 'border-purple-200/90',
-      category: 'dried-fruit',
-    };
-  }
-  if (
-    norm.includes('abrikoos') ||
-    norm.includes('apricot') ||
-    norm.includes('peach') ||
-    norm.includes('perzik') ||
-    norm.includes('peer') ||
-    norm.includes('pear')
-  ) {
-    return {
-      Icon: RealisticPeach,
-      colorClass: 'text-orange-700',
-      bgClass: 'bg-amber-50/80',
-      borderClass: 'border-rose-200/80',
-      category: 'stone-fruit',
-    };
-  }
-
-  // 7. Tropical (Watermeloen, kokos, pineapple, ananas, tropisch fruit, mango, passion)
-  if (norm.includes('watermeloen') || norm.includes('melon')) {
-    return {
-      Icon: RealisticWatermelon,
-      colorClass: 'text-rose-700',
-      bgClass: 'bg-rose-50/80',
-      borderClass: 'border-rose-200/90',
-      category: 'watermelon',
-    };
-  }
-  if (norm.includes('kokos') || norm.includes('coconut')) {
-    return {
-      Icon: RealisticCoconut,
-      colorClass: 'text-stone-800',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-stone-200/90',
-      category: 'coconut',
-    };
-  }
-  if (
-    norm.includes('tropisch') ||
-    norm.includes('tropical') ||
-    norm.includes('ananas') ||
-    norm.includes('pineapple') ||
-    norm.includes('mango') ||
-    norm.includes('passion')
-  ) {
-    return {
-      Icon: RealisticPineapple,
-      colorClass: 'text-amber-700',
-      bgClass: 'bg-amber-50/80',
-      borderClass: 'border-amber-200/90',
-      category: 'tropical',
-    };
-  }
-
-  // 8. Chocolate / Cocoa
-  if (norm.includes('melk') || norm.includes('milk')) {
-    return {
-      Icon: RealisticMilkChocolate,
-      colorClass: 'text-[#6D4C41]',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-amber-900/20',
-      category: 'milk-chocolate',
-    };
-  }
-  if (
-    norm.includes('choco') ||
-    norm.includes('cacao') ||
-    norm.includes('cocoa')
-  ) {
-    return {
-      Icon: RealisticDarkChocolate,
-      colorClass: 'text-[#3E2723]',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-amber-950/25',
-      category: 'chocolate',
-    };
-  }
-
-  // 9. Honey (Honing, honey, vloeibare honing, warme zoetheid)
-  if (
-    norm.includes('honing') ||
-    norm.includes('honey') ||
-    norm.includes('warme zoetheid')
-  ) {
-    return {
-      Icon: RealisticHoney,
-      colorClass: 'text-amber-700',
-      bgClass: 'bg-amber-50/90',
-      borderClass: 'border-amber-300/70',
-      category: 'honey',
-    };
-  }
-
-  // 10. Vanilla (Vanille, vanilla, bourbon-vanille, Madagascar-vanille)
-  if (norm.includes('vanil')) {
-    return {
-      Icon: RealisticVanilla,
-      colorClass: 'text-amber-900',
-      bgClass: 'bg-amber-50/80',
-      borderClass: 'border-amber-200/80',
-      category: 'vanilla',
-    };
-  }
-
-  // 11. Caramel / Toffee / Sugar (Karamel, caramel, toffee, bruine suiker, brown sugar, suikerriet, melasse)
-  if (
-    norm.includes('suiker') ||
-    norm.includes('sugar') ||
-    norm.includes('suikerriet')
-  ) {
-    return {
-      Icon: RealisticSugar,
-      colorClass: 'text-amber-800',
-      bgClass: 'bg-amber-50/80',
-      borderClass: 'border-amber-200/80',
-      category: 'sugar',
-    };
-  }
-  if (
-    norm.includes('karamel') ||
-    norm.includes('caramel') ||
-    norm.includes('toffee') ||
-    norm.includes('melasse') ||
-    norm.includes('molasses')
-  ) {
-    return {
-      Icon: RealisticCaramel,
-      colorClass: 'text-amber-800',
-      bgClass: 'bg-amber-50/90',
-      borderClass: 'border-amber-300/70',
-      category: 'caramel',
-    };
-  }
-
-  // 12. Nuts (Amandel, almond, hazelnoot, hazelnut, walnoot, walnut, peanut, pinda, cashew, geroosterde noten)
-  if (norm.includes('amandel') || norm.includes('almond')) {
-    return {
-      Icon: RealisticAlmond,
-      colorClass: 'text-amber-900',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-stone-300/80',
-      category: 'almond',
-    };
-  }
-  if (norm.includes('hazel')) {
-    return {
-      Icon: RealisticHazelnut,
-      colorClass: 'text-amber-900',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-stone-300/80',
-      category: 'hazelnut',
-    };
-  }
-  if (
-    norm.includes('walnoot') ||
-    norm.includes('walnut') ||
-    norm.includes('cashew') ||
-    norm.includes('peanut') ||
-    norm.includes('pinda') ||
-    norm.includes('noten') ||
-    norm.includes('nuts') ||
-    norm.includes('pecan')
-  ) {
-    return {
-      Icon: RealisticWalnut,
-      colorClass: 'text-amber-900',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-stone-300/80',
-      category: 'nuts',
-    };
-  }
-
-  // 13. Floral (Jasmijn, jasmine, rose, roos, bloemen, delicate bloemen, zachte bloemen, koffiebloesem, oranjebloesem)
-  if (norm.includes('jasmijn') || norm.includes('jasmine')) {
-    return {
-      Icon: RealisticJasmine,
-      colorClass: 'text-stone-800',
-      bgClass: 'bg-stone-50',
-      borderClass: 'border-stone-200/90',
-      category: 'jasmine',
-    };
-  }
-  if (
-    norm.includes('bloem') ||
-    norm.includes('flower') ||
-    norm.includes('floral') ||
-    norm.includes('rose') ||
-    norm.includes('roos') ||
-    norm.includes('blossom') ||
-    norm.includes('bloesem')
-  ) {
-    return {
-      Icon: RealisticFloral,
-      colorClass: 'text-pink-800',
-      bgClass: 'bg-pink-50/70',
-      borderClass: 'border-pink-200/80',
-      category: 'floral',
-    };
-  }
-
-  // 14. Winey / Ferment / Cask (Wijnachtig, winey, wijn, sherry, bourbon, vatlagering, eik, eikenhout)
-  if (
-    norm.includes('wijn') ||
-    norm.includes('wine') ||
-    norm.includes('sherry') ||
-    norm.includes('bourbon') ||
-    norm.includes('eik') ||
-    norm.includes('oak')
-  ) {
-    return {
-      Icon: RealisticWineOak,
-      colorClass: 'text-rose-900',
-      bgClass: 'bg-rose-50/80',
-      borderClass: 'border-rose-200/80',
-      category: 'wine',
-    };
-  }
-
-  // 15. Spices / Cinnamon / Anise (Kaneel, cinnamon, anijs, specerij, spice, warm)
-  if (
-    norm.includes('kaneel') ||
-    norm.includes('cinnamon') ||
-    norm.includes('anijs') ||
-    norm.includes('anise') ||
-    norm.includes('specerij') ||
-    norm.includes('spice') ||
-    norm.includes('kruid')
-  ) {
-    return {
-      Icon: RealisticCinnamon,
-      colorClass: 'text-amber-900',
-      bgClass: 'bg-amber-50/80',
-      borderClass: 'border-amber-200/80',
-      category: 'spices',
-    };
-  }
-
-  // 16. Tea & Herbal (Thee, tea, groene thee, zwarte thee, sencha, lemongrass)
-  if (
-    norm.includes('thee') ||
-    norm.includes('tea') ||
-    norm.includes('sencha') ||
-    norm.includes('lemongrass')
-  ) {
-    return {
-      Icon: RealisticTeaLeaf,
-      colorClass: 'text-emerald-800',
-      bgClass: 'bg-emerald-50/80',
-      borderClass: 'border-emerald-200/80',
-      category: 'tea',
-    };
-  }
-
-  // 17. Bakery / Toast / Biscuit
-  if (
-    norm.includes('biscuit') ||
-    norm.includes('toast') ||
-    norm.includes('koek') ||
-    norm.includes('bakkers')
-  ) {
-    return {
-      Icon: RealisticBiscuit,
-      colorClass: 'text-amber-900',
-      bgClass: 'bg-amber-50/70',
-      borderClass: 'border-stone-300/80',
-      category: 'bakery',
-    };
-  }
-
-  // 18. Crema / Coffee finish / Lange krachtige afdronk
-  if (
-    norm.includes('crema') ||
-    norm.includes('afdr') ||
-    norm.includes('finish') ||
-    norm.includes('koffie')
-  ) {
-    return {
-      Icon: RealisticCoffeeBean,
-      colorClass: 'text-amber-950',
-      bgClass: 'bg-stone-100/90',
-      borderClass: 'border-amber-900/25',
-      category: 'crema',
-    };
-  }
-
-  // Default fallback: delicate aromatic sparkles
-  return {
-    Icon: Sparkles,
-    colorClass: 'text-amber-800',
-    bgClass: 'bg-stone-100/90',
-    borderClass: 'border-stone-200/70',
-    category: 'default',
-  };
-};
-
-/* =========================================================================
-   3. SENSORY CHARACTERISTICS & ATTRIBUTES ENGINE
-   Provides visual icons for sensory cupping meters, signature descriptors,
-   and character profiles: Acidity, Body, Sweetness, Balance, Complexity, Intensity.
-   ========================================================================= */
 
 export interface SensoryConfig {
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
@@ -751,6 +173,1390 @@ export interface SensoryConfig {
   category: 'acidity' | 'body' | 'sweetness' | 'balance' | 'complexity' | 'intensity';
 }
 
+/* =========================================================================
+   COMPREHENSIVE FLAVOR DICTIONARY (86 CATALOG & DOSSIER NOTES + ENGLISH VARIANTS)
+   ========================================================================= */
+const EXACT_FLAVOR_MAP: Record<string, FlavorConfig> = {
+  // --- Stone Fruits & Orchard Fruits ---
+  'abrikoos': {
+    Icon: RealisticApricot,
+    colorClass: 'text-amber-900',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'stone-fruit',
+  },
+  'apricot': {
+    Icon: RealisticApricot,
+    colorClass: 'text-amber-900',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'stone-fruit',
+  },
+  'perzik': {
+    Icon: RealisticPeach,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'stone-fruit',
+  },
+  'peach': {
+    Icon: RealisticPeach,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'stone-fruit',
+  },
+  'peer': {
+    Icon: RealisticPear,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+  'pear': {
+    Icon: RealisticPear,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+  'pruim': {
+    Icon: RealisticPlum,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'stone-fruit',
+  },
+  'plum': {
+    Icon: RealisticPlum,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'stone-fruit',
+  },
+  'groene appel': {
+    Icon: RealisticGreenApple,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+  'green apple': {
+    Icon: RealisticGreenApple,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+  'granny smith': {
+    Icon: RealisticGreenApple,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+  'rode appel': {
+    Icon: RealisticRedApple,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'orchard-fruit',
+  },
+  'red apple': {
+    Icon: RealisticRedApple,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'orchard-fruit',
+  },
+  'appel': {
+    Icon: RealisticGreenApple,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+  'apple': {
+    Icon: RealisticGreenApple,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'orchard-fruit',
+  },
+
+  // --- Citrus Fruits ---
+  'sinaasappel': {
+    Icon: RealisticOrangeSlice,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'citrus',
+  },
+  'orange': {
+    Icon: RealisticOrangeSlice,
+    colorClass: 'text-orange-950',
+    bgClass: 'bg-orange-50/90',
+    borderClass: 'border-orange-200/90',
+    category: 'citrus',
+  },
+  'mandarijn': {
+    Icon: RealisticMandarin,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'citrus',
+  },
+  'mandarin': {
+    Icon: RealisticMandarin,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'citrus',
+  },
+  'tangerine': {
+    Icon: RealisticMandarin,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'citrus',
+  },
+  'grapefruit': {
+    Icon: RealisticGrapefruit,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'citrus',
+  },
+  'pink grapefruit': {
+    Icon: RealisticGrapefruit,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'citrus',
+  },
+  'citroen': {
+    Icon: RealisticLemonSlice,
+    colorClass: 'text-yellow-950',
+    bgClass: 'bg-yellow-50/90',
+    borderClass: 'border-yellow-200/90',
+    category: 'citrus',
+  },
+  'lemon': {
+    Icon: RealisticLemonSlice,
+    colorClass: 'text-yellow-950',
+    bgClass: 'bg-yellow-50/90',
+    borderClass: 'border-yellow-200/90',
+    category: 'citrus',
+  },
+  'citrus': {
+    Icon: RealisticOrangeSlice,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'citrus',
+  },
+  'lichte citrus': {
+    Icon: RealisticLemonSlice,
+    colorClass: 'text-yellow-950',
+    bgClass: 'bg-yellow-50/90',
+    borderClass: 'border-yellow-200/90',
+    category: 'citrus',
+  },
+  'bergamot': {
+    Icon: RealisticBergamot,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'citrus',
+  },
+  'lemongrass': {
+    Icon: RealisticLemongrass,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'herbal',
+  },
+  'citroengras': {
+    Icon: RealisticLemongrass,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'herbal',
+  },
+
+  // --- Grapes & Berries ---
+  'groene druif': {
+    Icon: RealisticGreenGrape,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'grape',
+  },
+  'witte druif': {
+    Icon: RealisticGreenGrape,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'grape',
+  },
+  'green grape': {
+    Icon: RealisticGreenGrape,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'grape',
+  },
+  'white grape': {
+    Icon: RealisticGreenGrape,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'grape',
+  },
+  'rode druif': {
+    Icon: RealisticPurpleGrape,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'grape',
+  },
+  'rijpe druif': {
+    Icon: RealisticPurpleGrape,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'grape',
+  },
+  'druif': {
+    Icon: RealisticPurpleGrape,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'grape',
+  },
+  'grape': {
+    Icon: RealisticPurpleGrape,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'grape',
+  },
+  'kers': {
+    Icon: RealisticCherry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'cherry': {
+    Icon: RealisticCherry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'aardbei': {
+    Icon: RealisticStrawberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'strawberry': {
+    Icon: RealisticStrawberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'blauwe bes': {
+    Icon: RealisticBlueberry,
+    colorClass: 'text-indigo-950',
+    bgClass: 'bg-indigo-50/90',
+    borderClass: 'border-indigo-200/90',
+    category: 'berry',
+  },
+  'bosbes': {
+    Icon: RealisticBlueberry,
+    colorClass: 'text-indigo-950',
+    bgClass: 'bg-indigo-50/90',
+    borderClass: 'border-indigo-200/90',
+    category: 'berry',
+  },
+  'blueberry': {
+    Icon: RealisticBlueberry,
+    colorClass: 'text-indigo-950',
+    bgClass: 'bg-indigo-50/90',
+    borderClass: 'border-indigo-200/90',
+    category: 'berry',
+  },
+  'braam': {
+    Icon: RealisticBlackberry,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'berry',
+  },
+  'blackberry': {
+    Icon: RealisticBlackberry,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'berry',
+  },
+  'zwarte bes': {
+    Icon: RealisticBlackcurrant,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'berry',
+  },
+  'blackcurrant': {
+    Icon: RealisticBlackcurrant,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'berry',
+  },
+  'cranberry': {
+    Icon: RealisticCranberry,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'berry',
+  },
+  'bessen': {
+    Icon: RealisticBlackcurrant,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'berry',
+  },
+  'berries': {
+    Icon: RealisticBlackcurrant,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'berry',
+  },
+
+  // --- Tropical & Dried Fruits ---
+  'ananas': {
+    Icon: RealisticPineapple,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tropical',
+  },
+  'pineapple': {
+    Icon: RealisticPineapple,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tropical',
+  },
+  'tropisch fruit': {
+    Icon: RealisticPineapple,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tropical',
+  },
+  'tropical fruit': {
+    Icon: RealisticPineapple,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tropical',
+  },
+  'watermeloen': {
+    Icon: RealisticWatermelon,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'melon',
+  },
+  'watermelon': {
+    Icon: RealisticWatermelon,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'melon',
+  },
+  'kokos': {
+    Icon: RealisticCoconut,
+    colorClass: 'text-stone-900',
+    bgClass: 'bg-stone-50/90',
+    borderClass: 'border-stone-200/90',
+    category: 'tropical',
+  },
+  'coconut': {
+    Icon: RealisticCoconut,
+    colorClass: 'text-stone-900',
+    bgClass: 'bg-stone-50/90',
+    borderClass: 'border-stone-200/90',
+    category: 'tropical',
+  },
+  'vijg': {
+    Icon: RealisticFig,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'dried-fruit',
+  },
+  'fig': {
+    Icon: RealisticFig,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'dried-fruit',
+  },
+  'dadel': {
+    Icon: RealisticDate,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'dried-fruit',
+  },
+  'date': {
+    Icon: RealisticDate,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'dried-fruit',
+  },
+  'rozijn': {
+    Icon: RealisticRaisin,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'dried-fruit',
+  },
+  'raisin': {
+    Icon: RealisticRaisin,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'dried-fruit',
+  },
+  'gedroogd fruit': {
+    Icon: RealisticDriedFruit,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'dried-fruit',
+  },
+  'dried fruit': {
+    Icon: RealisticDriedFruit,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'dried-fruit',
+  },
+  'donkere vruchten': {
+    Icon: RealisticBlackcurrant,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'fruit',
+  },
+  'dark fruits': {
+    Icon: RealisticBlackcurrant,
+    colorClass: 'text-purple-950',
+    bgClass: 'bg-purple-50/90',
+    borderClass: 'border-purple-200/90',
+    category: 'fruit',
+  },
+
+  // --- Chocolates & Cacao ---
+  'melkchocolade': {
+    Icon: RealisticMilkChocolate,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'chocolate',
+  },
+  'milk chocolate': {
+    Icon: RealisticMilkChocolate,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'chocolate',
+  },
+  'donkere chocolade': {
+    Icon: RealisticDarkChocolate,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'chocolate',
+  },
+  'dark chocolate': {
+    Icon: RealisticDarkChocolate,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'chocolate',
+  },
+  'bakkerschocolade': {
+    Icon: RealisticBakersChocolate,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'chocolate',
+  },
+  'chocolade': {
+    Icon: RealisticMilkChocolate,
+    colorClass: 'text-stone-900',
+    bgClass: 'bg-stone-50/90',
+    borderClass: 'border-stone-200/90',
+    category: 'chocolate',
+  },
+  'chocolate': {
+    Icon: RealisticMilkChocolate,
+    colorClass: 'text-stone-900',
+    bgClass: 'bg-stone-50/90',
+    borderClass: 'border-stone-200/90',
+    category: 'chocolate',
+  },
+  'cacao': {
+    Icon: RealisticCacaoPod,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'cacao',
+  },
+  'cocoa': {
+    Icon: RealisticCacaoPod,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'cacao',
+  },
+  'cacao nibs': {
+    Icon: RealisticCacaoNibs,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'cacao',
+  },
+
+  // --- Sugars, Sweeteners & Confectionery ---
+  'honing': {
+    Icon: RealisticHoney,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'honey': {
+    Icon: RealisticHoney,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'karamel': {
+    Icon: RealisticCaramel,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'caramel': {
+    Icon: RealisticCaramel,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'donkere karamel': {
+    Icon: RealisticDarkCaramel,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'sweetness',
+  },
+  'toffee': {
+    Icon: RealisticToffee,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'bruine suiker': {
+    Icon: RealisticBrownSugar,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'brown sugar': {
+    Icon: RealisticBrownSugar,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'suiker': {
+    Icon: RealisticSugar,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-stone-50/90',
+    borderClass: 'border-stone-200/90',
+    category: 'sweetness',
+  },
+  'sugar': {
+    Icon: RealisticSugar,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-stone-50/90',
+    borderClass: 'border-stone-200/90',
+    category: 'sweetness',
+  },
+  'suikerriet': {
+    Icon: RealisticSugarCane,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'sweetness',
+  },
+  'cane sugar': {
+    Icon: RealisticSugarCane,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'sweetness',
+  },
+  'melasse': {
+    Icon: RealisticMolasses,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'sweetness',
+  },
+  'molasses': {
+    Icon: RealisticMolasses,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'sweetness',
+  },
+  'vanille': {
+    Icon: RealisticVanilla,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/80',
+    borderClass: 'border-amber-200/80',
+    category: 'sweetness',
+  },
+  'vanilla': {
+    Icon: RealisticVanilla,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/80',
+    borderClass: 'border-amber-200/80',
+    category: 'sweetness',
+  },
+  'natuurlijke madagascar-vanille': {
+    Icon: RealisticVanilla,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/80',
+    borderClass: 'border-amber-200/80',
+    category: 'sweetness',
+  },
+
+  // --- Nuts ---
+  'amandel': {
+    Icon: RealisticAlmond,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'almond': {
+    Icon: RealisticAlmond,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'geroosterde amandel': {
+    Icon: RealisticRoastedAlmond,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'roasted almond': {
+    Icon: RealisticRoastedAlmond,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'hazelnoot': {
+    Icon: RealisticHazelnut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'hazelnut': {
+    Icon: RealisticHazelnut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'geroosterde hazelnoot': {
+    Icon: RealisticRoastedHazelnut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'roasted hazelnut': {
+    Icon: RealisticRoastedHazelnut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'walnoot': {
+    Icon: RealisticWalnut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'walnut': {
+    Icon: RealisticWalnut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'cashew': {
+    Icon: RealisticCashew,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'peanut': {
+    Icon: RealisticPeanut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'pinda': {
+    Icon: RealisticPeanut,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'nutty',
+  },
+  'roasted nuts': {
+    Icon: RealisticRoastedNuts,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+  'geroosterde noten': {
+    Icon: RealisticRoastedNuts,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'nutty',
+  },
+
+  // --- Florals ---
+  'jasmijn': {
+    Icon: RealisticJasmine,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/80',
+    borderClass: 'border-emerald-200/80',
+    category: 'floral',
+  },
+  'jasmine': {
+    Icon: RealisticJasmine,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/80',
+    borderClass: 'border-emerald-200/80',
+    category: 'floral',
+  },
+  'bloemen': {
+    Icon: RealisticFloral,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/80',
+    borderClass: 'border-rose-200/80',
+    category: 'floral',
+  },
+  'floral': {
+    Icon: RealisticFloral,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/80',
+    borderClass: 'border-rose-200/80',
+    category: 'floral',
+  },
+  'delicate bloemen': {
+    Icon: RealisticFloral,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/80',
+    borderClass: 'border-rose-200/80',
+    category: 'floral',
+  },
+  'zachte bloemen': {
+    Icon: RealisticFloral,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/80',
+    borderClass: 'border-rose-200/80',
+    category: 'floral',
+  },
+  'oranjebloesem': {
+    Icon: RealisticOrangeBlossom,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/80',
+    borderClass: 'border-amber-200/80',
+    category: 'floral',
+  },
+  'orange blossom': {
+    Icon: RealisticOrangeBlossom,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/80',
+    borderClass: 'border-amber-200/80',
+    category: 'floral',
+  },
+  'koffiebloesem': {
+    Icon: RealisticCoffeeBlossom,
+    colorClass: 'text-stone-900',
+    bgClass: 'bg-stone-50/80',
+    borderClass: 'border-stone-200/80',
+    category: 'floral',
+  },
+  'coffee blossom': {
+    Icon: RealisticCoffeeBlossom,
+    colorClass: 'text-stone-900',
+    bgClass: 'bg-stone-50/80',
+    borderClass: 'border-stone-200/80',
+    category: 'floral',
+  },
+
+  // --- Spices ---
+  'kaneel': {
+    Icon: RealisticCinnamon,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'cinnamon': {
+    Icon: RealisticCinnamon,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'anijs': {
+    Icon: RealisticStarAnise,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'steranijs': {
+    Icon: RealisticStarAnise,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'anise': {
+    Icon: RealisticStarAnise,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'specerijen': {
+    Icon: RealisticWarmSpices,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'bruine specerijen': {
+    Icon: RealisticWarmSpices,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'warme specerijen': {
+    Icon: RealisticWarmSpices,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+  'spices': {
+    Icon: RealisticWarmSpices,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'spices',
+  },
+
+  // --- Teas & Herbs ---
+  'thee': {
+    Icon: RealisticTeaLeaf,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'tea',
+  },
+  'tea': {
+    Icon: RealisticTeaLeaf,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'tea',
+  },
+  'groene thee': {
+    Icon: RealisticGreenTea,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'tea',
+  },
+  'green tea': {
+    Icon: RealisticGreenTea,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'tea',
+  },
+  'sencha-thee': {
+    Icon: RealisticGreenTea,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'tea',
+  },
+  'sencha': {
+    Icon: RealisticGreenTea,
+    colorClass: 'text-emerald-950',
+    bgClass: 'bg-emerald-50/90',
+    borderClass: 'border-emerald-200/90',
+    category: 'tea',
+  },
+  'zwarte thee': {
+    Icon: RealisticBlackTea,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tea',
+  },
+  'black tea': {
+    Icon: RealisticBlackTea,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'tea',
+  },
+  'earl grey': {
+    Icon: RealisticBergamot,
+    colorClass: 'text-lime-950',
+    bgClass: 'bg-lime-50/90',
+    borderClass: 'border-lime-200/90',
+    category: 'tea',
+  },
+
+  // --- Bakery, Oak & Specialized Notes ---
+  'biscuit': {
+    Icon: RealisticBiscuit,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'bakery',
+  },
+  'koekje': {
+    Icon: RealisticBiscuit,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'bakery',
+  },
+  'toast': {
+    Icon: RealisticToast,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'bakery',
+  },
+  'geroosterd brood': {
+    Icon: RealisticToast,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'bakery',
+  },
+  'eik': {
+    Icon: RealisticWineOak,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'oak',
+  },
+  'geroosterde eik': {
+    Icon: RealisticWineOak,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'oak',
+  },
+  'zachte eikenkruiden': {
+    Icon: RealisticWineOak,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'oak',
+  },
+  'oak': {
+    Icon: RealisticWineOak,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-300/90',
+    category: 'oak',
+  },
+  'wijnachtige zoetheid': {
+    Icon: RealisticWineSweetness,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'wine',
+  },
+  'winey': {
+    Icon: RealisticWineSweetness,
+    colorClass: 'text-rose-950',
+    bgClass: 'bg-rose-50/90',
+    borderClass: 'border-rose-200/90',
+    category: 'wine',
+  },
+  'warme zoetheid': {
+    Icon: RealisticWarmSweetness,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'sweetness',
+  },
+  'heavy crema': {
+    Icon: RealisticCrema,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'crema',
+  },
+  'crema': {
+    Icon: RealisticCrema,
+    colorClass: 'text-amber-950',
+    bgClass: 'bg-amber-50/90',
+    borderClass: 'border-amber-200/90',
+    category: 'crema',
+  },
+  'lange krachtige afdronk': {
+    Icon: RealisticCoffeeBean,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'coffee',
+  },
+  'koffie': {
+    Icon: RealisticCoffeeBean,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'coffee',
+  },
+  'coffee': {
+    Icon: RealisticCoffeeBean,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'coffee',
+  },
+};
+
+/**
+ * Intelligent helper to test for a whole word boundary to prevent false positives
+ * (e.g., 'sinaasappel' must NEVER match 'appel', 'grapefruit' must NEVER match 'grape').
+ */
+const matchesWord = (text: string, word: string): boolean => {
+  const pattern = new RegExp(`(^|\\s|[-_/])${word}($|\\s|[-_/])`, 'i');
+  return pattern.test(text);
+};
+
+/**
+ * Resolves any coffee flavor string to its authentic, realistic ingredient illustration and styling.
+ * 1. Checks exact dictionary (O(1) lookup with 100% precision for catalog & dossiers).
+ * 2. Uses safe whole-word and token matching without erroneous cross-matching.
+ */
+export const getFlavorConfig = (flavor: string): FlavorConfig => {
+  const norm = (flavor || '').toLowerCase().trim();
+
+  // 1. Direct dictionary match
+  if (EXACT_FLAVOR_MAP[norm]) {
+    return EXACT_FLAVOR_MAP[norm];
+  }
+
+  // 2. Safe intelligent matching for composite or alternate notes
+
+  // Citrus: Orange / Mandarin / Grapefruit / Lemon (CHECK CITRUS BEFORE APPLE to avoid sinaasappel -> appel!)
+  if (norm.includes('sinaasappel') || norm.includes('orange')) {
+    return EXACT_FLAVOR_MAP['sinaasappel'];
+  }
+  if (norm.includes('mandarijn') || norm.includes('mandarin') || norm.includes('tangerine')) {
+    return EXACT_FLAVOR_MAP['mandarijn'];
+  }
+  if (norm.includes('grapefruit')) {
+    return EXACT_FLAVOR_MAP['grapefruit'];
+  }
+  if (norm.includes('citroen') || norm.includes('lemon')) {
+    return EXACT_FLAVOR_MAP['citroen'];
+  }
+  if (norm.includes('bergamot')) {
+    return EXACT_FLAVOR_MAP['bergamot'];
+  }
+  if (norm.includes('citrus') || norm.includes('lime') || norm.includes('limoen')) {
+    return EXACT_FLAVOR_MAP['citrus'];
+  }
+
+  // Apples (Only after citrus is checked! Use word boundaries or explicit phrases)
+  if (matchesWord(norm, 'groene appel') || matchesWord(norm, 'green apple') || norm.includes('granny smith')) {
+    return EXACT_FLAVOR_MAP['groene appel'];
+  }
+  if (matchesWord(norm, 'rode appel') || matchesWord(norm, 'red apple')) {
+    return EXACT_FLAVOR_MAP['rode appel'];
+  }
+  if (matchesWord(norm, 'appel') || matchesWord(norm, 'apple')) {
+    return EXACT_FLAVOR_MAP['appel'];
+  }
+
+  // Stone Fruits: Peach, Apricot, Plum, Pear
+  if (norm.includes('abrikoos') || norm.includes('apricot')) {
+    return EXACT_FLAVOR_MAP['abrikoos'];
+  }
+  if (norm.includes('perzik') || norm.includes('peach')) {
+    return EXACT_FLAVOR_MAP['perzik'];
+  }
+  if (norm.includes('peer') || norm.includes('pear')) {
+    return EXACT_FLAVOR_MAP['peer'];
+  }
+  if (norm.includes('pruim') || norm.includes('plum')) {
+    return EXACT_FLAVOR_MAP['pruim'];
+  }
+
+  // Grapes (distinguish green/white vs purple/red)
+  if (
+    (matchesWord(norm, 'druif') || matchesWord(norm, 'grape')) &&
+    (norm.includes('groen') || norm.includes('wit') || norm.includes('green') || norm.includes('white'))
+  ) {
+    return EXACT_FLAVOR_MAP['groene druif'];
+  }
+  if (matchesWord(norm, 'druif') || matchesWord(norm, 'grape')) {
+    return EXACT_FLAVOR_MAP['druif'];
+  }
+
+  // Berries
+  if (norm.includes('kers') || norm.includes('cherry')) {
+    return EXACT_FLAVOR_MAP['kers'];
+  }
+  if (norm.includes('aardbei') || norm.includes('strawberry')) {
+    return EXACT_FLAVOR_MAP['aardbei'];
+  }
+  if (norm.includes('blauwe bes') || norm.includes('bosbes') || norm.includes('blueberry')) {
+    return EXACT_FLAVOR_MAP['blauwe bes'];
+  }
+  if (norm.includes('braam') || norm.includes('blackberry')) {
+    return EXACT_FLAVOR_MAP['braam'];
+  }
+  if (norm.includes('zwarte bes') || norm.includes('blackcurrant')) {
+    return EXACT_FLAVOR_MAP['zwarte bes'];
+  }
+  if (norm.includes('cranberry')) {
+    return EXACT_FLAVOR_MAP['cranberry'];
+  }
+  if (norm.includes('bes') || norm.includes('berry')) {
+    return EXACT_FLAVOR_MAP['bessen'];
+  }
+
+  // Tropical & Melons
+  if (norm.includes('watermeloen') || norm.includes('watermelon')) {
+    return EXACT_FLAVOR_MAP['watermeloen'];
+  }
+  if (norm.includes('ananas') || norm.includes('pineapple') || norm.includes('tropisch') || norm.includes('tropical')) {
+    return EXACT_FLAVOR_MAP['ananas'];
+  }
+  if (norm.includes('kokos') || norm.includes('coconut')) {
+    return EXACT_FLAVOR_MAP['kokos'];
+  }
+
+  // Dried Fruits: Fig, Date, Raisin
+  if (norm.includes('vijg') || norm.includes('fig')) {
+    return EXACT_FLAVOR_MAP['vijg'];
+  }
+  if (norm.includes('dadel') || norm.includes('date')) {
+    return EXACT_FLAVOR_MAP['dadel'];
+  }
+  if (norm.includes('rozijn') || norm.includes('raisin') || norm.includes('sultana')) {
+    return EXACT_FLAVOR_MAP['rozijn'];
+  }
+  if (norm.includes('gedroogd') || norm.includes('dried')) {
+    return EXACT_FLAVOR_MAP['gedroogd fruit'];
+  }
+
+  // Chocolates & Cacao
+  if (norm.includes('bakker') || norm.includes('baker')) {
+    return EXACT_FLAVOR_MAP['bakkerschocolade'];
+  }
+  if (norm.includes('donker') || norm.includes('dark') || norm.includes('pure')) {
+    return EXACT_FLAVOR_MAP['donkere chocolade'];
+  }
+  if (norm.includes('melk') || norm.includes('milk')) {
+    return EXACT_FLAVOR_MAP['melkchocolade'];
+  }
+  if (norm.includes('nibs') || norm.includes('gruis')) {
+    return EXACT_FLAVOR_MAP['cacao nibs'];
+  }
+  if (norm.includes('cacao') || norm.includes('cocoa')) {
+    return EXACT_FLAVOR_MAP['cacao'];
+  }
+  if (norm.includes('chocola') || norm.includes('chocolate')) {
+    return EXACT_FLAVOR_MAP['chocolade'];
+  }
+
+  // Sweeteners & Sugars
+  if (norm.includes('honing') || norm.includes('honey')) {
+    return EXACT_FLAVOR_MAP['honing'];
+  }
+  if (norm.includes('melasse') || norm.includes('molasses')) {
+    return EXACT_FLAVOR_MAP['melasse'];
+  }
+  if (norm.includes('suikerriet') || norm.includes('cane')) {
+    return EXACT_FLAVOR_MAP['suikerriet'];
+  }
+  if (norm.includes('bruine suiker') || norm.includes('brown sugar')) {
+    return EXACT_FLAVOR_MAP['bruine suiker'];
+  }
+  if (norm.includes('toffee')) {
+    return EXACT_FLAVOR_MAP['toffee'];
+  }
+  if (norm.includes('karamel') || norm.includes('caramel')) {
+    return norm.includes('donker') || norm.includes('dark')
+      ? EXACT_FLAVOR_MAP['donkere karamel']
+      : EXACT_FLAVOR_MAP['karamel'];
+  }
+  if (norm.includes('vanil')) {
+    return EXACT_FLAVOR_MAP['vanille'];
+  }
+  if (norm.includes('suiker') || norm.includes('sugar')) {
+    return EXACT_FLAVOR_MAP['suiker'];
+  }
+
+  // Nuts
+  if (norm.includes('hazel')) {
+    return norm.includes('geroosterd') || norm.includes('roasted')
+      ? EXACT_FLAVOR_MAP['geroosterde hazelnoot']
+      : EXACT_FLAVOR_MAP['hazelnoot'];
+  }
+  if (norm.includes('amandel') || norm.includes('almond')) {
+    return norm.includes('geroosterd') || norm.includes('roasted')
+      ? EXACT_FLAVOR_MAP['geroosterde amandel']
+      : EXACT_FLAVOR_MAP['amandel'];
+  }
+  if (norm.includes('walnoot') || norm.includes('walnut')) {
+    return EXACT_FLAVOR_MAP['walnoot'];
+  }
+  if (norm.includes('cashew')) {
+    return EXACT_FLAVOR_MAP['cashew'];
+  }
+  if (norm.includes('pinda') || norm.includes('peanut')) {
+    return EXACT_FLAVOR_MAP['peanut'];
+  }
+  if (norm.includes('noot') || norm.includes('noten') || norm.includes('nut')) {
+    return EXACT_FLAVOR_MAP['roasted nuts'];
+  }
+
+  // Florals
+  if (norm.includes('jasmijn') || norm.includes('jasmine')) {
+    return EXACT_FLAVOR_MAP['jasmijn'];
+  }
+  if (norm.includes('oranjebloesem') || norm.includes('orange blossom')) {
+    return EXACT_FLAVOR_MAP['oranjebloesem'];
+  }
+  if (norm.includes('koffiebloesem') || norm.includes('coffee blossom')) {
+    return EXACT_FLAVOR_MAP['koffiebloesem'];
+  }
+  if (norm.includes('bloem') || norm.includes('flora') || norm.includes('flower')) {
+    return EXACT_FLAVOR_MAP['bloemen'];
+  }
+
+  // Spices & Herbs
+  if (norm.includes('kaneel') || norm.includes('cinnamon')) {
+    return EXACT_FLAVOR_MAP['kaneel'];
+  }
+  if (norm.includes('anijs') || norm.includes('anise')) {
+    return EXACT_FLAVOR_MAP['anijs'];
+  }
+  if (norm.includes('specerij') || norm.includes('spice') || norm.includes('kruid')) {
+    return EXACT_FLAVOR_MAP['specerijen'];
+  }
+  if (norm.includes('lemongrass') || norm.includes('citroengras')) {
+    return EXACT_FLAVOR_MAP['lemongrass'];
+  }
+
+  // Tea
+  if (norm.includes('sencha') || (norm.includes('groene') && norm.includes('thee'))) {
+    return EXACT_FLAVOR_MAP['groene thee'];
+  }
+  if (norm.includes('zwarte thee') || norm.includes('black tea')) {
+    return EXACT_FLAVOR_MAP['zwarte thee'];
+  }
+  if (norm.includes('thee') || norm.includes('tea')) {
+    return EXACT_FLAVOR_MAP['thee'];
+  }
+
+  // Bakery, Oak & Special
+  if (norm.includes('biscuit') || norm.includes('koek')) {
+    return EXACT_FLAVOR_MAP['biscuit'];
+  }
+  if (norm.includes('toast') || norm.includes('brood')) {
+    return EXACT_FLAVOR_MAP['toast'];
+  }
+  if (norm.includes('eik') || norm.includes('oak') || norm.includes('hout')) {
+    return EXACT_FLAVOR_MAP['eik'];
+  }
+  if (norm.includes('wijn') || norm.includes('wine')) {
+    return EXACT_FLAVOR_MAP['wijnachtige zoetheid'];
+  }
+  if (norm.includes('zoetheid') || norm.includes('sweetness')) {
+    return EXACT_FLAVOR_MAP['warme zoetheid'];
+  }
+  if (norm.includes('crema')) {
+    return EXACT_FLAVOR_MAP['heavy crema'];
+  }
+
+  // Fallback: Elegant specialty coffee bean
+  return {
+    Icon: RealisticCoffeeBean,
+    colorClass: 'text-stone-950',
+    bgClass: 'bg-stone-100/90',
+    borderClass: 'border-stone-300/90',
+    category: 'coffee',
+  };
+};
+
+/* =========================================================================
+   SENSORY CONFIGURATION (CUPPING ATTRIBUTES)
+   ========================================================================= */
 export const getSensoryConfig = (attributeOrDescriptor: string): SensoryConfig => {
   const norm = (attributeOrDescriptor || '').toLowerCase().trim();
 
@@ -838,7 +1644,7 @@ export const getSensoryConfig = (attributeOrDescriptor: string): SensoryConfig =
 };
 
 /* =========================================================================
-   4. REUSABLE UI BADGE COMPONENTS
+   REUSABLE UI BADGE COMPONENTS
    ========================================================================= */
 
 interface FlavorNoteBadgeProps {
@@ -849,12 +1655,8 @@ interface FlavorNoteBadgeProps {
 }
 
 /**
- * Premium Flavor Note Badge with contextual representative pictogram.
- * Strictly adheres to visual guidelines:
- * - Small premium icon directly preceding flavor note text
- * - Responsive on mobile/tablet/desktop
- * - No text overlap or layout shifts
- * - High-contrast legibility matching Maison Milau aesthetic
+ * Premium Flavor Note Badge featuring realistic food illustrations.
+ * Carefully proportioned for scanning, high contrast, and zero layout shift.
  */
 export const FlavorNoteBadge: React.FC<FlavorNoteBadgeProps> = ({
   flavor,
@@ -867,32 +1669,31 @@ export const FlavorNoteBadge: React.FC<FlavorNoteBadgeProps> = ({
 
   const sizeClasses = {
     xs: 'px-2 py-0.5 text-[11px] gap-1.5 rounded-md font-medium',
-    sm: 'px-2.5 py-1 text-xs gap-1.5 rounded-lg font-medium',
-    md: 'px-3 py-1.5 text-xs gap-2 rounded-lg font-medium',
-    lg: 'px-3.5 py-2 text-sm gap-2.5 rounded-xl font-medium',
+    sm: 'px-2.5 py-1 text-xs gap-2 rounded-lg font-medium',
+    md: 'px-3 py-1.5 text-xs gap-2.5 rounded-lg font-medium',
+    lg: 'px-3.5 py-2 text-sm gap-3 rounded-xl font-medium',
   };
 
   const iconSizes = {
-    xs: 'w-3.5 h-3.5',
-    sm: 'w-4 h-4',
+    xs: 'w-4 h-4',
+    sm: 'w-4.5 h-4.5',
     md: 'w-5 h-5',
     lg: 'w-6 h-6',
   };
 
   return (
     <span
-      className={`group inline-flex items-center leading-none whitespace-nowrap transition-all select-none border text-stone-800 shadow-2xs hover:shadow-xs ${sizeClasses[size]} ${bgClass} ${borderClass} ${className}`}
+      className={`group inline-flex items-center leading-none whitespace-nowrap transition-all duration-150 select-none border shadow-2xs hover:shadow-xs ${sizeClasses[size]} ${bgClass} ${borderClass} ${colorClass} ${className}`}
       title={flavor}
     >
       {showIcon && (
-        <span className="shrink-0 flex items-center justify-center">
+        <span className="shrink-0 flex items-center justify-center -my-0.5">
           <Icon
-            className={`${iconSizes[size]} shrink-0 transition-transform duration-200 group-hover:scale-110 drop-shadow-2xs`}
-            strokeWidth={1.8}
+            className={`${iconSizes[size]} shrink-0 transition-transform duration-200 group-hover:scale-110 drop-shadow-xs`}
           />
         </span>
       )}
-      <span className="truncate">{flavor}</span>
+      <span className="truncate tracking-tight">{flavor}</span>
     </span>
   );
 };

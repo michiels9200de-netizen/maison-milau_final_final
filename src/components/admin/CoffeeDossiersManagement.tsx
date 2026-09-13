@@ -700,14 +700,14 @@ export const CoffeeDossiersManagement: React.FC<{
                             return (
                               <span
                                 key={index}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-950 text-xs font-medium border border-amber-200/80"
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${fConf.bgClass} ${fConf.borderClass} ${fConf.colorClass} text-xs font-medium border shadow-2xs`}
                               >
-                                <IconComponent className={`w-3 h-3 ${fConf.colorClass} shrink-0`} strokeWidth={1.8} />
+                                <IconComponent className="w-4 h-4 shrink-0 drop-shadow-xs" />
                                 <span>{note}</span>
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveTag(index)}
-                                  className="text-amber-800 hover:text-amber-950 font-bold ml-0.5"
+                                  className="opacity-70 hover:opacity-100 font-bold ml-0.5 cursor-pointer"
                                   title="Verwijderen"
                                 >
                                   ×
