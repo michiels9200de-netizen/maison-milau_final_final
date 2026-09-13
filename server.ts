@@ -548,26 +548,25 @@ export function getAuthenticatedUser(req: Request): any | null {
 
 export function userCanAccessOrder(user: any, order: any): boolean {
   if (!user || !order) return false;
-  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
+  // 1. Store administrators have complete oversight
+  if (user.role === 'store_admin' || user.role === 'admin' || user.b2bRole === 'admin') {
     return true;
   }
+  // 2. Exact user ID match (primary reliable link)
+  if (order.userId && user.id && String(order.userId) === String(user.id)) {
+    return true;
+  }
+  // 3. Exact customer email match
   const userEmail = (user.email || '').trim().toLowerCase();
   const orderEmail = (order.customerEmail || '').trim().toLowerCase();
   if (userEmail && orderEmail && userEmail === orderEmail) {
     return true;
   }
 
-  // Support Laurent's personal testing email alias
-  if (
-    (userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
-    (orderEmail === 'klant@voorbeeld.be' || orderEmail === 'laurent.michiels66@gmail.com')
-  ) {
-    return true;
-  }
-
-  // B2B company matching
+  // 4. B2B company matching (only for approved B2B accounts)
   if (
     user.accountType === 'professioneel' &&
+    (user.status === 'approved' || user.status === 'active' || user.b2bStatus === 'approved') &&
     user.companyName &&
     order.companyName &&
     user.companyName.trim().toLowerCase() === order.companyName.trim().toLowerCase()
@@ -1121,8 +1120,26 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
     }
   }
 
+  // Resolve authenticated user to ensure order is permanently linked to account
+  let orderUserId = payload.userId || null;
+  if (!orderUserId && req) {
+    const authUser = getAuthenticatedUser(req);
+    if (authUser?.id) {
+      orderUserId = authUser.id;
+    }
+  }
+  if (!orderUserId && customerEmail) {
+    try {
+      const userByEmail = await authStore.getUserByEmail(customerEmail);
+      if (userByEmail?.id) {
+        orderUserId = userByEmail.id;
+      }
+    } catch (_) {}
+  }
+
   const newOrder = {
     id: orderId,
+    userId: orderUserId || undefined,
     orderNumber,
     customerEmail,
     customerName,
@@ -1405,8 +1422,17 @@ async function processSuccessfulPayment(order: any, paymentId?: string): Promise
 
   // 1. Update customer record in datastore (totalOrders, totalSpent, loyaltyPoints, addresses)
   try {
-    const customer = await authStore.getUserByEmail(order.customerEmail);
+    let customer = order.userId ? await authStore.getUserById(order.userId) : null;
+    if (!customer && order.customerEmail) {
+      customer = await authStore.getUserByEmail(order.customerEmail);
+    }
     if (customer) {
+      // Ensure order is linked to customer userId if not already set
+      if (!order.userId) {
+        order.userId = customer.id;
+        await orderStore.updateOrder(order.id, { userId: customer.id });
+      }
+
       const currentOrders = (customer.totalOrders || 0) + 1;
       const currentSpent = (customer.totalSpent || 0) + (order.total || 0);
       const earnedPoints = Math.floor(order.total || 0);
@@ -1593,15 +1619,10 @@ app.get('/api/invoices', (req: Request, res: Response) => {
   const userInvoices = invoices.filter((inv) => {
     const userEmail = user.email.toLowerCase();
     const invEmail = (inv.customerEmail || '').toLowerCase();
-    if (userEmail === invEmail) return true;
-    if (
-      (userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
-      (invEmail === 'klant@voorbeeld.be' || invEmail === 'laurent.michiels66@gmail.com')
-    ) {
-      return true;
-    }
+    if (userEmail && invEmail && userEmail === invEmail) return true;
     if (
       user.accountType === 'professioneel' &&
+      (user.status === 'approved' || user.status === 'active' || user.b2bStatus === 'approved') &&
       user.companyName &&
       inv.companyName &&
       user.companyName.trim().toLowerCase() === inv.companyName.trim().toLowerCase()
@@ -1780,17 +1801,17 @@ app.get('/api/invoices/:id/pdf', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Inloggen vereist om facturen te downloaden.' });
     }
 
-    if (user.role !== 'store_admin') {
+    if (user.role !== 'store_admin' && user.role !== 'admin') {
       const userEmail = user.email.toLowerCase();
       const invEmail = ((invoiceRecord?.customerEmail || order?.customerEmail) || '').toLowerCase();
       const userComp = (user.companyName || '').toLowerCase().trim();
       const invComp = ((invoiceRecord?.companyName || order?.companyName) || '').toLowerCase().trim();
 
       const isOwner =
-        userEmail === invEmail ||
-        (userComp && invComp && userComp === invComp) ||
-        ((userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
-         (invEmail === 'klant@voorbeeld.be' || invEmail === 'laurent.michiels66@gmail.com'));
+        (userEmail && invEmail && userEmail === invEmail) ||
+        (user.accountType === 'professioneel' &&
+         (user.status === 'approved' || user.status === 'active' || user.b2bStatus === 'approved') &&
+         userComp && invComp && userComp === invComp);
 
       if (!isOwner) {
         console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Forbidden ownership mismatch for user ${user.email}`);
@@ -1823,16 +1844,10 @@ app.get('/api/invoices/:id/pdf', async (req: Request, res: Response) => {
 // 5. Subscriptions Self-Service Management (Mollie Recurring Enabled)
 function userCanAccessSubscription(user: any, sub: any): boolean {
   if (!user || !sub) return false;
-  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') return true;
+  if (user.role === 'store_admin' || user.role === 'admin') return true;
   const userEmail = (user.email || '').trim().toLowerCase();
   const subEmail = (sub.customerEmail || '').trim().toLowerCase();
-  if (userEmail === subEmail) return true;
-  if (
-    (userEmail === 'klant@voorbeeld.be' || userEmail === 'laurent.michiels66@gmail.com') &&
-    (subEmail === 'klant@voorbeeld.be' || subEmail === 'laurent.michiels66@gmail.com')
-  ) {
-    return true;
-  }
+  if (userEmail && subEmail && userEmail === subEmail) return true;
   return false;
 }
 
@@ -2607,7 +2622,10 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
   }
   const clean = email.trim().toLowerCase();
   console.log(`[AUTH] Password reset requested for: ${clean}`);
-  const user = registeredUsers.find((u) => u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean));
+  let user = (await authStore.getUserByEmail(clean)) || (await authStore.getUserByUsername(clean));
+  if (!user) {
+    user = registeredUsers.find((u) => u.email.toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean));
+  }
   const baseUrl = getAppBaseUrl(req);
 
   if (user) {
@@ -2642,13 +2660,16 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
 });
 
 // Validate reset token before rendering password reset form (supports POST and GET)
-const handleValidateResetToken = (req: Request, res: Response) => {
+const handleValidateResetToken = async (req: Request, res: Response) => {
   loadUsersFromDisk(true);
   const token = ((req.body?.token || req.query?.token) as string || '').trim();
   if (!token) {
     return res.status(400).json({ success: false, error: 'Geen herstelcode opgegeven.' });
   }
-  const user = registeredUsers.find((u) => u.resetToken && u.resetToken === token);
+  let user = await authStore.getUserByResetToken(token);
+  if (!user) {
+    user = registeredUsers.find((u) => u.resetToken && u.resetToken === token) || null;
+  }
   if (!user) {
     return res.status(400).json({ success: false, error: 'Deze herstelcode is ongeldig of reeds gebruikt.' });
   }
@@ -2676,7 +2697,10 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, error: 'Het nieuwe wachtwoord moet minstens 6 tekens bevatten.' });
   }
 
-  const user = registeredUsers.find((u) => u.resetToken && u.resetToken === token);
+  let user = await authStore.getUserByResetToken(token);
+  if (!user) {
+    user = registeredUsers.find((u) => u.resetToken && u.resetToken === token) || null;
+  }
   if (!user) {
     return res.status(400).json({ success: false, error: 'Deze herstelcode is ongeldig of reeds gebruikt.' });
   }
@@ -2779,6 +2803,14 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
     ) {
       user = userByEmail;
     }
+  }
+
+  // 4. Fallback directly to persistent AuthStore datastore
+  if (!user && cleanToken) {
+    user = (await authStore.getUserByVerificationToken(cleanToken)) || null;
+  }
+  if (!user && cleanEmail) {
+    user = (await authStore.getUserByEmail(cleanEmail)) || null;
   }
 
   if (!user) {
@@ -2906,6 +2938,14 @@ app.get('/api/auth/verify-email', async (req: Request, res: Response) => {
     ) {
       user = userByEmail;
     }
+  }
+
+  // 4. Fallback directly to persistent AuthStore datastore
+  if (!user && token) {
+    user = (await authStore.getUserByVerificationToken(token)) || null;
+  }
+  if (!user && email) {
+    user = (await authStore.getUserByEmail(email)) || null;
   }
 
   if (!user) {
@@ -3251,6 +3291,7 @@ app.post('/api/auth/change-password', async (req: Request, res: Response) => {
   }
 
   user.password = hashPassword(newPassword);
+  await authStore.updateUser(user.id, { password: user.password });
   saveUsersToDisk();
 
   sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error(e));
@@ -3258,9 +3299,15 @@ app.post('/api/auth/change-password', async (req: Request, res: Response) => {
   res.json({ success: true, message: 'Wachtwoord succesvol gewijzigd. Bevestigingsmail is verzonden.' });
 });
 
-app.get('/api/auth/users', (req: Request, res: Response) => {
-  const safeUsers = registeredUsers.map(({ password, resetToken, resetTokenExpiry, verificationToken, ...rest }) => rest);
-  res.json({ success: true, data: safeUsers });
+app.get('/api/auth/users', async (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const allUsers = await authStore.getAllUsers();
+  const safeUsers = allUsers.map(({ password, resetToken, resetTokenExpiry, verificationToken, ...rest }) => rest);
+  res.json({ success: true, data: safeUsers, count: safeUsers.length });
 });
 
 // 11. Coffee Reviews Endpoints

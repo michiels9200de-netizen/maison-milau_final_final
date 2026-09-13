@@ -118,11 +118,6 @@ export const isVercelRuntime = Boolean(
   (process.env.NEXT_RUNTIME === 'nodejs' && process.env.NODE_ENV === 'production')
 );
 
-// Fallback paths used ONLY in local development environments (never accessed on Vercel)
-const STOCK_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_stock.json');
-const GREEN_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_green.json');
-const BATCHES_FILE_PATH = path.join(process.cwd(), 'data', 'roastery_batches.json');
-
 // --- RUNTIME INVENTORY CACHE (15-Minute TTL & Vercel / Serverless Safe) ---
 export interface InventoryCacheEntry<T = any> {
   payload: T;
@@ -647,103 +642,17 @@ class InventoryStore {
   }
 
   private loadFromDisk() {
-    // In Vercel / serverless: NEVER read or write local json files to avoid read-only fs issues
-    if (isVercelRuntime) {
-      this.populateInitialCatalogPresets();
-      this.greenCoffeeCache = { ...INITIAL_GREEN_COFFEE };
-      this.blendRecipesCache = { ...INITIAL_BLEND_RECIPES };
-      this.roastBatchesCache = [...INITIAL_ROAST_BATCHES];
-      return;
-    }
-
-    // In local development: read from disk if files exist
-    try {
-      if (fs.existsSync(STOCK_FILE_PATH)) {
-        const data = JSON.parse(fs.readFileSync(STOCK_FILE_PATH, 'utf-8'));
-        Object.entries(data).forEach(([pid, rec]: [string, any]) => {
-          const isConfigured = rec.isConfigured === true;
-          const rawStock = isConfigured ? Number(rec.rawStockKg ?? rec.stockKg ?? 0) : 0;
-          const reserved = isConfigured ? Number(rec.reservedKg ?? 0) : 0;
-          const subAlloc = isConfigured ? Number(rec.subscriptionAllocatedKg ?? 0) : 0;
-          const available = isConfigured ? Math.max(0, rawStock - reserved - subAlloc) : 0;
-          const manualStatus: ManualStatusOverride | undefined = rec.manualStatus;
-          const effectiveStatus = this.computeEffectiveStatus(pid, available, manualStatus, isConfigured);
-
-          this.productsCache[pid] = {
-            productId: pid,
-            stockKg: available,
-            rawStockKg: rawStock,
-            reservedKg: reserved,
-            subscriptionAllocatedKg: subAlloc,
-            availableKg: available,
-            manualStatus,
-            effectiveStatus,
-            isConfigured,
-            inStock: isConfigured && (effectiveStatus === 'available' || effectiveStatus === 'freshly_roasted'),
-            lastUpdated: rec.lastUpdated || new Date().toISOString(),
-          };
-        });
-      }
-    } catch (err) {
-      console.warn('[INVENTORY_STORE] Could not read disk stock cache:', err);
-    }
-
-    // Populate missing default products
     this.populateInitialCatalogPresets();
-
-    // 2. Load green coffee
-    try {
-      if (fs.existsSync(GREEN_FILE_PATH)) {
-        const data = JSON.parse(fs.readFileSync(GREEN_FILE_PATH, 'utf-8'));
-        Object.entries(data).forEach(([gid, item]: [string, any]) => {
-          const isConfigured = item.isConfigured === true;
-          this.greenCoffeeCache[gid] = {
-            ...item,
-            availableKg: isConfigured ? Math.max(0, Number(item.availableKg || 0)) : 0,
-            reservedKg: isConfigured ? Math.max(0, Number(item.reservedKg || 0)) : 0,
-            incomingKg: isConfigured ? Math.max(0, Number(item.incomingKg || 0)) : 0,
-            status: isConfigured ? (item.status || 'Ruim op voorraad') : 'Niet geconfigureerd',
-            isConfigured,
-          };
-        });
-      } else {
-        this.greenCoffeeCache = { ...INITIAL_GREEN_COFFEE };
-      }
-    } catch (err) {
-      this.greenCoffeeCache = { ...INITIAL_GREEN_COFFEE };
-    }
-
-    // Ensure all default green coffees are present
-    Object.entries(INITIAL_GREEN_COFFEE).forEach(([gid, item]) => {
-      if (!this.greenCoffeeCache[gid]) {
-        this.greenCoffeeCache[gid] = { ...item };
-      }
-    });
-
-    // 3. Load blend recipes
+    this.greenCoffeeCache = { ...INITIAL_GREEN_COFFEE };
     this.blendRecipesCache = { ...INITIAL_BLEND_RECIPES };
-
-    // 4. Load roast batches
-    try {
-      if (fs.existsSync(BATCHES_FILE_PATH)) {
-        const data = JSON.parse(fs.readFileSync(BATCHES_FILE_PATH, 'utf-8'));
-        this.roastBatchesCache = Array.isArray(data) ? data : INITIAL_ROAST_BATCHES;
-      } else {
-        this.roastBatchesCache = [...INITIAL_ROAST_BATCHES];
-      }
-    } catch (err) {
-      this.roastBatchesCache = [...INITIAL_ROAST_BATCHES];
-    }
-
-    // Never call saveToDisk() on startup!
+    this.roastBatchesCache = [...INITIAL_ROAST_BATCHES];
   }
 
   /**
-   * Safely persists inventory state to runtime cache and, if in local development, to disk.
-   * On Vercel / serverless: NEVER writes to disk (prevents EROFS).
+   * Safely persists inventory state to runtime cache and Supabase / PostgreSQL.
+   * NEVER writes to local disk, ensuring 100% Vercel / serverless read-only filesystem compatibility.
    */
   public async saveToDisk(): Promise<void> {
-    // 1. Always update runtime in-memory & cloud cache
     try {
       await setCachedInventory('full_roastery_data', {
         products: this.productsCache,
@@ -753,24 +662,6 @@ class InventoryStore {
       });
     } catch (cacheErr) {
       console.error('[INVENTORY_STORE] Error saving to runtime cache:', cacheErr);
-    }
-
-    // 2. In Vercel / serverless environments: completely eliminate file writes
-    if (isVercelRuntime) {
-      return;
-    }
-
-    // 3. Local development fallback (wrapped in strict try/catch, never throws EROFS)
-    try {
-      const dir = path.dirname(STOCK_FILE_PATH);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(STOCK_FILE_PATH, JSON.stringify(this.productsCache, null, 2), 'utf-8');
-      fs.writeFileSync(GREEN_FILE_PATH, JSON.stringify(this.greenCoffeeCache, null, 2), 'utf-8');
-      fs.writeFileSync(BATCHES_FILE_PATH, JSON.stringify(this.roastBatchesCache, null, 2), 'utf-8');
-    } catch (err: any) {
-      console.warn('[INVENTORY_STORE] Local disk save warning (suppressed):', err?.message || err);
     }
   }
 

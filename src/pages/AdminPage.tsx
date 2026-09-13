@@ -73,7 +73,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
 
   // Auto-unlock if user is logged in as store_admin
   useEffect(() => {
-    if (user?.role === 'store_admin') {
+    if (user?.role === 'store_admin' || user?.role === 'admin') {
       setIsAdminUnlocked(true);
     }
   }, [user]);
@@ -590,11 +590,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                       <td className="p-3 font-semibold text-stone-900">{u.name}</td>
                       <td className="p-3 text-stone-600">{u.email}</td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          u.accountType === 'professioneel' ? 'bg-amber-100 text-amber-900' : 'bg-stone-100 text-stone-700'
-                        }`}>
-                          {u.accountType}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            u.role === 'store_admin' || u.role === 'admin'
+                              ? 'bg-purple-100 text-purple-900 border border-purple-200'
+                              : u.accountType === 'professioneel' || u.role === 'b2b' || u.b2bRole === 'b2b'
+                              ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                              : 'bg-stone-100 text-stone-700'
+                          }`}>
+                            {u.role === 'store_admin' || u.role === 'admin' ? 'Beheerder' : u.accountType === 'professioneel' || u.role === 'b2b' ? 'B2B Zakelijk' : 'B2C Particulier'}
+                          </span>
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
+                            u.isEmailVerified ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {u.isEmailVerified ? 'Geverifieerd' : 'Wacht op verificatie'}
+                          </span>
+                        </div>
                       </td>
                       <td className="p-3 text-[11px] text-stone-500">
                         {u.companyName ? `${u.companyName} (${u.vatNumber})` : '—'}

@@ -986,6 +986,20 @@ class AuthStore {
         this.memoryCache.set(u.id, u);
         return u;
       }
+    } else if (this.mode === 'supabase') {
+      const sb = getSupabaseClient();
+      if (sb) {
+        const { data } = await sb
+          .from('users')
+          .select('*')
+          .or(`verification_token.eq.${clean},last_verification_token.eq.${clean}`)
+          .limit(1);
+        if (data && data.length > 0) {
+          const u = this.mapSupabaseRowToUser(data[0]);
+          this.memoryCache.set(u.id, u);
+          return u;
+        }
+      }
     }
     return null;
   }
@@ -1013,6 +1027,16 @@ class AuthStore {
         this.memoryCache.set(u.id, u);
         return u;
       }
+    } else if (this.mode === 'supabase') {
+      const sb = getSupabaseClient();
+      if (sb) {
+        const { data } = await sb.from('users').select('*').eq('reset_token', clean).limit(1);
+        if (data && data.length > 0) {
+          const u = this.mapSupabaseRowToUser(data[0]);
+          this.memoryCache.set(u.id, u);
+          return u;
+        }
+      }
     }
     return null;
   }
@@ -1027,7 +1051,19 @@ class AuthStore {
 
   public getUserByIdSync(id: string): UserRecord | null {
     if (!id) return null;
-    return this.memoryCache.get(id) || null;
+    const cached = this.memoryCache.get(id);
+    if (cached) return cached;
+    if (this.mode === 'sqlite' && this.sqliteDb) {
+      try {
+        const row = this.sqliteDb.prepare('SELECT * FROM users WHERE id = ?').get(id);
+        if (row) {
+          const user = this.mapSqliteRowToUser(row);
+          this.memoryCache.set(user.id, user);
+          return user;
+        }
+      } catch (_) {}
+    }
+    return null;
   }
 
   public getUserByEmailSync(email: string): UserRecord | null {
@@ -1035,6 +1071,16 @@ class AuthStore {
     const clean = email.trim().toLowerCase();
     for (const u of this.memoryCache.values()) {
       if (u.email.toLowerCase() === clean) return u;
+    }
+    if (this.mode === 'sqlite' && this.sqliteDb) {
+      try {
+        const row = this.sqliteDb.prepare('SELECT * FROM users WHERE LOWER(email) = ?').get(clean);
+        if (row) {
+          const user = this.mapSqliteRowToUser(row);
+          this.memoryCache.set(user.id, user);
+          return user;
+        }
+      } catch (_) {}
     }
     return null;
   }

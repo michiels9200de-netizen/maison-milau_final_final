@@ -32,6 +32,7 @@ export interface OrderAddress {
 
 export interface OrderRecord {
   id: string;
+  userId?: string;
   orderNumber: string;
   customerEmail: string;
   customerName: string;
@@ -174,6 +175,7 @@ export class OrderStore {
     await this.pgPool.query(`
       CREATE TABLE IF NOT EXISTS public.orders (
         id VARCHAR(64) PRIMARY KEY,
+        user_id VARCHAR(64),
         order_number VARCHAR(64) UNIQUE NOT NULL,
         customer_email VARCHAR(255) NOT NULL,
         customer_name VARCHAR(255) NOT NULL,
@@ -200,6 +202,9 @@ export class OrderStore {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ
       );
+
+      ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+      CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders(user_id);
 
       CREATE TABLE IF NOT EXISTS public.invoices (
         id VARCHAR(64) PRIMARY KEY,
@@ -242,6 +247,7 @@ export class OrderStore {
     this.sqliteDb.exec(`
       CREATE TABLE IF NOT EXISTS orders (
         id TEXT PRIMARY KEY,
+        user_id TEXT,
         order_number TEXT UNIQUE NOT NULL,
         customer_email TEXT NOT NULL,
         customer_name TEXT NOT NULL,
@@ -269,6 +275,10 @@ export class OrderStore {
         updated_at TEXT
       );
 
+      CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
+      CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+      CREATE INDEX IF NOT EXISTS idx_orders_mollie_payment_id ON orders(mollie_payment_id);
+
       CREATE TABLE IF NOT EXISTS invoices (
         id TEXT PRIMARY KEY,
         invoice_number TEXT UNIQUE NOT NULL,
@@ -288,10 +298,13 @@ export class OrderStore {
         created_at TEXT NOT NULL,
         updated_at TEXT
       );
-
-      CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
-      CREATE INDEX IF NOT EXISTS idx_orders_mollie_payment_id ON orders(mollie_payment_id);
     `);
+
+    try {
+      this.sqliteDb.exec('ALTER TABLE orders ADD COLUMN user_id TEXT');
+    } catch (_) {
+      // Column already exists
+    }
 
     const countStmt = this.sqliteDb.prepare('SELECT COUNT(*) as count FROM orders');
     const res = countStmt.get() as { count: number };
@@ -544,6 +557,7 @@ export class OrderStore {
   private mapPostgresRowToOrder(row: any): OrderRecord {
     return {
       id: row.id,
+      userId: row.user_id || undefined,
       orderNumber: row.order_number,
       customerEmail: row.customer_email,
       customerName: row.customer_name,
@@ -575,6 +589,7 @@ export class OrderStore {
   private mapSqliteRowToOrder(row: any): OrderRecord {
     return {
       id: row.id,
+      userId: row.user_id || undefined,
       orderNumber: row.order_number,
       customerEmail: row.customer_email,
       customerName: row.customer_name,
@@ -753,6 +768,66 @@ export class OrderStore {
     return null;
   }
 
+  public async getOrdersByUserId(userId: string): Promise<OrderRecord[]> {
+    if (!userId) return [];
+    if (!this.initialized) await this.init();
+    
+    // First try memory cache
+    const results: OrderRecord[] = [];
+    for (const ord of this.ordersCache.values()) {
+      if (ord.userId === userId) {
+        results.push(ord);
+      }
+    }
+    if (results.length > 0) {
+      return results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    if (this.mode === 'postgres' && this.pgPool) {
+      const res = await this.pgPool.query('SELECT * FROM public.orders WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+      const mapped = res.rows.map((r: any) => this.mapPostgresRowToOrder(r));
+      mapped.forEach((o) => this.ordersCache.set(o.id, o));
+      return mapped;
+    } else if (this.mode === 'sqlite' && this.sqliteDb) {
+      const stmt = this.sqliteDb.prepare('SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC');
+      const rows = stmt.all(userId) as any[];
+      const mapped = rows.map((r) => this.mapSqliteRowToOrder(r));
+      mapped.forEach((o) => this.ordersCache.set(o.id, o));
+      return mapped;
+    }
+    return results;
+  }
+
+  public async getOrdersByEmail(email: string): Promise<OrderRecord[]> {
+    if (!email) return [];
+    if (!this.initialized) await this.init();
+    const clean = email.trim().toLowerCase();
+
+    const results: OrderRecord[] = [];
+    for (const ord of this.ordersCache.values()) {
+      if (ord.customerEmail.toLowerCase() === clean) {
+        results.push(ord);
+      }
+    }
+    if (results.length > 0) {
+      return results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    if (this.mode === 'postgres' && this.pgPool) {
+      const res = await this.pgPool.query('SELECT * FROM public.orders WHERE LOWER(customer_email) = $1 ORDER BY created_at DESC', [clean]);
+      const mapped = res.rows.map((r: any) => this.mapPostgresRowToOrder(r));
+      mapped.forEach((o) => this.ordersCache.set(o.id, o));
+      return mapped;
+    } else if (this.mode === 'sqlite' && this.sqliteDb) {
+      const stmt = this.sqliteDb.prepare('SELECT * FROM orders WHERE LOWER(customer_email) = ? ORDER BY created_at DESC');
+      const rows = stmt.all(clean) as any[];
+      const mapped = rows.map((r) => this.mapSqliteRowToOrder(r));
+      mapped.forEach((o) => this.ordersCache.set(o.id, o));
+      return mapped;
+    }
+    return results;
+  }
+
   public async createOrder(order: OrderRecord): Promise<OrderRecord> {
     const cleanOrder: OrderRecord = {
       ...order,
@@ -762,19 +837,21 @@ export class OrderStore {
     if (this.mode === 'postgres' && this.pgPool) {
       await this.pgPool.query(
         `INSERT INTO public.orders (
-          id, order_number, customer_email, customer_name, customer_type, customer_phone,
+          id, user_id, order_number, customer_email, customer_name, customer_type, customer_phone,
           company_name, vat_number, shipping_address, billing_address, items,
           subtotal, discount_amount, vat_amount, shipping_cost, total, status,
           payment_method, mollie_payment_id, tracking_code, invoice_id, delivery_method,
           notes, confirmation_email_sent, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
         ON CONFLICT (id) DO UPDATE SET
+          user_id = COALESCE(EXCLUDED.user_id, public.orders.user_id),
           status = EXCLUDED.status,
           mollie_payment_id = EXCLUDED.mollie_payment_id,
           confirmation_email_sent = EXCLUDED.confirmation_email_sent,
           updated_at = NOW()`,
         [
           cleanOrder.id,
+          cleanOrder.userId || null,
           cleanOrder.orderNumber,
           cleanOrder.customerEmail.trim().toLowerCase(),
           cleanOrder.customerName,
@@ -807,7 +884,7 @@ export class OrderStore {
     }
 
     this.ordersCache.set(cleanOrder.id, cleanOrder);
-    console.log(`[ORDER_STORE] Order saved to persistent datastore: #${cleanOrder.orderNumber} (${cleanOrder.id})`);
+    console.log(`[ORDER_STORE] Order saved to persistent datastore: #${cleanOrder.orderNumber} (User: ${cleanOrder.userId || 'guest'})`);
     return cleanOrder;
   }
 
@@ -815,13 +892,14 @@ export class OrderStore {
     if (!this.sqliteDb) return;
     const stmt = this.sqliteDb.prepare(`
       INSERT INTO orders (
-        id, order_number, customer_email, customer_name, customer_type, customer_phone,
+        id, user_id, order_number, customer_email, customer_name, customer_type, customer_phone,
         company_name, vat_number, shipping_address, billing_address, items,
         subtotal, discount_amount, vat_amount, shipping_cost, total, status,
         payment_method, mollie_payment_id, tracking_code, invoice_id, delivery_method,
         notes, confirmation_email_sent, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
+        user_id = COALESCE(excluded.user_id, orders.user_id),
         status = excluded.status,
         mollie_payment_id = excluded.mollie_payment_id,
         confirmation_email_sent = excluded.confirmation_email_sent,
@@ -829,6 +907,7 @@ export class OrderStore {
     `);
     stmt.run(
       order.id,
+      order.userId || null,
       order.orderNumber,
       order.customerEmail.trim().toLowerCase(),
       order.customerName,

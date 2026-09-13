@@ -1321,7 +1321,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
               <span>Wachtwoord Wijzigen</span>
             </button>
 
-            {currentUser.role === 'store_admin' || currentUser.email.includes('laurent') ? (
+            {(currentUser.role === 'store_admin' || currentUser.role === 'admin') ? (
               <button
                 onClick={() => navigate('/admin')}
                 className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1.5 border border-stone-200"

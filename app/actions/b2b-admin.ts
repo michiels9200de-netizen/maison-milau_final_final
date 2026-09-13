@@ -5,6 +5,7 @@
 // ==============================================================================
 
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { sendB2BApprovalEmail } from '@/lib/email/resend';
 import type { B2BActionResult, B2BRequestItem, Profile } from '@/lib/types/b2b';
@@ -25,13 +26,24 @@ async function verifyAdminCaller(adminUserId?: string): Promise<boolean> {
       .eq('id', adminUserId)
       .single();
 
-    if (adminProfile && adminProfile.role === 'admin') {
+    if (adminProfile && (adminProfile.role === 'admin' || adminProfile.role === 'store_admin')) {
       return true;
     }
   }
 
-  // Fallback: controleer of het admin secret / server environment context actief is
-  return true;
+  // Controleer sessie cookies
+  try {
+    const cookieStore = await cookies();
+    const role = (cookieStore.get('mm_user_role')?.value || '').toLowerCase();
+    const sessionToken = cookieStore.get('mm_session_token')?.value || cookieStore.get('mm_auth_token')?.value;
+    if ((role === 'admin' || role === 'store_admin') && sessionToken) {
+      return true;
+    }
+  } catch (_) {
+    // Geen Next request headers context
+  }
+
+  return false;
 }
 
 /**

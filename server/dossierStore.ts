@@ -1,15 +1,4 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { CoffeeDossier } from '../src/types';
-
-const isVercelRuntime = Boolean(
-  process.env.VERCEL ||
-  process.env.AWS_LAMBDA_FUNCTION_NAME ||
-  process.env.LAMBDA_TASK_ROOT ||
-  (process.env.NEXT_RUNTIME === 'nodejs' && process.env.NODE_ENV === 'production')
-);
-
-const DOSSIERS_FILE_PATH = path.join(process.cwd(), 'data', 'coffee_dossiers.json');
 
 // Master seed list containing all Maison Milau products with complete dossier specifications
 export const INITIAL_DOSSIERS: CoffeeDossier[] = [
@@ -778,33 +767,7 @@ class DossierStore {
   private ensureInitialized() {
     if (this.isInitialized) return;
 
-    if (isVercelRuntime) {
-      this.loadIntoMemory(INITIAL_DOSSIERS);
-      this.isInitialized = true;
-      return;
-    }
-
-    try {
-      if (!fs.existsSync(path.dirname(DOSSIERS_FILE_PATH))) {
-        fs.mkdirSync(path.dirname(DOSSIERS_FILE_PATH), { recursive: true });
-      }
-
-      if (fs.existsSync(DOSSIERS_FILE_PATH)) {
-        const raw = fs.readFileSync(DOSSIERS_FILE_PATH, 'utf-8');
-        const parsed: CoffeeDossier[] = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.loadIntoMemory(parsed);
-          this.isInitialized = true;
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn('[DossierStore] Error reading file, initializing with seeds:', err);
-    }
-
-    // Seed defaults
     this.loadIntoMemory(INITIAL_DOSSIERS);
-    this.persistToFile();
     this.isInitialized = true;
   }
 
@@ -831,15 +794,7 @@ class DossierStore {
   }
 
   private persistToFile() {
-    if (isVercelRuntime) return;
-    try {
-      const items = Array.from(this.inMemoryDossiers.values());
-      const tempPath = `${DOSSIERS_FILE_PATH}.tmp`;
-      fs.writeFileSync(tempPath, JSON.stringify(items, null, 2), 'utf-8');
-      fs.renameSync(tempPath, DOSSIERS_FILE_PATH);
-    } catch (err) {
-      console.warn('[DossierStore] Failed to persist coffee dossiers (suppressed):', err);
-    }
+    // In-memory runtime state maintained; disk writes eliminated for Vercel read-only filesystem
   }
 
   public getAll(): CoffeeDossier[] {

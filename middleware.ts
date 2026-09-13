@@ -32,10 +32,12 @@ export async function middleware(request: NextRequest) {
   // 1. Probeer auth tokens of profiel data uit cookies te lezen
   const sessionToken =
     request.cookies.get('mm_session_token')?.value ||
+    request.cookies.get('mm_auth_token')?.value ||
+    request.cookies.get('sessionToken')?.value ||
     request.cookies.get('sb-access-token')?.value;
 
-  const userRole = request.cookies.get('mm_user_role')?.value || '';
-  const userStatus = request.cookies.get('mm_user_status')?.value || '';
+  const userRole = (request.cookies.get('mm_user_role')?.value || '').toLowerCase().trim();
+  const userStatus = (request.cookies.get('mm_user_status')?.value || '').toLowerCase().trim();
 
   // 2. Beveiliging voor /admin/* routes
   if (isAdminRoute) {
@@ -44,7 +46,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    if (userRole !== 'admin') {
+    const isAdmin = (userRole === 'admin' || userRole === 'store_admin') && Boolean(sessionToken);
+
+    if (!isAdmin) {
       const loginUrl = new URL('/account/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       loginUrl.searchParams.set('error', 'admin_required');
@@ -59,8 +63,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Controleer of de gebruiker de rol 'b2b' heeft EN status 'approved' is (of admin)
-    const isApprovedB2B = (userRole === 'b2b' || userRole === 'admin') && userStatus === 'approved';
+    // Controleer of de gebruiker ingelogd is en goedgekeurd
+    const isApprovedB2B = Boolean(sessionToken) &&
+      (userRole === 'b2b' || userRole === 'b2b_admin' || userRole === 'b2b_buyer' || userRole === 'admin' || userRole === 'store_admin') &&
+      (userStatus === 'approved' || userStatus === 'active');
 
     if (!isApprovedB2B) {
       // 1. Pending aanvraag: doorverwijzen met de verplichte melding parameter

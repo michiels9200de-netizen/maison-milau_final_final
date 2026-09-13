@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import {
   GreenCoffeeMasterBean,
   SupplierRecord,
@@ -15,18 +13,6 @@ import {
   SEASONAL_HARVEST_CALENDAR,
 } from '../src/data/sourcingMasterData';
 
-const isVercelRuntime = Boolean(
-  process.env.VERCEL ||
-  process.env.AWS_LAMBDA_FUNCTION_NAME ||
-  process.env.LAMBDA_TASK_ROOT ||
-  (process.env.NEXT_RUNTIME === 'nodejs' && process.env.NODE_ENV === 'production')
-);
-
-const BEANS_FILE = path.join(process.cwd(), 'data', 'sourcing_beans.json');
-const SUPPLIERS_FILE = path.join(process.cwd(), 'data', 'sourcing_suppliers.json');
-const POS_FILE = path.join(process.cwd(), 'data', 'sourcing_pos.json');
-const BLENDS_FILE = path.join(process.cwd(), 'data', 'sourcing_blends.json');
-
 class ProcurementStore {
   private beans: Record<string, GreenCoffeeMasterBean> = {};
   private suppliers: Record<string, SupplierRecord> = {};
@@ -39,101 +25,20 @@ class ProcurementStore {
   }
 
   private loadFromDisk() {
-    // In Vercel / serverless: initialize strictly in-memory without filesystem I/O
-    if (isVercelRuntime) {
-      INITIAL_SUPPLIERS.forEach((s) => {
-        this.suppliers[s.id] = { ...s };
-      });
-      INITIAL_GREEN_COFFEE_MASTER.forEach((b) => {
-        this.beans[b.id] = { ...b };
-      });
-      this.purchaseOrders = [...INITIAL_PURCHASE_ORDERS];
-      INITIAL_PROCUREMENT_BLENDS.forEach((b) => {
-        this.blends[b.id] = { ...b };
-      });
-      return;
-    }
-
-    try {
-      const dir = path.join(process.cwd(), 'data');
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-
-      // 1. Suppliers
-      if (fs.existsSync(SUPPLIERS_FILE)) {
-        const data = JSON.parse(fs.readFileSync(SUPPLIERS_FILE, 'utf-8'));
-        this.suppliers = data;
-      } else {
-        INITIAL_SUPPLIERS.forEach((s) => {
-          this.suppliers[s.id] = { ...s };
-        });
-      }
-      // Ensure all default suppliers exist
-      INITIAL_SUPPLIERS.forEach((s) => {
-        if (!this.suppliers[s.id]) {
-          this.suppliers[s.id] = { ...s };
-        }
-      });
-
-      // 2. Beans
-      if (fs.existsSync(BEANS_FILE)) {
-        const data = JSON.parse(fs.readFileSync(BEANS_FILE, 'utf-8'));
-        this.beans = data;
-      } else {
-        INITIAL_GREEN_COFFEE_MASTER.forEach((b) => {
-          this.beans[b.id] = { ...b };
-        });
-      }
-      // Ensure all default beans exist
-      INITIAL_GREEN_COFFEE_MASTER.forEach((b) => {
-        if (!this.beans[b.id]) {
-          this.beans[b.id] = { ...b };
-        }
-      });
-
-      // 3. Purchase Orders
-      if (fs.existsSync(POS_FILE)) {
-        const data = JSON.parse(fs.readFileSync(POS_FILE, 'utf-8'));
-        this.purchaseOrders = Array.isArray(data) ? data : [...INITIAL_PURCHASE_ORDERS];
-      } else {
-        this.purchaseOrders = [...INITIAL_PURCHASE_ORDERS];
-      }
-
-      // 4. Blends
-      if (fs.existsSync(BLENDS_FILE)) {
-        const data = JSON.parse(fs.readFileSync(BLENDS_FILE, 'utf-8'));
-        this.blends = data;
-      } else {
-        INITIAL_PROCUREMENT_BLENDS.forEach((b) => {
-          this.blends[b.id] = { ...b };
-        });
-      }
-      // Ensure all default blends exist
-      INITIAL_PROCUREMENT_BLENDS.forEach((b) => {
-        if (!this.blends[b.id]) {
-          this.blends[b.id] = { ...b };
-        }
-      });
-    } catch (err) {
-      console.warn('[PROCUREMENT_STORE] Disk load warning (suppressed):', err);
-    }
+    INITIAL_SUPPLIERS.forEach((s) => {
+      this.suppliers[s.id] = { ...s };
+    });
+    INITIAL_GREEN_COFFEE_MASTER.forEach((b) => {
+      this.beans[b.id] = { ...b };
+    });
+    this.purchaseOrders = [...INITIAL_PURCHASE_ORDERS];
+    INITIAL_PROCUREMENT_BLENDS.forEach((b) => {
+      this.blends[b.id] = { ...b };
+    });
   }
 
   private saveToDisk() {
-    if (isVercelRuntime) return;
-    try {
-      const dir = path.join(process.cwd(), 'data');
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(BEANS_FILE, JSON.stringify(this.beans, null, 2), 'utf-8');
-      fs.writeFileSync(SUPPLIERS_FILE, JSON.stringify(this.suppliers, null, 2), 'utf-8');
-      fs.writeFileSync(POS_FILE, JSON.stringify(this.purchaseOrders, null, 2), 'utf-8');
-      fs.writeFileSync(BLENDS_FILE, JSON.stringify(this.blends, null, 2), 'utf-8');
-    } catch (err) {
-      console.warn('[PROCUREMENT_STORE] Disk save warning (suppressed):', err);
-    }
+    // In-memory state maintained; file writes eliminated for Vercel read-only filesystem compatibility
   }
 
   // --- GETTERS & METRICS ---
