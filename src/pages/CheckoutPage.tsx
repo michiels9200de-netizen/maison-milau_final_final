@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Truck, ArrowLeft, CheckCircle2, Lock, CreditCard, Info, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { CONFIG } from '../config';
 import { formatGrindSetting } from '../utils/cartAndRoastHelpers';
+import { CouponInput } from '../components/CouponInput';
 
 interface CheckoutPageProps {
   navigate: (path: string) => void;
@@ -20,7 +21,19 @@ interface MollieStatus {
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
-  const { items, subtotal, shippingCost, total, clearCart, hasUnavailableItems, unavailableItems, getItemAvailability } = useCart();
+  const {
+    items,
+    subtotal,
+    shippingCost,
+    total,
+    discountAmount,
+    appliedCoupon,
+    discountCode,
+    clearCart,
+    hasUnavailableItems,
+    unavailableItems,
+    getItemAvailability,
+  } = useCart();
   const { currentUser, accountType } = useAuth();
   const isB2B = accountType === 'professioneel' || currentUser?.accountType === 'professioneel';
 
@@ -167,7 +180,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   };
 
   const effectiveShipping = deliveryMethod === 'bpost' ? shippingCost : 0;
-  const grandTotal = subtotal + effectiveShipping;
+  const grandTotal = Math.max(0, subtotal - discountAmount) + effectiveShipping;
 
   const handleProcessOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,6 +222,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
         },
         paymentMethod: formData.paymentMethod,
         subtotal,
+        discountCode: discountCode || undefined,
+        discountAmount: discountAmount || 0,
         shippingCost: effectiveShipping,
         total: grandTotal,
         redirectUrl: `${window.location.origin}/checkout?status=success`,
@@ -410,6 +425,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {orderComplete.discountCode && (
+              <div className="flex justify-between text-emerald-800 font-medium pt-1">
+                <span>Toegepaste kortingscode ({orderComplete.discountCode}):</span>
+                <span>
+                  {orderComplete.discountAmount > 0
+                    ? `-€${orderComplete.discountAmount.toFixed(2)}`
+                    : 'Gratis verzending'}
+                </span>
               </div>
             )}
 
@@ -805,6 +831,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   })}
                 </div>
 
+                {/* Kortingscode Input */}
+                <div className="pt-3 pb-1 border-t border-stone-200">
+                  <CouponInput customerEmail={formData.email} />
+                </div>
+
                 <div className="pt-3 border-t border-stone-200 text-xs space-y-2 text-stone-600">
                   {isB2B && (
                     <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-[11px] mb-1">
@@ -817,6 +848,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                       €{(isB2B ? subtotal / 1.06 : subtotal).toFixed(2)}
                     </span>
                   </div>
+                  {appliedCoupon && (discountAmount > 0 || appliedCoupon.discountType === 'free_shipping') && (
+                    <div className="flex justify-between text-emerald-800 font-medium bg-emerald-50/60 p-2 rounded-lg border border-emerald-200/70">
+                      <span className="flex items-center gap-1.5">
+                        <span>Korting</span>
+                        <span className="font-mono text-[10px] bg-emerald-100 text-emerald-950 px-1.5 py-0.5 rounded uppercase font-bold">
+                          {appliedCoupon.code}
+                        </span>
+                      </span>
+                      <span className="font-bold">
+                        {discountAmount > 0 ? `-€${discountAmount.toFixed(2)}` : 'Gratis verzending'}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span>Verzendkosten</span>
                     <span className="font-semibold text-stone-900">

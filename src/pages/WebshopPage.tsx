@@ -48,7 +48,7 @@ import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
 import { CoffeeReviewModal } from '../components/CoffeeReviewModal';
 import { TshirtImageLightbox } from '../components/TshirtImageLightbox';
 import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
-import { getShortRoastName } from '../utils/cartAndRoastHelpers';
+import { getShortRoastName, isCoffeeBeanProduct } from '../utils/cartAndRoastHelpers';
 
 interface WebshopPageProps {
   navigate: (path: string) => void;
@@ -1240,19 +1240,17 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
             </div>
           )}
 
-          {/* Roastery Quality & Roasting Degree */}
-          <div className="mb-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200 text-xs">
-            <div className="flex items-center gap-1.5 w-full min-w-0">
-              <CoffeeBeanIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" filled />
-              <span className="font-semibold text-stone-800 tracking-wide text-xs truncate">
-                {isCapsule
-                  ? 'Nespresso® Original'
-                  : isGiftbox
-                  ? 'Luxe Proeverijgeschenk'
-                  : getShortRoastName(matchingCatalogCoffee?.roastProfile)}
-              </span>
+          {/* Roastery Quality & Roasting Degree - STRICTLY for Coffee Bean Products Only */}
+          {isCoffeeBeanProduct(product) && (
+            <div className="mb-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200 text-xs">
+              <div className="flex items-center gap-1.5 w-full min-w-0">
+                <CoffeeBeanIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" filled />
+                <span className="font-semibold text-stone-800 tracking-wide text-xs truncate">
+                  {getShortRoastName(matchingCatalogCoffee?.roastProfile)}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Action Buttons: Meer Info & Reviews - Larger Size, Padding & Click Area, Premium Star Icon */}
           <div className="mb-2.5 grid grid-cols-2 gap-2">

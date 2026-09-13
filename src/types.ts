@@ -609,4 +609,36 @@ export interface CoffeeDossier {
   updatedBy?: string;
 }
 
+// ----------------------------------------------------
+// Promotions & Discount Codes System Types
+// ----------------------------------------------------
+export type PromotionDiscountType = 'percentage' | 'fixed' | 'free_shipping';
+
+export interface PromotionCoupon {
+  id: string;
+  code: string;
+  description: string;
+  discountType: PromotionDiscountType;
+  discountValue: number; // e.g. 5 for 5%, 5 for €5, 0 for free_shipping
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  isActive: boolean;
+  usageLimitType: 'unlimited' | 'capped';
+  maxUses?: number;
+  usedCount: number;
+  perCustomerLimit: 'unlimited' | 'once';
+  usedByEmails?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CouponValidationResult {
+  valid: boolean;
+  coupon?: PromotionCoupon;
+  discountAmount?: number;
+  freeShipping?: boolean;
+  message?: string;
+  error?: string;
+}
+
 

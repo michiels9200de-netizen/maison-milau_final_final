@@ -3,6 +3,7 @@ import { X, Trash2, Plus, Minus, ArrowRight, ArrowLeft, ShieldCheck, Truck, Buil
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatGrindSetting } from '../utils/cartAndRoastHelpers';
+import { CouponInput } from './CouponInput';
 
 interface CartDrawerProps {
   navigate: (path: string) => void;
@@ -18,6 +19,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
     subtotal,
     shippingCost,
     total,
+    discountAmount,
+    appliedCoupon,
     hasUnavailableItems,
     getItemAvailability,
   } = useCart();
@@ -262,6 +265,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                 </div>
               )}
 
+              {/* Promotional Discount Code Input */}
+              <div className="pt-1 pb-1.5 border-b border-stone-200/80">
+                <CouponInput compact={true} />
+              </div>
+
               <div className="space-y-1 text-xs text-stone-600">
                 {isB2B && (
                   <div className="flex items-center gap-1.5 p-1.5 rounded bg-amber-50 border border-amber-200 text-[11px] text-amber-900 font-semibold mb-1">
@@ -275,6 +283,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ navigate }) => {
                     €{(isB2B ? subtotal / 1.06 : subtotal).toFixed(2)}
                   </span>
                 </div>
+                {appliedCoupon && (discountAmount > 0 || appliedCoupon.discountType === 'free_shipping') && (
+                  <div className="flex justify-between text-emerald-800 font-medium">
+                    <span className="flex items-center gap-1">
+                      <span>Korting</span>
+                      <span className="font-mono text-[10px] bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded uppercase font-bold">
+                        {appliedCoupon.code}
+                      </span>
+                    </span>
+                    <span>
+                      {discountAmount > 0 ? `-€${discountAmount.toFixed(2)}` : 'Gratis verzending'}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Verzendkosten (bpost)</span>
                   <span className="font-medium text-stone-900">

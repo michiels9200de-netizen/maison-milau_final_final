@@ -15,7 +15,14 @@ import {
   Clock,
   Flame,
   AlertCircle,
+  Truck,
+  Plus,
+  Minus,
 } from 'lucide-react';
+import {
+  calculateSubscriptionMonthlyKg,
+  getSubscriptionShippingBenefit,
+} from '../utils/cartAndRoastHelpers';
 
 interface SubscriptionConfiguratorProps {
   allProducts: Product[];
@@ -56,6 +63,7 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
 
   const [selectedWeight, setSelectedWeight] = useState<string>('250g');
   const [selectedGrind, setSelectedGrind] = useState<'Volle bonen' | 'Gemalen (Filter)'>('Volle bonen');
+  const [quantity, setQuantity] = useState<number>(1);
   const [frequency, setFrequency] = useState<'2_weken' | '3_weken' | '4_weken'>('4_weken');
   const [addedSuccess, setAddedSuccess] = useState<boolean>(false);
 
@@ -64,9 +72,13 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
     selectedCoffee?.variants.find((v) => v.weight === selectedWeight) ||
     selectedCoffee?.variants[0] || { weight: '250g', price: 9.95 };
 
-  const regularPrice = currentVariant.price;
+  const regularPrice = currentVariant.price * quantity;
   const discountAmount = Math.round(regularPrice * 0.1 * 100) / 100;
   const subscriptionPrice = Math.round((regularPrice - discountAmount) * 100) / 100;
+
+  // Monthly subscription consumption (kg/month) and free shipping qualification
+  const monthlyKg = calculateSubscriptionMonthlyKg(currentVariant.weight, quantity, frequency);
+  const shippingBenefit = getSubscriptionShippingBenefit(monthlyKg);
 
   // Monthly savings calculation based on delivery frequency
   const monthlySavings =
@@ -87,8 +99,8 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
       collection: selectedCoffee.collection,
       variantWeight: currentVariant.weight,
       grindOption: selectedGrind,
-      unitPrice: subscriptionPrice,
-      quantity: 1,
+      unitPrice: Math.round((subscriptionPrice / quantity) * 100) / 100,
+      quantity: quantity,
       imageUrl: selectedCoffee.imageUrl,
       purchaseType: 'abonnement',
       subscriptionFrequency: frequency === '2_weken' ? '2_weken' : '4_weken',
@@ -211,7 +223,7 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Weight selection */}
                 <div>
                   <label className="block text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1">
@@ -256,6 +268,32 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
                         {grind}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Quantity selection */}
+                <div>
+                  <label className="block text-[10px] font-semibold text-stone-600 uppercase tracking-wider mb-1">
+                    Aantal zakken:
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      className="w-8 h-8 rounded-lg bg-stone-100 border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 active:scale-95"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <div className="flex-1 py-1.5 rounded-lg bg-white border border-stone-300 text-center font-bold text-xs text-stone-900">
+                      {quantity} {quantity === 1 ? 'zak' : 'zakken'}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                      className="w-8 h-8 rounded-lg bg-stone-100 border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -355,8 +393,11 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
                   <span className="font-bold text-stone-900">{selectedCoffee?.name}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-stone-500">Formaat:</span>
-                  <span className="font-bold text-stone-800">{currentVariant.weight}</span>
+                  <span className="text-stone-500">Formaat & Aantal:</span>
+                  <span className="font-bold text-stone-800">
+                    {quantity > 1 ? `${quantity}x ` : ''}
+                    {currentVariant.weight}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-stone-500">Maalgraad:</span>
@@ -372,6 +413,46 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
                       : 'Maandelijks'}
                   </span>
                 </div>
+                <div className="flex justify-between items-center pt-1 border-t border-dashed border-stone-200">
+                  <span className="text-stone-500">Maandelijks volume:</span>
+                  <span className="font-semibold text-stone-900">
+                    {monthlyKg.toString().replace('.', ',')} kg / maand
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-stone-500">Verzendkosten:</span>
+                  {shippingBenefit.qualifiesForFreeShipping ? (
+                    <span className="font-bold text-emerald-700">Gratis Verzending</span>
+                  ) : (
+                    <span className="font-medium text-stone-700">€4,95 (Standaard)</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Shipping Benefit Status or Upsell Prompt */}
+              <div className="pt-2.5 pb-1">
+                {shippingBenefit.qualifiesForFreeShipping ? (
+                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-900 font-bold flex items-center gap-2 shadow-2xs">
+                    <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>✅ Gratis verzending inbegrepen</span>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/90 text-xs text-amber-950 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Truck className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                      <span className="text-[11px] font-medium leading-tight">
+                        {shippingBenefit.upsellMessage}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => q + 1)}
+                      className="text-[10px] font-bold text-amber-900 hover:text-amber-950 underline shrink-0 whitespace-nowrap cursor-pointer"
+                    >
+                      + Extra zak
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Dynamic Price Calculation Box (User Requirement) */}
@@ -412,6 +493,14 @@ export const SubscriptionConfigurator: React.FC<SubscriptionConfiguratorProps> =
                 <li className="flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 text-amber-800 shrink-0" />
                   <span>Vaste 10% korting op elke toekomstige levering</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                  <span className={shippingBenefit.qualifiesForFreeShipping ? 'font-bold text-emerald-800' : ''}>
+                    {shippingBenefit.qualifiesForFreeShipping
+                      ? 'Gratis verzending inbegrepen (vanaf 2kg/maand)'
+                      : 'Gratis verzending bij abonnement vanaf 2kg/maand'}
+                  </span>
                 </li>
                 <li className="flex items-center gap-1.5">
                   <Check className="w-3.5 h-3.5 text-amber-800 shrink-0" />

@@ -236,9 +236,14 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                   </div>
                 </div>
               </div>
-              <div className="mt-auto pt-3.5 border-t border-indigo-100/80 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-indigo-950 text-center">
-                <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>10% korting op elke levering binnen uw abonnement</span>
+              <div className="mt-auto pt-3.5 border-t border-indigo-100/80 flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-semibold text-indigo-950 text-center">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>10% korting op elke levering binnen uw abonnement</span>
+                </div>
+                <div className="text-[11px] sm:text-xs text-indigo-900/85 font-medium">
+                  Gratis verzending bij abonnementen vanaf 2kg per maand
+                </div>
               </div>
             </div>
 
@@ -306,6 +311,14 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                 <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />
                 <span>Markten Dendermonde, Wetteren & Aalst · Atelierbezoek</span>
               </div>
+            </div>
+          </div>
+
+          {/* Subtle Subscription Benefit Note */}
+          <div className="mt-6 flex justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50/80 border border-amber-200/80 text-xs sm:text-sm text-stone-700">
+              <span className="text-amber-700">✨</span>
+              <span><strong>Tip:</strong> Koffie-abonnementen vanaf 2kg per maand genieten altijd van gratis verzending.</span>
             </div>
           </div>
 

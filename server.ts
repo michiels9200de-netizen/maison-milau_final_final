@@ -40,6 +40,7 @@ import { procurementStore } from './server/procurementStore.js';
 import { dossierStore } from './server/dossierStore.js';
 import { orderStore, OrderRecord, InvoiceRecord } from './server/orderStore.js';
 import { activityStore } from './server/activityStore.js';
+import { promotionStore } from './server/promotionStore.js';
 import { generateCoffeeDossierPdf } from './server/dossierPdfService.js';
 import {
   calculateB2BPricingServerSide,
@@ -622,7 +623,12 @@ export const COFFEE_PRICING_CATALOG: Record<string, { collection: string; prices
   'Strawberry Infused': { collection: 'Infused', prices: { '250g': 15.50, '500g': 29.95, '1kg': 59.95 } },
 };
 
-export function calculateSubscriptionPricing(productName: string, weight: string) {
+export function calculateSubscriptionPricing(
+  productName: string,
+  weight: string,
+  quantity: number = 1,
+  frequency: string = '4_weken'
+) {
   let found = COFFEE_PRICING_CATALOG[productName];
   if (!found) {
     const clean = productName.split('(')[0].trim();
@@ -635,12 +641,25 @@ export function calculateSubscriptionPricing(productName: string, weight: string
     if (key) found = COFFEE_PRICING_CATALOG[key];
   }
 
-  const basePrice = found?.prices[weight] || found?.prices['1kg'] || (weight === '250g' ? 8.50 : weight === '500g' ? 15.95 : 31.95);
+  const baseUnitPrice = found?.prices[weight] || found?.prices['1kg'] || (weight === '250g' ? 8.50 : weight === '500g' ? 15.95 : 31.95);
+  const basePrice = baseUnitPrice * Math.max(1, quantity);
   const collection = found?.collection || 'Selection';
   const discountPercent = 10;
   const discountAmount = Math.round(basePrice * 0.10 * 100) / 100;
   const discountedPrice = Math.round((basePrice - discountAmount) * 100) / 100;
-  const shippingCost = discountedPrice >= 45 ? 0 : 4.95;
+
+  // Monthly subscription consumption calculation in kg
+  let kgPerUnit = 0.25;
+  if (weight.includes('1kg') || weight.includes('1 kg')) kgPerUnit = 1.0;
+  else if (weight.includes('500g') || weight.includes('500 g')) kgPerUnit = 0.5;
+  else if (weight.includes('2kg') || weight.includes('2 kg')) kgPerUnit = 2.0;
+
+  const deliveriesPerMonth = frequency === '2_weken' ? 2 : frequency === '3_weken' ? 1.3333 : 1;
+  const monthlyKg = Math.round(kgPerUnit * Math.max(1, quantity) * deliveriesPerMonth * 100) / 100;
+
+  // Business Rule: 2kg/month or more receives FREE SHIPPING (€0)
+  const isFreeShipping = monthlyKg >= 2.0 || discountedPrice >= 45;
+  const shippingCost = isFreeShipping ? 0 : 4.95;
   const totalRecurring = Math.round((discountedPrice + shippingCost) * 100) / 100;
 
   return {
@@ -651,6 +670,11 @@ export function calculateSubscriptionPricing(productName: string, weight: string
     discountedPrice,
     shippingCost,
     totalRecurring,
+    monthlyKg,
+    freeShipping: isFreeShipping,
+    shippingBenefit: isFreeShipping
+      ? '✅ Gratis verzending inbegrepen'
+      : `Nog ${(2.0 - monthlyKg).toFixed(1).replace('.', ',')} kg verwijderd van gratis verzending.`,
   };
 }
 
@@ -1237,6 +1261,16 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
       userId: newOrder.userId,
     },
   }).catch(() => {});
+
+  // Record promotion coupon usage if applied
+  const appliedDiscountCode = payload.discountCode || payload.orderData?.discountCode || payload.couponCode;
+  if (appliedDiscountCode) {
+    try {
+      promotionStore.recordUsage(appliedDiscountCode, newOrder.customerEmail);
+    } catch (promoErr) {
+      console.error('[PROMOTION ERROR] Failed to record usage:', promoErr);
+    }
+  }
 
   // If order is paid immediately (e.g. non-Mollie or instant confirmation), update customer profile stats
   if (!realMolliePayment || newOrder.status === 'payment_successful') {
@@ -1952,12 +1986,104 @@ app.get('/api/subscriptions', (req: Request, res: Response) => {
 
 // Calculate updated pricing, discount, and shipping for subscription preview
 app.post('/api/subscriptions/calculate', (req: Request, res: Response) => {
-  const { productName, weight } = req.body;
+  const { productName, weight, quantity, frequency } = req.body;
   if (!productName) {
     return res.status(400).json({ success: false, error: 'Productnaam ontbreekt' });
   }
-  const calc = calculateSubscriptionPricing(productName, weight || '1kg');
+  const calc = calculateSubscriptionPricing(
+    productName,
+    weight || '1kg',
+    typeof quantity === 'number' ? quantity : 1,
+    frequency || '4_weken'
+  );
   res.json({ success: true, calculation: calc });
+});
+
+// ====================================================
+// PROMOTIONS & DISCOUNT CODES API
+// ====================================================
+
+// Public / Cart / Checkout: Validate discount code
+app.post('/api/promotions/validate', (req: Request, res: Response) => {
+  const { code, cartSubtotal, customerEmail } = req.body;
+  const result = promotionStore.validate(
+    code,
+    typeof cartSubtotal === 'number' ? cartSubtotal : 0,
+    customerEmail
+  );
+  if (!result.valid) {
+    return res.status(400).json({ success: false, error: result.error });
+  }
+  res.json({ success: true, ...result });
+});
+
+// Admin: Get all promotions
+app.get('/api/promotions', (req: Request, res: Response) => {
+  const promotions = promotionStore.getAll();
+  res.json({ success: true, promotions });
+});
+
+// Admin: Create promotion
+app.post('/api/promotions', (req: Request, res: Response) => {
+  const {
+    code,
+    description,
+    discountType,
+    discountValue,
+    startDate,
+    endDate,
+    isActive,
+    usageLimitType,
+    maxUses,
+    perCustomerLimit,
+  } = req.body;
+
+  if (!code || !discountType) {
+    return res.status(400).json({ success: false, error: 'Kortingscode en type zijn verplicht.' });
+  }
+
+  const existing = promotionStore.getByCode(code);
+  if (existing) {
+    return res.status(400).json({
+      success: false,
+      error: `Er bestaat al een kortingscode '${code.toUpperCase()}'. Kies een unieke code.`,
+    });
+  }
+
+  const created = promotionStore.create({
+    code: code.trim().toUpperCase(),
+    description: description || '',
+    discountType,
+    discountValue: Number(discountValue) || 0,
+    startDate: startDate || '',
+    endDate: endDate || '',
+    isActive: isActive !== false,
+    usageLimitType: usageLimitType === 'capped' ? 'capped' : 'unlimited',
+    maxUses: maxUses ? Number(maxUses) : undefined,
+    perCustomerLimit: perCustomerLimit === 'once' ? 'once' : 'unlimited',
+  });
+
+  res.json({ success: true, promotion: created, message: 'Promotie succesvol aangemaakt.' });
+});
+
+// Admin: Update promotion
+app.put('/api/promotions/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updated = promotionStore.update(id, req.body);
+  if (!updated) {
+    return res.status(404).json({ success: false, error: 'Promotie niet gevonden.' });
+  }
+  res.json({ success: true, promotion: updated, message: 'Promotie succesvol bijgewerkt.' });
+});
+
+// Admin: Delete promotion
+app.delete('/api/promotions/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const success = promotionStore.delete(id);
+  if (!success) {
+    return res.status(404).json({ success: false, error: 'Promotie niet gevonden.' });
+  }
+  res.json({ success: true, message: 'Promotie verwijderd.' });
 });
 
 app.post('/api/subscriptions/:id/toggle-status', async (req: Request, res: Response) => {

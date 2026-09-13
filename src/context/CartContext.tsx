@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem } from '../types';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { CartItem, PromotionCoupon } from '../types';
 import { useStock, AvailabilityInfo } from './StockContext';
 
 interface CartContextType {
@@ -25,6 +25,14 @@ interface CartContextType {
   subtotal: number;
   shippingCost: number;
   vatAmount: number;
+  discountAmount: number;
+  appliedCoupon: PromotionCoupon | null;
+  discountCode: string | null;
+  couponError: string | null;
+  couponSuccess: string | null;
+  isApplyingCoupon: boolean;
+  applyCoupon: (code: string, customerEmail?: string) => Promise<{ success: boolean; message?: string; error?: string }>;
+  removeCoupon: () => void;
   total: number;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
@@ -46,6 +54,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
+  const [appliedCoupon, setAppliedCoupon] = useState<PromotionCoupon | null>(() => {
+    try {
+      const savedCoupon = localStorage.getItem('maison_milau_applied_coupon');
+      return savedCoupon ? JSON.parse(savedCoupon) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponSuccess, setCouponSuccess] = useState<string | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
@@ -56,14 +76,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [items]);
 
+  useEffect(() => {
+    try {
+      if (appliedCoupon) {
+        localStorage.setItem('maison_milau_applied_coupon', JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem('maison_milau_applied_coupon');
+      }
+    } catch (e) {
+      console.error('Failed to save applied coupon', e);
+    }
+  }, [appliedCoupon]);
+
   const getItemAvailability = (productId: string): AvailabilityInfo => {
     return getAvailabilityInfo({ id: productId });
   };
 
   const addItem = (itemToAdd: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
-    // CRITICAL AVAILABILITY CHECK:
-    // Only products with status 'available' or 'freshly_roasted' may be added to cart.
-    // 'out_of_stock' must be strictly rejected.
     const avail = getAvailabilityInfo({ id: itemToAdd.productId });
     if (!avail.isPurchasable) {
       alert(`Dit product (${itemToAdd.productName}) is momenteel ${avail.label.toLowerCase()} en kan niet worden besteld.`);
@@ -99,7 +128,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectedColor?: string,
     selectedSize?: string
   ) => {
-    // Disallow increasing quantity for unavailable products
     if (delta > 0) {
       const avail = getAvailabilityInfo({ id: productId });
       if (!avail.isPurchasable) {
@@ -154,11 +182,76 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-  // Free shipping starting from €45.00 in Belgium, otherwise €4.95
-  const shippingCost = subtotal >= 45 || items.length === 0 ? 0 : 4.95;
+
+  // Calculate discount amount based on active coupon
+  const discountAmount = useMemo(() => {
+    if (!appliedCoupon || subtotal <= 0) return 0;
+    if (appliedCoupon.discountType === 'percentage') {
+      return Math.round((subtotal * (appliedCoupon.discountValue / 100)) * 100) / 100;
+    }
+    if (appliedCoupon.discountType === 'fixed') {
+      return Math.min(subtotal, appliedCoupon.discountValue);
+    }
+    // free_shipping gives 0 discount on goods
+    return 0;
+  }, [appliedCoupon, subtotal]);
+
+  // Shipping cost: free if subtotal >= 45, or cart empty, or free_shipping coupon applied
+  const isFreeShipping =
+    subtotal >= 45 || items.length === 0 || appliedCoupon?.discountType === 'free_shipping';
+  const shippingCost = isFreeShipping ? 0 : 4.95;
+
   // 6% VAT on coffee beans and food products
-  const vatAmount = subtotal * 0.06;
-  const total = subtotal + shippingCost;
+  const vatAmount = Math.max(0, subtotal - discountAmount) * 0.06;
+  const total = Math.max(0, subtotal - discountAmount) + shippingCost;
+
+  const applyCoupon = async (code: string, customerEmail?: string) => {
+    const cleanCode = (code || '').trim().toUpperCase();
+    setCouponError(null);
+    setCouponSuccess(null);
+
+    if (!cleanCode) {
+      setCouponError('Voer een geldige kortingscode in.');
+      return { success: false, error: 'Voer een geldige kortingscode in.' };
+    }
+
+    setIsApplyingCoupon(true);
+    try {
+      const response = await fetch('/api/promotions/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: cleanCode,
+          cartSubtotal: subtotal,
+          customerEmail,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        const errMsg = data.error || 'Ongeldige kortingscode.';
+        setCouponError(errMsg);
+        return { success: false, error: errMsg };
+      }
+
+      setAppliedCoupon(data.coupon);
+      const msg = data.message || `Kortingscode ${cleanCode} succesvol toegepast!`;
+      setCouponSuccess(msg);
+      return { success: true, message: msg };
+    } catch (err: any) {
+      const errMsg = 'Er trad een netwerkfout op bij het valideren van de kortingscode.';
+      setCouponError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+    setCouponSuccess(null);
+  };
 
   const unavailableItems = items.filter((item) => {
     const avail = getAvailabilityInfo({ id: item.productId });
@@ -178,6 +271,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         subtotal,
         shippingCost,
         vatAmount,
+        discountAmount,
+        appliedCoupon,
+        discountCode: appliedCoupon ? appliedCoupon.code : null,
+        couponError,
+        couponSuccess,
+        isApplyingCoupon,
+        applyCoupon,
+        removeCoupon,
         total,
         isCartOpen,
         setIsCartOpen,
