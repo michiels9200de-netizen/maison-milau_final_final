@@ -27,6 +27,8 @@ import {
   Wheat,
   Scale,
   Bell,
+  Trash2,
+  Radio,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
 import { PrintReceiptButton } from '../components/admin/PrintReceiptButton';
@@ -73,6 +75,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
 
+  // Live Synchronisation & Test Data Detection State
+  const [testDataStats, setTestDataStats] = useState<{
+    testAccountsCount: number;
+    testOrdersCount: number;
+    testAccounts: any[];
+    testOrders: any[];
+  }>({
+    testAccountsCount: 0,
+    testOrdersCount: 0,
+    testAccounts: [],
+    testOrders: [],
+  });
+  const [isCleaningTestData, setIsCleaningTestData] = useState<boolean>(false);
+  const [cleanupFeedback, setCleanupFeedback] = useState<string | null>(null);
+  const [autoSync, setAutoSync] = useState<boolean>(true);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
   // Auto-unlock if user is logged in as store_admin
   useEffect(() => {
     if (user?.role === 'store_admin' || user?.role === 'admin') {
@@ -118,13 +139,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
     setAdminPin('');
   };
 
-  const fetchAdminData = async () => {
-    setIsLoading(true);
+  const fetchAdminData = async (silent = false) => {
+    if (!silent) setIsLoading(true);
     try {
       const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
       const authHeaders: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const [statsRes, ordRes, usrRes, emlRes, b2bRes, evtRes, aptRes, tktRes] = await Promise.all([
+      const [statsRes, ordRes, usrRes, emlRes, b2bRes, evtRes, aptRes, tktRes, testRes] = await Promise.all([
         fetch('/api/admin/roastery-stats', { headers: authHeaders }),
         fetch('/api/orders', { headers: authHeaders }),
         fetch('/api/auth/users', { headers: authHeaders }),
@@ -133,39 +154,130 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
         fetch('/api/event-quotes', { headers: authHeaders }),
         fetch('/api/appointments', { headers: authHeaders }),
         fetch('/api/support-tickets', { headers: authHeaders }),
+        fetch('/api/admin/test-data', { headers: authHeaders }),
       ]);
 
-      const [stats, ord, usr, eml, b2b, evt, apt, tkt] = await Promise.all([
-        statsRes.json(),
-        ordRes.json(),
-        usrRes.json(),
-        emlRes.json(),
-        b2bRes.json(),
-        evtRes.json(),
-        aptRes.json(),
-        tktRes.json(),
+      const [stats, ord, usr, eml, b2b, evt, apt, tkt, testData] = await Promise.all([
+        statsRes.json().catch(() => ({ success: false })),
+        ordRes.json().catch(() => ({ success: false })),
+        usrRes.json().catch(() => ({ success: false })),
+        emlRes.json().catch(() => ({ success: false })),
+        b2bRes.json().catch(() => ({ success: false })),
+        evtRes.json().catch(() => ({ success: false })),
+        aptRes.json().catch(() => ({ success: false })),
+        tktRes.json().catch(() => ({ success: false })),
+        testRes.json().catch(() => ({ success: false })),
       ]);
 
-      if (stats.success) setStatsData(stats.data);
-      if (ord.success) setOrders(ord.data);
-      if (usr.success) setUsers(usr.data);
-      if (eml.success) setEmails(eml.data);
-      if (b2b.success) setB2bQuotes(b2b.data);
-      if (evt.success) setEventQuotes(evt.data);
-      if (apt.success) setAppointments(apt.data);
-      if (tkt.success) setSupportTickets(tkt.data);
+      if (stats?.success) setStatsData(stats.data);
+      if (ord?.success) setOrders(ord.data || []);
+      if (usr?.success) setUsers(usr.data || []);
+      if (eml?.success) setEmails(eml.data || []);
+      if (b2b?.success) setB2bQuotes(b2b.data || []);
+      if (evt?.success) setEventQuotes(evt.data || []);
+      if (apt?.success) setAppointments(apt.data || []);
+      if (tkt?.success) setSupportTickets(tkt.data || []);
+      if (testData?.success && testData.data) {
+        setTestDataStats(testData.data);
+      }
+      setLastSyncedAt(new Date());
     } catch (err) {
       console.error('Error fetching admin data:', err);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
+  // Live Auto-Sync Polling every 15 seconds
   useEffect(() => {
-    if (isAdminUnlocked) {
-      fetchAdminData();
+    if (!isAdminUnlocked) return;
+    fetchAdminData(false);
+
+    if (!autoSync) return;
+    const interval = setInterval(() => {
+      fetchAdminData(true);
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [isAdminUnlocked, autoSync]);
+
+  const handleCleanupTestData = async () => {
+    if (
+      !window.confirm(
+        `Weet u zeker dat u alle gedetecteerde testaccounts (${testDataStats.testAccountsCount}) en testbestellingen (${testDataStats.testOrdersCount}) definitief wilt opschonen uit de database? Echte klantaccounts en echte bestellingen blijven onaangeroerd.`
+      )
+    ) {
+      return;
     }
-  }, [isAdminUnlocked]);
+    setIsCleaningTestData(true);
+    setCleanupFeedback(null);
+    try {
+      const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
+      const res = await fetch('/api/admin/test-data/cleanup', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCleanupFeedback(data.message || 'Testgegevens succesvol opgeschoond.');
+        await fetchAdminData(false);
+      } else {
+        alert(data.error || 'Fout bij opschonen van testgegevens.');
+      }
+    } catch (err) {
+      alert('Verbindingsfout tijdens het opschonen van testgegevens.');
+    } finally {
+      setIsCleaningTestData(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string, orderNumber: string) => {
+    if (!window.confirm(`Weet u zeker dat u bestelling ${orderNumber} definitief wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.`)) {
+      return;
+    }
+    setDeletingOrderId(orderId);
+    try {
+      const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchAdminData(false);
+      } else {
+        alert(data.error || 'Kon bestelling niet verwijderen.');
+      }
+    } catch (err) {
+      alert('Verbindingsfout tijdens verwijderen van bestelling.');
+    } finally {
+      setDeletingOrderId(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    if (!window.confirm(`Weet u zeker dat u het account van ${userEmail} definitief wilt verwijderen?`)) {
+      return;
+    }
+    setDeletingUserId(userId);
+    try {
+      const token = localStorage.getItem('mm_auth_token') || localStorage.getItem('milau_token');
+      const res = await fetch(`/api/auth/users/${userId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchAdminData(false);
+      } else {
+        alert(data.error || 'Kon gebruiker niet verwijderen.');
+      }
+    } catch (err) {
+      alert('Verbindingsfout tijdens verwijderen van gebruiker.');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
 
   const handleUpdateOrderStatus = async (orderId: string, roasteryStatus: string) => {
     setUpdatingOrderId(orderId);
@@ -180,7 +292,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
         body: JSON.stringify({ roasteryStatus }),
       });
       if (res.ok) {
-        fetchAdminData();
+        fetchAdminData(true);
       }
     } catch (err) {
       console.error(err);
@@ -272,6 +384,37 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
+            {/* Live Sync Status & Controls */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-800 border border-stone-700">
+              <span className="relative flex h-2 w-2">
+                {autoSync ? (
+                  <>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </>
+                ) : (
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                )}
+              </span>
+              <span className="text-[11px] font-medium text-stone-300">
+                {autoSync ? 'Live Sync (15s)' : 'Sync Gepauzeerd'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setAutoSync(!autoSync)}
+                className="text-[10px] text-stone-400 hover:text-amber-300 underline ml-1"
+                title={autoSync ? 'Pauzeer automatische updates' : 'Hervat automatische updates'}
+              >
+                {autoSync ? 'Pauzeer' : 'Hervat'}
+              </button>
+            </div>
+
+            {lastSyncedAt && (
+              <span className="hidden lg:inline-block text-[10px] text-stone-400 font-mono">
+                Bijgewerkt: {lastSyncedAt.toLocaleTimeString('nl-BE')}
+              </span>
+            )}
+
             <a
               href="/api/admin/export/orders.csv"
               download
@@ -281,9 +424,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
               <span>Excel Export (.csv)</span>
             </a>
             <button
-              onClick={fetchAdminData}
+              onClick={() => fetchAdminData(false)}
               disabled={isLoading}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-semibold transition-colors shadow-xs"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Verversen</span>
@@ -330,6 +473,48 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
+        {/* Test Data Cleanup Banner if test records detected */}
+        {(testDataStats.testAccountsCount > 0 || testDataStats.testOrdersCount > 0) && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-amber-500/20 text-amber-800 rounded-xl mt-0.5">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="font-bold text-stone-900 text-sm">
+                  Testgegevens Gedetecteerd in Productieomgeving
+                </p>
+                <p className="text-stone-600 mt-0.5">
+                  Er zijn nog {testDataStats.testAccountsCount} testaccount(s) en {testDataStats.testOrdersCount} testbestelling(en) aanwezig in de database. Schoon deze op om uitsluitend 100% echte klantdata te tonen.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleCleanupTestData}
+              disabled={isCleaningTestData}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-900 hover:bg-amber-800 text-white font-semibold rounded-xl transition-colors shrink-0 shadow-xs disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>{isCleaningTestData ? 'Opschonen...' : 'Testdata Nu Opschonen'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Cleanup confirmation notification */}
+        {cleanupFeedback && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs text-emerald-900">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span className="font-semibold">{cleanupFeedback}</span>
+            </div>
+            <button
+              onClick={() => setCleanupFeedback(null)}
+              className="text-stone-400 hover:text-stone-600 text-[11px]"
+            >
+              Sluiten
+            </button>
+          </div>
+        )}
         {/* Centralized Admin Notification Center & Activity Feed */}
         {activeTab === 'notifications' && (
           <ActivityNotificationCenter onNavigateTab={(tab) => setActiveTab(tab as any)} />
@@ -517,7 +702,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                     <th className="p-3">Bedrag</th>
                     <th className="p-3">Mollie Betaalstatus</th>
                     <th className="p-3">Factuur</th>
-                    <th className="p-3 text-right">Bon-Etiket</th>
+                    <th className="p-3 text-center">Bon-Etiket</th>
+                    <th className="p-3 text-right">Acties</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -561,8 +747,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                           </a>
                         </div>
                       </td>
-                      <td className="p-3 text-right">
+                      <td className="p-3 text-center">
                         <PrintReceiptButton order={o} />
+                      </td>
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={() => handleDeleteOrder(o.id, o.orderNumber)}
+                          disabled={deletingOrderId === o.id}
+                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center"
+                          title="Bestelling definitief verwijderen"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -590,6 +786,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                     <th className="p-3">Bedrijf / BTW</th>
                     <th className="p-3">Loyalty Punten</th>
                     <th className="p-3">Geregistreerd op</th>
+                    <th className="p-3 text-right">Acties</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -620,6 +817,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                       </td>
                       <td className="p-3 font-bold text-amber-900">{u.loyaltyPoints || 0} pts</td>
                       <td className="p-3 text-stone-400">{u.createdAt?.slice(0, 10)}</td>
+                      <td className="p-3 text-right">
+                        {u.role === 'store_admin' || u.role === 'admin' ? (
+                          <span className="text-[10px] text-stone-400 italic">Systeem</span>
+                        ) : (
+                          <button
+                            onClick={() => handleDeleteUser(u.id, u.email)}
+                            disabled={deletingUserId === u.id}
+                            className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center"
+                            title="Account definitief verwijderen"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

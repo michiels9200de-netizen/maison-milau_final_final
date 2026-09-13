@@ -49,6 +49,9 @@ import {
 } from './server/b2bCalculatorService.js';
 
 dotenv.config({ override: true });
+if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 const __dirname = path.resolve();
 
@@ -178,70 +181,10 @@ let subscriptions: any[] = [
   },
 ];
 
-let b2bQuotes: any[] = [
-  {
-    id: 'quote-1',
-    companyName: 'TechHub Dendermonde',
-    vatNumber: 'BE 0948.112.334',
-    contactPerson: 'Sarah Verhulst',
-    email: 'sarah@techhub.be',
-    phone: '+32 477 12 34 56',
-    sector: 'Kantoor / Bedrijfsruimte',
-    machineNeed: 'Koffiebonen + Volautomaat bonenmachine (Kantoor)',
-    monthlyVolumeKg: 15,
-    notes: 'Kantoor met 25 medewerkers, interesse in proefpakket.',
-    status: 'nieuw',
-    createdAt: '2026-09-03T09:00:00.000Z',
-  },
-];
-
-let eventInquiries: any[] = [
-  {
-    id: 'evt-1',
-    contactPerson: 'Marc & Hanne',
-    email: 'marc.hanne@telenet.be',
-    phone: '+32 485 99 88 77',
-    eventType: 'Bruiloft / Trouwfeest',
-    eventDate: '2026-10-15',
-    guestsCount: 90,
-    machineRental: 'Dry-hire espressomachine + bonen',
-    baristaService: 'Zelfbediening',
-    calculatedBeansKg: 4.5,
-    estimatedPrice: 195.0,
-    notes: 'Avondfeest te Dendermonde, graag proeven vooraf.',
-    status: 'nieuw',
-    createdAt: '2026-09-02T16:45:00.000Z',
-  },
-];
-
-let appointments: any[] = [
-  {
-    id: 'apt-1',
-    customerName: 'Thomas De Smet',
-    email: 'thomas@koffiebar-gent.be',
-    phone: '+32 499 11 22 33',
-    type: 'white_label_overleg',
-    date: '2026-09-12',
-    timeSlot: '14:00 - 15:30',
-    notes: 'White label huisblend bespreken voor nieuwe zaak.',
-    status: 'bevestigd',
-    createdAt: '2026-09-01T11:00:00.000Z',
-  },
-];
-
-let supportTickets: any[] = [
-  {
-    id: 'tkt-1',
-    ticketNumber: 'TKT-8841',
-    customerEmail: 'klant@voorbeeld.be',
-    customerName: 'Laurent Michiels',
-    category: 'Leveringstermijnen & Verzending',
-    subject: 'Wanneer vertrekt batch 34?',
-    message: 'Hallo, ik zag dat mijn order in batchplanning staat. Wanneer wordt het gebrand?',
-    status: 'in_behandeling',
-    createdAt: '2026-09-03T11:20:00.000Z',
-  },
-];
+let b2bQuotes: any[] = [];
+let eventInquiries: any[] = [];
+let appointments: any[] = [];
+let supportTickets: any[] = [];
 
 // Webowner & Notification System
 // Re-export emailNotifications pointing to live log array
@@ -516,6 +459,18 @@ export function getAuthenticatedUser(req: Request): any | null {
             return null;
           }
           return user;
+        } else if (sess.role === 'store_admin' || sess.email === 'admin@maison-milau.be') {
+          return {
+            id: sess.userId || 'usr-admin-01',
+            email: sess.email || 'admin@maison-milau.be',
+            name: 'Laurent Michiels (Roaster & Admin)',
+            role: 'store_admin',
+            accountType: 'professioneel',
+            companyName: sess.companyName || 'Maison Milau Roastery Atelier',
+            isEmailVerified: true,
+            isActive: true,
+            status: 'active',
+          };
         }
       } else {
         activeSessions.delete(token);
@@ -1398,21 +1353,25 @@ app.get('/api/orders', async (req: Request, res: Response) => {
   }
 
   // Ensure orders are completely synchronized from persistent datastore
+  const liveOrders = await orderStore.getAllOrders();
+  orders = liveOrders;
   syncOrdersAndInvoicesFromStore();
 
   console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
   // Administrators can view all orders
-  if (user.role === 'store_admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
-    return res.json({ success: true, data: orders, isAdmin: true });
+  if (user.role === 'store_admin' || user.role === 'admin' || user.email.toLowerCase() === 'admin@maison-milau.be') {
+    return res.json({ success: true, data: liveOrders, isAdmin: true, count: liveOrders.length });
   }
 
   // Customers are strictly scoped to their own orders only
-  const customerOrders = orders.filter((o) => userCanAccessOrder(user, o));
+  const customerOrders = liveOrders.filter((o) => userCanAccessOrder(user, o));
   res.json({ success: true, data: customerOrders, count: customerOrders.length });
 });
 
 app.get('/api/orders/:id', async (req: Request, res: Response) => {
+  const liveOrders = await orderStore.getAllOrders();
+  orders = liveOrders;
   syncOrdersAndInvoicesFromStore();
   const order = orders.find((o) => o.id === req.params.id || o.orderNumber === req.params.id);
   if (!order) {
@@ -1443,6 +1402,37 @@ app.get('/api/orders/:id', async (req: Request, res: Response) => {
   console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
   res.json({ success: true, data: order });
+});
+
+app.delete('/api/orders/:id', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const orderId = req.params.id;
+  const deleted = await orderStore.deleteOrder(orderId);
+  const liveOrders = await orderStore.getAllOrders();
+  orders = liveOrders;
+  syncOrdersAndInvoicesFromStore();
+
+  if (!deleted) {
+    return res.status(404).json({ success: false, error: 'Bestelling niet gevonden of kon niet worden verwijderd.' });
+  }
+
+  activityStore.logActivity({
+    type: 'system_alert',
+    title: 'Bestelling Verwijderd door Beheerder',
+    detail: `Order ${orderId} definitief verwijderd uit productiedatabase`,
+    status: 'warning',
+    isTest: false,
+    metadata: { orderId, adminEmail: user.email },
+  }).catch(() => {});
+
+  res.json({ success: true, message: `Bestelling ${orderId} succesvol verwijderd.` });
 });
 
 app.post('/api/orders', async (req: Request, res: Response) => {
@@ -3511,14 +3501,56 @@ app.post('/api/auth/change-password', async (req: Request, res: Response) => {
 });
 
 app.get('/api/auth/users', async (req: Request, res: Response) => {
-  const user = getAuthenticatedUser(req);
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
   if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
     return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
   }
 
   const allUsers = await authStore.getAllUsers();
+  loadUsersFromDisk(true);
   const safeUsers = allUsers.map(({ password, resetToken, resetTokenExpiry, verificationToken, ...rest }) => rest);
   res.json({ success: true, data: safeUsers, count: safeUsers.length });
+});
+
+app.delete(['/api/auth/users/:id', '/api/admin/users/:id'], async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const targetId = req.params.id;
+  const targetUser = await authStore.getUserById(targetId);
+  if (!targetUser) {
+    return res.status(404).json({ success: false, error: 'Gebruiker niet gevonden in het systeem.' });
+  }
+
+  if (targetUser.role === 'store_admin' || targetUser.email.toLowerCase() === 'admin@maison-milau.be') {
+    return res.status(400).json({ success: false, error: 'Het hoofdbeheerdersaccount kan niet worden verwijderd.' });
+  }
+
+  const deleted = await authStore.deleteUser(targetId);
+  loadUsersFromDisk(true);
+
+  if (!deleted) {
+    return res.status(500).json({ success: false, error: 'Kon gebruiker niet verwijderen uit de database.' });
+  }
+
+  activityStore.logActivity({
+    type: 'system_alert',
+    title: 'Klantaccount Verwijderd',
+    detail: `Account ${targetUser.name || targetUser.email} (${targetUser.email}) verwijderd door beheerder`,
+    status: 'warning',
+    isTest: false,
+    metadata: { deletedUserId: targetId, email: targetUser.email, admin: user.email },
+  }).catch(() => {});
+
+  res.json({ success: true, message: `Gebruiker ${targetUser.email} succesvol verwijderd.` });
 });
 
 // 11. Coffee Reviews Endpoints
@@ -3718,7 +3750,7 @@ app.get('/api/admin/test-data', async (req: Request, res: Response) => {
   const allOrders = await orderStore.getAllOrders();
 
   const testAccounts = allUsers
-    .filter((u) => u.role !== 'store_admin' && activityStore.isTestEvent(u.email))
+    .filter((u) => u.role !== 'store_admin' && activityStore.isTestEvent(u.email, { id: u.id, name: u.name }))
     .map((u) => ({
       id: u.id,
       email: u.email,
@@ -3729,7 +3761,7 @@ app.get('/api/admin/test-data', async (req: Request, res: Response) => {
     }));
 
   const testOrders = allOrders
-    .filter((o) => activityStore.isTestEvent(o.customerEmail, { orderNumber: o.orderNumber }))
+    .filter((o) => activityStore.isTestEvent(o.customerEmail, { orderNumber: o.orderNumber, id: o.id, customerName: o.customerName }))
     .map((o) => ({
       id: o.id,
       orderNumber: o.orderNumber,
@@ -3767,21 +3799,28 @@ app.post('/api/admin/test-data/cleanup', async (req: Request, res: Response) => 
   let cleanedOrders = 0;
 
   for (const u of allUsers) {
-    if (u.role !== 'store_admin' && activityStore.isTestEvent(u.email)) {
+    if (u.role !== 'store_admin' && activityStore.isTestEvent(u.email, { id: u.id, name: u.name })) {
       await authStore.deleteUser(u.id);
       cleanedUsers++;
     }
   }
 
   for (const o of allOrders) {
-    if (activityStore.isTestEvent(o.customerEmail, { orderNumber: o.orderNumber })) {
+    if (activityStore.isTestEvent(o.customerEmail, { orderNumber: o.orderNumber, id: o.id, customerName: o.customerName })) {
       await orderStore.deleteOrder(o.id);
       cleanedOrders++;
     }
   }
 
+  b2bQuotes = b2bQuotes.filter((q) => !activityStore.isTestEvent(q.email, { id: q.id, companyName: q.companyName }));
+  eventInquiries = eventInquiries.filter((e) => !activityStore.isTestEvent(e.email, { id: e.id, contactPerson: e.contactPerson }));
+  appointments = appointments.filter((a) => !activityStore.isTestEvent(a.email, { id: a.id, customerName: a.customerName }));
+  supportTickets = supportTickets.filter((t) => !activityStore.isTestEvent(t.customerEmail, { id: t.id, customerName: t.customerName }));
+
   const { deletedEvents } = await activityStore.cleanupTestData();
   loadUsersFromDisk(true);
+  const refreshedOrders = await orderStore.getAllOrders();
+  orders = refreshedOrders;
   syncOrdersAndInvoicesFromStore();
 
   res.json({
@@ -3792,7 +3831,10 @@ app.post('/api/admin/test-data/cleanup', async (req: Request, res: Response) => 
 });
 
 // 12. Roastery Management & Stats (Day / Week / Month)
-app.get('/api/admin/roastery-stats', (req: Request, res: Response) => {
+app.get('/api/admin/roastery-stats', async (req: Request, res: Response) => {
+  const liveOrders = await orderStore.getAllOrders();
+  orders = liveOrders;
+
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
 

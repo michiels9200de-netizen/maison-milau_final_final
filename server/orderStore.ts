@@ -3,6 +3,10 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import pg from 'pg';
 
+if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const { Pool } = pg;
 
 export interface OrderItem {
@@ -233,11 +237,13 @@ export class OrderStore {
       CREATE INDEX IF NOT EXISTS idx_invoices_invoice_number ON public.invoices(invoice_number);
     `);
 
-    // Check if initial orders should be seeded
-    const countRes = await this.pgPool.query('SELECT COUNT(*) as count FROM public.orders');
-    if (parseInt(countRes.rows[0].count, 10) === 0) {
-      console.log('[ORDER_STORE] Seeding default orders and invoices into PostgreSQL...');
-      await this.seedInitialPostgresData();
+    // Check if initial orders should be seeded (only when explicitly requested via SEED_MOCK_ORDERS=true)
+    if (process.env.SEED_MOCK_ORDERS === 'true') {
+      const countRes = await this.pgPool.query('SELECT COUNT(*) as count FROM public.orders');
+      if (parseInt(countRes.rows[0].count, 10) === 0) {
+        console.log('[ORDER_STORE] Seeding default orders and invoices into PostgreSQL...');
+        await this.seedInitialPostgresData();
+      }
     }
   }
 
@@ -306,11 +312,13 @@ export class OrderStore {
       // Column already exists
     }
 
-    const countStmt = this.sqliteDb.prepare('SELECT COUNT(*) as count FROM orders');
-    const res = countStmt.get() as { count: number };
-    if (res.count === 0) {
-      console.log('[ORDER_STORE] Seeding default orders and invoices into SQLite...');
-      this.seedInitialSqliteData();
+    if (process.env.SEED_MOCK_ORDERS === 'true') {
+      const countStmt = this.sqliteDb.prepare('SELECT COUNT(*) as count FROM orders');
+      const res = countStmt.get() as { count: number };
+      if (res.count === 0) {
+        console.log('[ORDER_STORE] Seeding default orders and invoices into SQLite...');
+        this.seedInitialSqliteData();
+      }
     }
   }
 
@@ -528,11 +536,13 @@ export class OrderStore {
   }
 
   private seedInitialOrdersInMemory(): void {
-    for (const o of this.getDefaultOrders()) {
-      this.ordersCache.set(o.id, o);
-    }
-    for (const inv of this.getDefaultInvoices()) {
-      this.invoicesCache.set(inv.id, inv);
+    if (process.env.SEED_MOCK_ORDERS === 'true') {
+      for (const o of this.getDefaultOrders()) {
+        this.ordersCache.set(o.id, o);
+      }
+      for (const inv of this.getDefaultInvoices()) {
+        this.invoicesCache.set(inv.id, inv);
+      }
     }
   }
 
@@ -1175,21 +1185,27 @@ export class OrderStore {
     return updated;
   }
 
-  public async deleteOrder(id: string): Promise<boolean> {
-    this.ordersCache.delete(id);
+  public async deleteOrder(idOrNumber: string): Promise<boolean> {
+    const existing = this.getOrderByIdSync(idOrNumber) || Array.from(this.ordersCache.values()).find(
+      (o) => o.orderNumber === idOrNumber || o.id === idOrNumber
+    );
+    const targetId = existing?.id || idOrNumber;
+    const targetNumber = existing?.orderNumber || idOrNumber;
+
+    this.ordersCache.delete(targetId);
     for (const [invId, inv] of this.invoicesCache.entries()) {
-      if (inv.orderId === id) {
+      if (inv.orderId === targetId || inv.invoiceNumber?.includes(targetNumber)) {
         this.invoicesCache.delete(invId);
       }
     }
     try {
       if (this.mode === 'postgres' && this.pgPool) {
-        await this.pgPool.query('DELETE FROM public.orders WHERE id = $1', [id]);
-        await this.pgPool.query('DELETE FROM public.invoices WHERE order_id = $1', [id]);
+        await this.pgPool.query('DELETE FROM public.orders WHERE id = $1 OR order_number = $2', [targetId, targetNumber]);
+        await this.pgPool.query('DELETE FROM public.invoices WHERE order_id = $1', [targetId]);
         return true;
       } else if (this.mode === 'sqlite' && this.sqliteDb) {
-        this.sqliteDb.prepare('DELETE FROM orders WHERE id = ?').run(id);
-        this.sqliteDb.prepare('DELETE FROM invoices WHERE order_id = ?').run(id);
+        this.sqliteDb.prepare('DELETE FROM orders WHERE id = ? OR order_number = ?').run(targetId, targetNumber);
+        this.sqliteDb.prepare('DELETE FROM invoices WHERE order_id = ?').run(targetId);
         return true;
       }
     } catch (e) {

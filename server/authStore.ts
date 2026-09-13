@@ -5,6 +5,10 @@ import { DatabaseSync } from 'node:sqlite';
 import pg from 'pg';
 import { getSupabaseClient } from './supabaseClient.js';
 
+if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const { Pool } = pg;
 
 export interface UserRecord {
@@ -380,153 +384,41 @@ class AuthStore {
   }
 
   private async seedInitialAccounts(): Promise<void> {
-    console.log('[AUTH_STORE] Seeding default verified accounts into production datastore...');
-    const defaultUsers: UserRecord[] = [
-      {
-        id: 'usr-b2c-01',
-        email: 'klant@voorbeeld.be',
-        username: 'laurent',
-        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
-        name: 'Laurent Michiels',
-        phone: '+32 467 77 37 66',
-        accountType: 'particulier',
-        role: 'b2c_customer',
-        addresses: [
-          {
-            id: 'addr-home',
-            label: 'Thuis',
-            street: 'Kerkstraat 12',
-            city: 'Dendermonde',
-            postalCode: '9200',
-            country: 'België',
-            isDefault: true,
-          },
-        ],
-        loyaltyPoints: 340,
-        isEmailVerified: true,
-        isActive: true,
-        status: 'active',
-        createdAt: '2026-01-15T10:00:00.000Z',
-      },
-      {
-        id: 'usr-b2b-01',
-        email: 'aankoop@delangetafel.be',
-        username: 'delangetafel',
-        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
-        name: 'Laurent Michiels (Aankoper)',
-        phone: '+32 467 77 37 66',
-        accountType: 'professioneel',
-        role: 'b2b',
-        b2bRole: 'b2b',
-        b2bStatus: 'approved',
-        status: 'approved',
-        companyName: 'De Lange Tafel Horeca BV',
-        vatNumber: 'BE 0823.491.204',
-        addresses: [
-          {
-            id: 'addr-hq',
-            label: 'Hoofdkantoor',
-            street: 'Grote Markt 4',
-            city: 'Aalst',
-            postalCode: '9300',
-            country: 'België',
-            isDefault: true,
-          },
-        ],
-        loyaltyPoints: 1250,
-        isEmailVerified: true,
-        isActive: true,
-        createdAt: '2026-02-01T12:00:00.000Z',
-      },
-      {
-        id: 'usr-b2b-pending',
-        email: 'pending@bedrijf.be',
-        username: 'pendingb2b',
-        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
-        name: 'Sara Verhoeven (Aanvrager)',
-        phone: '+32 470 12 34 56',
-        accountType: 'professioneel',
-        role: 'b2b',
-        b2bRole: 'b2b',
-        b2bStatus: 'pending',
-        status: 'pending',
-        companyName: 'Grand Café Het Zuiden BV',
-        vatNumber: 'BE 0987.654.321',
-        addresses: [],
-        loyaltyPoints: 0,
-        isEmailVerified: true,
-        isActive: true,
-        createdAt: '2026-03-01T10:00:00.000Z',
-      },
-      {
-        id: 'usr-b2b-rejected',
-        email: 'afgewezen@bedrijf.be',
-        username: 'rejectedb2b',
-        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
-        name: 'Marc De Vries',
-        phone: '+32 471 99 88 77',
-        accountType: 'professioneel',
-        role: 'b2b',
-        b2bRole: 'b2b',
-        b2bStatus: 'rejected',
-        status: 'rejected',
-        companyName: 'Inactief Handelshuis',
-        vatNumber: 'BE 0111.222.333',
-        addresses: [],
-        loyaltyPoints: 0,
-        isEmailVerified: true,
-        isActive: true,
-        createdAt: '2026-03-01T11:00:00.000Z',
-      },
-      {
-        id: 'usr-admin-01',
-        email: 'admin@maison-milau.be',
-        username: 'admin',
-        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
-        name: 'Laurent Michiels (Roaster & Admin)',
-        phone: '+32 467 77 37 66',
-        accountType: 'professioneel',
-        role: 'store_admin',
-        addresses: [
-          {
-            id: 'addr-atelier',
-            label: 'Branderij Atelier',
-            street: 'Jef Scheirsstraat 29',
-            city: 'Oudegem',
-            postalCode: '9200',
-            country: 'België',
-            isDefault: true,
-          },
-        ],
-        loyaltyPoints: 5000,
-        isEmailVerified: true,
-        isActive: true,
-        status: 'active',
-        createdAt: '2026-01-01T08:00:00.000Z',
-      },
-    ];
+    console.log('[AUTH_STORE] Verifying administrator account in production datastore...');
+    const adminUser: UserRecord = {
+      id: 'usr-admin-01',
+      email: 'admin@maison-milau.be',
+      username: 'admin',
+      password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
+      name: 'Laurent Michiels (Roaster & Admin)',
+      phone: '+32 467 77 37 66',
+      accountType: 'professioneel',
+      role: 'store_admin',
+      addresses: [
+        {
+          id: 'addr-atelier',
+          label: 'Branderij Atelier',
+          street: 'Jef Scheirsstraat 29',
+          city: 'Oudegem',
+          postalCode: '9200',
+          country: 'België',
+          isDefault: true,
+        },
+      ],
+      loyaltyPoints: 5000,
+      isEmailVerified: true,
+      isActive: true,
+      status: 'active',
+      createdAt: '2026-01-01T08:00:00.000Z',
+    };
 
-    for (const u of defaultUsers) {
-      const existing = await this.getUserByEmail(u.email);
-      if (!existing) {
-        try {
-          await this.createUser(u);
-        } catch (e: any) {
-          console.warn(`[AUTH_STORE] Could not seed user ${u.email}:`, e?.message);
-        }
-      } else if (u.b2bRole || u.b2bStatus) {
-        try {
-          await this.updateUser(existing.id, {
-            role: u.role,
-            b2bRole: u.b2bRole,
-            b2bStatus: u.b2bStatus,
-            status: u.status,
-            companyName: u.companyName || existing.companyName,
-            vatNumber: u.vatNumber || existing.vatNumber,
-          });
-        } catch (e: any) {
-          console.warn(`[AUTH_STORE] Could not update B2B seed fields for ${u.email}:`, e?.message);
-        }
+    const existingAdmin = await this.getUserByEmail(adminUser.email);
+    if (!existingAdmin) {
+      try {
+        await this.createUser(adminUser);
+        console.log('[AUTH_STORE] Created primary administrator account: admin@maison-milau.be');
+      } catch (e: any) {
+        console.warn(`[AUTH_STORE] Could not seed admin ${adminUser.email}:`, e?.message);
       }
     }
   }

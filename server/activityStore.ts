@@ -291,7 +291,28 @@ export class ActivityStore {
       text.includes('probe_') ||
       text.includes('audit.test') ||
       text.includes('klant@voorbeeld.be') ||
-      text.includes('aankoop@delangetafel.be')
+      text.includes('aankoop@delangetafel.be') ||
+      text.includes('pending@bedrijf.be') ||
+      text.includes('afgewezen@bedrijf.be') ||
+      text.includes('koffiebar.gent@telenet.be') ||
+      text.includes('info@brasserie-delangetafel.be') ||
+      text.includes('sarah@techhub.be') ||
+      text.includes('marc.hanne@telenet.be') ||
+      text.includes('thomas@koffiebar-gent.be') ||
+      text.includes('mm-2026-1001') ||
+      text.includes('mm-2026-1002') ||
+      text.includes('mm-2026-1003') ||
+      text.includes('ord-1001') ||
+      text.includes('ord-1002') ||
+      text.includes('ord-1003') ||
+      text.includes('usr-b2c-01') ||
+      text.includes('usr-b2b-01') ||
+      text.includes('usr-b2b-pending') ||
+      text.includes('usr-b2b-rejected') ||
+      text.includes('quote-1') ||
+      text.includes('evt-1') ||
+      text.includes('apt-1') ||
+      text.includes('tkt-1')
     );
   }
 
