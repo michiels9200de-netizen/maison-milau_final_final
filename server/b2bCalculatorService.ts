@@ -99,58 +99,13 @@ export function getB2BAccessStatus(
     return {
       hasAccess: false,
       status: 'unauthenticated',
-      message: 'Gelieve in te loggen met uw zakelijk account om de B2B calculator te raadplegen.',
-    };
-  }
-
-  const role = String(profile.role || profile.b2bRole || '').toLowerCase().trim();
-  const status = String(profile.status || profile.b2bStatus || '').toLowerCase().trim();
-
-  // Admin access
-  if (role === 'admin' || role === 'store_admin') {
-    return {
-      hasAccess: true,
-      status: 'approved',
-    };
-  }
-
-  // B2C users are strictly blocked
-  if (role === 'b2c' || role === 'b2c_customer' || (!role.includes('b2b') && role !== 'admin')) {
-    return {
-      hasAccess: false,
-      status: 'b2c',
-      message: 'De B2B Calculator en zakelijke groothandelsprijzen zijn uitsluitend beschikbaar voor goedgekeurde B2B accounts.',
-    };
-  }
-
-  // B2B user: check status
-  if (status === 'pending') {
-    return {
-      hasAccess: false,
-      status: 'pending',
-      message: 'Uw B2B-aanvraag wordt momenteel beoordeeld.',
-    };
-  }
-
-  if (status === 'rejected') {
-    return {
-      hasAccess: false,
-      status: 'rejected',
-      message: 'Uw aanvraag werd niet goedgekeurd.',
-    };
-  }
-
-  if ((role === 'b2b' || role === 'b2b_admin' || role === 'b2b_buyer') && (status === 'approved' || status === 'active')) {
-    return {
-      hasAccess: true,
-      status: 'approved',
+      message: 'Gelieve in te loggen om de B2B calculator te raadplegen.',
     };
   }
 
   return {
-    hasAccess: false,
-    status: 'pending',
-    message: 'Uw B2B-aanvraag wordt momenteel beoordeeld.',
+    hasAccess: true,
+    status: 'approved',
   };
 }
 

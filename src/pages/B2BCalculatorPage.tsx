@@ -25,7 +25,7 @@ export const B2BCalculatorPage: React.FC<B2BCalculatorPageProps> = ({ navigate }
               B2B Calculator & Volumekortingen
             </h1>
             <p className="text-sm text-stone-600 max-w-2xl">
-              Beveiligde rekenmodule voor erkende horeca-, kantoor- en retailpartners van Maison Milau.
+              Rekenmodule voor horeca-, kantoor- en retailpartners van Maison Milau.
             </p>
           </div>
 
@@ -47,7 +47,7 @@ export const B2BCalculatorPage: React.FC<B2BCalculatorPageProps> = ({ navigate }
           </div>
         </div>
 
-        {/* Protected B2B Calculator */}
+        {/* B2B Calculator */}
         <B2BCalculator navigate={navigate} />
 
         {/* Transparency & SLA Block */}
@@ -68,7 +68,7 @@ export const B2BCalculatorPage: React.FC<B2BCalculatorPageProps> = ({ navigate }
             </div>
             <h3 className="text-sm font-bold text-stone-900">Flexibele Betalingstermijn</h3>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Goedgekeurde B2B klanten bestellen eenvoudig op factuur met 30 dagen betaaltermijn en geconsolideerde maandfacturatie.
+              Zakelijke klanten bestellen eenvoudig op factuur met 30 dagen betaaltermijn en geconsolideerde maandfacturatie.
             </p>
           </div>
 

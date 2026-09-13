@@ -149,7 +149,7 @@ export const B2BPage: React.FC<B2BPageProps> = ({ navigate }) => {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
-        {/* Interactive B2B Calculator Section - Protected behind B2B Login & Approval */}
+        {/* Interactive B2B Calculator Section */}
         <B2BCalculator navigate={navigate} />
 
         {/* Gratis Proefpakket & Bonenlevering */}
