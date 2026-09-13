@@ -10,6 +10,7 @@ import { HomePage } from './pages/HomePage';
 import { CatalogPage } from './pages/CatalogPage';
 import { WebshopPage } from './pages/WebshopPage';
 import { B2BPage } from './pages/B2BPage';
+import { B2BCalculatorPage } from './pages/B2BCalculatorPage';
 import { EventsPage } from './pages/EventsPage';
 import { AboutPage } from './pages/AboutPage';
 import { FAQPage } from './pages/FAQPage';
@@ -97,7 +98,11 @@ export default function App() {
       case '/shop':
         return <WebshopPage navigate={navigate} searchParams={searchParams} />;
       case '/kantoor-en-horeca':
+      case '/b2b':
         return <B2BPage navigate={navigate} />;
+      case '/b2b/calculator':
+      case '/calculator':
+        return <B2BCalculatorPage navigate={navigate} />;
       case '/events':
       case '/barista':
         return <EventsPage navigate={navigate} />;

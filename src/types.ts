@@ -20,7 +20,10 @@ export interface User {
   name: string;
   phone?: string;
   accountType: 'particulier' | 'professioneel';
-  role: UserRole;
+  role: UserRole | string;
+  b2bRole?: 'b2c' | 'b2b' | 'admin';
+  b2bStatus?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected' | 'active' | string;
   companyId?: string;
   companyName?: string;
   vatNumber?: string;

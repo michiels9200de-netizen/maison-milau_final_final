@@ -40,6 +40,11 @@ import { procurementStore } from './server/procurementStore.js';
 import { dossierStore } from './server/dossierStore.js';
 import { orderStore, OrderRecord, InvoiceRecord } from './server/orderStore.js';
 import { generateCoffeeDossierPdf } from './server/dossierPdfService.js';
+import {
+  calculateB2BPricingServerSide,
+  getB2BAccessStatus,
+  B2BCalculatorInput,
+} from './server/b2bCalculatorService.js';
 
 dotenv.config({ override: true });
 
@@ -2175,6 +2180,88 @@ app.get('/api/b2b-quotes', (req: Request, res: Response) => {
   res.json({ success: true, data: b2bQuotes });
 });
 
+// ==============================================================================
+// SECURE B2B CALCULATOR & PRICING ENDPOINTS
+// Toegang uitsluitend voor: role = "b2b" EN status = "approved"
+// B2C gebruikers worden geblokkeerd
+// Pending: "Uw B2B-aanvraag wordt momenteel beoordeeld."
+// Rejected: "Uw aanvraag werd niet goedgekeurd."
+// ==============================================================================
+
+const handleB2BCalculate = (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  const userProfile = user ? {
+    role: user.b2bRole || (user.role === 'b2b_admin' || user.role === 'b2b' ? 'b2b' : (user.role === 'store_admin' || user.role === 'admin' ? 'admin' : 'b2c')),
+    status: user.b2bStatus || (user.status === 'active' || user.status === 'approved' ? 'approved' : user.status),
+    b2bRole: user.b2bRole,
+    b2bStatus: user.b2bStatus,
+  } : null;
+
+  const access = getB2BAccessStatus(userProfile);
+  if (!access.hasAccess) {
+    console.warn(`[B2B_CALCULATOR_BLOCKED] User=${user?.email || 'Anonymous'}, Status=${access.status}, Reason=${access.message}`);
+    const statusCode = access.status === 'unauthenticated' ? 401 : 403;
+    return res.status(statusCode).json({
+      success: false,
+      authorized: false,
+      status: access.status,
+      error: access.message,
+      message: access.message,
+    });
+  }
+
+  const result = calculateB2BPricingServerSide(req.body as B2BCalculatorInput, userProfile);
+  if (!result.authorized) {
+    return res.status(403).json(result);
+  }
+
+  console.log(`[B2B_CALCULATOR_SUCCESS] Authorized calculation served for user=${user.email} (role=${userProfile?.role}, status=${userProfile?.status})`);
+  return res.json(result);
+};
+
+app.post('/api/b2b/calculate', handleB2BCalculate);
+app.post('/api/b2b/calculator', handleB2BCalculate);
+
+const handleB2BStatusCheck = (req: Request, res: Response) => {
+  const user = getAuthenticatedUser(req);
+  const userProfile = user ? {
+    role: user.b2bRole || (user.role === 'b2b_admin' || user.role === 'b2b' ? 'b2b' : (user.role === 'store_admin' || user.role === 'admin' ? 'admin' : 'b2c')),
+    status: user.b2bStatus || (user.status === 'active' || user.status === 'approved' ? 'approved' : user.status),
+    b2bRole: user.b2bRole,
+    b2bStatus: user.b2bStatus,
+  } : null;
+
+  const access = getB2BAccessStatus(userProfile);
+  if (!access.hasAccess) {
+    const statusCode = access.status === 'unauthenticated' ? 401 : 403;
+    return res.status(statusCode).json({
+      success: false,
+      authorized: false,
+      status: access.status,
+      error: access.message,
+      message: access.message,
+    });
+  }
+
+  return res.json({
+    success: true,
+    authorized: true,
+    status: 'approved',
+    role: userProfile?.role,
+    user: {
+      email: user.email,
+      name: user.name,
+      companyName: user.companyName,
+      vatNumber: user.vatNumber,
+    },
+  });
+};
+
+app.get('/api/b2b/calculator', handleB2BStatusCheck);
+app.get('/api/b2b/calculator/status', handleB2BStatusCheck);
+app.get('/api/b2b/access', handleB2BStatusCheck);
+
+
 // 7. Event Quotes
 app.post('/api/event-quote', async (req: Request, res: Response) => {
   console.log('[EMAIL STEP 1] Request received');
@@ -3055,10 +3142,22 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     path: '/',
   };
+
+  const userB2BRole = user.b2bRole || (user.role === 'b2b_admin' || user.role === 'b2b' ? 'b2b' : (user.role === 'store_admin' || user.role === 'admin' ? 'admin' : 'b2c'));
+  const userB2BStatus = user.b2bStatus || (user.status === 'active' || user.status === 'approved' ? 'approved' : (user.status || 'pending'));
+
   res.cookie('mm_auth_token', token, cookieOptions);
   res.cookie('sessionToken', token, cookieOptions);
+  res.cookie('mm_session_token', token, cookieOptions);
+  res.cookie('mm_user_role', userB2BRole, cookieOptions);
+  res.cookie('mm_user_status', userB2BStatus, cookieOptions);
 
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
+  safeUser.role = userB2BRole;
+  safeUser.b2bRole = userB2BRole;
+  safeUser.status = userB2BStatus;
+  safeUser.b2bStatus = userB2BStatus;
+
   res.json({
     success: true,
     message: `Welkom terug, ${user.name}!`,
@@ -3089,6 +3188,9 @@ app.post('/api/auth/logout', async (req: Request, res: Response) => {
   }
   res.clearCookie('mm_auth_token', { path: '/' });
   res.clearCookie('sessionToken', { path: '/' });
+  res.clearCookie('mm_session_token', { path: '/' });
+  res.clearCookie('mm_user_role', { path: '/' });
+  res.clearCookie('mm_user_status', { path: '/' });
   res.json({ success: true, message: 'Succesvol uitgelogd.' });
 });
 
@@ -3101,6 +3203,24 @@ const handleMeRequest = (req: Request, res: Response) => {
   }
   console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = user;
+  const userB2BRole = user.b2bRole || (user.role === 'b2b_admin' || user.role === 'b2b' ? 'b2b' : (user.role === 'store_admin' || user.role === 'admin' ? 'admin' : 'b2c'));
+  const userB2BStatus = user.b2bStatus || (user.status === 'active' || user.status === 'approved' ? 'approved' : (user.status || 'pending'));
+
+  safeUser.role = userB2BRole;
+  safeUser.b2bRole = userB2BRole;
+  safeUser.status = userB2BStatus;
+  safeUser.b2bStatus = userB2BStatus;
+
+  const cookieOptions = {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/',
+  };
+  res.cookie('mm_user_role', userB2BRole, cookieOptions);
+  res.cookie('mm_user_status', userB2BStatus, cookieOptions);
+
   res.json({ success: true, user: safeUser });
 };
 app.get('/api/auth/me', handleMeRequest);

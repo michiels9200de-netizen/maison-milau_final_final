@@ -52,28 +52,38 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Beveiliging voor /b2b/* routes
+  // 3. Beveiliging voor /b2b/* routes inclusief directe URL toegang tot /b2b/calculator
   if (isB2BRoute) {
     // Uitzondering: openbare B2B landingspagina of aanvraagpagina niet blokkeren
-    if (pathname === '/b2b/register' || pathname === '/b2b/aanvraag' || pathname === '/b2b/pending') {
+    if (pathname === '/b2b/register' || pathname === '/b2b/aanvraag') {
       return NextResponse.next();
     }
 
-    // Controleer of de gebruiker de rol 'b2b' heeft EN status 'approved' is
-    const isApprovedB2B = userRole === 'b2b' && userStatus === 'approved';
+    // Controleer of de gebruiker de rol 'b2b' heeft EN status 'approved' is (of admin)
+    const isApprovedB2B = (userRole === 'b2b' || userRole === 'admin') && userStatus === 'approved';
 
     if (!isApprovedB2B) {
-      // Indien de gebruiker wel is ingelogd maar nog in afwachting is
-      if (sessionToken && userStatus === 'pending') {
-        const pendingUrl = new URL('/account', request.url);
-        pendingUrl.searchParams.set('b2b_status', 'pending');
+      // 1. Pending aanvraag: doorverwijzen met de verplichte melding parameter
+      if (userRole === 'b2b' && userStatus === 'pending') {
+        const pendingUrl = new URL('/b2b/pending', request.url);
+        pendingUrl.searchParams.set('message', 'Uw B2B-aanvraag wordt momenteel beoordeeld.');
+        pendingUrl.searchParams.set('redirect', pathname);
         return NextResponse.redirect(pendingUrl);
       }
 
-      // Niet ingelogd of afgewezen: redirect naar login of account
+      // 2. Afgewezen aanvraag: doorverwijzen met afwijzingsstatus
+      if (userRole === 'b2b' && userStatus === 'rejected') {
+        const rejectedUrl = new URL('/account', request.url);
+        rejectedUrl.searchParams.set('b2b_status', 'rejected');
+        rejectedUrl.searchParams.set('error', 'Uw aanvraag werd niet goedgekeurd.');
+        return NextResponse.redirect(rejectedUrl);
+      }
+
+      // 3. B2C gebruikers of niet-ingelogde gebruikers: directe toegang blokkeren
       const loginUrl = new URL('/account/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      loginUrl.searchParams.set('error', 'b2b_approval_required');
+      loginUrl.searchParams.set('error', 'b2b_only');
+      loginUrl.searchParams.set('notice', 'De B2B Calculator is uitsluitend toegankelijk voor goedgekeurde zakelijke klanten.');
       return NextResponse.redirect(loginUrl);
     }
   }

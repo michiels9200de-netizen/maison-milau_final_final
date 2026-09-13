@@ -15,7 +15,9 @@ export interface UserRecord {
   name: string;
   phone?: string;
   accountType: 'particulier' | 'professioneel';
-  role: 'b2c_customer' | 'b2b_admin' | 'store_admin';
+  role: 'b2c_customer' | 'b2b_admin' | 'store_admin' | string;
+  b2bRole?: 'b2c' | 'b2b' | 'admin' | string;
+  b2bStatus?: 'pending' | 'approved' | 'rejected' | string;
   companyName?: string;
   vatNumber?: string;
   addresses?: any[];
@@ -151,10 +153,8 @@ class AuthStore {
       await this.syncAllUsersToCache();
       await this.syncAllSessionsToCache();
 
-      // Check if seed is needed
-      if (this.memoryCache.size === 0) {
-        await this.seedInitialAccounts();
-      }
+      // Ensure all standard test accounts exist
+      await this.seedInitialAccounts();
 
       // Invalidate and remove any legacy users.json and sessions.json to eliminate local JSON dependency
       this.cleanupLegacyJsonFiles();
@@ -416,7 +416,10 @@ class AuthStore {
         name: 'Laurent Michiels (Aankoper)',
         phone: '+32 467 77 37 66',
         accountType: 'professioneel',
-        role: 'b2b_admin',
+        role: 'b2b',
+        b2bRole: 'b2b',
+        b2bStatus: 'approved',
+        status: 'approved',
         companyName: 'De Lange Tafel Horeca BV',
         vatNumber: 'BE 0823.491.204',
         addresses: [
@@ -433,8 +436,47 @@ class AuthStore {
         loyaltyPoints: 1250,
         isEmailVerified: true,
         isActive: true,
-        status: 'active',
         createdAt: '2026-02-01T12:00:00.000Z',
+      },
+      {
+        id: 'usr-b2b-pending',
+        email: 'pending@bedrijf.be',
+        username: 'pendingb2b',
+        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
+        name: 'Sara Verhoeven (Aanvrager)',
+        phone: '+32 470 12 34 56',
+        accountType: 'professioneel',
+        role: 'b2b',
+        b2bRole: 'b2b',
+        b2bStatus: 'pending',
+        status: 'pending',
+        companyName: 'Grand Café Het Zuiden BV',
+        vatNumber: 'BE 0987.654.321',
+        addresses: [],
+        loyaltyPoints: 0,
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: '2026-03-01T10:00:00.000Z',
+      },
+      {
+        id: 'usr-b2b-rejected',
+        email: 'afgewezen@bedrijf.be',
+        username: 'rejectedb2b',
+        password: '92babe7a2547debe0b6720eab922d4be:57f0dce745937e63513dec939edc2e962d94071b49fbd44dbeedbc4e2c5fa2000588c172180f64f2a71d522cbb43f183cb0764aff0c464ce5acb6172b37d818d',
+        name: 'Marc De Vries',
+        phone: '+32 471 99 88 77',
+        accountType: 'professioneel',
+        role: 'b2b',
+        b2bRole: 'b2b',
+        b2bStatus: 'rejected',
+        status: 'rejected',
+        companyName: 'Inactief Handelshuis',
+        vatNumber: 'BE 0111.222.333',
+        addresses: [],
+        loyaltyPoints: 0,
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: '2026-03-01T11:00:00.000Z',
       },
       {
         id: 'usr-admin-01',
@@ -465,7 +507,27 @@ class AuthStore {
     ];
 
     for (const u of defaultUsers) {
-      await this.createUser(u);
+      const existing = await this.getUserByEmail(u.email);
+      if (!existing) {
+        try {
+          await this.createUser(u);
+        } catch (e: any) {
+          console.warn(`[AUTH_STORE] Could not seed user ${u.email}:`, e?.message);
+        }
+      } else if (u.b2bRole || u.b2bStatus) {
+        try {
+          await this.updateUser(existing.id, {
+            role: u.role,
+            b2bRole: u.b2bRole,
+            b2bStatus: u.b2bStatus,
+            status: u.status,
+            companyName: u.companyName || existing.companyName,
+            vatNumber: u.vatNumber || existing.vatNumber,
+          });
+        } catch (e: any) {
+          console.warn(`[AUTH_STORE] Could not update B2B seed fields for ${u.email}:`, e?.message);
+        }
+      }
     }
   }
 

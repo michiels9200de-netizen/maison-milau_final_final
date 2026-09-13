@@ -139,6 +139,34 @@ export const SITEMAP: RouteDefinition[] = [
     inNavigation: false,
     navLabel: 'Verzending & Retourbeleid',
   },
+  {
+    path: '/b2b',
+    title: 'B2B Zakelijk · Kantoor, Horeca & Groothandel',
+    description: 'B2B volumekortingen, zakelijke koffieformules en machinelease.',
+    inNavigation: false,
+    navLabel: 'B2B',
+  },
+  {
+    path: '/b2b/calculator',
+    title: 'B2B Calculator · Groothandelsprijzen & Staffelkorting',
+    description: 'Beveiligde rekenmodule voor erkende zakelijke partners van Maison Milau.',
+    inNavigation: false,
+    navLabel: 'B2B Calculator',
+  },
+  {
+    path: '/calculator',
+    title: 'B2B Calculator · Groothandelsprijzen & Staffelkorting',
+    description: 'Beveiligde rekenmodule voor erkende zakelijke partners van Maison Milau.',
+    inNavigation: false,
+    navLabel: 'Calculator',
+  },
+  {
+    path: '/b2b/pending',
+    title: 'B2B Aanvraag in Beoordeling · Maison Milau',
+    description: 'Uw B2B-aanvraag wordt momenteel beoordeeld door ons team.',
+    inNavigation: false,
+    navLabel: 'B2B Status',
+  },
 ];
 
 // Webshop Subcategories (for expandable Hamburger Menu & Navigation)
