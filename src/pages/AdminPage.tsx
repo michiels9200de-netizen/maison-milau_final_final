@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   Wheat,
   Scale,
+  Bell,
 } from 'lucide-react';
 import { Order, Invoice, CoffeeReview } from '../types';
 import { PrintReceiptButton } from '../components/admin/PrintReceiptButton';
@@ -36,6 +37,7 @@ import { BlendCapacityView } from '../components/admin/BlendCapacityView';
 import { RoastBatchModal } from '../components/admin/RoastBatchModal';
 import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
 import { CoffeeDossiersManagement } from '../components/admin/CoffeeDossiersManagement';
+import { ActivityNotificationCenter } from '../components/admin/ActivityNotificationCenter';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -49,7 +51,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
   const [pinError, setPinError] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<
-    'roastery' | 'stock' | 'dossiers' | 'orders' | 'customers' | 'emails' | 'inquiries'
+    'roastery' | 'notifications' | 'stock' | 'dossiers' | 'orders' | 'customers' | 'emails' | 'inquiries'
   >('roastery');
   const [stockSubTab, setStockSubTab] = useState<'products' | 'green' | 'capacities'>('products');
   const [isRoastModalOpen, setIsRoastModalOpen] = useState<boolean>(false);
@@ -299,6 +301,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto no-scrollbar gap-2 pt-2 border-t border-stone-800 text-xs">
           {[
             { id: 'roastery', label: 'Roastery Orders', icon: Flame },
+            { id: 'notifications', label: 'Notificatiecentrum & Activiteiten', icon: Bell },
             { id: 'stock', label: 'Voorraad & Stock Beheer', icon: Layers },
             { id: 'dossiers', label: 'Koffiedossiers', icon: FileText },
             { id: 'orders', label: 'Alle Bestellingen', icon: Package },
@@ -327,6 +330,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
+        {/* Centralized Admin Notification Center & Activity Feed */}
+        {activeTab === 'notifications' && (
+          <ActivityNotificationCenter onNavigateTab={(tab) => setActiveTab(tab as any)} />
+        )}
+
         {/* Tab 1: Roastery Orders Management */}
         {activeTab === 'roastery' && (
           <div className="space-y-4">

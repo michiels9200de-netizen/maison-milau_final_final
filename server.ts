@@ -39,6 +39,7 @@ import { inventoryStore } from './server/inventoryStore.js';
 import { procurementStore } from './server/procurementStore.js';
 import { dossierStore } from './server/dossierStore.js';
 import { orderStore, OrderRecord, InvoiceRecord } from './server/orderStore.js';
+import { activityStore } from './server/activityStore.js';
 import { generateCoffeeDossierPdf } from './server/dossierPdfService.js';
 import {
   calculateB2BPricingServerSide,
@@ -346,6 +347,13 @@ orderStore.init().then(() => {
   console.error('[ORDER_STORE FATAL] Orders datastore initialization failed:', err);
 });
 
+// Initialise centralized activity datastore for real-time notification center
+activityStore.init().then(() => {
+  console.log('[ACTIVITY_STORE] Centralized notification datastore initialized.');
+}).catch((err) => {
+  console.error('[ACTIVITY_STORE FATAL] Activity datastore initialization failed:', err);
+});
+
 // Rate limiting for login protection against brute-force attacks
 interface RateLimitRecord {
   attempts: number;
@@ -541,6 +549,64 @@ export function getAuthenticatedUser(req: Request): any | null {
         return user;
       }
     }
+  }
+
+  return null;
+}
+
+export async function getAuthenticatedUserAsync(req: Request): Promise<any | null> {
+  const syncUser = getAuthenticatedUser(req);
+  if (syncUser) return syncUser;
+
+  const authHeader = req.headers.authorization;
+  let token = '';
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.slice(7).trim();
+  } else if (req.headers['x-auth-token']) {
+    token = String(req.headers['x-auth-token']).trim();
+  }
+  if (!token && (req as any).cookies) {
+    token = (req as any).cookies['mm_auth_token'] || (req as any).cookies['sessionToken'] || (req as any).cookies['token'] || '';
+  }
+  if (!token && req.headers.cookie) {
+    const parsed = parseRawCookies(req);
+    token = parsed['mm_auth_token'] || parsed['sessionToken'] || parsed['token'] || '';
+  }
+  if (!token && req.query?.token) {
+    token = String(req.query.token).trim();
+  }
+
+  if (!token) return null;
+
+  try {
+    const verified = await authStore.verifySessionTokenAsync(token);
+    if (verified.valid && verified.payload) {
+      const p = verified.payload;
+      let user = await authStore.getUserById(p.uid);
+      if (!user && p.em) {
+        user = await authStore.getUserByEmail(p.em);
+      }
+      if (user) {
+        if (!user.isEmailVerified && user.role !== 'store_admin') {
+          console.warn(`[AUTH] Session rejected async: User ${user.email} is not email verified`);
+          return null;
+        }
+        activeSessions.set(token, {
+          userId: user.id,
+          email: user.email,
+          role: user.role,
+          accountType: user.accountType,
+          companyName: user.companyName,
+          expiresAt: p.exp || Date.now() + 30 * 24 * 60 * 60 * 1000,
+        });
+        if (!registeredUsers.some((u) => u.id === user!.id)) {
+          registeredUsers.push(user);
+        }
+        return user;
+      }
+    }
+  } catch (err) {
+    console.warn('[AUTH] getAuthenticatedUserAsync error:', err);
   }
 
   return null;
@@ -1201,6 +1267,21 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
   await orderStore.createInvoice(newInvoice);
   syncOrdersAndInvoicesFromStore();
 
+  activityStore.logActivity({
+    type: 'order_created',
+    title: 'Nieuwe Bestelling Aangemaakt',
+    detail: `${newOrder.orderNumber} · ${newOrder.customerName} (${newOrder.customerEmail}) · €${newOrder.total.toFixed(2)}`,
+    status: newOrder.status === 'payment_successful' ? 'success' : 'info',
+    isTest: activityStore.isTestEvent(newOrder.customerEmail, { orderNumber: newOrder.orderNumber }),
+    metadata: {
+      orderId: newOrder.id,
+      orderNumber: newOrder.orderNumber,
+      total: newOrder.total,
+      customerEmail: newOrder.customerEmail,
+      userId: newOrder.userId,
+    },
+  }).catch(() => {});
+
   // If order is paid immediately (e.g. non-Mollie or instant confirmation), update customer profile stats
   if (!realMolliePayment || newOrder.status === 'payment_successful') {
     try {
@@ -1302,8 +1383,11 @@ async function handleCreateOrderAndPayment(payload: any, req: Request) {
 }
 
 // 2. Orders: List, Get & Create with Strict Customer Authorization & Security
-app.get('/api/orders', (req: Request, res: Response) => {
-  const user = getAuthenticatedUser(req);
+app.get('/api/orders', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
   if (!user) {
     console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated request`);
     return res.status(401).json({
@@ -1311,6 +1395,9 @@ app.get('/api/orders', (req: Request, res: Response) => {
       error: 'Inloggen vereist om uw bestelgeschiedenis te bekijken. Gelieve in te loggen op uw Maison Milau account.',
     });
   }
+
+  // Ensure orders are completely synchronized from persistent datastore
+  syncOrdersAndInvoicesFromStore();
 
   console.log(`[AUTH] AUTHORIZATION_SUCCESS: User=${user.email}, Resource=${req.originalUrl}`);
 
@@ -1324,13 +1411,17 @@ app.get('/api/orders', (req: Request, res: Response) => {
   res.json({ success: true, data: customerOrders, count: customerOrders.length });
 });
 
-app.get('/api/orders/:id', (req: Request, res: Response) => {
+app.get('/api/orders/:id', async (req: Request, res: Response) => {
+  syncOrdersAndInvoicesFromStore();
   const order = orders.find((o) => o.id === req.params.id || o.orderNumber === req.params.id);
   if (!order) {
     return res.status(404).json({ success: false, error: 'Bestelling niet gevonden' });
   }
 
-  const user = getAuthenticatedUser(req);
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
   if (!user) {
     console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated request`);
     return res.status(401).json({
@@ -2188,6 +2279,14 @@ app.post('/api/b2b-quote', async (req: Request, res: Response) => {
     console.error('[B2B QUOTE] ❌ Failed to dispatch B2B quote emails:', e);
   }
 
+  activityStore.logActivity({
+    type: 'b2b_request',
+    title: 'B2B Offerteaanvraag Ingezonden',
+    detail: `${quote.companyName} (${quote.email}) · ${quote.monthlyVolumeKg} kg/mnd`,
+    status: 'info',
+    metadata: { quoteId: quote.id, email: quote.email, companyName: quote.companyName },
+  }).catch(() => {});
+
   res.json({ success: true, message: 'B2B aanvraag succesvol ontvangen. We bezorgen u binnen 24u een voorstel.', data: quote });
 });
 
@@ -2305,6 +2404,15 @@ app.post('/api/event-quote', async (req: Request, res: Response) => {
   try {
     const emailResult = await sendEventQuoteEmails(event);
     console.log(`[EVENT QUOTE] ✅ Emails successfully dispatched for event ${event.id}`);
+
+    activityStore.logActivity({
+      type: 'event_request',
+      title: 'Evenement Aanvraag Ingezonden',
+      detail: `${event.contactPerson} (${event.email}) · ${event.eventType} (${event.guestsCount} gasten)`,
+      status: 'info',
+      metadata: { eventId: event.id, email: event.email, eventType: event.eventType },
+    }).catch(() => {});
+
     return res.status(200).json({
       success: true,
       message: 'Evenement aanvraag ontvangen en bevestigd via e-mail.',
@@ -2352,6 +2460,14 @@ app.post('/api/appointments', async (req: Request, res: Response) => {
   } catch (e) {
     console.error('[EMAIL ERROR] Appointment emails failed:', e);
   }
+
+  activityStore.logActivity({
+    type: 'appointment_created',
+    title: 'Nieuwe Afspraak / Atelierbezoek',
+    detail: `${appointment.customerName} (${appointment.email}) · ${appointment.date} om ${appointment.timeSlot}`,
+    status: 'info',
+    metadata: { appointmentId: appointment.id, email: appointment.email, date: appointment.date, timeSlot: appointment.timeSlot },
+  }).catch(() => {});
 
   res.json({ success: true, message: 'Uw bezoek is ingepland. U ontvangt een bevestiging per e-mail.', data: appointment });
 });
@@ -2453,6 +2569,14 @@ app.post('/api/contact', async (req: Request, res: Response) => {
     console.error(`[CONTACT WORKFLOW] ❌ [EMAIL ERROR] Contact form emails failed:`, e);
   }
 
+  activityStore.logActivity({
+    type: 'contact_submission',
+    title: 'Contactformulier Ingezonden',
+    detail: `${cName} (${cEmail}) · ${subject || category || 'Bericht'}`,
+    status: 'info',
+    metadata: { ticketNumber: ticket.ticketNumber, customerEmail: cEmail, category },
+  }).catch(() => {});
+
   res.json({ success: true, message: `Uw bericht (referentie ${ticket.ticketNumber}) is ontvangen. U ontvangt een bevestiging per e-mail.`, data: ticket });
 });
 
@@ -2473,6 +2597,15 @@ app.post('/api/newsletter', async (req: Request, res: Response) => {
   } catch (e) {
     console.error('[EMAIL ERROR] Newsletter emails failed:', e);
   }
+
+  activityStore.logActivity({
+    type: 'newsletter_signup',
+    title: 'Nieuwsbrief Inschrijving',
+    detail: email.trim().toLowerCase(),
+    status: 'info',
+    metadata: { email: email.trim().toLowerCase() },
+  }).catch(() => {});
+
   res.json({ success: true, message: 'Bedankt voor uw inschrijving! Uw 10% welkomstcode is verzonden naar uw e-mailadres.' });
 });
 
@@ -2605,6 +2738,16 @@ app.post('/api/auth/register', async (req: Request, res: Response) => {
   // Note: No active session is issued until the account is verified
   const { password: _, resetToken: __, resetTokenExpiry: ___, verificationToken: ____, ...safeUser } = newUser as any;
   console.log(`[AUTH] REGISTER_RESPONSE_SENT: Email=${newUser.email}, Status=200, RequiresVerification=true`);
+
+  activityStore.logActivity({
+    type: 'registration',
+    title: 'Nieuwe Klant Geregistreerd',
+    detail: `${newUser.name} (${newUser.email}) · ${newUser.accountType}`,
+    status: 'info',
+    isTest: activityStore.isTestEvent(newUser.email),
+    metadata: { userId: newUser.id, email: newUser.email, accountType: newUser.accountType },
+  }).catch(() => {});
+
   res.json({
     success: true,
     requiresVerification: true,
@@ -2639,6 +2782,14 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     loadUsersFromDisk(true);
     console.log(`[AUTH] PASSWORD_RESET_TOKEN_CREATED: Email=${user.email}, Token=${resetToken.substring(0, 8)}...`);
     console.log(`[EMAIL] Sending password reset email to: ${user.email}`);
+
+    activityStore.logActivity({
+      type: 'password_reset_requested',
+      title: 'Wachtwoordherstel Aangevraagd',
+      detail: `${user.name || user.email} (${user.email})`,
+      status: 'info',
+      metadata: { userId: user.id, email: user.email },
+    }).catch(() => {});
     sendPasswordResetEmail(user.email, resetToken, user.name, baseUrl)
       .then(() => {
         console.log(`[EMAIL] Password reset email sent to: ${user.email}`);
@@ -2684,7 +2835,9 @@ app.get('/api/auth/validate-reset-token', handleValidateResetToken);
 // Reset password with token
 app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
   loadUsersFromDisk(true);
-  const { token, newPassword, confirmPassword } = req.body;
+  const token = ((req.body?.token || req.query?.token) as string || '').trim();
+  const newPassword = req.body?.newPassword || req.body?.password || '';
+  const confirmPassword = req.body?.confirmPassword || '';
   if (!token || !newPassword) {
     return res.status(400).json({ success: false, error: 'Gelieve alle verplichte velden in te vullen.' });
   }
@@ -2734,6 +2887,14 @@ app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
   await authStore.deleteUserSessions(user.id);
   loadUsersFromDisk(true);
   console.log(`[AUTH] PASSWORD_RESET_COMPLETED: UserId=${user.id}, Email=${user.email}`);
+
+  activityStore.logActivity({
+    type: 'password_reset_completed',
+    title: 'Wachtwoord Succesvol Gewijzigd',
+    detail: `${user.name || user.email} (${user.email})`,
+    status: 'success',
+    metadata: { userId: user.id, email: user.email },
+  }).catch(() => {});
 
   // Send confirmation email that password was changed
   sendPasswordChangedEmail(user.email, user.name).catch((e) => console.error('[EMAIL ERROR] Password reset confirmation email failed:', e));
@@ -2858,6 +3019,15 @@ app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
   console.log(`[AUTH] ACCOUNT_VERIFIED: UserId=${user.id}, Email=${user.email}`);
   console.log(`[VERIFY] Token validated successfully for: ${user.email} (ID: ${user.id})`);
   console.log(`[VERIFY] Account activated and verified for: ${user.email}`);
+
+  activityStore.logActivity({
+    type: 'email_verified',
+    title: 'E-mailadres Geverifieerd & Account Geactiveerd',
+    detail: `${user.name || user.email} (${user.email})`,
+    status: 'success',
+    isTest: activityStore.isTestEvent(user.email),
+    metadata: { userId: user.id, email: user.email },
+  }).catch(() => {});
 
   // STEP 4: Only now send "Your account is ready for use" welcome email!
   sendAccountReadyWelcomeEmail(user)
@@ -3000,6 +3170,15 @@ app.get('/api/auth/verify-email', async (req: Request, res: Response) => {
   console.log(`[VERIFY] Token validated successfully via GET for: ${user.email} (ID: ${user.id})`);
   console.log(`[VERIFY] Account activated and verified for: ${user.email}`);
 
+  activityStore.logActivity({
+    type: 'email_verified',
+    title: 'E-mailadres Geverifieerd & Account Geactiveerd',
+    detail: `${user.name || user.email} (${user.email})`,
+    status: 'success',
+    isTest: activityStore.isTestEvent(user.email),
+    metadata: { userId: user.id, email: user.email },
+  }).catch(() => {});
+
   // STEP 4: Only now send "Your account is ready for use" welcome email!
   sendAccountReadyWelcomeEmail(user)
     .then(() => console.log(`[EMAIL] Welcome/account-ready email sent successfully to: ${user.email}`))
@@ -3026,7 +3205,7 @@ app.post('/api/auth/resend-verification', async (req: Request, res: Response) =>
   }
   const clean = email.trim().toLowerCase();
   console.log(`[VERIFY] Resend verification requested for: ${clean}`);
-  const user = registeredUsers.find((u) => u.email.toLowerCase() === clean);
+  let user = (await authStore.getUserByEmail(clean)) || registeredUsers.find((u) => u.email.toLowerCase() === clean);
 
   if (user) {
     if (user.isEmailVerified) {
@@ -3040,7 +3219,21 @@ app.post('/api/auth/resend-verification', async (req: Request, res: Response) =>
       user.previousVerificationTokens = [];
     }
     user.previousVerificationTokens.push(verificationToken);
-    saveUsersToDisk();
+
+    await authStore.updateUser(user.id, {
+      verificationToken,
+      verificationTokenExpiry: user.verificationTokenExpiry,
+      previousVerificationTokens: user.previousVerificationTokens,
+    });
+    loadUsersFromDisk(true);
+
+    activityStore.logActivity({
+      type: 'registration',
+      title: 'Verificatiecode Opnieuw Verzonden',
+      detail: `${user.name || user.email} (${user.email})`,
+      status: 'info',
+      metadata: { userId: user.id, email: user.email },
+    }).catch(() => {});
 
     console.log(`[AUTH] VERIFY_TOKEN_GENERATED: Email=${user.email}, Token=${verificationToken.substring(0, 8)}...`);
     console.log(`[AUTH] VERIFY_TOKEN_STORED: UserId=${user.id}, Email=${user.email}`);
@@ -3160,8 +3353,8 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   console.log(`[AUTH] LOGIN_SUCCESS: UserId=${user.id}, Email=${user.email}`);
   console.log(`[LOGIN] Login successful: ${user.email} (ID: ${user.id}, Role: ${user.role}, Verified: ${user.isEmailVerified})`);
 
-  // Issue secure session token
-  const token = `tok_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
+  // Issue secure session token (HMAC-signed with persistent datastore backup)
+  const token = authStore.generateSessionToken(user);
   activeSessions.set(token, {
     userId: user.id,
     email: user.email,
@@ -3171,6 +3364,14 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   });
   saveSessionsToDisk();
+
+  activityStore.logActivity({
+    type: 'registration',
+    title: 'Klant Ingelogd',
+    detail: `${user.name || user.email} (${user.email})`,
+    status: 'info',
+    metadata: { userId: user.id, email: user.email },
+  }).catch(() => {});
 
   console.log(`[AUTH] SESSION_CREATED: UserId=${user.id}, Email=${user.email}, Token=${token.substring(0, 12)}...`);
 
@@ -3235,8 +3436,11 @@ app.post('/api/auth/logout', async (req: Request, res: Response) => {
 });
 
 // Get current session user (supports /api/auth/me and /api/me)
-const handleMeRequest = (req: Request, res: Response) => {
-  const user = getAuthenticatedUser(req);
+const handleMeRequest = async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
   if (!user) {
     console.log(`[AUTH] AUTHORIZATION_FAILURE: Resource=${req.originalUrl}, Reason=Unauthenticated`);
     return res.status(401).json({ success: false, error: 'Niet ingelogd' });
@@ -3404,6 +3608,180 @@ app.post('/api/admin/logout', (req: Request, res: Response) => {
     saveSessionsToDisk();
   }
   res.json({ success: true, message: 'Succesvol afgemeld als beheerder.' });
+});
+
+// ==============================================================================
+// CENTRALIZED ADMIN NOTIFICATION CENTER & ACTIVITY TIMELINE ENDPOINTS
+// ==============================================================================
+
+// Real-time activity timeline with filter support
+app.get('/api/admin/activity-timeline', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const limit = Math.min(Number(req.query.limit) || 100, 500);
+  const filterType = (req.query.type as string) || 'all';
+  const activities = await activityStore.getAllActivitiesAsync(limit, filterType);
+
+  res.json({
+    success: true,
+    data: activities,
+    count: activities.length,
+  });
+});
+
+// Admin Notification Center Summary
+app.get('/api/admin/notifications', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const recent = await activityStore.getAllActivitiesAsync(50);
+  const errorCount = recent.filter((e) => e.status === 'error').length;
+  const warningCount = recent.filter((e) => e.status === 'warning').length;
+  const unreadCount = recent.filter((e) => e.status === 'error' || e.status === 'warning' || e.type === 'order_created').length;
+
+  res.json({
+    success: true,
+    data: {
+      unreadCount,
+      errorCount,
+      warningCount,
+      totalRecent: recent.length,
+      recentEvents: recent.slice(0, 20),
+    },
+  });
+});
+
+// Real-time Customer Stats for Admin Dashboard
+app.get('/api/admin/customer-stats', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const allUsers = await authStore.getAllUsers();
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+  const totalCustomers = allUsers.filter((u) => u.role !== 'store_admin').length;
+  const verifiedCustomers = allUsers.filter((u) => u.role !== 'store_admin' && u.isEmailVerified).length;
+  const unverifiedCustomers = allUsers.filter((u) => u.role !== 'store_admin' && !u.isEmailVerified).length;
+  const newCustomers = allUsers.filter(
+    (u) => u.role !== 'store_admin' && new Date(u.createdAt).getTime() > thirtyDaysAgo
+  ).length;
+  const testCustomers = allUsers.filter(
+    (u) => u.role !== 'store_admin' && activityStore.isTestEvent(u.email)
+  ).length;
+
+  res.json({
+    success: true,
+    data: {
+      totalCustomers,
+      newCustomers,
+      verifiedCustomers,
+      unverifiedCustomers,
+      testCustomers,
+    },
+  });
+});
+
+// Test Data Overview & Safe Cleanup
+app.get('/api/admin/test-data', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const allUsers = await authStore.getAllUsers();
+  const allOrders = await orderStore.getAllOrders();
+
+  const testAccounts = allUsers
+    .filter((u) => u.role !== 'store_admin' && activityStore.isTestEvent(u.email))
+    .map((u) => ({
+      id: u.id,
+      email: u.email,
+      name: u.name,
+      accountType: u.accountType,
+      isEmailVerified: u.isEmailVerified,
+      createdAt: u.createdAt,
+    }));
+
+  const testOrders = allOrders
+    .filter((o) => activityStore.isTestEvent(o.customerEmail, { orderNumber: o.orderNumber }))
+    .map((o) => ({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      customerEmail: o.customerEmail,
+      customerName: o.customerName,
+      total: o.total,
+      status: o.status,
+      createdAt: o.createdAt,
+    }));
+
+  res.json({
+    success: true,
+    data: {
+      testAccounts,
+      testOrders,
+      testAccountsCount: testAccounts.length,
+      testOrdersCount: testOrders.length,
+    },
+  });
+});
+
+app.post('/api/admin/test-data/cleanup', async (req: Request, res: Response) => {
+  let user = getAuthenticatedUser(req);
+  if (!user) {
+    user = await getAuthenticatedUserAsync(req);
+  }
+  if (!user || (user.role !== 'store_admin' && user.role !== 'admin' && user.b2bRole !== 'admin')) {
+    return res.status(403).json({ success: false, error: 'Toegang geweigerd: beheerdersrechten vereist.' });
+  }
+
+  const allUsers = await authStore.getAllUsers();
+  const allOrders = await orderStore.getAllOrders();
+
+  let cleanedUsers = 0;
+  let cleanedOrders = 0;
+
+  for (const u of allUsers) {
+    if (u.role !== 'store_admin' && activityStore.isTestEvent(u.email)) {
+      await authStore.deleteUser(u.id);
+      cleanedUsers++;
+    }
+  }
+
+  for (const o of allOrders) {
+    if (activityStore.isTestEvent(o.customerEmail, { orderNumber: o.orderNumber })) {
+      await orderStore.deleteOrder(o.id);
+      cleanedOrders++;
+    }
+  }
+
+  const { deletedEvents } = await activityStore.cleanupTestData();
+  loadUsersFromDisk(true);
+  syncOrdersAndInvoicesFromStore();
+
+  res.json({
+    success: true,
+    message: `Testgegevens succesvol opgeschoond: ${cleanedUsers} testaccounts, ${cleanedOrders} testbestellingen, ${deletedEvents} testactiviteiten verwijderd.`,
+    cleaned: { users: cleanedUsers, orders: cleanedOrders, events: deletedEvents },
+  });
 });
 
 // 12. Roastery Management & Stats (Day / Week / Month)

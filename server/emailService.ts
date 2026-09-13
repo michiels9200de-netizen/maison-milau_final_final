@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import nodemailer, { Transporter, SendMailOptions } from 'nodemailer';
+import { activityStore } from './activityStore';
 
 export interface EmailLogEntry {
   id: string;
@@ -465,6 +466,14 @@ export async function sendEmail(options: {
         console.log(`[EMAIL PREVIEW URL] ${previewUrl}`);
       }
 
+      activityStore.logActivity({
+        type: 'email_sent',
+        title: 'E-mail Verzonden',
+        detail: `${type} · ${recipient}`,
+        status: 'success',
+        metadata: { type, recipient, subject, messageId: info.messageId, provider: activeProvider },
+      }).catch(() => {});
+
       return logEntry;
     } catch (err: any) {
       lastError = err;
@@ -515,12 +524,26 @@ export async function sendEmail(options: {
     }
     console.log(`[AUTH] EMAIL_SUCCESS: Type=${type}, Recipient=${recipient}, MessageId=${fbInfo.messageId} (via fallback)`);
     console.log(`[EMAIL FALLBACK SUCCESS] Email successfully dispatched to ${recipient}`);
+    activityStore.logActivity({
+      type: 'email_sent',
+      title: 'E-mail Verzonden (Fallback)',
+      detail: `${type} · ${recipient}`,
+      status: 'warning',
+      metadata: { type, recipient, subject, messageId: fbInfo.messageId, provider: logEntry.provider },
+    }).catch(() => {});
     return logEntry;
   } catch (fbErr: any) {
     console.error('[EMAIL FALLBACK ERROR] Fallback dispatch also failed:', fbErr);
   }
 
   console.log(`[AUTH] EMAIL_FAILURE: Type=${type}, Recipient=${recipient}, Error=${logEntry.error}`);
+  activityStore.logActivity({
+    type: 'email_failed',
+    title: 'E-mail Verzending Mislukt',
+    detail: `${type} naar ${recipient}: ${logEntry.error}`,
+    status: 'error',
+    metadata: { type, recipient, subject, error: logEntry.error },
+  }).catch(() => {});
   return logEntry;
 }
 

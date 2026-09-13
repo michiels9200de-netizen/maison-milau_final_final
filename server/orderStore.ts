@@ -1174,6 +1174,29 @@ export class OrderStore {
     console.log(`[ORDER_STORE] Invoice updated: #${updated.invoiceNumber} -> ${updated.status}`);
     return updated;
   }
+
+  public async deleteOrder(id: string): Promise<boolean> {
+    this.ordersCache.delete(id);
+    for (const [invId, inv] of this.invoicesCache.entries()) {
+      if (inv.orderId === id) {
+        this.invoicesCache.delete(invId);
+      }
+    }
+    try {
+      if (this.mode === 'postgres' && this.pgPool) {
+        await this.pgPool.query('DELETE FROM public.orders WHERE id = $1', [id]);
+        await this.pgPool.query('DELETE FROM public.invoices WHERE order_id = $1', [id]);
+        return true;
+      } else if (this.mode === 'sqlite' && this.sqliteDb) {
+        this.sqliteDb.prepare('DELETE FROM orders WHERE id = ?').run(id);
+        this.sqliteDb.prepare('DELETE FROM invoices WHERE order_id = ?').run(id);
+        return true;
+      }
+    } catch (e) {
+      console.warn('[ORDER_STORE] deleteOrder error:', e);
+    }
+    return false;
+  }
 }
 
 export const orderStore = new OrderStore();

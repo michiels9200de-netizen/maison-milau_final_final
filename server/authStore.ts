@@ -1110,6 +1110,10 @@ class AuthStore {
   }
 
   // Session Management (Stateless Cryptographic Tokens + Database Persistence)
+  public generateSessionToken(user: UserRecord): string {
+    return this.createSignedSessionToken(user);
+  }
+
   public createSignedSessionToken(user: UserRecord): string {
     const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
     const payload = {
