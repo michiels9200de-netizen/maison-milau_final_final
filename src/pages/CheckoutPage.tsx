@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Truck, ArrowLeft, CheckCircle2, Lock, CreditCard, Info, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { CONFIG } from '../config';
+import { formatGrindSetting } from '../utils/cartAndRoastHelpers';
 
 interface CheckoutPageProps {
   navigate: (path: string) => void;
@@ -367,25 +368,45 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
             {orderComplete.items && orderComplete.items.length > 0 && (
               <div className="pt-2.5 border-t border-stone-200 space-y-1.5">
                 <span className="text-stone-500 font-medium">Bestelde artikelen:</span>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {orderComplete.items.map((it: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-start text-[11px] gap-2">
-                      <div>
-                        <span className="font-semibold text-stone-900">{it.productName}</span>
-                        <div className="text-stone-500 text-[10px]">
-                          {it.selectedColor ? (
-                            <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
-                          ) : (
-                            <span>{it.variantWeight} · {it.grindOption} × {it.quantity}</span>
-                          )}
-                          {it.selectedBeans && it.selectedBeans.length > 0 && (
-                            <div className="text-amber-900">
-                              Bonen: {it.selectedBeans.join(', ')}
-                            </div>
-                          )}
+                    <div key={idx} className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/80 flex justify-between items-start text-xs gap-3">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-stone-900 text-xs sm:text-sm block">{it.productName}</span>
+                        {it.variantWeight && (
+                          <div className="text-[11px] text-stone-600">
+                            Gewicht: <span className="font-semibold text-stone-900">{it.variantWeight}</span>
+                          </div>
+                        )}
+                        {!it.selectedColor ? (
+                          <div className="text-[11px] text-stone-600">
+                            Maalgraad: <span className="font-semibold text-amber-950">{formatGrindSetting(it.grindOption)}</span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-stone-600">
+                            Kleur: <span className="font-semibold text-stone-900">{it.selectedColor}</span>
+                            {it.selectedSize && <span> · Maat: <span className="font-semibold text-stone-900">{it.selectedSize}</span></span>}
+                          </div>
+                        )}
+                        {it.selectedBeans && it.selectedBeans.length > 0 && (
+                          <div className="text-[11px] text-amber-900">
+                            Selectie: {it.selectedBeans.join(', ')}
+                          </div>
+                        )}
+                        <div className="text-[11px] text-stone-600 pt-0.5">
+                          Aantal besteld: <span className="font-bold text-stone-900">{it.quantity}×</span>
                         </div>
                       </div>
-                      <span className="font-medium text-stone-800 shrink-0">€{((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}</span>
+                      <div className="text-right shrink-0">
+                        <span className="font-bold text-stone-900 text-xs sm:text-sm block">
+                          €{((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}
+                        </span>
+                        {it.quantity > 1 && (
+                          <span className="text-[10px] text-stone-500 block">
+                            (€{(it.unitPrice || 0).toFixed(2)} / stuk)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -733,25 +754,47 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             />
                           )}
                           <div className="min-w-0 flex-1">
-                            <div className="font-semibold text-stone-900 leading-snug break-words">{it.productName}</div>
+                            <div className="font-bold text-stone-900 leading-snug break-words text-xs sm:text-sm">
+                              {it.productName}
+                            </div>
                             {isItemUnavailable && (
                               <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-rose-700">
                                 <AlertCircle className="w-2.5 h-2.5 text-rose-600 shrink-0" />
                                 <span>{avail.badge || '🔴 Niet Beschikbaar'}</span>
                               </div>
                             )}
-                            <div className="text-stone-500 text-[11px] leading-relaxed">
-                              {it.selectedColor ? (
-                                <span>Kleur: {it.selectedColor} · Maat: {it.selectedSize || 'L'} × {it.quantity}</span>
-                              ) : (
-                                <span>{it.variantWeight} · {it.grindOption} × {it.quantity}</span>
+                            <div className="mt-1 space-y-0.5 text-[11px] text-stone-700">
+                              {it.variantWeight && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-stone-500">Gewicht:</span>
+                                  <span className="font-semibold text-stone-900">{it.variantWeight}</span>
+                                </div>
                               )}
-                            </div>
-                            {it.selectedBeans && it.selectedBeans.length > 0 && (
-                              <div className="text-[10px] text-amber-900 leading-snug mt-0.5 break-words">
-                                Bonen: {it.selectedBeans.join(', ')}
+                              {!it.selectedColor ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-stone-500">Maling:</span>
+                                  <span className="font-semibold text-amber-950">
+                                    {formatGrindSetting(it.grindOption)}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-stone-500">Optie:</span>
+                                  <span className="font-semibold text-stone-900">
+                                    {it.selectedColor}{it.selectedSize ? ` · Maat ${it.selectedSize}` : ''}
+                                  </span>
+                                </div>
+                              )}
+                              {it.selectedBeans && it.selectedBeans.length > 0 && (
+                                <div className="text-[10px] text-amber-900 leading-snug break-words">
+                                  <span className="text-stone-500">Selectie:</span> {it.selectedBeans.join(', ')}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1 pt-0.5">
+                                <span className="text-stone-500">Aantal:</span>
+                                <span className="font-bold text-stone-900">{it.quantity}×</span>
                               </div>
-                            )}
+                            </div>
                           </div>
                         </div>
                         <div className="font-semibold text-stone-900 shrink-0">

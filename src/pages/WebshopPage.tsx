@@ -48,6 +48,7 @@ import { CoffeeCharacterCard } from '../components/CoffeeCharacterCard';
 import { CoffeeReviewModal } from '../components/CoffeeReviewModal';
 import { TshirtImageLightbox } from '../components/TshirtImageLightbox';
 import coffeeBeansHeroBg from '../assets/images/coffee_beans_hero_bg.jpg';
+import { getShortRoastName } from '../utils/cartAndRoastHelpers';
 
 interface WebshopPageProps {
   navigate: (path: string) => void;
@@ -1242,13 +1243,13 @@ export const WebshopPage: React.FC<WebshopPageProps> = ({ navigate, searchParams
           {/* Roastery Quality & Roasting Degree */}
           <div className="mb-2.5 p-2 rounded-lg bg-stone-50 border border-stone-200 text-xs">
             <div className="flex items-center gap-1.5 w-full min-w-0">
-              <CoffeeBeanIcon className="w-3 h-3 text-amber-700 shrink-0" filled />
-              <span className="font-semibold text-stone-800 truncate tracking-wide whitespace-nowrap text-[11px]">
+              <CoffeeBeanIcon className="w-3.5 h-3.5 text-amber-700 shrink-0" filled />
+              <span className="font-semibold text-stone-800 tracking-wide text-xs truncate">
                 {isCapsule
-                  ? 'Nespresso® Original compatibel'
+                  ? 'Nespresso® Original'
                   : isGiftbox
                   ? 'Luxe Proeverijgeschenk'
-                  : (matchingCatalogCoffee?.roastProfile || 'Medium Roast')}
+                  : getShortRoastName(matchingCatalogCoffee?.roastProfile)}
               </span>
             </div>
           </div>

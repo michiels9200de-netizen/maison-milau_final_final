@@ -17,6 +17,7 @@ import {
   Info,
   Download,
   QrCode,
+  Flame,
 } from 'lucide-react';
 import { useDossier } from '../../context/DossierContext';
 import { CoffeeOriginBadge } from '../CoffeeOriginBadge';
@@ -455,6 +456,22 @@ export const CoffeeDossierModal: React.FC<CoffeeDossierModalProps> = ({
               {renderSensoryMeter('Body', centralDossier?.body ?? specs.body, 'bg-amber-900', centralDossier?.bodyDescription || 'Volheid & textuur')}
               {renderSensoryMeter('Zoetheid', centralDossier?.sweetness ?? specs.sweetness, 'bg-amber-800', centralDossier?.sweetnessDescription || 'Karamel- & suikertoetsen')}
             </div>
+
+            {/* Complete Artisanal Roast Profile Explanation */}
+            {(coffee.roastProfile || specs.roastLevel) && (
+              <div className="mt-4 p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950 uppercase tracking-wider">
+                  <Flame className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+                  <span>Ambachtelijk Brandprofiel & Roastery Stijl</span>
+                </div>
+                <div className="text-stone-900 text-sm font-bold">
+                  {coffee.roastProfile || `${specs.roastLevel} Roast`}
+                </div>
+                <p className="text-stone-600 text-xs leading-relaxed">
+                  Ambachtelijk gebrand in onze drumroaster in Oudegem met nauwkeurige controle over de ontwikkelingsfase. Deze methode brengt de specifieke terroir-toetsen naar voren zonder ongewenste bitterheid.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* ==================================================

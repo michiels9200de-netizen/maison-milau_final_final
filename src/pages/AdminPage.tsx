@@ -40,6 +40,7 @@ import { RoastBatchModal } from '../components/admin/RoastBatchModal';
 import { ProductAvailabilityTable } from '../components/admin/ProductAvailabilityTable';
 import { CoffeeDossiersManagement } from '../components/admin/CoffeeDossiersManagement';
 import { ActivityNotificationCenter } from '../components/admin/ActivityNotificationCenter';
+import { formatGrindSetting } from '../utils/cartAndRoastHelpers';
 
 interface AdminPageProps {
   navigate: (path: string) => void;
@@ -620,7 +621,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ navigate }) => {
                                       {it.quantity}x {it.productName}
                                     </span>
                                     <span className="text-[10px] text-stone-500">
-                                      {it.selectedColor ? `(${it.selectedColor}, ${it.selectedSize || 'L'})` : `(${it.variantWeight}, ${it.grindOption})`}
+                                      {it.selectedColor ? `(${it.selectedColor}, ${it.selectedSize || 'L'})` : `(${it.variantWeight}, ${formatGrindSetting(it.grindOption)})`}
                                     </span>
                                   </div>
                                   {it.selectedBeans && it.selectedBeans.length > 0 && (

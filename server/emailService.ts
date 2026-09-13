@@ -1001,34 +1001,66 @@ Dit is een automatische beheerdersnotificatie.`;
 }
 
 /**
+ * Helper to standardize grind setting in confirmation emails
+ */
+function formatEmailGrindSetting(grindOption?: string | null): string {
+  if (!grindOption) return 'Hele bonen';
+  const norm = grindOption.toLowerCase().trim();
+  if (norm.includes('filter')) return 'Filter maling';
+  if (norm.includes('espresso')) return 'Espresso maling';
+  if (norm.includes('capsule')) return 'Nespresso® Capsule';
+  if (norm.includes('boon') || norm.includes('bonen')) return 'Hele bonen';
+  return grindOption;
+}
+
+/**
  * 5. New Order Confirmation (Customer & Admin)
  */
 export async function sendOrderEmails(order: any, pdfBuffer?: Buffer) {
   const itemsListText = (order.items || []).map((it: any) => {
-    const details = it.selectedColor ? `Kleur: ${it.selectedColor}, Maat: ${it.selectedSize || 'L'}` : `${it.variantWeight || ''} · ${it.grindOption || ''}`;
-    const beanSelection = it.selectedBeans && it.selectedBeans.length > 0 ? ` (Bonen: ${it.selectedBeans.join(', ')})` : '';
-    return `• ${it.quantity}x ${it.productName} (${details}${beanSelection}) - €${((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}`;
-  }).join('\n');
+    const weight = it.variantWeight || 'N.v.t.';
+    const grind = it.selectedColor
+      ? `Kleur: ${it.selectedColor}${it.selectedSize ? `, Maat: ${it.selectedSize}` : ''}`
+      : formatEmailGrindSetting(it.grindOption);
+    const beanSelection = it.selectedBeans && it.selectedBeans.length > 0 ? `\n  - Selectie: ${it.selectedBeans.join(', ')}` : '';
+    const lineTotal = ((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2);
+    return `• ${it.productName}\n  - Geselecteerd gewicht: ${weight}\n  - Geselecteerde maling: ${grind}\n  - Aantal besteld: ${it.quantity}x\n  - Totaalprijs: €${lineTotal}${beanSelection}`;
+  }).join('\n\n');
 
   const itemsTableHtml = `
-    <table>
+    <table style="width:100%;border-collapse:collapse;margin:12px 0;">
       <thead>
-        <tr>
-          <th>Artikel</th>
-          <th>Aantal</th>
-          <th>Specificaties</th>
-          <th style="text-align:right;">Prijs</th>
+        <tr style="border-bottom:2px solid #e7e5e4;text-align:left;font-size:12px;color:#78716c;">
+          <th style="padding:8px 6px;">Artikel</th>
+          <th style="padding:8px 6px;">Specificaties</th>
+          <th style="padding:8px 6px;text-align:center;">Aantal</th>
+          <th style="padding:8px 6px;text-align:right;">Prijs</th>
         </tr>
       </thead>
       <tbody>
-        ${(order.items || []).map((it: any) => `
-          <tr>
-            <td><strong>${it.productName}</strong></td>
-            <td>${it.quantity}x</td>
-            <td>${it.variantWeight || ''} ${it.grindOption ? `· ${it.grindOption}` : ''} ${it.selectedBeans?.length ? `<br><small style="color:#78350f;">(${it.selectedBeans.join(', ')})</small>` : ''}</td>
-            <td style="text-align:right;">€${((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}</td>
+        ${(order.items || []).map((it: any) => {
+          const grindText = it.selectedColor
+            ? `Kleur: ${it.selectedColor}${it.selectedSize ? ` · Maat: ${it.selectedSize}` : ''}`
+            : formatEmailGrindSetting(it.grindOption);
+          return `
+          <tr style="border-bottom:1px solid #f5f5f4;">
+            <td style="padding:10px 6px;vertical-align:top;">
+              <div style="font-weight:700;font-size:14px;color:#1c1917;">${it.productName}</div>
+            </td>
+            <td style="padding:10px 6px;font-size:12px;color:#44403c;vertical-align:top;">
+              ${it.variantWeight ? `<div><strong>Gewicht:</strong> ${it.variantWeight}</div>` : ''}
+              <div><strong>Maling:</strong> <span style="color:#78350f;font-weight:600;">${grindText}</span></div>
+              ${it.selectedBeans?.length ? `<div style="color:#92400e;font-size:11px;margin-top:2px;">Selectie: ${it.selectedBeans.join(', ')}</div>` : ''}
+            </td>
+            <td style="padding:10px 6px;text-align:center;font-weight:700;font-size:13px;color:#1c1917;vertical-align:top;">
+              ${it.quantity}x
+            </td>
+            <td style="padding:10px 6px;text-align:right;font-weight:700;font-size:13px;color:#1c1917;vertical-align:top;">
+              €${((it.unitPrice || 0) * (it.quantity || 1)).toFixed(2)}
+            </td>
           </tr>
-        `).join('')}
+        `;
+        }).join('')}
       </tbody>
     </table>
   `;

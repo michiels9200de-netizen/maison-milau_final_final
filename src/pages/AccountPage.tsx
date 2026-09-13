@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { Order, Invoice, Subscription, UserAddress } from '../types';
 import { CoffeeReviewModal } from '../components/CoffeeReviewModal';
+import { formatGrindSetting } from '../utils/cartAndRoastHelpers';
 
 interface AccountPageProps {
   navigate: (path: string) => void;
@@ -1540,14 +1541,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigate }) => {
                               className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-stone-50 border border-stone-100"
                             >
                               <div>
-                                <span className="font-medium text-stone-900">{item.productName}</span>{' '}
-                                <span className="text-[11px] text-stone-500">
-                                  {item.selectedColor ? (
-                                    <span>(Kleur: {item.selectedColor}, Maat: {item.selectedSize || 'L'}) × {item.quantity}</span>
-                                  ) : (
-                                    <span>({item.variantWeight}, {item.grindOption}) × {item.quantity}</span>
+                                <span className="font-bold text-stone-900 block text-xs sm:text-sm">{item.productName}</span>
+                                <div className="text-[11px] text-stone-600 mt-0.5 space-y-0.5">
+                                  {item.variantWeight && (
+                                    <div>Gewicht: <span className="font-semibold text-stone-900">{item.variantWeight}</span></div>
                                   )}
-                                </span>
+                                  {!item.selectedColor ? (
+                                    <div>Maling: <span className="font-semibold text-amber-950">{formatGrindSetting(item.grindOption)}</span></div>
+                                  ) : (
+                                    <div>Kleur: <span className="font-semibold text-stone-900">{item.selectedColor}</span>{item.selectedSize ? ` · Maat: ${item.selectedSize}` : ''}</div>
+                                  )}
+                                  <div>Aantal besteld: <strong className="text-stone-900 font-bold">{item.quantity}×</strong></div>
+                                </div>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="font-mono text-stone-800 font-semibold">
